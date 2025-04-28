@@ -26,11 +26,11 @@
   },
   "applications": [
     {
-      "class": "twindapp.Application",
-      "theme": "twindapp.theme.Theme",
-      "name": "twindapp",
-      "bootPath": "source/boot/twindapp",
-      "group": "tailwind3"
+      "class": "tablerapp.Application",
+      "theme": "tablerapp.theme.Theme",
+      "name": "tablerapp",
+      "bootPath": "source/boot/tablerapp",
+      "group": "tabler"
     }
   ]
 }
