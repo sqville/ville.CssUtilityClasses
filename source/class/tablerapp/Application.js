@@ -70,6 +70,25 @@ qx.Class.define("tablerapp.Application",
       doc.setExcludeBoundsFromDom(true);
       doc.setClearAllInlineStyles(true);
 
+      // Settings
+      var settings = new qx.ui.container.Composite(new qx.ui.layout.Basic());
+      settings.setExcludeBoundsFromDom(true);
+      settings.setClearAllInlineStyles(true);
+      var btntheme = new tablerapp.components.Link("L", null, ".", true);
+      btntheme.setCssUtilityClass("btn btn-floating btn-icon btn-primary");
+      btntheme.setExcludeBoundsFromDom(true);
+      btntheme.setClearAllInlineStyles(true);
+      btntheme.addListener("click", (e) => {
+        if (btntheme.getValue()) {
+          document.documentElement.setAttribute("data-bs-theme", "dark");
+          btntheme.getContentElement().setAttribute("html", "D");
+        } else {
+          document.documentElement.setAttribute("data-bs-theme", "light");
+          btntheme.getContentElement().setAttribute("html", "L");
+        }
+      });
+      settings.add(btntheme);
+
       // Login Page
       var centerbox = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       centerbox.setCssUtilityClass("container container-tight py-4");
@@ -180,10 +199,38 @@ qx.Class.define("tablerapp.Application",
       orCard.setClearAllInlineStyles(true);
       mainCard.add(orCard);
 
+      // AltButtons
+      var altRow = new qx.ui.container.Composite(new qx.ui.layout.Basic());
+      altRow.setCssUtilityClass("row");
+      altRow.setExcludeBoundsFromDom(true);
+      altRow.setClearAllInlineStyles(true);
+      orCard.add(altRow);
+      var altCol1 = new qx.ui.container.Composite(new qx.ui.layout.Basic());
+      altCol1.setCssUtilityClass("col");
+      altCol1.setExcludeBoundsFromDom(true);
+      altCol1.setClearAllInlineStyles(true);
+      altRow.add(altCol1);
+      var btngh = new tablerapp.components.Link("Login with Github", null, ".", true);
+      btngh.setCssUtilityClass("btn btn-4 w-100");
+      btngh.setExcludeBoundsFromDom(true);
+      btngh.setClearAllInlineStyles(true);
+      altCol1.add(btngh);
+      var altCol2 = new qx.ui.container.Composite(new qx.ui.layout.Basic());
+      altCol2.setCssUtilityClass("col");
+      altCol2.setExcludeBoundsFromDom(true);
+      altCol2.setClearAllInlineStyles(true);
+      altRow.add(altCol2);
+      var btntwit = new tablerapp.components.Link("Login with X", null, ".", true);
+      btntwit.setCssUtilityClass("btn btn-4 w-100");
+      btntwit.setExcludeBoundsFromDom(true);
+      btntwit.setClearAllInlineStyles(true);
+      altCol2.add(btntwit);
+
       centerbox.add(logoSection);
       centerbox.add(mainCard);
 
       doc.add(centerbox);
+      doc.add(settings);
 
     }
   }
