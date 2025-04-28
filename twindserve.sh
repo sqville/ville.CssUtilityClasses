@@ -9,4 +9,4 @@ npx qx clean
 echo "Cleaning done."
 
 # Start the application
-npx qx serve
+npx qx serve --app-group="tailwind3"
