@@ -23,7 +23,7 @@ qx.Class.define("twindapp.pages.Contacts", {
       this.addListener("appear", () => {document.title = `${pageName} - Ping CRM Qooxdoo`});
       this.setUserData("pageurl", pageurl);
       this.setExcludeBoundsFromDom(true);
-      this.setCssUtilityStyleClearAll(true);
+      this.setClearAllInlineStyles(true);
       this.setCssUtilityClass("px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto");
 
       // Page Button
@@ -43,7 +43,7 @@ qx.Class.define("twindapp.pages.Contacts", {
       // Page Header
       var pageHtml = new qx.ui.embed.Html();
       pageHtml.setExcludeBoundsFromDom(true);
-      pageHtml.setCssUtilityStyleClearAll(true);
+      pageHtml.setClearAllInlineStyles(true);
       var pghtml = `<h1 class="mb-8 text-3xl font-bold">${pageName}</h1>`;
       pageHtml.setHtml(pghtml);
     
@@ -65,7 +65,7 @@ qx.Class.define("twindapp.pages.Contacts", {
       table.setFocusCellOnPointerMove(false);
       table.setCssUtilityClass("w-full whitespace-nowrap");
       table.setExcludeBoundsFromDom(true);
-      table.setCssUtilityStyleClearAll(true);
+      table.setClearAllInlineStyles(true);
       table.setDataRowRenderer(new twindapp.table.rowrenderer.Default());
       table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.NO_SELECTION);
 
@@ -99,11 +99,11 @@ qx.Class.define("twindapp.pages.Contacts", {
         showCellFocusIndicator: false
       });
       panescroller.setExcludeBoundsFromDom(true);
-      panescroller.setCssUtilityStyleClearAll(true);
+      panescroller.setClearAllInlineStyles(true);
 
       var tblcontainer = panescroller.getLayoutParent();
       tblcontainer.setExcludeBoundsFromDom(true);
-      tblcontainer.setCssUtilityStyleClearAll(true);    
+      tblcontainer.setClearAllInlineStyles(true);    
 
       //paneclipper (Clipper)
       var paneclipper = panescroller.getPaneClipper();
@@ -112,18 +112,18 @@ qx.Class.define("twindapp.pages.Contacts", {
       //tablepane (Pane)
       var tblpane = panescroller.getTablePane();
       tblpane.setExcludeBoundsFromDom(true);
-      tblpane.setCssUtilityStyleClearAll(true);
+      tblpane.setClearAllInlineStyles(true);
       tblpane.setCssUtilityClass("h-full");
       //getScrollAreaContainer (Clipper)
       var scrollareacontainer = panescroller.getScrollAreaContainer();
       scrollareacontainer.setExcludeBoundsFromDom(true);
-      scrollareacontainer.setCssUtilityStyleClearAll(true);
+      scrollareacontainer.setClearAllInlineStyles(true);
 
       /** End of Table test */
 
       var tblAnchorElement = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       tblAnchorElement.setExcludeBoundsFromDom(true);
-      tblAnchorElement.setCssUtilityStyleClearAll(true);
+      tblAnchorElement.setClearAllInlineStyles(true);
       tblAnchorElement.setCssUtilityClass("bg-white rounded-md shadow overflow-x-auto");
 
       tblAnchorElement.add(table, { flex: 1 });
@@ -131,13 +131,13 @@ qx.Class.define("twindapp.pages.Contacts", {
       // Table pagination
       var pagination = new twindapp.components.Pagination();
       pagination.setExcludeBoundsFromDom(true);
-      pagination.setCssUtilityStyleClearAll(true);
+      pagination.setClearAllInlineStyles(true);
       pagination.setCssUtilityClass("flex flex-wrap -mb-1");
       pagination.updatePaginationModel(twindapp.data.CrmData.DATA["contactspageing"]);
 
       var pagingAnchorElement = new qx.ui.container.Composite(new qx.ui.layout.VBox());
       pagingAnchorElement.setExcludeBoundsFromDom(true);
-      pagingAnchorElement.setCssUtilityStyleClearAll(true);
+      pagingAnchorElement.setClearAllInlineStyles(true);
       pagingAnchorElement.setCssUtilityClass("mt-6");
 
       pagingAnchorElement.add(pagination, { flex: 1 });

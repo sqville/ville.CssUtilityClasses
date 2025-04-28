@@ -17,7 +17,7 @@ qx.Class.define("twindapp.pages.Dashboard", {
       this.setUserData("pageurl", pageurl);
       this.setExcludeBoundsFromDom(true);
       this.setCssUtilityClass("px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto");
-      this.setCssUtilityStyleClearAll(true);
+      this.setClearAllInlineStyles(true);
 
       // Page Button
       var pagebtnlink = this.getButton();
@@ -36,7 +36,7 @@ qx.Class.define("twindapp.pages.Dashboard", {
       // Page Content
       var pageHtml = new qx.ui.embed.Html();
       pageHtml.setExcludeBoundsFromDom(true);
-      pageHtml.setCssUtilityStyleClearAll(true);
+      pageHtml.setClearAllInlineStyles(true);
       var pghtml = `<h1 class="mb-8 text-3xl font-bold">${pageName}</h1>
       <p class="mb-8 leading-normal">Hey there! Welcome to Ping CRM, 
       a demo app designed to help illustrate how 

@@ -11,8 +11,8 @@
 /**
  * This is the main application class of "testapp"
  *
- * @asset(testapp/*)
- * @external(css/twindapp.css)
+ * @asset(twindapp/*)
+ * @external(twindapp/css/twindapp.css)
  */
 qx.Class.define("twindapp.Application",
 {
@@ -55,20 +55,16 @@ qx.Class.define("twindapp.Application",
 
       
 
-      if (qx.core.Environment.get("ville.theme.css")) {
+      if (qx.core.Environment.get("ville.cssuc")) {
         //qx.Class.patch(qx.html.Label, twindapp.MLabel);
         //qx.Class.patch(qx.ui.core.Widget, twindapp.MWidget);
         //qx.Class.patch(qx.ui.form.AbstractField, twindapp.MAbstractField);
-        qx.Class.include(qx.ui.core.Widget, ville.cssus.MCssUtilityClass);
-        qx.Class.include(qx.ui.core.LayoutItem, ville.cssus.MControl);
+        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
+        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
 
         // clear out all styling of html and body tags
         document.documentElement.style = "";
         document.body.style = "";
-
-        // update html and body tags classes
-        document.documentElement.class = "h-full bg-gray-100";
-        document.body.class = "font-sans leading-none text-gray-700 antialiased";
       }   
 
       // Document is the application root
@@ -76,26 +72,26 @@ qx.Class.define("twindapp.Application",
       // CssUtilityClasses
       doc.setCssUtilityClass("md:flex md:flex-col");
       doc.setExcludeBoundsFromDom(true);
-      doc.setCssUtilityStyle(["position"]); //ExcludeInlineStyles
+      doc.setExcludeInlineStyles(["position"]);
       doc.getContentElement().enableScrolling();
 
       // Header
       var header = new twindapp.views.Header();
       header.setCssUtilityClass("md:flex md:shrink-0");
       header.setExcludeBoundsFromDom(true);
-      header.setCssUtilityStyleClearAll(true);
+      header.setClearAllInlineStyles(true);
 
       // TabView
       var tabs = new twindapp.views.TabView(header);
       tabs.setCssUtilityClass("md:flex md:grow md:overflow-hidden");
       tabs.setExcludeBoundsFromDom(true);
-      tabs.setCssUtilityStyleClearAll(true);
+      tabs.setClearAllInlineStyles(true);
 
       // Setup the app layout and add the views
       var dockLayout = new qx.ui.layout.Dock().set({sort: "x"});
       var doccomp = new qx.ui.container.Composite(dockLayout);
       doccomp.setCssUtilityClass("md:flex md:flex-col md:h-screen");
-      doccomp.setCssUtilityStyleClearAll(true);
+      doccomp.setClearAllInlineStyles(true);
       doccomp.setExcludeBoundsFromDom(true);
       doccomp.add(header, { edge: "north" });
       doccomp.add(tabs, { edge: "center" });

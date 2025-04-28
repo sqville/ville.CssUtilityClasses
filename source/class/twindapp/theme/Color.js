@@ -1,10 +1,10 @@
 /* ************************************************************************
 
-   Copyright: 2025 
+   Copyright: 2024 undefined
 
    License: MIT license
 
-   Authors: sqville
+   Authors: undefined
 
 ************************************************************************ */
 
@@ -14,5 +14,6 @@ qx.Theme.define("twindapp.theme.Color",
 
   colors :
   {
+    "tabbuttonlink" : [178, 183, 255]
   }
 });

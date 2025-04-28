@@ -28,8 +28,8 @@ qx.Class.define("twindapp.components.Pagination", {
                     this.setPaginationStatusText(statustxt);
                     for (let i = 0; i < links.length; i++) {
                         var button = new twindapp.components.Link(links[i].label, null, links[i].url).set({rich: true, appearance: "ping-exp-button", cursor: null});
-                        button.setExcludeBoundsFromDom(true); //ExcludeBoundsFromDom 
-                        button.setCssUtilityStyleClearAll(true);
+                        button.setExcludeBoundsFromDom(true);
+                        button.setClearAllInlineStyles(true);
                         if (links[i].active) {
                             button.setValue(links[i].active);
                             button.setCssUtilityClass("mb-1 mr-1 px-4 py-3 focus:text-indigo-500 text-sm leading-4 hover:bg-white border focus:border-indigo-500 rounded bg-white");
@@ -38,7 +38,7 @@ qx.Class.define("twindapp.components.Pagination", {
                         }
                         var btnlabel = button.getChildControl("label");
                         btnlabel.setExcludeBoundsFromDom(true);
-                        btnlabel.setCssUtilityStyleClearAll(true);
+                        btnlabel.setClearAllInlineStyles(true);
                         //btnlabel.setCssUtilityClass("form-label");
                         if (!links[i].active && links[i].url) {
                             button.addListener("execute", () => {

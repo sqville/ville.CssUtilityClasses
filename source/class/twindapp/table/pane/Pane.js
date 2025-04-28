@@ -491,7 +491,7 @@ qx.Class.define("twindapp.table.pane.Pane", {
   
           var rowStyle = rowRenderer.createRowStyle(cellInfo);
   
-          if (qx.core.Environment.get("ville.theme.css")) {
+          if (qx.core.Environment.get("ville.cssuc")) {
             if (!table.getExcludeBoundsFromDom())
               rowStyle +=
               ";position:relative;" +

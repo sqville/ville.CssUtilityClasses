@@ -1,10 +1,10 @@
 /* ************************************************************************
 
-   Copyright: 2025 
+   Copyright: 2024 undefined
 
    License: MIT license
 
-   Authors: sqville
+   Authors: undefined
 
 ************************************************************************ */
 
@@ -12,7 +12,5 @@ qx.Theme.define("twindapp.theme.Font",
 {
   extend : qx.theme.indigo.Font,
 
-  fonts :
-  {
-  }
+  fonts : {}
 });

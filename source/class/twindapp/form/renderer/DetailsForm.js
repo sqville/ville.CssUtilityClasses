@@ -46,19 +46,19 @@ qx.Class.define("twindapp.form.renderer.DetailsForm", {
         var itemsbox = new qx.ui.container.Composite(new qx.ui.layout.VBox());
         itemsbox.setCssUtilityClass("flex flex-wrap -mb-8 -mr-6 p-8");
         itemsbox.setExcludeBoundsFromDom(true);
-        itemsbox.setCssUtilityStyleClearAll(true);
+        itemsbox.setClearAllInlineStyles(true);
 
         // add items Flow
         for (var i = 0; i < items.length; i++) {
             var itembox = new qx.ui.container.Composite(new qx.ui.layout.VBox());
             itembox.setCssUtilityClass("pb-8 pr-6 w-full lg:w-1/2");
             itembox.setExcludeBoundsFromDom(true);
-            itembox.setCssUtilityStyleClearAll(true);
+            itembox.setClearAllInlineStyles(true);
 
             var label = this._createLabel(names[i], items[i]);
             label.setCssUtilityClass("form-label");
             label.setExcludeBoundsFromDom(true);
-            label.setCssUtilityStyleClearAll(true);
+            label.setClearAllInlineStyles(true);
             var item = items[i];
 
             // ToDo: Move to stretch and minwidth to controls appearance
@@ -97,7 +97,7 @@ qx.Class.define("twindapp.form.renderer.DetailsForm", {
           this._buttonRow = new qx.ui.container.Composite();
           this._buttonRow.setCssUtilityClass("flex items-center px-8 py-4 bg-gray-50 border-t border-gray-100");
           this._buttonRow.setExcludeBoundsFromDom(true);
-          this._buttonRow.setCssUtilityStyleClearAll(true);
+          this._buttonRow.setClearAllInlineStyles(true);
           
           var hbox = new qx.ui.layout.HBox();
           this._buttonRow.setLayout(hbox);

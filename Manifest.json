@@ -26,6 +26,6 @@
   },
 
   "requires": {
-    "@qooxdoo/framework": "^7.9.0"
+    "@qooxdoo/framework": "^7.8.0"
   }
 }

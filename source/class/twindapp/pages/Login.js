@@ -20,13 +20,13 @@ qx.Class.define("twindapp.pages.Login", {
       this.setUserData("pageurl", pageurl);
       this.setExcludeBoundsFromDom(true);
       this.setCssUtilityClass("w-full flex items-center justify-center p-6 min-h-screen bg-indigo-800");
-      this.setCssUtilityStyleClearAll(true);
+      this.setClearAllInlineStyles(true);
 
       // Login Page
       var centerbox = new qx.ui.container.Composite(new qx.ui.layout.VBox(10));
       centerbox.setExcludeBoundsFromDom(true);
       centerbox.setCssUtilityClass("w-full max-w-md");
-      centerbox.setCssUtilityStyle(["position"]);
+      centerbox.setExcludeInlineStyles(["position"]);
 
       // Logo
       var svgclass = "block mx-auto w-full max-w-xs fill-white";
@@ -36,7 +36,7 @@ qx.Class.define("twindapp.pages.Login", {
         </svg>`;
       var logoimg = new qx.ui.container.Composite(new qx.ui.layout.Basic());
       logoimg.setExcludeBoundsFromDom(true);
-      logoimg.setCssUtilityStyleClearAll(true);
+      logoimg.setClearAllInlineStyles(true);
       var logoelem = logoimg.getContentElement();
       logoelem.useMarkup(pingcrmlogo);
       logoelem.removeStyle("position", true);
@@ -52,9 +52,9 @@ qx.Class.define("twindapp.pages.Login", {
       txtusername.setPlaceholder("User name");
       txtusername.setValue("johndoe@example.com");
       txtusername.setCssUtilityClass("form-input");
-      txtusername.setQxClassClear(["qx-abstract-field", "qx-placeholder-color"]);
+      txtusername.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
       txtusername.setExcludeBoundsFromDom(true);
-      txtusername.setCssUtilityStyle(["position", "zIndex", "touch-action", "boxSizing"]);
+      txtusername.setExcludeInlineStyles(["position", "zIndex", "touch-action", "boxSizing"]);
       form.add(txtusername, "Email", qx.util.Validate.email());
 
       // Password
@@ -62,33 +62,33 @@ qx.Class.define("twindapp.pages.Login", {
       txtpassword.setPlaceholder("Password");
       txtpassword.setValue("secret");
       txtpassword.setCssUtilityClass("form-input");
-      txtpassword.setQxClassClear(["qx-abstract-field", "qx-placeholder-color"]); //RemoveCssClasses
+      txtpassword.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
       txtpassword.setExcludeBoundsFromDom(true);
-      txtpassword.setCssUtilityStyle(["position", "zIndex", "touch-action", "boxSizing"]);
+      txtpassword.setExcludeInlineStyles(["position", "zIndex", "touch-action", "boxSizing"]);
       form.add(txtpassword, "Password");
 
       // Remember me
       var rememberme = new qx.ui.form.CheckBox("Remember Me");
       rememberme.setExcludeBoundsFromDom(true);
-      rememberme.setCssUtilityStyle(["overflowX", "overflowY"]);
-      //rememberme.setCssUtilityStyleClearAll(true);
+      rememberme.setExcludeInlineStyles(["overflowX", "overflowY"]);
+      //rememberme.setClearAllInlineStyles(true);
       form.add(rememberme, "");
 
       // Login button
       var loginbutton = new qx.ui.form.Button("Login").set({ appearance: "ping-button" });
       loginbutton.setExcludeBoundsFromDom(true);
       loginbutton.setCssUtilityClass("flex items-center btn-indigo ml-auto");
-      loginbutton.setCssUtilityStyleClearAll(true); //ClearAllInlineStyles
+      loginbutton.setClearAllInlineStyles(true); //ClearAllInlineStyles
       var btnlabel = loginbutton.getChildControl("label");
       btnlabel.setExcludeBoundsFromDom(true);
-      btnlabel.setCssUtilityStyleClearAll(true);
+      btnlabel.setClearAllInlineStyles(true);
 
       form.addButton(loginbutton);
 
       var loginForm = new twindapp.form.renderer.LoginForm(form);
       loginForm.setCssUtilityClass("mt-8 bg-white rounded-lg shadow-xl overflow-hidden");
       loginForm.setExcludeBoundsFromDom(true);
-      loginForm.setCssUtilityStyleClearAll(true);
+      loginForm.setClearAllInlineStyles(true);
 
       centerbox.add(logoimg);
       centerbox.add(loginForm);

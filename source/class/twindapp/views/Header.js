@@ -19,7 +19,7 @@ qx.Class.define("twindapp.views.Header", {
     var title = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
     title.setCssUtilityClass("flex items-center justify-between px-6 py-4 bg-indigo-900 md:shrink-0 md:justify-center md:w-56");
     title.setExcludeBoundsFromDom(true);
-    title.setCssUtilityStyleClearAll(true);
+    title.setClearAllInlineStyles(true);
 
     // Logo
     var svgclass = "fill-white";
@@ -29,7 +29,7 @@ qx.Class.define("twindapp.views.Header", {
         </svg>`;
     var logoImg = new qx.ui.core.Widget();
     logoImg.setExcludeBoundsFromDom(true);
-    logoImg.setCssUtilityStyleClearAll(true);
+    logoImg.setClearAllInlineStyles(true);
     var logoelem = logoImg.getContentElement();
     logoelem.useMarkup(pingcrmlogo);
 
@@ -39,7 +39,7 @@ qx.Class.define("twindapp.views.Header", {
     var orglabel = new qx.ui.basic.Label("Acme Corporation");
     orglabel.setCssUtilityClass("mr-4 mt-1");
     orglabel.setExcludeBoundsFromDom(true);
-    orglabel.setCssUtilityStyleClearAll(true);
+    orglabel.setClearAllInlineStyles(true);
 
     // Logged in users Full name
     var menuButton = new qx.ui.form.MenuButton("John Doe").set({ appearance : "ping-exp-menubutton" });
@@ -70,7 +70,7 @@ qx.Class.define("twindapp.views.Header", {
     var headerrt = new qx.ui.container.Composite(new qx.ui.layout.HBox(0));
     headerrt.setCssUtilityClass("md:text-md flex items-center justify-between p-4 w-full text-sm bg-white border-b md:px-12 md:py-0");
     headerrt.setExcludeBoundsFromDom(true);
-    headerrt.setCssUtilityStyleClearAll(true);
+    headerrt.setClearAllInlineStyles(true);
     headerrt.add(orglabel);
     headerrt.add(menuButton);
     this.add(headerrt);

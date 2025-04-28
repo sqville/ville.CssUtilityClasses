@@ -10,26 +10,26 @@ qx.Mixin.define("ville.cssuc.MCssUtilityClass",
             themeable: true
           },
 
-        cssUtilityStyle: {
+        excludeInlineStyles: {
           check: "Array",
           nullable: true,
           init: null,
-          apply: "_applyCssUtilityStyle",
+          apply: "_applyExcludeInlineStyles",
           themeable: true
         },
 
-        cssUtilityStyleClearAll: {
+        clearAllInlineStyles: {
           check: "Boolean",
           init: false,
-          apply: "_applyCssUtilityStyleClearAll",
+          apply: "_applyClearAllInlineStyles",
           themeable: true
         },
 
-        qxClassClear: {
+        removeCssClasses: {
           check: "Array",
           nullable: true,
           init: null,
-          apply: "_applyQxClassClear",
+          apply: "_applyRemoveCssClasses",
           themeable: true
         }
       },
@@ -54,14 +54,14 @@ qx.Mixin.define("ville.cssuc.MCssUtilityClass",
           //this.getContentElement().setCssClass(value);
         },
 
-        _applyCssUtilityStyle(value, old) {
+        _applyExcludeInlineStyles(value, old) {
           var elem = this.getContentElement();
           for (const style of value) {
             elem.removeStyle(style, true);
           }
         },
 
-        _applyCssUtilityStyleClearAll(value, old) {
+        _applyClearAllInlineStyles(value, old) {
           if (value) {
             var elem = this.getContentElement();
             var elemstyles = elem.getAllStyles();
@@ -71,7 +71,7 @@ qx.Mixin.define("ville.cssuc.MCssUtilityClass",
           }
         },
         
-        _applyQxClassClear(value, old) {
+        _applyRemoveCssClasses(value, old) {
           var elem = this.getContentElement();
           for (const qxcssclass of value) {
             elem.removeClass(qxcssclass, true);

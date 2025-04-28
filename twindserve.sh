@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install dependencies
-npx tailwindcss -i ./source/resource/css/app.css -o ./source/resource/css/testapp.css
+npx tailwindcss -i ./source/resource/twindapp/css/app.css -o ./source/resource/twindapp/css/twindapp.css
 
 # Build the project
 echo "Cleaning..."

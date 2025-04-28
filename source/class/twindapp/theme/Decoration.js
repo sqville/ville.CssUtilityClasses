@@ -1,10 +1,10 @@
 /* ************************************************************************
 
-   Copyright: 2025 
+   Copyright: 2024 undefined
 
    License: MIT license
 
-   Authors: sqville
+   Authors: undefined
 
 ************************************************************************ */
 
@@ -14,5 +14,13 @@ qx.Theme.define("twindapp.theme.Decoration",
 
   decorations :
   {
+    "widgetstack" : {
+      style :
+      {
+        width: 2,
+        color: "black",
+        radius: 3
+      }
+    }
   }
 });

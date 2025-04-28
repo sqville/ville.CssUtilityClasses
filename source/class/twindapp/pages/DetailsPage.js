@@ -20,7 +20,7 @@ qx.Class.define("twindapp.pages.DetailsPage", {
       this.setUserData("pageurl", pageurl);
       this.setExcludeBoundsFromDom(true);
       this.setCssUtilityClass("px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto");
-      this.setCssUtilityStyleClearAll(true);
+      this.setClearAllInlineStyles(true);
 
       // Flash Messages
       var flashMessage = new twindapp.components.FlashMessages();
@@ -31,10 +31,10 @@ qx.Class.define("twindapp.pages.DetailsPage", {
       breadcrumbContent.getContentElement().setNodeName("h1");
       breadcrumbContent.setCssUtilityClass("mb-8 text-3xl font-bold");
       breadcrumbContent.setExcludeBoundsFromDom(true);
-      breadcrumbContent.setCssUtilityStyleClearAll(true);
+      breadcrumbContent.setClearAllInlineStyles(true);
       var listlink = new twindapp.components.Link(`${pageName} `, null, pageurl, true).set({appearance:"ping-exp-button", cursor: null});
       listlink.setExcludeBoundsFromDom(true);
-      listlink.setCssUtilityStyleClearAll(true);
+      listlink.setClearAllInlineStyles(true);
       listlink.setCssUtilityClass("text-indigo-400 hover:text-indigo-600");
       listlink.addListener("click", () => {
         this._parenttabview.setSelection([this._callingpage]);
@@ -42,7 +42,7 @@ qx.Class.define("twindapp.pages.DetailsPage", {
       var fullName = this._fullname = new qx.ui.embed.Html();
       fullName.getContentElement().setNodeName("span");
       fullName.setExcludeBoundsFromDom(true);
-      fullName.setCssUtilityStyleClearAll(true);
+      fullName.setClearAllInlineStyles(true);
       breadcrumbContent.add(listlink);
       breadcrumbContent.add(fullName);
     
@@ -125,7 +125,7 @@ qx.Class.define("twindapp.pages.DetailsPage", {
       var detailsForm = new twindapp.form.renderer.DetailsForm(form);
       detailsForm.setCssUtilityClass("max-w-3xl bg-white rounded-md shadow overflow-hidden");
       detailsForm.setExcludeBoundsFromDom(true);
-      detailsForm.setCssUtilityStyleClearAll(true);
+      detailsForm.setClearAllInlineStyles(true);
 
       // Page Content
       this.add(flashMessage);

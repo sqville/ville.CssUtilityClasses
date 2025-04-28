@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 import defaultTheme from 'tailwindcss/defaultTheme'
 module.exports = {
-  content: ["./source/class/**/*.js", "./source/boot/*.html"],
+  content: ["./source/class/twindapp/**/*.js", "./source/boot/*.html"],
   theme: {
     extend: {
       colors: {

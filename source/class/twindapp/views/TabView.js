@@ -36,20 +36,20 @@ qx.Class.define("twindapp.views.TabView", {
       // Slidebar
       var slidebar = this.getChildControl("bar");
       slidebar.setExcludeBoundsFromDom(true);
-      slidebar.setCssUtilityStyleClearAll(true);
+      slidebar.setClearAllInlineStyles(true);
       slidebar.setCssUtilityClass("hidden shrink-0 p-12 w-56 bg-indigo-800 overflow-y-auto md:block");
       var sbscrollpane = slidebar.getChildControl("scrollpane");
       sbscrollpane.setExcludeBoundsFromDom(true);
-      sbscrollpane.setCssUtilityStyleClearAll(true);
+      sbscrollpane.setClearAllInlineStyles(true);
       var sbcont = slidebar.getChildControl("content");
       sbcont.setExcludeBoundsFromDom(true);
-      sbcont.setCssUtilityStyleClearAll(true);
+      sbcont.setClearAllInlineStyles(true);
 
       // Stack
       var stack = this.getChildControl("pane");
       stack.setExcludeBoundsFromDom(true);
-      stack.setCssUtilityStyleClearAll(true);
-      stack.setQxClassClear(["qx-main"]);
+      stack.setClearAllInlineStyles(true);
+      stack.setRemoveCssClasses(["qx-main"]);
       stack.setBackgroundColor(null);
       stack.setCssUtilityClass("md:flex md:grow md:overflow-hidden");
 

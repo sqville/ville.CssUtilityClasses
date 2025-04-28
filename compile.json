@@ -24,14 +24,14 @@
       "class": "twindapp.Application",
       "theme": "twindapp.theme.Theme",
       "name": "twindapp",
-      "bootPath": "source/boot",
+      "bootPath": "source/boot/twindapp",
       "default": true
     },
     {
       "class": "tablerapp.Application",
       "theme": "tablerapp.theme.Theme",
       "name": "tablerapp",
-      "bootPath": "source/boot"
+      "bootPath": "source/boot/tablerapp"
     }
   ]
 }

@@ -50,7 +50,7 @@ qx.Class.define("twindapp.form.renderer.LoginForm", {
         var itemscontainer = this._createWidget();
         itemscontainer.setCssUtilityClass("px-10 py-12");
         itemscontainer.setExcludeBoundsFromDom(true);
-        itemscontainer.setCssUtilityStyleClearAll(true);
+        itemscontainer.setClearAllInlineStyles(true);
         
         // add the header
         if (title != null) {
@@ -58,7 +58,7 @@ qx.Class.define("twindapp.form.renderer.LoginForm", {
           itemscontainer.add(grouphead);
           grouphead.setCssUtilityClass("text-center text-3xl font-bold");
           //grouphead.setAppearance("ping-label");
-          grouphead.setCssUtilityStyleClearAll(true);
+          grouphead.setClearAllInlineStyles(true);
           grouphead.setExcludeBoundsFromDom(true);
 
         }
@@ -66,7 +66,7 @@ qx.Class.define("twindapp.form.renderer.LoginForm", {
         // add space
         var spaceline = this._createWidget();
         spaceline.setCssUtilityClass("mt-6 mx-auto w-24 border-b-2");
-        spaceline.setCssUtilityStyle(["position"]);
+        spaceline.setExcludeInlineStyles(["position"]);
         spaceline.setExcludeBoundsFromDom(true);
 
         itemscontainer.add(spaceline);
@@ -75,15 +75,15 @@ qx.Class.define("twindapp.form.renderer.LoginForm", {
         for (var i = 0; i < items.length; i++) {
           var itmnmgroup = this._createWidget();
           itmnmgroup.setCssUtilityClass("mt-6");
-          itmnmgroup.setCssUtilityStyle(["position"]);
-          itmnmgroup.setCssUtilityStyleClearAll(true);
+          itmnmgroup.setExcludeInlineStyles(["position"]);
+          itmnmgroup.setClearAllInlineStyles(true);
           itmnmgroup.setExcludeBoundsFromDom(true);
           
           if (names[i] != null && names[i] != "") {
             var label = this._createLabel(names[i], items[i]);
             label.setRich(true);
             label.setCssUtilityClass("form-label");
-            label.setCssUtilityStyleClearAll(true);
+            label.setClearAllInlineStyles(true);
             label.setExcludeBoundsFromDom(true);
             itmnmgroup.add(label);
           }
@@ -115,7 +115,7 @@ qx.Class.define("twindapp.form.renderer.LoginForm", {
           // create button row
           this._buttonRow = this._createWidget();
           this._buttonRow.setCssUtilityClass("flex px-10 py-4 bg-gray-100 border-t border-gray-100");
-          this._buttonRow.setCssUtilityStyle(["position"]);
+          this._buttonRow.setExcludeInlineStyles(["position"]);
           this._buttonRow.setExcludeBoundsFromDom(true);
           
           this._add(this._buttonRow);
