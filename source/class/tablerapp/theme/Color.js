@@ -1,0 +1,18 @@
+/* ************************************************************************
+
+   Copyright: 2025 
+
+   License: MIT license
+
+   Authors: sqville
+
+************************************************************************ */
+
+qx.Theme.define("tablerapp.theme.Color",
+{
+  extend : ville.cssuc.theme.blankslate.Color,
+
+  colors :
+  {
+  }
+});

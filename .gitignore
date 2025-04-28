@@ -1,5 +1,7 @@
-cache
-cache-downloads
-inspector
-api
-source/inspector.html
+# .gitignore template for skeleton-based apps
+/compiled
+/published
+.package-cache.json
+node_modules
+package-lock.json
+package.json
