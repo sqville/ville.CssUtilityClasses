@@ -13,7 +13,7 @@ Demo applications to show how qooxdoo and CSS utility class frameworks can work 
 This project consists of three namespaces:
 
 * ville.cssuc (library) - Mixins for bypassing layout functionality.
-* tlwindapp (application) - Qooxdoo application integrated with [Tailwindcss (version 3)](https://v3.tailwindcss.com/).
+* twindapp (application) - Qooxdoo application integrated with [Tailwindcss (version 3)](https://v3.tailwindcss.com/).
 * tablerapp (application) - Qooxdoo applicaion loosly integrated with [Tabler's](https://docs.tabler.io/ui/getting-started/installation) bootstrap implementation.
 
 ## Getting Started
@@ -39,7 +39,7 @@ npm install tailwindcss@3
 Run the included bash scripts to build and serve an application:
 
 ```sh
-bash tlwindserve.sh
+bash twindserve.sh
 ```
 
 ```sh
