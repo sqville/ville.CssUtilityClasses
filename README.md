@@ -27,6 +27,20 @@ Update the following classes in your project's nodes_modules @qooxdoo/framework 
 - Replace/Update local framework's local framework's qx.html.Label.js with replacements/Label.js
 - Replace/Update local framework's local framework's qx.ui.core.Widget.js with replacements/Widget.js
 
+**Install Tailwindcss V3**
+
+```sh
+npm install tailwindcss@3
+```
+
 ## Serve Applications
 
-Run the included bash scripts to 
+Run the included bash scripts to build and serve an application:
+
+```sh
+bash tlwindserve.sh
+```
+
+```sh
+bash tablerserve.sh
+```
