@@ -74,17 +74,17 @@ qx.Class.define("tablerapp.Application",
       var settings = new qx.ui.container.Composite(new qx.ui.layout.Basic());
       settings.setExcludeBoundsFromDom(true);
       settings.setClearAllInlineStyles(true);
-      var btntheme = new tablerapp.components.Link("L", null, ".", true);
+      var btntheme = new tablerapp.components.Link("D", null, ".", true);
       btntheme.setCssUtilityClass("btn btn-floating btn-icon btn-primary");
       btntheme.setExcludeBoundsFromDom(true);
       btntheme.setClearAllInlineStyles(true);
       btntheme.addListener("click", (e) => {
         if (btntheme.getValue()) {
           document.documentElement.setAttribute("data-bs-theme", "dark");
-          btntheme.getContentElement().setAttribute("html", "D");
+          btntheme.getContentElement().setAttribute("html", "L");
         } else {
           document.documentElement.setAttribute("data-bs-theme", "light");
-          btntheme.getContentElement().setAttribute("html", "L");
+          btntheme.getContentElement().setAttribute("html", "D");
         }
       });
       settings.add(btntheme);
