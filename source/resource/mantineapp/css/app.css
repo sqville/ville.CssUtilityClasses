@@ -1,0 +1,47 @@
+@import "./mantinestyles.css";
+
+.ville-mantineapp-Application {
+    padding:calc(0.75rem * var(--mantine-scale));
+
+    div:first-child {
+        margin-left:auto;
+        margin-right:auto;
+        padding-top:calc(2.5rem * var(--mantine-scale));
+        max-width:calc(26.25rem * var(--mantine-scale));
+    }
+}
+
+.ville-mantineapp-LoginCenterBox {
+    --paper-radius:var(--mantine-radius-md);
+    padding:var(--mantine-spacing-lg);
+
+    p {
+        --text-fz:var(--mantine-font-size-lg);
+        --text-lh:var(--mantine-line-height-lg);
+        font-weight:500
+    }
+
+    div:first-child {
+        --group-child-width:calc(50% - (var(--mantine-spacing-md) - var(--mantine-spacing-md) / 2));
+        --group-gap:var(--mantine-spacing-md);
+        --group-align:center;
+        --group-justify:flex-start;
+        --group-wrap:wrap;margin-top:var(--mantine-spacing-md);
+        margin-bottom:var(--mantine-spacing-md);
+
+        button {
+            --button-radius:var(--mantine-radius-xl);
+            --button-bg:var(--mantine-color-default);
+            --button-hover:var(--mantine-color-default-hover);
+            --button-color:var(--mantine-color-default-color);
+            --button-bd:calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)
+        }
+    }
+
+    div:nth-child(2) {
+        margin-block:var(--mantine-spacing-lg)
+    }
+}
+
+
+

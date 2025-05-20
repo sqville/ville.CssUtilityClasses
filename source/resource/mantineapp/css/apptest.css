@@ -1,0 +1,27 @@
+@source './source/class/mantineapp/**/*.js';
+@source './source/boot/*.html';
+
+@utility ville-test-class {
+    text-decoration: none;
+    border-radius: 3px;
+    background-color: green
+}
+
+.ville-mantineapp-Application {
+    padding:calc(0.75rem * var(--mantine-scale));
+
+    div {
+        margin-left:auto;
+        margin-right:auto;
+        padding-top:calc(2.5rem * var(--mantine-scale));
+        max-width:calc(26.25rem * var(--mantine-scale));
+    }
+}
+
+.ville-mantineapp-LoginCenterBox {
+    --paper-radius:var(--mantine-radius-md);
+    padding:var(--mantine-spacing-lg);
+}
+
+
+
