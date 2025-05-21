@@ -9,15 +9,23 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
     extend: qx.ui.form.renderer.AbstractRenderer,
 
     construct(form) {
-      var layout = new qx.ui.layout.VBox();
-      this._setLayout(layout);
+      var layout = new qx.ui.layout.Basic();
+      this._setLayout(layout);  
 
       super(form);
+
+      this.setExcludeBoundsFromDom(true);
+      this.setClearAllInlineStyles(true);
     },
 
     members: {
       _row: 0,
       _buttonRow: null,
+
+      // overridden
+      _createContentElement() {
+          return new qx.html.Element("form");
+      },
 
       // overridden
       _onFormChange() {
@@ -29,8 +37,10 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
         super._onFormChange();
       },
 
-      _createWidget() {
-        var widget = new qx.ui.container.Composite(new qx.ui.layout.VBox());
+      _createComposite() {
+        var widget = new qx.ui.container.Composite(new qx.ui.layout.Basic());
+        widget.setExcludeBoundsFromDom(true);
+        widget.setClearAllInlineStyles(true);
         return widget;
       },
 
@@ -42,45 +52,71 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
        *
        * @param items {qx.ui.core.Widget[]} An array of form items to render.
        * @param names {String[]} An array of names for the form items.
-       * @param title {String?} A title of the group you are adding.
        */
-      addItems(items, names, title) {
+      addItems(items, names, title, customize) {
         // create items content container
-        //var itemscontainer = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-        var itemscontainer = this._createWidget();
-        //itemscontainer.setCssUtilityClass("mb-3");
-        itemscontainer.setExcludeBoundsFromDom(true);
-        itemscontainer.setClearAllInlineStyles(true);
-        
-        // add the header
-        if (title != null) {
-          var cardHeader = new qx.ui.core.Widget();
-          cardHeader.getContentElement().setNodeName("h2");
-          cardHeader.getContentElement().setAttribute("html", title);
-          cardHeader.setCssUtilityClass("h2 text-center mb-4");
-          cardHeader.setExcludeBoundsFromDom(true);
-          cardHeader.setClearAllInlineStyles(true);
-          this._add(cardHeader);
-        }
+        var itemscontainer = this._createComposite();
+        itemscontainer.setCssUtilityClass("ville-mantineapp-LoginFormStack m_6d731127 mantine-Stack-root");
 
         // add the items
         for (var i = 0; i < items.length; i++) {
-          var itmnmgroup = this._createWidget();
-          itmnmgroup.setCssUtilityClass("mb-3");
-          itmnmgroup.setClearAllInlineStyles(true);
-          itmnmgroup.setExcludeBoundsFromDom(true);
+          var label = null;
+          var itmnmgroup = this._createComposite();
+          itmnmgroup.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
           
           if (names[i] != null && names[i] != "") {
-            var label = this._createLabel(names[i], items[i]);
-            label.setRich(true);
-            label.setCssUtilityClass("form-label");
-            label.setClearAllInlineStyles(true);
-            label.setExcludeBoundsFromDom(true);
-            itmnmgroup.add(label);
+            label = this._createLabel(names[i]);
+            label.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+            if (items[i].getRequired())
+              label.getContentElement().setAttribute("data-required", "true");
+
+            //itmnmgroup.add(label);
           }
 
           var item = items[i];
-          itmnmgroup.add(item);
+          var itemwrapper = this._createComposite();
+          if (customize[i].complexity == "email") {
+            itemwrapper.setCssUtilityClass("ville-mantineapp-LoginForm-TextInputWrapper m_6c018570 mantine-Input-wrapper mantine-TextInput-wrapper");
+            itemwrapper.getContentElement().setAttribute("data-variant", "default");
+            itemwrapper.add(item);
+          } else if (customize[i].complexity == "password") {
+            itemwrapper.setCssUtilityClass("ville-mantineapp-LoginForm-PasswordInputWrapper m_f61ca620 mantine-PasswordInput-root m_46b77525 mantine-InputWrapper-root mantine-PasswordInput-root");
+            itemwrapper.getContentElement().setAttribute("data-with-right-section", "true");
+            itemwrapper.getContentElement().setAttribute("data-variant", "default");
+             // add input password tag
+            var iteminnerwrapper = this._createComposite();
+            iteminnerwrapper.setCssUtilityClass("m_ccf8da4c m_8fb7ebe7 mantine-Input-input mantine-PasswordInput-input");
+            iteminnerwrapper.getContentElement().setAttribute("data-variant", "default");
+            iteminnerwrapper.add(item);
+            itemwrapper.add(iteminnerwrapper);
+            // add the show password Button
+            var btnwrapper = this._createComposite();
+            btnwrapper.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-PasswordInput-section");
+            btnwrapper.getContentElement().setAttribute("data-position", "right");
+            var showpassbtn = new mantineapp.components.Button();
+            showpassbtn.setCssUtilityClass("mantine-focus-auto mantine-active m_b1072d44 mantine-PasswordInput-visibilityToggle m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root");
+            showpassbtn.getContentElement().setAttributes({
+              "data-variant" :"subtl",
+              "aria-hidden" : "true",
+              "tabindex" : "-1"
+            }, true);
+            var actioniconEye = new mantineapp.components.ActionIcon("EYE");
+            actioniconEye.setCssUtilityClass("m_8d3afb97 mantine-ActionIcon-icon");
+
+            showpassbtn.add(actioniconEye);
+            btnwrapper.add(showpassbtn);
+            itemwrapper.add(btnwrapper);
+          }
+          
+          
+          if (label) {
+            label.add(itemwrapper);
+            itmnmgroup.add(label);
+            //itmnmgroup.add(label);
+            //itmnmgroup.add(itemwrapper);
+          } else {
+            itmnmgroup.add(itemwrapper);
+          }
 
           if (label) {
             label.setBuddy(item);
@@ -104,7 +140,7 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
       addButton(button) {
         if (this._buttonRow == null) {
           // create button row
-          this._buttonRow = this._createWidget();
+          this._buttonRow = this._createComposite();
           this._buttonRow.setCssUtilityClass("form-footer");
           this._buttonRow.setClearAllInlineStyles(true);
           this._buttonRow.setExcludeBoundsFromDom(true);
@@ -124,8 +160,8 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
        * @param item {qx.ui.core.Widget} The item, which has the required state.
        * @return {qx.ui.basic.Label} The label for the given item.
        */
-      _createLabel(name, item) {
-        var label = new qx.ui.basic.Label(name);
+      _createLabel(name) {
+        var label = new mantineapp.components.Label(name);
         // store labels for disposal
         this._labels.push(label);
         return label;
@@ -138,7 +174,7 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
        * @return {qx.ui.basic.Label} The header for the form groups.
        */
       _createHeader(title) {
-        var header = new qx.ui.basic.Label(title);
+        var header = new mantineapp.components.Label(title);
         // store labels for disposal
         this._labels.push(header);
         return header;

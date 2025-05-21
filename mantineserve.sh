@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install dependencies
-npx @tailwindcss/cli -i ./source/resource/mantineapp/css/app.css -o ./source/resource/mantineapp/css/mantineapp.css
+npx @tailwindcss/cli -i ./app.css -o ./mantineapp.css -m --cwd './source/resource/mantineapp/css'
 
 # Build the project
 echo "Cleaning..."
