@@ -62,7 +62,6 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
         for (var i = 0; i < items.length; i++) {
           var label = null;
           var itmnmgroup = this._createComposite();
-          itmnmgroup.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
           
           if (names[i] != null && names[i] != "") {
             label = this._createLabel(names[i]);
@@ -76,13 +75,14 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
           var item = items[i];
           var itemwrapper = this._createComposite();
           if (customize[i].complexity == "email") {
+            itmnmgroup.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
             itemwrapper.setCssUtilityClass("ville-mantineapp-LoginForm-TextInputWrapper m_6c018570 mantine-Input-wrapper mantine-TextInput-wrapper");
             itemwrapper.getContentElement().setAttribute("data-variant", "default");
             itemwrapper.add(item);
           } else if (customize[i].complexity == "password") {
-            itemwrapper.setCssUtilityClass("ville-mantineapp-LoginForm-PasswordInputWrapper m_f61ca620 mantine-PasswordInput-root m_46b77525 mantine-InputWrapper-root mantine-PasswordInput-root");
-            itemwrapper.getContentElement().setAttribute("data-with-right-section", "true");
-            itemwrapper.getContentElement().setAttribute("data-variant", "default");
+            itmnmgroup.setCssUtilityClass("m_f61ca620 mantine-PasswordInput-root m_46b77525 mantine-InputWrapper-root mantine-PasswordInput-root");
+            itemwrapper.setCssUtilityClass("ville-mantineapp-LoginForm-PasswordInputWrapper m_6c018570 mantine-Input-wrapper mantine-PasswordInput-wrapper");
+            itemwrapper.getContentElement().setAttributes({"data-with-right-section" : "true", "data-variant" : "default"}, true);
              // add input password tag
             var iteminnerwrapper = this._createComposite();
             iteminnerwrapper.setCssUtilityClass("m_ccf8da4c m_8fb7ebe7 mantine-Input-input mantine-PasswordInput-input");
@@ -93,14 +93,14 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
             var btnwrapper = this._createComposite();
             btnwrapper.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-PasswordInput-section");
             btnwrapper.getContentElement().setAttribute("data-position", "right");
-            var showpassbtn = new mantineapp.components.Button();
+            var showpassbtn = new mantineapp.components.ActionIcon(mantineapp.components.Icons["EYE"]);
             showpassbtn.setCssUtilityClass("mantine-focus-auto mantine-active m_b1072d44 mantine-PasswordInput-visibilityToggle m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root");
             showpassbtn.getContentElement().setAttributes({
-              "data-variant" :"subtl",
+              "data-variant" : "subtl",
               "aria-hidden" : "true",
               "tabindex" : "-1"
             }, true);
-            var actioniconEye = new mantineapp.components.ActionIcon("EYE");
+            var actioniconEye = new mantineapp.components.ActionIcon();
             actioniconEye.setCssUtilityClass("m_8d3afb97 mantine-ActionIcon-icon");
 
             showpassbtn.add(actioniconEye);

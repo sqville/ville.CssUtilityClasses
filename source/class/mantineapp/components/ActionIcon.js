@@ -1,5 +1,5 @@
 qx.Class.define("mantineapp.components.ActionIcon", {
-    extend: qx.ui.core.Widget,
+    extend: qx.ui.form.ToggleButton,
 
     include: qx.ui.core.MChildrenHandling,
 
@@ -18,7 +18,8 @@ qx.Class.define("mantineapp.components.ActionIcon", {
         icon: {
             apply: "_applyIcon",
             nullable: true,
-            check: "String"
+            check: "String",
+            themeable: true
         }
     },
 
@@ -26,14 +27,13 @@ qx.Class.define("mantineapp.components.ActionIcon", {
         // property apply
         _applyIcon(value) {
             if (value) {
-                var iconsvg = mantineapp.components.Icons[value];
-                this.getContentElement().setAttribute("html", iconsvg);
+                this.getContentElement().setAttribute("html", value);
             }
         },
 
         // overridden
         _createContentElement() {
-            return new qx.html.Element("span");
+            return new qx.html.Element("button");
         }
     }
   });
