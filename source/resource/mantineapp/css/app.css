@@ -11,6 +11,7 @@
 @import "../../../../node_modules/@mantine/core/styles/Input.css";
 @import "../../../../node_modules/@mantine/core/styles/PasswordInput.css";
 @import "../../../../node_modules/@mantine/core/styles/ActionIcon.css";
+@import "../../../../node_modules/@mantine/core/styles/Anchor.css";
 
 .ville-mantineapp-Application {
     padding:calc(0.75rem * var(--mantine-scale));
@@ -80,6 +81,25 @@
         --ai-hover:var(--mantine-color-gray-light-hover);
         --ai-color:var(--mantine-color-gray-light-color);
         --ai-bd:calc(0.0625rem * var(--mantine-scale)) solid transparent;
+    }
+}
+
+.ville-mantineapp-LoginFormButtonGroup {
+    --group-gap:var(--mantine-spacing-md);
+    --group-align:center;
+    --group-justify:space-between;
+    --group-wrap:wrap;
+    margin-top:var(--mantine-spacing-xl);
+
+    button:first-child {
+        --text-fz:var(--mantine-font-size-xs);
+        --text-lh:var(--mantine-line-height-xs);
+        color:var(--mantine-color-dimmed);
+    }
+
+    button:last-child {
+        --button-radius:var(--mantine-radius-xl);
+        --button-color:var(--mantine-color-white);
     }
 }
 

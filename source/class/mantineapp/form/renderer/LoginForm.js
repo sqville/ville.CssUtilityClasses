@@ -97,13 +97,10 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
             showpassbtn.setCssUtilityClass("mantine-focus-auto mantine-active m_b1072d44 mantine-PasswordInput-visibilityToggle m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root");
             showpassbtn.getContentElement().setAttributes({
               "data-variant" : "subtl",
-              "aria-hidden" : "true",
+              "aria-hidden" : "false",
               "tabindex" : "-1"
             }, true);
-            var actioniconEye = new mantineapp.components.ActionIcon();
-            actioniconEye.setCssUtilityClass("m_8d3afb97 mantine-ActionIcon-icon");
-
-            showpassbtn.add(actioniconEye);
+            showpassbtn.addListener("click", (e) => {e.preventDefault()});
             btnwrapper.add(showpassbtn);
             itemwrapper.add(btnwrapper);
           }
@@ -141,9 +138,7 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
         if (this._buttonRow == null) {
           // create button row
           this._buttonRow = this._createComposite();
-          this._buttonRow.setCssUtilityClass("form-footer");
-          this._buttonRow.setClearAllInlineStyles(true);
-          this._buttonRow.setExcludeBoundsFromDom(true);
+          this._buttonRow.setCssUtilityClass("ville-mantineapp-LoginFormButtonGroup m_4081bf90 mantine-Group-root");
           
           this._add(this._buttonRow);
         }

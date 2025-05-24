@@ -143,9 +143,19 @@ qx.Class.define("mantineapp.Application",
       //txtpassword.getContentElement().setAttribute("data-variant", "default");
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
+      // Form Bottom Buttons
+      var registerbutton = new mantineapp.components.Anchor("Don't have an account? Register");
+      registerbutton.setCssUtilityClass("mantine-focus-auto m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root");
+      registerbutton.getContentElement().setAttributes({"data-size" : "xs", "data-underline" : "hover"});
+      var loginbutton = new mantineapp.components.Button("Login");
+      loginbutton.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
+
+      form.addButton(registerbutton);
+      form.addButton(loginbutton);
+
       // Form Renderer
       var loginForm = new mantineapp.form.renderer.LoginForm(form);
-      //loginForm.setCssUtilityClass("card-body");
+      
       
 
       LoginAuthGroupbox.add(googleButton);
@@ -160,30 +170,7 @@ qx.Class.define("mantineapp.Application",
 
       /*
 
-
-      var rmelem = rememberme.getContentElement();
-      rmelem.setNodeName("label");
-      var rmcheckbox = new qx.html.Element("input", null, {type: "checkbox", class:"form-check-input"});
-      var rmcheckboxlabel = new qx.html.Element("span", null, {html: "Remember me on this device", class:"form-check-label"});
-      rmelem.addAt(rmcheckboxlabel, 0);
-      rmelem.addAt(rmcheckbox, 0);
-
-      var rmlabel = rememberme.getChildControl("label");
-      rmlabel.setExcludeBoundsFromDom(true);
-      rmlabel.setClearAllInlineStyles(true);
-      rmlabel.setVisibility("excluded");
-      form.add(rememberme, "");
-
-      // Login button
-      var loginbutton = new qx.ui.form.Button("Sign in");
-      loginbutton.setExcludeBoundsFromDom(true);
-      loginbutton.setCssUtilityClass("btn btn-primary w-100");
-      loginbutton.setClearAllInlineStyles(true);
-      var btnlabel = loginbutton.getChildControl("label");
-      btnlabel.setExcludeBoundsFromDom(true);
-      btnlabel.setClearAllInlineStyles(true);
-
-      form.addButton(loginbutton);
+     
 
       var loginForm = new mantineapp.form.renderer.LoginForm(form);
       loginForm.setCssUtilityClass("card-body");
