@@ -77,15 +77,13 @@ qx.Class.define("mantineapp.Application",
       docMarginBox.setCssUtilityClass("ville-mantineapp-InnerAppContainer");
 
       // Login Center Box Container
-      var centerbox = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-      centerbox.setCssUtilityClass("ville-mantineapp-LoginCenterBox m_1b7284a3 mantine-Paper-root");
-      centerbox.setExcludeBoundsFromDom(true);
-      centerbox.setClearAllInlineStyles(true);
+      var centerbox = new ville.ui.core.Paper();
       centerbox.getContentElement().setAttribute("data-with-border", "true");
+      centerbox.getContentElement().addClass("ville-mantineapp-LoginCenterBox");
 
       // Login Center Box Header Welcome Message
-      var welcomeMsg = new mantineapp.components.Paragraph("Welcome to Mantine, login with");
-      welcomeMsg.setCssUtilityClass("mantine-focus-auto m_b6d8b162 mantine-Text-root");
+      var welcomeMsg = new ville.ui.typography.Text("Welcome to Mantine, login with");
+      welcomeMsg.getContentElement().addClass("mantine-focus-auto");
       welcomeMsg.getContentElement().setAttribute("data-size", "lg");
 
       // Login Auth Group Box
