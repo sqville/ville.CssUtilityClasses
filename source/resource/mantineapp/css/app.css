@@ -1,9 +1,6 @@
 @import "../../../../node_modules/@mantine/core/styles/baseline.css";
 @import "../../../../node_modules/@mantine/core/styles/default-css-variables.css";
 @import "../../../../node_modules/@mantine/core/styles/global.css";
-@import "../../../../node_modules/@mantine/core/styles/UnstyledButton.css";
-@import "../../../../node_modules/@mantine/core/styles/Button.css";
-@import "../../../../node_modules/@mantine/core/styles/Group.css";
 @import "../../../../node_modules/@mantine/core/styles/Divider.css";
 @import "../../../../node_modules/@mantine/core/styles/Stack.css";
 @import "../../../../node_modules/@mantine/core/styles/Input.css";

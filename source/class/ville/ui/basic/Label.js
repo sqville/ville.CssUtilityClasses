@@ -1,4 +1,4 @@
-qx.Class.define("mantineapp.components.Label", {
+qx.Class.define("ville.ui.basic.Label", {
     extend: qx.ui.basic.Label,
 
     include: qx.ui.core.MChildrenHandling,
@@ -8,19 +8,19 @@ qx.Class.define("mantineapp.components.Label", {
 
         this._setLayout(new qx.ui.layout.Basic());
 
+        this.setExcludeBoundsFromDom(true);
+        this.setClearAllInlineStyles(true);
+
         if (text) {
             this.setValue(text);
         }
-
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
     },
 
     members: {
 
         // overridden
         _createContentElement() {
-            return new qx.html.Element("label");
+            return new qx.html.Element("span");
         },
 
         // overridden

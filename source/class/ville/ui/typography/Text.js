@@ -7,7 +7,11 @@ qx.Class.define("ville.ui.typography.Text", {
 
     include: qx.ui.core.MChildrenHandling,
 
-    construct(text) {
+    construct(text, tag) {
+        if (tag) {
+            this.__textelementtag = tag;
+        }
+        
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -29,6 +33,9 @@ qx.Class.define("ville.ui.typography.Text", {
     },
 
     members: {
+
+        __textelementtag : "p",
+
         // property apply
         _applyParagraphText(value) {
             if (value) {
@@ -38,7 +45,7 @@ qx.Class.define("ville.ui.typography.Text", {
 
         // overridden
         _createContentElement() {
-            return new qx.html.Element("p");
+            return new qx.html.Element(this.__textelementtag);
         }
     }
   });

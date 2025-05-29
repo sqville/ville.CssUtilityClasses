@@ -87,19 +87,17 @@ qx.Class.define("mantineapp.Application",
       welcomeMsg.getContentElement().setAttribute("data-size", "lg");
 
       // Login Auth Group Box
-      var LoginAuthGroupbox = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-      LoginAuthGroupbox.setCssUtilityClass("ville-mantineapp-AuthButtonGroup m_4081bf90 mantine-Group-root");
-      LoginAuthGroupbox.setExcludeBoundsFromDom(true);
-      LoginAuthGroupbox.setClearAllInlineStyles(true);
+      var LoginAuthGroupbox = new ville.ui.layout.Group();
+      LoginAuthGroupbox.getContentElement().addClass("ville-mantineapp-AuthButtonGroup");
       LoginAuthGroupbox.getContentElement().setAttribute("data-grow", "true");
 
       // Google Button
-      var googleButton = new mantineapp.components.Button("Google");
+      var googleButton = new ville.ui.form.Button("default", "Google");
       googleButton.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
       googleButton.getContentElement().setAttribute("data-variant", "default");
 
       // Twitter Button
-      var twitButton = new mantineapp.components.Button("Twitter");
+      var twitButton = new ville.ui.form.Button("default", "Twitter");
       twitButton.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
       twitButton.getContentElement().setAttribute("data-variant", "default");
 
