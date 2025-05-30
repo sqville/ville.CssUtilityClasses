@@ -92,14 +92,12 @@ qx.Class.define("mantineapp.Application",
       LoginAuthGroupbox.getContentElement().setAttribute("data-grow", "true");
 
       // Google Button
-      var googleButton = new ville.ui.form.Button("default", "Google");
-      googleButton.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
-      googleButton.getContentElement().setAttribute("data-variant", "default");
+      var googleButton = new ville.ui.form.Button("Google", "default", new ville.ui.icon.Google(14));
+      googleButton.getContentElement().addClass("mantine-focus-auto mantine-active");
 
       // Twitter Button
-      var twitButton = new ville.ui.form.Button("default", "Twitter");
-      twitButton.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
-      twitButton.getContentElement().setAttribute("data-variant", "default");
+      var twitButton = new ville.ui.form.Button("Twitter", "default", new ville.ui.icon.Photo(14));
+      twitButton.getContentElement().addClass("mantine-focus-auto mantine-active");
 
       // Separator
       var separatorbox = new qx.ui.core.Widget();

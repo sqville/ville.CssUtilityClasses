@@ -7,28 +7,25 @@ qx.Class.define("ville.ui.form.Button", {
 
     include: qx.ui.core.MChildrenHandling,
 
-    construct(variant, label, sectionleft, sectionright) {
+    construct(label, variant, sectionleft, sectionright) {
         super(); 
 
         this._setLayout(new qx.ui.layout.Basic());
 
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
-
-        this.__buttoninnerwrapper = new ville.ui.core.InnerWrapper();
-        this.__buttoninnerwrapper.setCssUtilityClass("m_80f1301b mantine-Button-inner");
-        this.add(this.__buttoninnerwrapper);
+        this.setCssUtilityClass("m_77c9d27d mantine-Button-root " + this.getCssUtilityClass());
 
         if (variant != null) {
             this.setVariant(variant);
         }
 
-        if (label != null) {
-            this.setLabel(label);
-        }
-
         if (sectionleft !== undefined) {
             this.setSectionLeft(sectionleft);
+        }
+
+        if (label != null) {
+            this.setLabel(label);
         }
 
         if (sectionright !== undefined) {
@@ -67,13 +64,6 @@ qx.Class.define("ville.ui.form.Button", {
 
     members: {
 
-        // internal span wrapper
-        __buttoninnerwrapper : null,
-
-        __buttonsectionleft : null,
-
-        __buttonsectionright : null,
-
         // overridden
         _createContentElement() {
             return new qx.html.Element("button");
@@ -82,41 +72,40 @@ qx.Class.define("ville.ui.form.Button", {
         // overridden
         _createChildControlImpl(id, hash) {
             var control;
+            var innerwrapper;
 
             switch (id) {
+                case "innerwrapper":
+                    control = new ville.ui.core.InnerWrapper();
+                    control.setCssUtilityClass("m_80f1301b mantine-Button-inner");
+                    this._add(control);
+                    break;
+                
                 case "label":
-                    control = new ville.ui.basic.Label(this.getLabel());
+                    control = new ville.ui.basic.Label();
                     control.setAnonymous(true);
-                    control.setRich(this.getRich());
                     control.setSelectable(this.getSelectable());
                     control.setCssUtilityClass("m_811560b9 mantine-Button-label");
-                    this.__buttoninnerwrapper.add(control);
-                    if (this.getLabel() == null || this.getShow() === "icon") {
-                        control.exclude();
-                    }
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
                     break;
 
                 case "sectionleft":
                     control = new ville.ui.basic.Label();
-                    control.setRich(true);
                     control.setAnonymous(true);
                     control.setCssUtilityClass("m_a74036a mantine-Button-section");
-                    this.__buttoninnerwrapper.addAt(control, 0);
-                    if (this.getShow() === "label") {
-                        control.exclude();
-                    }
+                    control.getContentElement().setAttribute("data-position", "left");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
                     break;
 
                 case "sectionright":
                     control = new ville.ui.basic.Label();
                     control.setAnonymous(true);
-                    control.setRich(true);
                     control.setCssUtilityClass("m_a74036a mantine-Button-section");
-                    //control.getContentElement().insertInto(this.__buttoninnerwrapper);
-                    this.__buttoninnerwrapper.add(control);
-                    if (this.getShow() === "label") {
-                        control.exclude();
-                    }
+                    control.getContentElement().setAttribute("data-position", "right");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
                     break;
             }
 
@@ -133,36 +122,54 @@ qx.Class.define("ville.ui.form.Button", {
         // overridden
         _applyIcon(value, old) {},
 
-        // property apply
+        // overridden
+        _applyShow(value, old) {},
+
+        // overridden
         _applyLabel(value, old) {
-            var label = this.getChildControl("label", true);
-            if (label) {
-                label.setValue(value);
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var label = this.getChildControl("label");
+                if (label) {
+                    label.setValue(value);
+                }
             }
         },
 
         _applySectionLeft(value, old) {
-            var section = this.getChildControl("sectionleft", true);
-            if (section) {
-                if (old) {
-                    section.removeAll();
-                }
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var section = this.getChildControl("sectionleft");
+                if (section) {
+                    if (old) {
+                        section.removeAll();
+                    }
 
-                if (value) {
-                    section.add(value);
+                    if (value) {
+                        section.add(value);
+                        this.getContentElement().setAttribute("data-with-left-section", "true");
+                    } else {
+                        this.getContentElement().removeAttribute("data-with-left-section");
+                    }
                 }
             }
         },
 
         _applySectionRight(value, old) {
-            var section = this.getChildControl("sectionright", true);
-            if (section) {
-                if (old) {
-                    section.removeAll();
-                }
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var section = this.getChildControl("sectionright");
+                if (section) {
+                    if (old) {
+                        section.removeAll();
+                    }
 
-                if (value) {
-                    section.add(value);
+                    if (value) {
+                        section.add(value);
+                        this.getContentElement().setAttribute("data-with-right-section", "true");
+                    } else {
+                        this.getContentElement().removeAttribute("data-with-right-section");
+                    }
                 }
             }
         }
