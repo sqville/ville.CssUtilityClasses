@@ -97,17 +97,13 @@ qx.Class.define("mantineapp.Application",
 
       // Twitter Button
       var twitButton = new ville.ui.form.Button("Twitter", "default", new ville.ui.icon.Photo(14));
-      twitButton.getContentElement().addClass("mantine-focus-auto mantine-active");
+      twitButton.getContentElement().addClass("mantine-focus-auto mantine-active"); 
 
       // Separator
-      var separatorbox = new qx.ui.core.Widget();
-      separatorbox.setCssUtilityClass("ville-mantineapp-LoginDivider m_3eebeb36 mantine-Divider-root");
-      separatorbox.setExcludeBoundsFromDom(true);
-      separatorbox.setClearAllInlineStyles(true);
+      var separatorbox = new ville.ui.core.Divider();
       separatorbox.getContentElement().setAttributes({
         "data-orientation" : "horizontal", 
-        "data-with-label" : "true", 
-        "role" : "separator"
+        "data-with-label" : "true"
       }, true);
       var sephtml = `<span class="m_9e365f20 mantine-Divider-label" data-position="center">Or continue with email</span>`;
       separatorbox.getContentElement().setAttribute("html", sephtml);
