@@ -19,7 +19,6 @@
 }
 
 .ville-mantineapp-LoginCenterBox {
-    --paper-radius:var(--mantine-radius-md);
     padding:var(--mantine-spacing-lg);
 
     p {

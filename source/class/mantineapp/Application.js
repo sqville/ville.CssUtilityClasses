@@ -59,13 +59,12 @@ qx.Class.define("mantineapp.Application",
         qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
 
         // clear out all styling of html and body tags
-        document.documentElement.style = "";
-        document.body.style = "";
+        //document.documentElement.style = "";
+        //document.body.style = "";
       } 
 
       // Document is the application root
       const doc = this.getRoot();
-      // CssUtilityClasses
       doc.setCssUtilityClass("ville-mantineapp-Application");
       doc.setExcludeBoundsFromDom(true);
       doc.setClearAllInlineStyles(true);
@@ -78,8 +77,9 @@ qx.Class.define("mantineapp.Application",
 
       // Login Center Box Container
       var centerbox = new ville.ui.core.Paper();
-      centerbox.getContentElement().setAttribute("data-with-border", "true");
-      centerbox.getContentElement().addClass("ville-mantineapp-LoginCenterBox");
+      centerbox.setWithBorder(true);
+      centerbox.setRadius("md");
+      centerbox.addClass("ville-mantineapp-LoginCenterBox");
 
       // Login Center Box Header Welcome Message
       var welcomeMsg = new ville.ui.typography.Text("Welcome to Mantine, login with");
