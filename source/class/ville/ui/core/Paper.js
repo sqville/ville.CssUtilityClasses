@@ -12,10 +12,8 @@ qx.Class.define("ville.ui.core.Paper", {
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        //this.setClearAllInlineStyles(true);
-        this.setExcludeInlineStyles([
-            "position", "overflowX", "overflowY", "touch-action", "-ms-touch-action", "zIndex", "boxSizing", "userSelect"
-        ]);
+        this.setSelectable(null);
+        this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_1b7284a3 mantine-Paper-root");
     },
 
@@ -49,6 +47,12 @@ qx.Class.define("ville.ui.core.Paper", {
     },
 
     members: {
+
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element("div");
+        },
+
         // property apply
         _applyWithBorder(value, old) {
             if (value) {
