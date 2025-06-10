@@ -7,9 +7,9 @@ qx.Class.define("ville.ui.typography.Text", {
 
     include: qx.ui.core.MChildrenHandling,
 
-    construct(text, tag) {
-        if (tag) {
-            this.__textelementtag = tag;
+    construct(text, component) {
+        if (component) {
+            this.__componenttag = component;
         }
         
         super();
@@ -34,18 +34,18 @@ qx.Class.define("ville.ui.typography.Text", {
 
     members: {
 
-        __textelementtag : "p",
+        __componenttag : "p",
+
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element(this.__componenttag);
+        },
 
         // property apply
         _applyParagraphText(value) {
             if (value) {
                 this.getContentElement().setAttribute("html", value);
             }
-        },
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__textelementtag);
         }
     }
   });

@@ -100,13 +100,7 @@ qx.Class.define("mantineapp.Application",
       twitButton.getContentElement().addClass("mantine-focus-auto mantine-active"); 
 
       // Separator
-      var separatorbox = new ville.ui.core.Divider();
-      separatorbox.getContentElement().setAttributes({
-        "data-orientation" : "horizontal", 
-        "data-with-label" : "true"
-      }, true);
-      var sephtml = `<span class="m_9e365f20 mantine-Divider-label" data-position="center">Or continue with email</span>`;
-      separatorbox.getContentElement().setAttribute("html", sephtml);
+      var divider = new ville.ui.core.Divider("horizontal", null, "xs", "lg", "Or continue with email", "center");
 
       // Form
       var form = new qx.ui.form.Form();
@@ -153,7 +147,7 @@ qx.Class.define("mantineapp.Application",
 
       centerbox.add(welcomeMsg);
       centerbox.add(LoginAuthGroupbox);
-      centerbox.add(separatorbox);
+      centerbox.add(divider);
       centerbox.add(loginForm);
       docMarginBox.add(centerbox);
       doc.add(docMarginBox);

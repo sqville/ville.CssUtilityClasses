@@ -7,7 +7,11 @@ qx.Class.define("ville.ui.core.Paper", {
 
     include: qx.ui.core.MChildrenHandling,
 
-    construct() {
+    construct(component) {
+        if (component) {
+            this.__componenttag = component;
+        }
+        
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -48,9 +52,11 @@ qx.Class.define("ville.ui.core.Paper", {
 
     members: {
 
+        __componenttag: "div",
+
         // overridden
         _createContentElement() {
-            return new qx.html.Element("div");
+            return new qx.html.Element(this.__componenttag);
         },
 
         // property apply

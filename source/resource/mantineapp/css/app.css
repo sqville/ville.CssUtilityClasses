@@ -1,7 +1,6 @@
 @import "../../../../node_modules/@mantine/core/styles/baseline.css";
 @import "../../../../node_modules/@mantine/core/styles/default-css-variables.css";
 @import "../../../../node_modules/@mantine/core/styles/global.css";
-@import "../../../../node_modules/@mantine/core/styles/Stack.css";
 @import "../../../../node_modules/@mantine/core/styles/Input.css";
 @import "../../../../node_modules/@mantine/core/styles/PasswordInput.css";
 @import "../../../../node_modules/@mantine/core/styles/ActionIcon.css";
@@ -43,10 +42,6 @@
         --button-color:var(--mantine-color-default-color);
         --button-bd:calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border);
     }
-}
-
-.ville-mantineapp-LoginDivider {
-    margin-block:var(--mantine-spacing-lg);
 }
 
 .ville-mantineapp-LoginFormStack {

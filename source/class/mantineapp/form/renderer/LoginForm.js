@@ -55,8 +55,9 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
        */
       addItems(items, names, title, customize) {
         // create items content container
-        var itemscontainer = this._createComposite();
-        itemscontainer.setCssUtilityClass("ville-mantineapp-LoginFormStack m_6d731127 mantine-Stack-root");
+        //var itemscontainer = this._createComposite();
+        var itemscontainer = new ville.ui.layout.Stack();
+        itemscontainer.getContentElement().addClass("ville-mantineapp-LoginFormStack");
 
         // add the items
         for (var i = 0; i < items.length; i++) {
