@@ -107,6 +107,11 @@ qx.Class.define("ville.ui.core.Divider", {
     members: {
 
         // overridden
+        _createContentElement() {
+            return new qx.html.Element("div");
+        },
+
+        // overridden
         _createChildControlImpl(id, hash) {
             var control;
 

@@ -45,10 +45,6 @@
 }
 
 .ville-mantineapp-LoginFormStack {
-    --stack-gap:var(--mantine-spacing-md);
-    --stack-align:stretch;
-    --stack-justify:flex-start;
-
     label {
         width:100%;
     }
