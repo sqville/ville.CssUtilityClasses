@@ -1,15 +1,13 @@
 /**
- * This is the innerwrapper widget for Button, TextFieldWrapper
+ * 
+ * 
  */
-qx.Class.define("ville.ui.core.InnerWrapper", {
+qx.Class.define("ville.ui.form.InputSection", {
     extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 
-    construct(component) {
-        if (component) {
-            this.__componenttag = component;
-        }
+    construct() {
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -18,12 +16,9 @@ qx.Class.define("ville.ui.core.InnerWrapper", {
     },
 
     members: {
-
-        __componenttag: "span",
-
         // overridden
         _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+            return new qx.html.Element("div");
         }
     }
   });

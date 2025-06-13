@@ -14,5 +14,12 @@ qx.Class.define("ville.ui.layout.Group", {
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
         this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
+    },
+
+    members: {
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element("div");
+        }
     }
   });

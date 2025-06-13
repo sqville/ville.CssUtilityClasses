@@ -1,8 +1,6 @@
 @import "../../../../node_modules/@mantine/core/styles/baseline.css";
 @import "../../../../node_modules/@mantine/core/styles/default-css-variables.css";
 @import "../../../../node_modules/@mantine/core/styles/global.css";
-@import "../../../../node_modules/@mantine/core/styles/Input.css";
-@import "../../../../node_modules/@mantine/core/styles/PasswordInput.css";
 @import "../../../../node_modules/@mantine/core/styles/ActionIcon.css";
 @import "../../../../node_modules/@mantine/core/styles/Anchor.css";
 
@@ -48,10 +46,6 @@
     label {
         width:100%;
     }
-}
-
-.ville-mantineapp-LoginForm-TextInputWrapper {
-    --input-radius:var(--mantine-radius-md);
 }
 
 .ville-mantineapp-LoginForm-PasswordInputWrapper {

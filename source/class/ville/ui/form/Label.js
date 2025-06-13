@@ -17,11 +17,31 @@ qx.Class.define("ville.ui.form.Label", {
         this.setExcludeInlineStyles(["position"]);
     },
 
+    properties: {
+        
+        size: {
+            init: "xs",
+            check: ["xs", "sm", "md", "lg", "xl"],
+            apply: "_applySize",
+            nullable: true,
+            themeable: true,
+            event: "changeSize"
+        }
+    },
+
     members: {
 
         // overridden
         _createContentElement() {
             return new qx.html.Element("label");
+        },
+
+        _applySize(value, old) {
+            if (value) {
+                var elem = this.getContentElement(); 
+                elem.setAttribute("data-size", value);
+                elem.setStyle("--input-label-size", `var(--mantine-font-size-${value}`);
+            }
         },
 
         // overridden

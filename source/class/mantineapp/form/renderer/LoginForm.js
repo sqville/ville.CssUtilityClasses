@@ -62,30 +62,35 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
         // add the items
         for (var i = 0; i < items.length; i++) {
           var label = null;
-          var itmnmgroup = this._createComposite();
+          //var itmnmgroup = this._createComposite();
           
           if (names[i] != null && names[i] != "") {
             label = this._createLabel(names[i]);
-            label.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+            label.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label");
             if (items[i].getRequired())
               label.getContentElement().setAttribute("data-required", "true");
 
-            //itmnmgroup.add(label);
           }
 
           var item = items[i];
-          var itemwrapper = this._createComposite();
+          //var itemwrapper = this._createComposite();
+          var itemwrapper;
           if (customize[i].complexity == "email") {
-            itmnmgroup.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
-            itemwrapper.setCssUtilityClass("ville-mantineapp-LoginForm-TextInputWrapper m_6c018570 mantine-Input-wrapper mantine-TextInput-wrapper");
-            itemwrapper.getContentElement().setAttribute("data-variant", "default");
-            itemwrapper.add(item);
+            itemwrapper = new ville.ui.form.TextFieldWrapper(item);
+            if (label) {
+              label.getContentElement().addClass("mantine-TextInput-label");
+              itemwrapper.setLabel(label);
+            }
           } else if (customize[i].complexity == "password") {
-            itmnmgroup.setCssUtilityClass("m_f61ca620 mantine-PasswordInput-root m_46b77525 mantine-InputWrapper-root mantine-PasswordInput-root");
-            itemwrapper.setCssUtilityClass("ville-mantineapp-LoginForm-PasswordInputWrapper m_6c018570 mantine-Input-wrapper mantine-PasswordInput-wrapper");
-            itemwrapper.getContentElement().setAttributes({"data-with-right-section" : "true", "data-variant" : "default"}, true);
+            itemwrapper = new ville.ui.form.PasswordWrapper(item);
+            if (label) {
+              label.getContentElement().addClass("mantine-PasswordInput-label");
+              itemwrapper.setLabel(label);
+            }
+              
+            //itemwrapper.getContentElement().setAttributes({"data-with-right-section" : "true", "data-variant" : "default"}, true);
              // add input password tag
-            var iteminnerwrapper = this._createComposite();
+            /*var iteminnerwrapper = this._createComposite();
             iteminnerwrapper.setCssUtilityClass("m_ccf8da4c m_8fb7ebe7 mantine-Input-input mantine-PasswordInput-input");
             iteminnerwrapper.getContentElement().setAttribute("data-variant", "default");
             iteminnerwrapper.add(item);
@@ -103,28 +108,20 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
             }, true);
             showpassbtn.addListener("click", (e) => {e.preventDefault()});
             btnwrapper.add(showpassbtn);
-            itemwrapper.add(btnwrapper);
+            itemwrapper.add(btnwrapper);*/
           }
           
-          
           if (label) {
-            label.add(itemwrapper);
-            itmnmgroup.add(label);
-            //itmnmgroup.add(label);
-            //itmnmgroup.add(itemwrapper);
-          } else {
-            itmnmgroup.add(itemwrapper);
-          }
-
-          if (label) {
-            label.setBuddy(item);
+            if (!itemwrapper.getNestLabel()) {
+              label.setBuddy(item);
+            }
             this._connectVisibility(item, label);
             // store the names for translation
             if (qx.core.Environment.get("qx.dynlocale")) {
                 this._names.push({ name: names[i], label: label, item: items[i] });
             }
           }
-          itemscontainer.add(itmnmgroup);
+          itemscontainer.add(itemwrapper);
         }
         this._add(itemscontainer);
       },
@@ -157,7 +154,7 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
        * @return {qx.ui.basic.Label} The label for the given item.
        */
       _createLabel(name) {
-        var label = new mantineapp.components.Label(name);
+        var label = new ville.ui.form.Label(name);
         // store labels for disposal
         this._labels.push(label);
         return label;

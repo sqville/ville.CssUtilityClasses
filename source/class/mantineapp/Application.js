@@ -106,25 +106,13 @@ qx.Class.define("mantineapp.Application",
       var form = new qx.ui.form.Form();
 
       // Email
-      var txtemail = new qx.ui.form.TextField();//.set({ required : true });
+      var txtemail = new ville.ui.form.TextField();//.set({ required : true });
       txtemail.setPlaceholder("youremail@email.com");
-      txtemail.setCssUtilityClass("m_8fb7ebe7 mantine-Input-input mantine-TextInput-input");
-      txtemail.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
-      txtemail.setExcludeBoundsFromDom(true);
-      //txtemail.setExcludeInlineStyles(["position", "zIndex", "touch-action", "boxSizing"]);
-      txtemail.setClearAllInlineStyles(true);
-      txtemail.getContentElement().setAttribute("data-variant", "default");
       form.add(txtemail, "Email", qx.util.Validate.email(), null, null, {complexity : "email"});
 
       // Password
-      var txtpassword = new qx.ui.form.PasswordField().set({ required : true });
+      var txtpassword = new ville.ui.form.PasswordField();//.set({ required : true });
       txtpassword.setPlaceholder("Your password");
-      txtpassword.setCssUtilityClass("m_f2d85dd2 mantine-PasswordInput-innerInput");
-      txtpassword.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
-      txtpassword.setExcludeBoundsFromDom(true);
-      //txtpassword.setExcludeInlineStyles(["position", "zIndex", "touch-action", "boxSizing"]);
-      txtpassword.setClearAllInlineStyles(true);
-      //txtpassword.getContentElement().setAttribute("data-variant", "default");
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
       // Form Bottom Buttons

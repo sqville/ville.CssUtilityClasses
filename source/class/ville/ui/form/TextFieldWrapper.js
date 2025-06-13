@@ -1,26 +1,24 @@
 /**
- * TextInput
- * @childControl textfield {qx.ui.form.TextField} holds the current value
- * @childControl sectionleft {qx.ui.core.Widget}
- * @childControl sectionright {qx.ui.core.Widget}
+ * TextFieldWrapper
+ * @childControl innerwrapper {ville.ui.core.InnerWrapper}
+ * @childControl sectionleft {ville.ui.form.InputSection}
+ * @childControl sectionright {ville.ui.form.InputSection}
  * @external(mantine/core/styles/Input.css)
  */
-qx.Class.define("ville.ui.form.TextInput", {
+qx.Class.define("ville.ui.form.TextFieldWrapper", {
     extend: qx.ui.core.Widget,
 
-    construct(variant, size, radius, sectionleft, sectionright) {
+    construct(textfield, variant, size, radius, sectionleft, sectionright) {
         super(); 
 
         this._setLayout(new qx.ui.layout.Basic());
 
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
-        this.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
         this.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
 
         // CREATE CONTROLS
-        this._createChildControl("innerwrapper");
-        this._createChildControl("textfield");
+        this.setTextField(textfield);
 
         if (variant) {
             this.setVariant(variant);
@@ -52,6 +50,13 @@ qx.Class.define("ville.ui.form.TextInput", {
 
     properties: {
 
+        textField: {
+            check: "qx.ui.form.AbstractField",
+            apply: "_applyTextField",
+            nullable: false,
+            event: "changeTextField"
+        },
+        
         variant: {
             init: "default",
             check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
@@ -61,7 +66,7 @@ qx.Class.define("ville.ui.form.TextInput", {
         },
 
         size: {
-            init: "xs",
+            init: "sm",
             check: ["xs", "sm", "md", "lg", "xl"],
             apply: "_applySize",
             nullable: true,
@@ -90,6 +95,20 @@ qx.Class.define("ville.ui.form.TextInput", {
             apply: "_applySectionRight",
             nullable: true,
             event: "changeSectionRight"
+        },
+
+        nestLabel: {
+            check: "Boolean",
+            init: true,
+            nullable: false,
+            themeable: true
+        },
+
+        label: {
+            check: "ville.ui.form.Label",
+            apply: "_applyLabel",
+            nullable: true,
+            event: "changeLabel"
         }
 
     },
@@ -108,20 +127,13 @@ qx.Class.define("ville.ui.form.TextInput", {
 
             switch (id) {
                 case "innerwrapper":
-                    control = new ville.ui.core.InnerWrapper();
+                    control = new ville.ui.core.InnerWrapper("div");
                     control.setCssUtilityClass("m_6c018570 mantine-Input-wrapper mantine-TextInput-wrapper");
                     this._add(control);
-                    break;
-
-                case "textfield":
-                    control = new qx.ui.form.TextField();
-                    control.setCssUtilityClass("m_8fb7ebe7 mantine-Input-input mantine-TextInput-input");
-                    innerwrapper = this.getChildControl("innerwrapper");
-                    innerwrapper.add(control);
-                    break;
+                    break;  
 
                 case "sectionleft":
-                    control = new ville.ui.basic.Label();
+                    control = new ville.ui.form.InputSection();
                     control.setAnonymous(true);
                     control.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-TextInput-section");
                     control.getContentElement().setAttribute("data-position", "left");
@@ -130,7 +142,7 @@ qx.Class.define("ville.ui.form.TextInput", {
                     break;
 
                 case "sectionright":
-                    control = new ville.ui.basic.Label();
+                    control = new ville.ui.form.InputSection();
                     control.setAnonymous(true);
                     control.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-TextInput-section");
                     control.getContentElement().setAttribute("data-position", "right");
@@ -143,9 +155,38 @@ qx.Class.define("ville.ui.form.TextInput", {
         },
 
         // property apply
+        _applyTextField(value, old) {
+            if (value) {
+                var innerwrapper = this.getChildControl("innerwrapper");
+                if (innerwrapper) {
+                    innerwrapper.add(value);
+                }
+            }
+        },
+
+        // property apply
+        _applyLabel(value, old) {
+            if (value) {
+                if (!this.getNestLabel()) {
+                    this._add(value);
+                } else {
+                    var innerwrapper = this.getChildControl("innerwrapper");
+                    if (innerwrapper) {
+                        // move innerwrapper to label
+                        value.add(innerwrapper);
+                        this._add(value);
+                    }
+                }
+            }
+        },
+
+        // property apply
         _applyVariant(value, old) {
             if (value) {
-                this.getContentElement().setAttribute("data-variant", value);
+                var innerwrapper = this.getChildControl("innerwrapper");
+                if (innerwrapper) {
+                    innerwrapper.getContentElement().setAttribute("data-variant", value);
+                }
             }
         },
 
@@ -160,6 +201,19 @@ qx.Class.define("ville.ui.form.TextInput", {
                         "--input-height" : `var(--input-height-${value})`, 
                         "--input-fz" : `var(--mantine-font-size-${value})`
                     });
+                    var label = this.getLabel();
+                    if (label) {
+                        label.setSize(value);
+                    }
+                }
+            }
+        },
+
+        _applyRadius(value, old) {
+            if (value) {
+                var innerwrapper = this.getChildControl("innerwrapper");
+                if (innerwrapper) {
+                    innerwrapper.getContentElement().setStyle("--input-radius", `var(--mantine-radius-${value})`);
                 }
             }
         },
