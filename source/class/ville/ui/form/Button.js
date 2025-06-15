@@ -10,10 +10,6 @@ qx.Class.define("ville.ui.form.Button", {
     construct(label, variant, sectionleft, sectionright) {
         super(); 
 
-        this._setLayout(new qx.ui.layout.Basic());
-
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
         this.setCssUtilityClass("m_77c9d27d mantine-Button-root " + this.getCssUtilityClass());
 
         if (variant != null) {
@@ -38,7 +34,7 @@ qx.Class.define("ville.ui.form.Button", {
     properties: {
 
         sectionLeft: {
-            check: "ville.ui.icon.Abstract",
+            check: "qx.ui.core.Widget",
             apply: "_applySectionLeft",
             nullable: true,
             themeable: true,
@@ -46,7 +42,7 @@ qx.Class.define("ville.ui.form.Button", {
         },
 
         sectionRight: {
-            check: "ville.ui.icon.Abstract",
+            check: "qx.ui.core.Widget",
             apply: "_applySectionRight",
             nullable: true,
             themeable: true,

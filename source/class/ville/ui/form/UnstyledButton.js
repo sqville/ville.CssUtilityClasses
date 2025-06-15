@@ -8,8 +8,10 @@ qx.Class.define("ville.ui.form.UnstyledButton", {
     construct(label) {
         super();
 
+        this._setLayout(new qx.ui.layout.Basic());
+
         this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
+        this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_87cf2631 mantine-UnstyledButton-root");
         this.getContentElement().setAttribute('type', 'button');
 

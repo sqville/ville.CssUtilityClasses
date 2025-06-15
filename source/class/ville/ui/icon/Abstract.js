@@ -12,7 +12,7 @@ qx.Class.define("ville.ui.icon.Abstract", {
         }
 
         this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true); 
+        this.setExcludeInlineStyles(["position"]); 
     },
 
     properties: {
