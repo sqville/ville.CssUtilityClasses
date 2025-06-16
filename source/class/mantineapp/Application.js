@@ -79,17 +79,16 @@ qx.Class.define("mantineapp.Application",
       var centerbox = new ville.ui.core.Paper();
       centerbox.setWithBorder(true);
       centerbox.setRadius("md");
-      centerbox.addClass("ville-mantineapp-LoginCenterBox");
+      centerbox.getContentElement().setStyle("padding", "var(--mantine-spacing-lg)");
 
       // Login Center Box Header Welcome Message
-      var welcomeMsg = new ville.ui.typography.Text("Welcome to Mantine, login with");
+      var welcomeMsg = new ville.ui.typography.Text("Welcome to Mantine, login with", "lg", 500);
       welcomeMsg.getContentElement().addClass("mantine-focus-auto");
-      welcomeMsg.getContentElement().setAttribute("data-size", "lg");
 
       // Login Auth Group Box
-      var LoginAuthGroupbox = new ville.ui.layout.Group();
-      LoginAuthGroupbox.getContentElement().addClass("ville-mantineapp-AuthButtonGroup");
-      LoginAuthGroupbox.getContentElement().setAttribute("data-grow", "true");
+      var LoginAuthGroupbox = new ville.ui.layout.Group("center");
+      var lagbElem = LoginAuthGroupbox.getContentElement();
+      lagbElem.addClass("ville-mantineapp-AuthButtonGroup");      
 
       // Google Button
       var googleButton = new ville.ui.form.Button("Google", "default", new ville.ui.icon.Google(14));
@@ -128,10 +127,11 @@ qx.Class.define("mantineapp.Application",
       // Form Renderer
       var loginForm = new mantineapp.form.renderer.LoginForm(form);
       
-      
-
+      // Add Auth buttons to Auth GroupBox 
       LoginAuthGroupbox.add(googleButton);
       LoginAuthGroupbox.add(twitButton);
+      // Need to be set after adding layout children
+      LoginAuthGroupbox.setGrow(true);
 
       centerbox.add(welcomeMsg);
       centerbox.add(LoginAuthGroupbox);

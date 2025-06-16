@@ -15,22 +15,8 @@
     }
 }
 
-.ville-mantineapp-LoginCenterBox {
-    padding:var(--mantine-spacing-lg);
-
-    p {
-        --text-fz:var(--mantine-font-size-lg);
-        --text-lh:var(--mantine-line-height-lg);
-        font-weight:500;
-    }
-}
-
 .ville-mantineapp-AuthButtonGroup {
-    --group-child-width:calc(50% - (var(--mantine-spacing-md) - var(--mantine-spacing-md) / 2));
-    --group-gap:var(--mantine-spacing-md);
-    --group-align:center;
-    --group-justify:flex-start;
-    --group-wrap:wrap;margin-top:var(--mantine-spacing-md);
+    margin-top:var(--mantine-spacing-md);
     margin-bottom:var(--mantine-spacing-md);
 
     button {

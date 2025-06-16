@@ -10,6 +10,12 @@ qx.Class.define("ville.ui.layout.Stack", {
     construct(align, justify, gap) {
         super();
 
+        this._setLayout(new qx.ui.layout.Basic());
+        this.setExcludeBoundsFromDom(true);
+        this.setSelectable(null);
+        this.setExcludeInlineStyles(["position"]);
+        this.setCssUtilityClass("m_6d731127 mantine-Stack-root");
+
         if (align) {
             this.setAlign(align);
         } else {
@@ -28,14 +34,10 @@ qx.Class.define("ville.ui.layout.Stack", {
             this.initGap();
         }
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
-        this.setCssUtilityClass("m_6d731127 mantine-Stack-root");
     },
 
     properties: {
+        
         align: {
             init: "stretch",
             check: ["stretch", "center", "flex-start", "flex-end"],
