@@ -141,9 +141,6 @@ qx.Class.define("mantineapp.Application",
       doc.add(docMarginBox);
 
       /*
-
-     
-
       var loginForm = new mantineapp.form.renderer.LoginForm(form);
       loginForm.setCssUtilityClass("card-body");
       loginForm.setExcludeBoundsFromDom(true);
