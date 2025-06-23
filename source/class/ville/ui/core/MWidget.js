@@ -1,31 +1,35 @@
 qx.Mixin.define("ville.ui.core.MWidget",
-{      
-  properties:{
-    
-    component: {
-      check: "String",
-      init: "div",
-      themeable: false,
-      nullable: false,
-      apply: "_applyComponent"
-    }
-
-  },
-
+{
   members: {
 
-    __componenttag: null,
+    addClass(classname) {
+      this.getContentElement().addClass(classname);
+    },
 
-    // property apply
-    _applyComponent(value, old) {
-      var content = this.getContentElement();
-      if (old) {
-        content.removeClass(old);
-      }
-      if (value) {
-        content.addClass(value);
-      }
-      //this.getContentElement().setCssClass(value);
+    // API - bubble up Style/Attributes
+    setStyle(style, value) {
+      this.getContentElement().setStyle(style, value);
+    },
+
+    // API - bubble up Style/Attributes
+    setStyles(styles) {
+      this.getContentElement().setStyles(styles);
+    },
+
+    removeStyle(style) {
+      this.getContentElement().removeStyle(style);
+    },
+
+    setAttribute(attribute, value) {
+      this.getContentElement().setAttribute(attribute, value);
+    },
+
+    setAttributes(attributes) {
+      this.getContentElement().setAttributes(attributes);
+    },
+
+    removeAttribute(attribute) {
+      this.getContentElement().removeAttribute(attribute);
     }
   }
 });

@@ -48,17 +48,7 @@
 }
 
 .ville-mantineapp-LoginFormButtonGroup {
-    --group-gap:var(--mantine-spacing-md);
-    --group-align:center;
-    --group-justify:space-between;
-    --group-wrap:wrap;
     margin-top:var(--mantine-spacing-xl);
-
-    button:first-child {
-        --text-fz:var(--mantine-font-size-xs);
-        --text-lh:var(--mantine-line-height-xs);
-        color:var(--mantine-color-dimmed);
-    }
 
     button:last-child {
         --button-radius:var(--mantine-radius-xl);

@@ -13,6 +13,7 @@ qx.Class.define("ville.ui.form.UnstyledButton", {
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_87cf2631 mantine-UnstyledButton-root");
+        this.setSelectable(null);
         this.getContentElement().setAttribute('type', 'button');
 
         if (label) {

@@ -5,7 +5,9 @@
 qx.Class.define("ville.ui.form.Anchor", {
     extend: qx.ui.form.Button,
 
-    construct(label, component, href, target) {
+    include: ville.ui.core.MWidget,
+
+    construct(label, component) {
         if (component) {
             this.__componenttag = component;
         }
@@ -13,26 +15,40 @@ qx.Class.define("ville.ui.form.Anchor", {
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
-
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root");
+        if (component)
+            if (component = "button")
+                this.getContentElement().setAttribute('type', 'button');
 
         if (label) {
             this.setLabel(label);
         }
 
-        if (href) {
-            this.setHref(href);
-        }
-
-        if (target) {
-            this.setTarget(target);
-        }
+        this.initSize();
+        this.initUnderline();
      
     },
 
     properties: {
+        
+        underline: {
+            init: "hover",
+            check: ["always", "hover", "not-hover", "never"],
+            apply: "_applyUnderline",
+            themeable: true,
+            event: "changeUnderline"
+        },
+
+        size: {
+            init: "md",
+            check: ["xs", "sm", "md", "lg", "xl"],
+            apply: "_applySize",
+            nullable: true,
+            themeable: true,
+            event: "changeSize"
+        },
         
         href: {
             apply: "_applyHref",
@@ -62,6 +78,22 @@ qx.Class.define("ville.ui.form.Anchor", {
         _applyLabel(value, old) {
             if (value) {
                 this.getContentElement().setAttribute("html", value);
+            }
+        },
+
+         _applySize(value, old) {
+            if (value) {
+                this.getContentElement().setAttribute("data-size", value);
+                this.getContentElement().setStyles({
+                    "--text-lh" : `var(--input-height-${value})`, 
+                    "--text-fz" : `var(--mantine-font-size-${value})`
+                });
+            }
+        },
+
+        _applyUnderline(value, old) {
+            if (value) {
+                this.getContentElement().setAttribute("data-underline", value);
             }
         },
 

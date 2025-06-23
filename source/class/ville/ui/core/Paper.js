@@ -5,7 +5,7 @@
 qx.Class.define("ville.ui.core.Paper", {
     extend: qx.ui.core.Widget,
 
-    include: qx.ui.core.MChildrenHandling,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(component) {
         if (component) {
@@ -83,12 +83,6 @@ qx.Class.define("ville.ui.core.Paper", {
                 this.getContentElement().setStyle("--paper-shadow", `var(--mantine-shadow-${value})`);
             } else {
                 this.getContentElement().removeStyle("--paper-shadow");
-            }
-        },
-
-        addClass(value) {
-            if (value) {
-                this.getContentElement().addClass(value);
             }
         }
     }

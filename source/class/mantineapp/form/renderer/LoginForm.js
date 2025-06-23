@@ -55,9 +55,8 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
        */
       addItems(items, names, title, customize) {
         // create items content container
-        //var itemscontainer = this._createComposite();
         var itemscontainer = new ville.ui.layout.Stack();
-        itemscontainer.getContentElement().addClass("ville-mantineapp-LoginFormStack");
+        itemscontainer.addClass("ville-mantineapp-LoginFormStack");
 
         // add the items
         for (var i = 0; i < items.length; i++) {
@@ -135,8 +134,8 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
       addButton(button) {
         if (this._buttonRow == null) {
           // create button row
-          this._buttonRow = this._createComposite();
-          this._buttonRow.setCssUtilityClass("ville-mantineapp-LoginFormButtonGroup m_4081bf90 mantine-Group-root");
+          this._buttonRow = new ville.ui.layout.Group("center", "space-between");
+          this._buttonRow.addClass("ville-mantineapp-LoginFormButtonGroup");
           
           this._add(this._buttonRow);
         }

@@ -5,40 +5,14 @@
 qx.Class.define("ville.ui.core.Divider", {
     extend: qx.ui.core.Widget,
 
-    construct(orientation, variant, size, spacing, label, labelposition) {
+    construct() {
         super();
 
-        if (orientation) {
-            this.setOrientation(orientation);
-        } else {
-            this.initOrientation();
-        }
-
-        if (variant) {
-            this.setVariant(variant);
-        } else {
-            this.initVariant();
-        }
-
-        if (size) {
-            this.setSize(size);
-        } else {
-            this.initSize();
-        }
-
-        if (spacing) {
-            this.setSpacing(spacing);
-        } else {
-            this.initSpacing();
-        }
-
-        if (label != null && label != "") {
-            this.setLabel(label);
-        }
-
-        if (labelposition) {
-            this.setLabelPosition(labelposition);
-        }
+        this.initOrientation();
+        this.initVariant();
+        this.initSize();
+        this.initSpacing();
+        this.initLabelPosition();
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
@@ -139,6 +113,7 @@ qx.Class.define("ville.ui.core.Divider", {
                 if (label) {
                     this.getContentElement().setAttribute("data-with-label", "true");
                     label.setValue(value);
+                    label.getContentElement().setAttribute("data-position", this.getLabelPosition());
                 }
             }
         },

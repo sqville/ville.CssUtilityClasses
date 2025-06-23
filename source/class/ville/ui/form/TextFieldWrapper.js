@@ -8,7 +8,7 @@
 qx.Class.define("ville.ui.form.TextFieldWrapper", {
     extend: qx.ui.core.Widget,
 
-    construct(textfield, variant, size, radius, sectionleft, sectionright) {
+    construct(textfield, variant, sectionleft, sectionright) {
         super(); 
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -17,25 +17,14 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
 
-        // CREATE CONTROLS
-        this.setTextField(textfield);
-
+        if (textfield) {
+            this.setTextField(textfield);
+        }
+        
         if (variant) {
             this.setVariant(variant);
         } else {
             this.initVariant();
-        }
-
-        if (size) {
-            this.setSize(size);
-        } else {
-            this.initSize();
-        }
-
-        if (radius) {
-            this.setRadius(radius);
-        } else {
-            this.initRadius();
         }
 
         if (sectionleft) {
@@ -45,6 +34,9 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
         if (sectionright) {
             this.setSectionRight(sectionright);
         }
+
+        this.initSize();
+        this.initRadius();
 
     },
 

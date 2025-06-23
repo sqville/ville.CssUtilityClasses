@@ -5,7 +5,7 @@
 qx.Class.define("ville.ui.layout.Stack", {
     extend: qx.ui.core.Widget,
 
-    include: qx.ui.core.MChildrenHandling,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(align, justify, gap) {
         super();

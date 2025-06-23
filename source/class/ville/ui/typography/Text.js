@@ -5,9 +5,9 @@
 qx.Class.define("ville.ui.typography.Text", {
     extend: qx.ui.core.Widget,
 
-    include: qx.ui.core.MChildrenHandling,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
-    construct(text, size, fw, component) {
+    construct(text, component) {
         if (component) {
             this.__componenttag = component;
         }
@@ -21,16 +21,6 @@ qx.Class.define("ville.ui.typography.Text", {
         
         if (text) {
             this.setText(text);
-        }
-
-        if (size) {
-            this.setSize(size);
-        } else {
-            this.initSize();
-        }
-
-        if (fw) {
-            this.setFontWeight(fw);
         }
     },
 

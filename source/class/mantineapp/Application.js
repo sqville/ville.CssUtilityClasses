@@ -18,8 +18,6 @@ qx.Class.define("mantineapp.Application",
 {
   extend : qx.application.Standalone,
 
-
-
   /*
   *****************************************************************************
      MEMBERS
@@ -57,10 +55,6 @@ qx.Class.define("mantineapp.Application",
       if (qx.core.Environment.get("ville.cssuc")) {
         qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
         qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
-
-        // clear out all styling of html and body tags
-        //document.documentElement.style = "";
-        //document.body.style = "";
       } 
 
       // Document is the application root
@@ -79,27 +73,28 @@ qx.Class.define("mantineapp.Application",
       var centerbox = new ville.ui.core.Paper();
       centerbox.setWithBorder(true);
       centerbox.setRadius("md");
-      centerbox.getContentElement().setStyle("padding", "var(--mantine-spacing-lg)");
+      centerbox.setStyle("padding", "var(--mantine-spacing-lg)");
 
       // Login Center Box Header Welcome Message
-      var welcomeMsg = new ville.ui.typography.Text("Welcome to Mantine, login with", "lg", 500);
-      welcomeMsg.getContentElement().addClass("mantine-focus-auto");
+      var welcomeMsg = new ville.ui.typography.Text("Welcome to Mantine, login with");
+      welcomeMsg.set({ size : "lg", fontWeight : 500 });
+      welcomeMsg.addClass("mantine-focus-auto");
 
       // Login Auth Group Box
       var LoginAuthGroupbox = new ville.ui.layout.Group("center");
-      var lagbElem = LoginAuthGroupbox.getContentElement();
-      lagbElem.addClass("ville-mantineapp-AuthButtonGroup");      
+      LoginAuthGroupbox.addClass("ville-mantineapp-AuthButtonGroup");      
 
       // Google Button
       var googleButton = new ville.ui.form.Button("Google", "default", new ville.ui.icon.Google(14));
-      googleButton.getContentElement().addClass("mantine-focus-auto mantine-active");
+      googleButton.addClass("mantine-focus-auto mantine-active");
 
       // Twitter Button
       var twitButton = new ville.ui.form.Button("Twitter", "default", new ville.ui.icon.Photo(14));
-      twitButton.getContentElement().addClass("mantine-focus-auto mantine-active"); 
+      twitButton.addClass("mantine-focus-auto mantine-active"); 
 
       // Separator
-      var divider = new ville.ui.core.Divider("horizontal", null, "xs", "lg", "Or continue with email", "center");
+      var divider = new ville.ui.core.Divider();
+      divider.setLabel("Or continue with email");
 
       // Form
       var form = new qx.ui.form.Form();
@@ -115,11 +110,12 @@ qx.Class.define("mantineapp.Application",
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
       // Form Bottom Buttons
-      var registerbutton = new mantineapp.components.Anchor("Don't have an account? Register");
-      registerbutton.setCssUtilityClass("mantine-focus-auto m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root");
-      registerbutton.getContentElement().setAttributes({"data-size" : "xs", "data-underline" : "hover"});
-      var loginbutton = new mantineapp.components.Button("Login");
-      loginbutton.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
+      var registerbutton = new ville.ui.form.Anchor("Don't have an account? Register", "button");
+      registerbutton.setSize("xs");
+      registerbutton.setStyle("color", "var(--mantine-color-dimmed)");
+
+      var loginbutton = new ville.ui.form.Button("Login", "filled");
+      loginbutton.addClass("mantine-focus-auto mantine-active");
 
       form.addButton(registerbutton);
       form.addButton(loginbutton);

@@ -5,33 +5,42 @@
 qx.Class.define("ville.ui.form.Button", {
     extend: ville.ui.form.UnstyledButton,
 
-    include: qx.ui.core.MChildrenHandling,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(label, variant, sectionleft, sectionright) {
         super(); 
 
         this.setCssUtilityClass("m_77c9d27d mantine-Button-root " + this.getCssUtilityClass());
 
-        if (variant != null) {
+        if (label != null) {
+            this.setLabel(label);
+        }
+        
+        if (variant) {
             this.setVariant(variant);
+        } else {
+            this.initVariant();
         }
 
         if (sectionleft !== undefined) {
             this.setSectionLeft(sectionleft);
         }
 
-        if (label != null) {
-            this.setLabel(label);
-        }
-
         if (sectionright !== undefined) {
             this.setSectionRight(sectionright);
         }
-
-        this.getContentElement().setAttribute('type', 'button');
+        
     },
 
     properties: {
+
+        variant: {
+            init: "default",
+            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
+            apply: "_applyVariant",
+            themeable: true,
+            event: "changeVariant"
+        },
 
         sectionLeft: {
             check: "qx.ui.core.Widget",
@@ -47,14 +56,6 @@ qx.Class.define("ville.ui.form.Button", {
             nullable: true,
             themeable: true,
             event: "changeSectionRight"
-        },
-
-        variant: {
-            init: "default",
-            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
-            apply: "_applyVariant",
-            themeable: true,
-            event: "changeVariant"
         }
     },
 
@@ -116,6 +117,7 @@ qx.Class.define("ville.ui.form.Button", {
         },
 
         // overridden
+        // Replaced by Section Left and Right
         _applyIcon(value, old) {},
 
         // overridden
