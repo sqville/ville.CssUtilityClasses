@@ -72,7 +72,6 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
           }
 
           var item = items[i];
-          //var itemwrapper = this._createComposite();
           var itemwrapper;
           if (customize[i].complexity == "email") {
             itemwrapper = new ville.ui.form.TextFieldWrapper(item);
@@ -86,28 +85,8 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
               label.getContentElement().addClass("mantine-PasswordInput-label");
               itemwrapper.setLabel(label);
             }
-              
-            //itemwrapper.getContentElement().setAttributes({"data-with-right-section" : "true", "data-variant" : "default"}, true);
-             // add input password tag
-            /*var iteminnerwrapper = this._createComposite();
-            iteminnerwrapper.setCssUtilityClass("m_ccf8da4c m_8fb7ebe7 mantine-Input-input mantine-PasswordInput-input");
-            iteminnerwrapper.getContentElement().setAttribute("data-variant", "default");
-            iteminnerwrapper.add(item);
-            itemwrapper.add(iteminnerwrapper);
-            // add the show password Button
-            var btnwrapper = this._createComposite();
-            btnwrapper.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-PasswordInput-section");
-            btnwrapper.getContentElement().setAttribute("data-position", "right");
-            var showpassbtn = new mantineapp.components.ActionIcon(mantineapp.components.Icons["EYE"]);
-            showpassbtn.setCssUtilityClass("mantine-focus-auto mantine-active m_b1072d44 mantine-PasswordInput-visibilityToggle m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root");
-            showpassbtn.getContentElement().setAttributes({
-              "data-variant" : "subtl",
-              "aria-hidden" : "false",
-              "tabindex" : "-1"
-            }, true);
-            showpassbtn.addListener("click", (e) => {e.preventDefault()});
-            btnwrapper.add(showpassbtn);
-            itemwrapper.add(btnwrapper);*/
+          } else {
+            itemwrapper = item;
           }
           
           if (label) {

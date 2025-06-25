@@ -109,6 +109,10 @@ qx.Class.define("mantineapp.Application",
       txtpassword.setPlaceholder("Your password");
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
+      // CheckBox
+      var chkrememberme = new ville.ui.form.CheckBox("Remember me");//.set({ required : true });
+      form.add(chkrememberme, "Hello", null, null, null, {complexity : "checkbox"});
+
       // Form Bottom Buttons
       var registerbutton = new ville.ui.form.Anchor("Don't have an account? Register", "button");
       registerbutton.setSize("xs");
