@@ -110,7 +110,7 @@ qx.Class.define("mantineapp.Application",
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
       // CheckBox
-      var chkrememberme = new ville.ui.form.CheckBox("Remember me");//.set({ required : true });
+      var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ nestLabel: true });
       form.add(chkrememberme, "Hello", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons

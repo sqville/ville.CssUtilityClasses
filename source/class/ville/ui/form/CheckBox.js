@@ -19,12 +19,13 @@ qx.Class.define("ville.ui.form.CheckBox", {
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_bf2d988c mantine-Checkbox-root m_5f75b09e");
+        this.setSelectable(null);
 
         this._createChildControl("input");
         this._createChildControl("icon");
 
         if (label) {
-            this._createChildControl("label");
+            this.setLabel(label);
         }
 
         // Set attributes
@@ -33,8 +34,6 @@ qx.Class.define("ville.ui.form.CheckBox", {
             "data-size" : "sm",
             "data-variant" : "filled"
         });
-
-        this.initNestLabel();
 
         if (variant) {
             this.setVariant(variant);
@@ -62,6 +61,11 @@ qx.Class.define("ville.ui.form.CheckBox", {
     },
 
     members: {
+
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element("div");
+        },
 
         // overridden
         _createChildControlImpl(id, hash) {
@@ -94,6 +98,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
                 case "input":
                     control = new ville.ui.core.BaseWidget("input");
                     control.setAttribute("type", "checkbox");
+                    //control.setAttribute("checked", "");
                     control.setCssUtilityClass("mantine-focus-auto m_26063560 mantine-Checkbox-input");
                     cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
                     cbinnerwrapper.add(control);
@@ -106,7 +111,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     break;
 
                 case "label":
-                    control = new ville.ui.basic.Label();
+                    control = new ville.ui.form.Label();
                     control.setAnonymous(true);
                     control.setSelectable(this.getSelectable());
                     control.setCssUtilityClass("m_8ee546b8 mantine-Checkbox-label");
@@ -125,7 +130,6 @@ qx.Class.define("ville.ui.form.CheckBox", {
                 this.setAttribute("data-variant", value);
                 var input = this.getChildControl("input");
                 if (input) {
-                    // m_215c4542 - outline
                     if (value = "outline") {
                         input.getContentElement().addClass("m_215c4542");
                     } else {
@@ -137,6 +141,15 @@ qx.Class.define("ville.ui.form.CheckBox", {
 
         // overridden
         _applyIcon() {},
+
+        _applyLabel(value, old) {
+            if (value) {
+                var label = this.getChildControl("label");
+                if (label) {
+                    label.setValue(value);
+                }
+            }
+        },
 
         // property apply
         _applyNestLabel(value, old) {

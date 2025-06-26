@@ -13,6 +13,7 @@ qx.Class.define("ville.ui.icon.Abstract", {
 
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]); 
+        this.setSelectable(null);
     },
 
     properties: {
