@@ -12,6 +12,11 @@ qx.Mixin.define("ville.ui.core.MWidget",
     },
 
     // API - bubble up Style/Attributes
+    getStyle(style, value) {
+      this.getContentElement().getStyle(style, value);
+    },
+
+    // API - bubble up Style/Attributes
     setStyles(styles) {
       this.getContentElement().setStyles(styles);
     },
@@ -22,6 +27,10 @@ qx.Mixin.define("ville.ui.core.MWidget",
 
     setAttribute(attribute, value) {
       this.getContentElement().setAttribute(attribute, value);
+    },
+
+    getAttribute(attribute, value) {
+      this.getContentElement().getAttribute(attribute, value);
     },
 
     setAttributes(attributes) {

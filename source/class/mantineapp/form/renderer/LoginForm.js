@@ -62,27 +62,29 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
         for (var i = 0; i < items.length; i++) {
           var label = null;
           //var itmnmgroup = this._createComposite();
+          var item = items[i];
           
           if (names[i] != null && names[i] != "") {
             label = this._createLabel(names[i]);
             label.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label");
-            if (items[i].getRequired())
-              label.getContentElement().setAttribute("data-required", "true");
-
+            if (item.getRequired()) {
+              label.setAttribute("data-required", "true");
+            }
           }
 
-          var item = items[i];
           var itemwrapper;
           if (customize[i].complexity == "email") {
             itemwrapper = new ville.ui.form.TextFieldWrapper(item);
             if (label) {
-              label.getContentElement().addClass("mantine-TextInput-label");
+              label.addClass("mantine-TextInput-label");
+              label.setAttribute("for", "villetxtemail123");
               itemwrapper.setLabel(label);
             }
           } else if (customize[i].complexity == "password") {
             itemwrapper = new ville.ui.form.PasswordWrapper(item);
             if (label) {
-              label.getContentElement().addClass("mantine-PasswordInput-label");
+              label.addClass("mantine-PasswordInput-label");
+              label.setAttribute("for", item.getAttribute("id"));
               itemwrapper.setLabel(label);
             }
           } else {

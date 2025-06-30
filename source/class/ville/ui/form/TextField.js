@@ -5,6 +5,8 @@
 qx.Class.define("ville.ui.form.TextField", {
     extend: qx.ui.form.TextField,
 
+    include: ville.ui.core.MWidget,
+
     construct() {
         super();
 

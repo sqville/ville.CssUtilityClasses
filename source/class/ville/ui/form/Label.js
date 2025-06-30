@@ -1,7 +1,7 @@
 qx.Class.define("ville.ui.form.Label", {
     extend: qx.ui.basic.Label,
 
-    include: qx.ui.core.MChildrenHandling,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(text) {
         super();

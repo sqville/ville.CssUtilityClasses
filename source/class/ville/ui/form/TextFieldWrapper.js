@@ -91,7 +91,7 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
 
         nestLabel: {
             check: "Boolean",
-            init: true,
+            init: false,
             nullable: false,
             themeable: true
         },
@@ -159,12 +159,12 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
         // property apply
         _applyLabel(value, old) {
             if (value) {
-                if (!this.getNestLabel()) {
-                    this._add(value);
-                } else {
-                    var innerwrapper = this.getChildControl("innerwrapper");
-                    if (innerwrapper) {
-                        // move innerwrapper to label
+                var innerwrapper = this.getChildControl("innerwrapper");
+                if (innerwrapper) {
+                    if (!this.getNestLabel()) {
+                        this._add(value);
+                        value.getContentElement().moveTo(0);
+                    } else {
                         value.add(innerwrapper);
                         this._add(value);
                     }

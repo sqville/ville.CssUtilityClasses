@@ -5,6 +5,8 @@
 qx.Class.define("ville.ui.form.PasswordField", {
     extend: qx.ui.form.PasswordField,
 
+    include: ville.ui.core.MWidget,
+
     construct() {
         super();
 

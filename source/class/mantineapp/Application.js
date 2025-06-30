@@ -101,17 +101,19 @@ qx.Class.define("mantineapp.Application",
 
       // Email
       var txtemail = new ville.ui.form.TextField();//.set({ required : true });
+      txtemail.setAttribute("id", "villetxtemail123");
       txtemail.setPlaceholder("youremail@email.com");
       form.add(txtemail, "Email", qx.util.Validate.email(), null, null, {complexity : "email"});
 
       // Password
       var txtpassword = new ville.ui.form.PasswordField();//.set({ required : true });
+      txtpassword.setAttribute("id", "villetxtpassword123");
       txtpassword.setPlaceholder("Your password");
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
-      // CheckBox
-      var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ nestLabel: true });
-      form.add(chkrememberme, "Hello", null, null, null, {complexity : "checkbox"});
+      // Remember Me - CheckBox
+      var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ id : "villechkrme123" });
+      form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons
       var registerbutton = new ville.ui.form.Anchor("Don't have an account? Register", "button");
@@ -126,6 +128,9 @@ qx.Class.define("mantineapp.Application",
 
       // Form Renderer
       var loginForm = new mantineapp.form.renderer.LoginForm(form);
+
+      // Experimental Widget
+      //var expwidget = new ville.ui.experimental.Widget();
       
       // Add Auth buttons to Auth GroupBox 
       LoginAuthGroupbox.add(googleButton);
@@ -137,6 +142,9 @@ qx.Class.define("mantineapp.Application",
       centerbox.add(LoginAuthGroupbox);
       centerbox.add(divider);
       centerbox.add(loginForm);
+
+      //centerbox.add(expwidget);
+
       docMarginBox.add(centerbox);
       doc.add(docMarginBox);
 

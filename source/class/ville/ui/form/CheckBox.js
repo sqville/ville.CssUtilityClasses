@@ -12,7 +12,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
-    construct(label, variant) {
+    construct(label) {
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -21,6 +21,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
         this.setCssUtilityClass("m_bf2d988c mantine-Checkbox-root m_5f75b09e");
         this.setSelectable(null);
 
+        //this._createChildControl("label");
         this._createChildControl("input");
         this._createChildControl("icon");
 
@@ -34,10 +35,6 @@ qx.Class.define("ville.ui.form.CheckBox", {
             "data-size" : "sm",
             "data-variant" : "filled"
         });
-
-        if (variant) {
-            this.setVariant(variant);
-        }
     },
 
     properties: {
@@ -48,6 +45,14 @@ qx.Class.define("ville.ui.form.CheckBox", {
             apply: "_applyVariant",
             themeable: true,
             event: "changeVariant"
+        },
+
+        id: {
+            check: "String",
+            apply: "_applyId",
+            themeable: false,
+            nullable: true,
+            event: "changeId"
         },
 
         nestLabel: {
@@ -73,6 +78,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
             var cbbody;
             var cbinnerwrapper;
             var cblabelwrapper;
+            var cblabel;
 
             switch (id) {
                 case "checkboxbody":
@@ -95,12 +101,23 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     cbbody.add(control);
                     break;
 
+                case "label":
+                    control = new ville.ui.form.Label();
+                    control.setAnonymous(true);
+                    control.setSelectable(false);
+                    control.setCssUtilityClass("m_8ee546b8 mantine-Checkbox-label");
+                    cblabelwrapper = this.getChildControl("checkboxlabelwrapper");
+                    cblabelwrapper.add(control);
+                    //cbbody = this.getChildControl("checkboxbody");
+                    //cbbody.add(control);
+                    break;
+
                 case "input":
-                    control = new ville.ui.core.BaseWidget("input");
-                    control.setAttribute("type", "checkbox");
-                    //control.setAttribute("checked", "");
+                    control = new ville.ui.core.BaseWidget({ "basetag" : "input", "type" : "checkbox" });
                     control.setCssUtilityClass("mantine-focus-auto m_26063560 mantine-Checkbox-input");
                     cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
+                    //cblabel = this.getChildControl("label");
+                    //cblabel.add(control);
                     cbinnerwrapper.add(control);
                     break;
                 
@@ -108,15 +125,8 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     control = new ville.ui.icon.CheckBoxIcon();
                     cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
                     cbinnerwrapper.add(control);
-                    break;
-
-                case "label":
-                    control = new ville.ui.form.Label();
-                    control.setAnonymous(true);
-                    control.setSelectable(this.getSelectable());
-                    control.setCssUtilityClass("m_8ee546b8 mantine-Checkbox-label");
-                    cblabelwrapper = this.getChildControl("checkboxlabelwrapper");
-                    cblabelwrapper.add(control);
+                    //cblabel = this.getChildControl("label");
+                    //cblabel.add(control);
                     break;
                 
             }
@@ -135,6 +145,20 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     } else {
                         input.getContentElement().removeClass("m_215c4542");
                     }
+                }
+            }
+        },
+
+        // property apply
+        _applyId(value, old) {
+            if (value) {
+                var input = this.getChildControl("input");
+                if (input) {
+                    input.setAttribute("id", value);
+                }
+                var label = this.getChildControl("label", true);
+                if (label) {
+                    label.setAttribute("for", value);
                 }
             }
         },

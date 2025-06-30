@@ -8,7 +8,7 @@ qx.Class.define("ville.ui.core.BaseWidget", {
 
     construct(component) {
         if (component) {
-            this.__componenttag = component;
+            this.__componentmap = component;
         }
         super();
 
@@ -20,11 +20,17 @@ qx.Class.define("ville.ui.core.BaseWidget", {
 
     members: {
 
-        __componenttag: "div",
+        __componentmap: {"basetag" : "div", "type" : "na"},
 
         // overridden
         _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+            var newelem;
+            if (this.__componentmap.basetag = "input") {
+                newelem = new qx.html.Input(this.__componentmap.type);
+            } else {
+                newelem = new qx.html.Element(this.__componentmap.basetag);
+            }
+            return newelem; 
         }
     }
   });
