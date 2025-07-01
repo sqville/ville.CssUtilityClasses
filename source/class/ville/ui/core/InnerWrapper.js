@@ -5,7 +5,7 @@
 qx.Class.define("ville.ui.core.InnerWrapper", {
     extend: qx.ui.core.Widget,
 
-    include: qx.ui.core.MChildrenHandling,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(component) {
         if (component) {
@@ -15,7 +15,8 @@ qx.Class.define("ville.ui.core.InnerWrapper", {
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
+        this.setExcludeInlineStyles(["position"]);
+        this.setSelectable(null);
     },
 
     members: {

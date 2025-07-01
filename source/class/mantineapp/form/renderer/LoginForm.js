@@ -84,7 +84,7 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
             itemwrapper = new ville.ui.form.PasswordWrapper(item);
             if (label) {
               label.addClass("mantine-PasswordInput-label");
-              label.setAttribute("for", item.getAttribute("id"));
+              label.setAttribute("for", "villetxtpassword123");
               itemwrapper.setLabel(label);
             }
           } else {

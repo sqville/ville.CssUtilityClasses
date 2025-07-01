@@ -107,7 +107,7 @@ qx.Class.define("mantineapp.Application",
 
       // Password
       var txtpassword = new ville.ui.form.PasswordField();//.set({ required : true });
-      txtpassword.setAttribute("id", "villetxtpassword123");
+      txtpassword.setAttribute("id", "villetxtpassword123", true);
       txtpassword.setPlaceholder("Your password");
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 

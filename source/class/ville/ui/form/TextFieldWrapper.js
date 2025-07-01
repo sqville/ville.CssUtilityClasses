@@ -1,12 +1,15 @@
 /**
  * TextFieldWrapper
  * @childControl innerwrapper {ville.ui.core.InnerWrapper}
+ * @childControl inputwrapper {ville.ui.core.InnerWrapper}
  * @childControl sectionleft {ville.ui.form.InputSection}
  * @childControl sectionright {ville.ui.form.InputSection}
  * @external(mantine/core/styles/Input.css)
  */
 qx.Class.define("ville.ui.form.TextFieldWrapper", {
     extend: qx.ui.core.Widget,
+
+    include: ville.ui.core.MWidget,
 
     construct(textfield, variant, sectionleft, sectionright) {
         super(); 
@@ -16,6 +19,7 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
+        this.setSelectable(null);
 
         if (textfield) {
             this.setTextField(textfield);
@@ -128,7 +132,7 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
                     control = new ville.ui.form.InputSection();
                     control.setAnonymous(true);
                     control.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-TextInput-section");
-                    control.getContentElement().setAttribute("data-position", "left");
+                    control.setAttribute("data-position", "left");
                     innerwrapper = this.getChildControl("innerwrapper");
                     innerwrapper.add(control);
                     break;
@@ -137,7 +141,14 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
                     control = new ville.ui.form.InputSection();
                     control.setAnonymous(true);
                     control.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-TextInput-section");
-                    control.getContentElement().setAttribute("data-position", "right");
+                    control.setAttribute("data-position", "right");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
+                    break;
+
+                case "inputwrapper":
+                    control = new ville.ui.core.InnerWrapper("div");
+                    control.setCssUtilityClass("m_8fb7ebe7 mantine-Input-input");
                     innerwrapper = this.getChildControl("innerwrapper");
                     innerwrapper.add(control);
                     break;
@@ -177,7 +188,7 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
             if (value) {
                 var innerwrapper = this.getChildControl("innerwrapper");
                 if (innerwrapper) {
-                    innerwrapper.getContentElement().setAttribute("data-variant", value);
+                    innerwrapper.setAttribute("data-variant", value);
                 }
             }
         },
@@ -186,10 +197,9 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
             if (value) {
                 var innerwrapper = this.getChildControl("innerwrapper");
                 if (innerwrapper) {
-                    var elem = innerwrapper.getContentElement(); 
-                    this.getContentElement().setAttribute("data-size", value);
-                    elem.setAttribute("data-size", value);
-                    elem.setStyles({
+                    this.setAttribute("data-size", value);
+                    innerwrapper.setAttribute("data-size", value);
+                    innerwrapper.setStyles({
                         "--input-height" : `var(--input-height-${value})`, 
                         "--input-fz" : `var(--mantine-font-size-${value})`
                     });
@@ -205,7 +215,7 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
             if (value) {
                 var innerwrapper = this.getChildControl("innerwrapper");
                 if (innerwrapper) {
-                    innerwrapper.getContentElement().setStyle("--input-radius", `var(--mantine-radius-${value})`);
+                    innerwrapper.setStyle("--input-radius", `var(--mantine-radius-${value})`);
                 }
             }
         },
@@ -222,9 +232,9 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
 
                     if (value) {
                         section.add(value);
-                        this.getContentElement().setAttribute("data-with-left-section", "true");
+                        this.setAttribute("data-with-left-section", "true");
                     } else {
-                        this.getContentElement().removeAttribute("data-with-left-section");
+                        this.removeAttribute("data-with-left-section");
                     }
                 }
             }
@@ -241,9 +251,9 @@ qx.Class.define("ville.ui.form.TextFieldWrapper", {
 
                     if (value) {
                         section.add(value);
-                        this.getContentElement().setAttribute("data-with-right-section", "true");
+                        this.setAttribute("data-with-right-section", "true");
                     } else {
-                        this.getContentElement().removeAttribute("data-with-right-section");
+                        this.removeAttribute("data-with-right-section");
                     }
                 }
             }

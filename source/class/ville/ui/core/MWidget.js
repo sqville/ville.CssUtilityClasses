@@ -6,6 +6,10 @@ qx.Mixin.define("ville.ui.core.MWidget",
       this.getContentElement().addClass(classname);
     },
 
+    removeClass(classname) {
+      this.getContentElement().removeClass(classname);
+    },
+
     // API - bubble up Style/Attributes
     setStyle(style, value) {
       this.getContentElement().setStyle(style, value);
@@ -25,20 +29,20 @@ qx.Mixin.define("ville.ui.core.MWidget",
       this.getContentElement().removeStyle(style);
     },
 
-    setAttribute(attribute, value) {
-      this.getContentElement().setAttribute(attribute, value);
+    setAttribute(attribute, value, direct) {
+      this.getContentElement().setAttribute(attribute, value, direct);
     },
 
     getAttribute(attribute, value) {
       this.getContentElement().getAttribute(attribute, value);
     },
 
-    setAttributes(attributes) {
-      this.getContentElement().setAttributes(attributes);
+    setAttributes(attributes, direct) {
+      this.getContentElement().setAttributes(attributes, direct);
     },
 
-    removeAttribute(attribute) {
-      this.getContentElement().removeAttribute(attribute);
+    removeAttribute(attribute, direct) {
+      this.getContentElement().removeAttribute(attribute, direct);
     }
   }
 });
