@@ -85,11 +85,11 @@ qx.Class.define("mantineapp.Application",
       LoginAuthGroupbox.addClass("ville-mantineapp-AuthButtonGroup");      
 
       // Google Button
-      var googleButton = new ville.ui.form.Button("Google", "default", new ville.ui.icon.Google(14));
+      var googleButton = new ville.ui.form.Button("Google", "default", new ville.ui.icon.Google("14"));
       googleButton.addClass("mantine-focus-auto mantine-active");
 
       // Twitter Button
-      var twitButton = new ville.ui.form.Button("Twitter", "default", new ville.ui.icon.Photo(14));
+      var twitButton = new ville.ui.form.Button("Twitter", "default", new ville.ui.icon.Photo("14"));
       twitButton.addClass("mantine-focus-auto mantine-active"); 
 
       // Separator

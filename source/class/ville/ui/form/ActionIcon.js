@@ -16,7 +16,7 @@ qx.Class.define("ville.ui.form.ActionIcon", {
         this.setCssUtilityClass("mantine-focus-auto mantine-active m_8d3f4000 mantine-ActionIcon-root " + this.getCssUtilityClass());
 
         if (icon) {
-            this.setIcon(icon);
+            this.setInlineIcon(icon);
         }
         
         if (variant) {
@@ -28,6 +28,14 @@ qx.Class.define("ville.ui.form.ActionIcon", {
     },
 
     properties: {
+
+        inlineIcon: {
+            check: "qx.ui.core.Widget",
+            apply: "_applyInlineIcon",
+            nullable: true,
+            themeable: true,
+            event: "changeInlineIcon"
+        },
 
         variant: {
             init: "default",
@@ -75,10 +83,13 @@ qx.Class.define("ville.ui.form.ActionIcon", {
         _applyLabel(value, old) {},
 
         // overridden
+        _applyIcon(value, old) {},
+
+        // overridden
         _applyShow(value, old) {},
 
         // overridden
-        _applyIcon(value, old) {
+        _applyInlineIcon(value, old) {
             var innerwrapper = this.getChildControl("innerwrapper");
             if (innerwrapper) {
                 innerwrapper.add(value);

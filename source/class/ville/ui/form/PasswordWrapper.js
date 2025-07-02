@@ -20,6 +20,7 @@ qx.Class.define("ville.ui.form.PasswordWrapper", {
             var secrt = this.getChildControl("sectionright");
             secrt.removeClass("mantine-TextInput-section");
             secrt.addClass("mantine-PasswordInput-section");
+            secrt.add(sectionright);
         }
     },
 
