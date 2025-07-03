@@ -5,13 +5,11 @@ qx.Class.define("ville.ui.icon.Abstract", {
 
     type: "abstract",
 
-    construct(size) {
+    construct() {
 
         super();
 
-        if (size) {
-            this.setSize(size);
-        }
+        this._setLayout(new qx.ui.layout.Basic());
 
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]); 
@@ -24,13 +22,19 @@ qx.Class.define("ville.ui.icon.Abstract", {
             check: "String",
             apply: "_applySize",
             nullable: true,
-            themeable: true,
-            event: "changeSize"
+            themeable: true
+        },
+
+        xmlns: {
+            check: "String",
+            init: "http://www.w3.org/2000/svg",
+            nullable: false,
         },
 
         viewBox: {
             check: "String",
             init: "0 0 24 24",
+            apply: "_applyViewBox",
             nullable: false,
             themeable: true,
             event: "changeViewBox"
@@ -86,13 +90,19 @@ qx.Class.define("ville.ui.icon.Abstract", {
             }
         },
 
+        _applyViewBox(value, old) {
+            if (value) {
+                this.setAttribute("viewBox", value);
+            }
+        },
+
         // overridden
-        _createContentElement() {
-            //var svgmarkup = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"></svg>';
-            //var newelem = new qx.html.Element();
-            //newelem.useMarkup(svgmarkup);
-            //return newelem;
-            return new qx.html.Element;
+        _applyCssUtilityClass(value, old) {
+          var content = this.getContentElement().getDomElement();
+          if (value) {
+            content.setAttribute("class", value);
+          }
         }
+
     }
   });

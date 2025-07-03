@@ -81,8 +81,9 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
               itemwrapper.setLabel(label);
             }
           } else if (customize[i].complexity == "password") {
-            var iconEyeOpen = new ville.ui.icon.EyeOpen("var(--psi-icon-size)");
-            var btnShowHidePassword = new ville.ui.form.ActionIcon(iconEyeOpen, "subtle");
+            var IconEye = new ville.ui.icon.IconEye("var(--psi-icon-size)").set({ "viewBox" : "0 0 15 15" });
+            var IconEyeOff = new ville.ui.icon.IconEyeOff("var(--psi-icon-size)").set({ "viewBox" : "0 0 15 15" });
+            var btnShowHidePassword = new ville.ui.form.ToggleActionIcon(IconEyeOff, IconEye, "subtle");
             btnShowHidePassword.setStyles({
               "--ai-radius" : "var(--mantine-radius-sm)",
               "--ai-bg" : "transparent",

@@ -85,11 +85,12 @@ qx.Class.define("mantineapp.Application",
       LoginAuthGroupbox.addClass("ville-mantineapp-AuthButtonGroup");      
 
       // Google Button
-      var googleButton = new ville.ui.form.Button("Google", "default", new ville.ui.icon.Google("14"));
+      var googleicon = new ville.ui.icon.Google("14px");
+      var googleButton = new ville.ui.form.Button("Google", "default", googleicon);
       googleButton.addClass("mantine-focus-auto mantine-active");
 
       // Twitter Button
-      var twitButton = new ville.ui.form.Button("Twitter", "default", new ville.ui.icon.Photo("14"));
+      var twitButton = new ville.ui.form.Button("Twitter", "default");//, new ville.ui.icon.Photo("14"));
       twitButton.addClass("mantine-focus-auto mantine-active"); 
 
       // Separator
@@ -112,7 +113,9 @@ qx.Class.define("mantineapp.Application",
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
       // Remember Me - CheckBox
-      var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ id : "villechkrme123" });
+      var IconBiohazard = new ville.ui.icon.IconBiohazard();
+      IconBiohazard.setAttribute("stroke-width", "2");
+      var chkrememberme = new ville.ui.form.CheckBox("Remember me", IconBiohazard).set({ id : "villechkrme123", triState : true, value : null });
       form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons

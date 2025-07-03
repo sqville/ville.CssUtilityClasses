@@ -6,13 +6,15 @@
  *  data-size="sm"
  * 
  * @external(mantine/core/styles/Checkbox.css)
+ * @require(ville.ui.icon.IconCheck)
+ * @require(ville.ui.icon.IconIndeterminate)
  */
 qx.Class.define("ville.ui.form.CheckBox", {
     extend: qx.ui.form.CheckBox,
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
-    construct(label) {
+    construct(label, alticon, altindeterminateicon) {
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -23,7 +25,21 @@ qx.Class.define("ville.ui.form.CheckBox", {
 
         //this._createChildControl("label");
         this._createChildControl("input");
+        if (alticon) {
+            this.setInlineIcon(alticon);
+            this.__alticon = true;
+        }
+
+        if (altindeterminateicon) {
+            this.setIndeterminateIcon(altindeterminateicon);
+            this.__altindeterminateicon = true;
+        } else {
+
+        }
+        
         this._createChildControl("icon");
+        this._createChildControl("indeterminateicon");
+    
 
         if (label) {
             this.setLabel(label);
@@ -35,6 +51,31 @@ qx.Class.define("ville.ui.form.CheckBox", {
             "data-size" : "sm",
             "data-variant" : "filled"
         });
+
+        //var cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
+        var cbinput = this.getChildControl("input");
+
+        // Set icon based on value
+        if (this.isTriState() && this.getValue() == null) {
+            // indeterminate
+            cbinput.setAttribute("data-indeterminate", "true");
+        }
+
+        // Add a change value listener to update the icon
+        this.addListener("changeValue", (e) => {
+            var cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
+            //console.log(e.getData());
+            if (this.isTriState() && e.getData() == null) {
+                // replace entire svg inline icon
+                cbinput.setAttribute("data-indeterminate", "true");
+                cbinnerwrapper.removeAt(1);
+                cbinnerwrapper.add(this.getIndeterminateIcon());
+            } else if (this.isTriState() && e.getData() && e.getOldData() == null) {
+                cbinput.removeAttribute("data-indeterminate");
+                cbinnerwrapper.removeAt(1);
+                cbinnerwrapper.add(this.getInlineIcon());
+            }
+        });
     },
 
     properties: {
@@ -45,6 +86,18 @@ qx.Class.define("ville.ui.form.CheckBox", {
             apply: "_applyVariant",
             themeable: true,
             event: "changeVariant"
+        },
+
+        inlineIcon: {
+            check: "qx.ui.core.Widget",
+            nullable: true,
+            themeable: true
+        },
+
+        indeterminateIcon: {
+            check: "qx.ui.core.Widget",
+            nullable: true,
+            themeable: true
         },
 
         id: {
@@ -66,6 +119,11 @@ qx.Class.define("ville.ui.form.CheckBox", {
     },
 
     members: {
+
+        // global flag for alt icons
+        __alticon : false,
+
+        __altindeterminateicon : false,
 
         // overridden
         _createContentElement() {
@@ -122,11 +180,31 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     break;
                 
                 case "icon":
-                    control = new ville.ui.icon.CheckBoxIcon();
+                    // check to see if there is an alternative icon, otherwise use default
+                    if (this.__alticon) {
+                        control = this.getInlineIcon();
+                    } else {
+                        control = new ville.ui.icon.IconCheck();
+                        control.setViewBox("0 0 10 7");
+                        this.setInlineIcon(control);
+                    }
+                    control.setCssUtilityClass("m_bf295423 mantine-Checkbox-icon");
+                    control.setAttribute("aria-hidden", "true");
                     cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
                     cbinnerwrapper.add(control);
-                    //cblabel = this.getChildControl("label");
-                    //cblabel.add(control);
+                    break;
+
+                case "indeterminateicon":
+                    // check to see if there is an alternative icon, otherwise use default
+                    if (this.__altinderterminateicon) {
+                        control = this.getIndeterminateIcon();
+                    } else {
+                        control = new ville.ui.icon.IconIndeterminate();
+                        control.setViewBox("0 0 32 6");
+                        this.setIndeterminateIcon(control);
+                    }
+                    control.setCssUtilityClass("m_bf295423 mantine-Checkbox-icon");
+                    control.setAttribute("aria-hidden", "true");
                     break;
                 
             }
