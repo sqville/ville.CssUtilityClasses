@@ -115,7 +115,7 @@ qx.Class.define("mantineapp.Application",
       // Remember Me - CheckBox
       var IconBiohazard = new ville.ui.icon.IconBiohazard();
       IconBiohazard.setAttribute("stroke-width", "2");
-      var chkrememberme = new ville.ui.form.CheckBox("Remember me", IconBiohazard).set({ id : "villechkrme123", triState : true, value : null });
+      var chkrememberme = new ville.ui.form.CheckBox("Remember me", IconBiohazard).set({ id : "villechkrme123" });
       form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons

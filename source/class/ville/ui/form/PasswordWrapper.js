@@ -21,6 +21,14 @@ qx.Class.define("ville.ui.form.PasswordWrapper", {
             secrt.removeClass("mantine-TextInput-section");
             secrt.addClass("mantine-PasswordInput-section");
             secrt.add(sectionright);
+            // add show password click event
+            sectionright.addListener("changeValue", (e) => {
+                if (e.getData()) {
+                    textfield.setAttribute("type", "text");
+                } else {
+                    textfield.setAttribute("type", "password");
+                }
+            });
         }
     },
 

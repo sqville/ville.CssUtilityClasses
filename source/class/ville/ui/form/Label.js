@@ -38,9 +38,8 @@ qx.Class.define("ville.ui.form.Label", {
 
         _applySize(value, old) {
             if (value) {
-                var elem = this.getContentElement(); 
-                elem.setAttribute("data-size", value);
-                elem.setStyle("--input-label-size", `var(--mantine-font-size-${value}`);
+                this.setAttribute("data-size", value);
+                this.setStyle("--input-label-size", `var(--mantine-font-size-${value}`);
             }
         },
 
@@ -49,9 +48,9 @@ qx.Class.define("ville.ui.form.Label", {
             true(value, old) {
                 // Sync with content element
                 if (value && value.translate) {
-                    this.getContentElement().setAttribute("html", value.translate());
+                    this.setAttribute("html", value.translate());
                 } else {
-                    this.getContentElement().setAttribute("html", value);
+                    this.setAttribute("html", value);
                 }
 
                 // Mark text size cache as invalid

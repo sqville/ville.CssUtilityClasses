@@ -18,6 +18,8 @@ qx.Class.define("ville.ui.form.Anchor", {
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root");
+        this.setSelectable(null);
+        
         if (component)
             if (component = "button")
                 this.getContentElement().setAttribute('type', 'button');
@@ -26,7 +28,6 @@ qx.Class.define("ville.ui.form.Anchor", {
             this.setLabel(label);
         }
 
-        this.initSize();
         this.initUnderline();
      
     },
