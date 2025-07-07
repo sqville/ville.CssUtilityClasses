@@ -84,6 +84,8 @@ qx.Class.define("ville.ui.icon.Abstract", {
 
     members: {
 
+        __fulliconmarkup : null,
+
         _applySize(value, old) {
             if (value) {
                 this.setStyles({width : value, height : value});
@@ -104,5 +106,9 @@ qx.Class.define("ville.ui.icon.Abstract", {
           }
         }
 
+    },
+
+    destruct() {
+        this._disposeObjects("__fulliconmarkup");
     }
   });

@@ -28,8 +28,6 @@ qx.Class.define("ville.ui.icon.IconCheck", {
 
     members: {
 
-        __fulliconmarkup : null,
-
         // overridden
         _createContentElement() {
             var thiselem = new qx.html.Element();

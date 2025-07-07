@@ -3,17 +3,11 @@
  * @external(mantine/core/styles/Stack.css)
  */
 qx.Class.define("ville.ui.layout.Stack", {
-    extend: qx.ui.core.Widget,
-
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    extend: ville.ui.layout.Container,
 
     construct(align, justify, gap) {
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_6d731127 mantine-Stack-root");
 
         if (align) {
@@ -67,11 +61,6 @@ qx.Class.define("ville.ui.layout.Stack", {
     },
 
     members: {
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element("div");
-        },
 
         _applyAlign(value, old) {
             if (value) {

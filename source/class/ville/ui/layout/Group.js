@@ -3,16 +3,11 @@
  * @external(mantine/core/styles/Group.css)
  */
 qx.Class.define("ville.ui.layout.Group", {
-    extend: qx.ui.core.Widget,
-
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    extend: ville.ui.layout.Container,
 
     construct(align, justify, gap, wrap, grow) {
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
 
         if (align) {
@@ -94,10 +89,6 @@ qx.Class.define("ville.ui.layout.Group", {
     },
 
     members: {
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element("div");
-        },
 
         _applyAlign(value, old) {
             if (value) {

@@ -3,7 +3,10 @@ qx.Class.define("ville.ui.basic.Label", {
 
     include: qx.ui.core.MChildrenHandling,
 
-    construct(text) {
+    construct(text, component) {
+        if (component) {
+            this.__componenttag = component;
+        }
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -18,9 +21,11 @@ qx.Class.define("ville.ui.basic.Label", {
 
     members: {
 
+        __componenttag: "span",
+
         // overridden
         _createContentElement() {
-            return new qx.html.Element("span");
+            return new qx.html.Element(this.__componenttag);
         },
 
         // overridden

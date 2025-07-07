@@ -26,8 +26,6 @@ qx.Class.define("ville.ui.icon.IconBiohazard", {
 
     members: {
 
-        __fulliconmarkup : null,
-
         // overridden
         _createContentElement() {
             var thiselem = new qx.html.Element();
@@ -36,4 +34,5 @@ qx.Class.define("ville.ui.icon.IconBiohazard", {
             return thiselem;
         }
     }
+    
   });
