@@ -85,7 +85,8 @@ qx.Class.define("mantineapp.Application",
       LoginAuthGroupbox.addClass("ville-mantineapp-AuthButtonGroup");      
 
       // Google Button
-      var googleicon = new ville.ui.icon.Google("14px");
+      var googleicon = new ville.ui.icon.Google();
+      googleicon.setStyles({ width: "14px", height: "14px" });
       var googleButton = new ville.ui.form.Button("Google", "default", googleicon);
       googleButton.addClass("mantine-focus-auto mantine-active");
 
@@ -113,9 +114,7 @@ qx.Class.define("mantineapp.Application",
       form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
 
       // Remember Me - CheckBox
-      var IconBiohazard = new ville.ui.icon.IconBiohazard();
-      IconBiohazard.setAttribute("stroke-width", "2");
-      var chkrememberme = new ville.ui.form.CheckBox("Remember me", IconBiohazard).set({ id : "villechkrme123" });
+      var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ id : "villechkrme123" });
       form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons

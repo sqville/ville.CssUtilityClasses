@@ -1,13 +1,9 @@
 qx.Class.define("ville.ui.icon.Google", {
     extend: ville.ui.icon.Abstract,
 
-    construct(size) {
+    construct() {
         
         super();
-
-        if (size) {
-            this.setSize(size);
-        }
 
     },
 

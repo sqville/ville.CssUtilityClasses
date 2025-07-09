@@ -18,13 +18,6 @@ qx.Class.define("ville.ui.icon.Abstract", {
 
     properties: {
 
-        size: {
-            check: "String",
-            apply: "_applySize",
-            nullable: true,
-            themeable: true
-        },
-
         xmlns: {
             check: "String",
             init: "http://www.w3.org/2000/svg",
@@ -85,12 +78,6 @@ qx.Class.define("ville.ui.icon.Abstract", {
     members: {
 
         __fulliconmarkup : null,
-
-        _applySize(value, old) {
-            if (value) {
-                this.setStyles({width : value, height : value});
-            }
-        },
 
         _applyViewBox(value, old) {
             if (value) {

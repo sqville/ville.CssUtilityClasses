@@ -3,8 +3,6 @@ qx.Class.define("ville.ui.icon.IconIndeterminate", {
 
     construct() {
 
-        //<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 32 6"
-
         var paths = `<rect 
             width="32" 
             height="6" 
