@@ -1,7 +1,6 @@
 @import "../../../../node_modules/@mantine/core/styles/baseline.css";
 @import "../../../../node_modules/@mantine/core/styles/default-css-variables.css";
 @import "../../../../node_modules/@mantine/core/styles/global.css";
-@import "../../../../node_modules/@mantine/core/styles/ActionIcon.css";
 
 .ville-mantineapp-Application {
     padding:calc(0.75rem * var(--mantine-scale));

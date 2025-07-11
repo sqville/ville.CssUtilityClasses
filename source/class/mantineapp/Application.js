@@ -85,9 +85,9 @@ qx.Class.define("mantineapp.Application",
       LoginAuthGroupbox.addClass("ville-mantineapp-AuthButtonGroup");      
 
       // Google Button
-      var googleicon = new ville.ui.icon.Google();
-      googleicon.setStyles({ width: "14px", height: "14px" });
-      var googleButton = new ville.ui.form.Button("Google", "default", googleicon);
+      //var googleicon = new ville.ui.icon.Google();
+      //googleicon.setStyles({ width: "14px", height: "14px" });
+      var googleButton = new ville.ui.form.Button("Google", "default");
       googleButton.addClass("mantine-focus-auto mantine-active");
 
       // Twitter Button
@@ -115,6 +115,7 @@ qx.Class.define("mantineapp.Application",
 
       // Remember Me - CheckBox
       var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ id : "villechkrme123" });
+      chkrememberme.setStyle("--checkbox-color", "var(--mantine-color-blue-outline)");
       form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons

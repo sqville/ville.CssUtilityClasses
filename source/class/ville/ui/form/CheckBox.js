@@ -40,16 +40,14 @@ qx.Class.define("ville.ui.form.CheckBox", {
         this._createChildControl("icon");
         this._createChildControl("indeterminateicon");
     
-
         if (label) {
             this.setLabel(label);
         }
 
         // Set attributes
         this.setAttributes({
-            "data-label-position" : "right",
-            "data-size" : "sm",
-            "data-variant" : "filled"
+            "data-label-position" : this.getLabelPosition(),
+            "data-variant" : this.getVariant()
         });
 
         //var cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
@@ -86,6 +84,14 @@ qx.Class.define("ville.ui.form.CheckBox", {
             apply: "_applyVariant",
             themeable: true,
             event: "changeVariant"
+        },
+
+        labelPosition: {
+            init: "right",
+            check: ["right", "left"],
+            apply: "_applyLabelPosition",
+            themeable: true,
+            event: "changeLabelPosition"
         },
 
         inlineIcon: {
@@ -148,6 +154,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
                 case "checkboxinnerwrapper":
                     control = new ville.ui.core.InnerWrapper("div");
                     control.setCssUtilityClass("m_26062bec mantine-Checkbox-inner");
+                    control.setAttribute("data-label-position", this.getLabelPosition());
                     cbbody = this.getChildControl("checkboxbody");
                     cbbody.add(control);
                     break; 
@@ -166,16 +173,12 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     control.setCssUtilityClass("m_8ee546b8 mantine-Checkbox-label");
                     cblabelwrapper = this.getChildControl("checkboxlabelwrapper");
                     cblabelwrapper.add(control);
-                    //cbbody = this.getChildControl("checkboxbody");
-                    //cbbody.add(control);
                     break;
 
                 case "input":
                     control = new ville.ui.core.BaseWidget({ "basetag" : "input", "type" : "checkbox" });
                     control.setCssUtilityClass("mantine-focus-auto m_26063560 mantine-Checkbox-input");
                     cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
-                    //cblabel = this.getChildControl("label");
-                    //cblabel.add(control);
                     cbinnerwrapper.add(control);
                     break;
                 
@@ -223,6 +226,17 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     } else {
                         input.getContentElement().removeClass("m_215c4542");
                     }
+                }
+            }
+        },
+
+        // property apply
+        _applyLabelPosition(value, old) {
+            if (value) {
+                this.setAttribute("data-label-position", value);
+                var cbiw = this.getChildControl("checkboxinnerwrapper");
+                if (cbiw) {
+                   cbiw.setAttribute("data-label-position", value);
                 }
             }
         },
