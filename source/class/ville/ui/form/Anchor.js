@@ -22,7 +22,7 @@ qx.Class.define("ville.ui.form.Anchor", {
         
         if (component)
             if (component = "button")
-                this.getContentElement().setAttribute('type', 'button');
+                this.setAttribute('type', 'button');
 
         if (label) {
             this.setLabel(label);
@@ -40,15 +40,6 @@ qx.Class.define("ville.ui.form.Anchor", {
             apply: "_applyUnderline",
             themeable: true,
             event: "changeUnderline"
-        },
-
-        size: {
-            init: "md",
-            check: ["xs", "sm", "md", "lg", "xl"],
-            apply: "_applySize",
-            nullable: true,
-            themeable: true,
-            event: "changeSize"
         },
         
         href: {
@@ -78,33 +69,23 @@ qx.Class.define("ville.ui.form.Anchor", {
         // overridden
         _applyLabel(value, old) {
             if (value) {
-                this.getContentElement().setAttribute("html", value);
-            }
-        },
-
-         _applySize(value, old) {
-            if (value) {
-                this.getContentElement().setAttribute("data-size", value);
-                this.getContentElement().setStyles({
-                    "--text-lh" : `var(--input-height-${value})`, 
-                    "--text-fz" : `var(--mantine-font-size-${value})`
-                });
+                this.setAttribute("html", value);
             }
         },
 
         _applyUnderline(value, old) {
             if (value) {
-                this.getContentElement().setAttribute("data-underline", value);
+                this.setAttribute("data-underline", value);
             }
         },
 
         // property apply
         _applyHref(value) {
             if (value) {
-                this.getContentElement().setAttribute("href", value);
+                this.setAttribute("href", value);
                 this.__clickpreventListnerId = this.addListener("click", (e) => {e.preventDefault()});
             } else {
-                this.getContentElement().removeAttribute("href");
+                this.removeAttribute("href");
                 if (this.__clickpreventListnerId != null)
                     this.removeListener(this.__clickpreventListnerId);
             }
@@ -113,9 +94,9 @@ qx.Class.define("ville.ui.form.Anchor", {
         // property apply
         _applyTarget(value) {
             if (value) {
-                this.getContentElement().setAttribute("target", value);
+                this.setAttribute("target", value);
             } else {
-                this.getContentElement().removeAttribute("target");
+                this.removeAttribute("target");
             }
         }
     }

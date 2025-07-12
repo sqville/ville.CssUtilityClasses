@@ -115,13 +115,16 @@ qx.Class.define("mantineapp.Application",
 
       // Remember Me - CheckBox
       var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ id : "villechkrme123" });
-      chkrememberme.setStyle("--checkbox-color", "var(--mantine-color-blue-outline)");
+      //chkrememberme.setStyle("--checkbox-color", "var(--mantine-color-green-outline)");
       form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons
       var registerbutton = new ville.ui.form.Anchor("Don't have an account? Register", "button");
-      registerbutton.setSize("xs");
-      registerbutton.setStyle("color", "var(--mantine-color-dimmed)");
+      registerbutton.setStyles({
+        color: "var(--mantine-color-dimmed)",
+        "--text-fz": "var(--mantine-font-size-xs)",
+        "--text-lh": "var(--mantine-line-height-xs)"
+      });
 
       var loginbutton = new ville.ui.form.Button("Login", "filled");
       loginbutton.addClass("mantine-focus-auto mantine-active");
