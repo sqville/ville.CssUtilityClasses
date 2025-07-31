@@ -1,8 +1,8 @@
 /**
- * Base Container
- * @external(mantine/core/styles/Container.css)
+ * Used as a base component or as a replacement for HTML elements
+ * 
  */
-qx.Class.define("ville.ui.layout.Container", {
+qx.Class.define("ville.ui.core.Box", {
     extend: qx.ui.core.Widget,
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
@@ -15,10 +15,8 @@ qx.Class.define("ville.ui.layout.Container", {
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
         this.setExcludeInlineStyles(["position"]);
-        this.setCssUtilityClass("m_7485cace mantine-Container-root");
-
+        this.setSelectable(null);
     },
 
     members: {
@@ -29,6 +27,5 @@ qx.Class.define("ville.ui.layout.Container", {
         _createContentElement() {
             return new qx.html.Element(this.__componenttag);
         }
-
     }
   });

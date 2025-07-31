@@ -1,0 +1,41 @@
+@import "../../../../node_modules/@mantine/core/styles/baseline.css";
+@import "../../../../node_modules/@mantine/core/styles/default-css-variables.css";
+@import "../../../../node_modules/@mantine/core/styles/global.css";
+
+.ville-ui-Application {
+    padding:0;
+
+    div.ville-ui-InnerAppContainer {
+        margin-left:unset;
+        margin-right:unset;
+        padding-top:0rem;
+        max-width:100%;
+    }
+}
+
+[data-mantine-color-scheme=dark] .HeaderSearch_header__UPZlW {
+    border-bottom: 1px solid var(--mantine-color-dark-4);
+}
+
+.HeaderSearch_header__UPZlW {
+    padding-left: var(--mantine-spacing-md);
+    padding-right: var(--mantine-spacing-md);
+}
+.HeaderSearch_header__UPZlW {
+    height: calc(3.5rem * var(--mantine-scale));
+    margin-bottom: calc(7.5rem * var(--mantine-scale));
+    background-color: var(--mantine-color-body);
+    border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.HeaderSearch_inner__KCxXP {
+    height: calc(3.5rem * var(--mantine-scale));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+
+
+

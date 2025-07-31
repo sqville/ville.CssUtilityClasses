@@ -115,7 +115,6 @@ qx.Class.define("mantineapp.Application",
 
       // Remember Me - CheckBox
       var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ id : "villechkrme123" });
-      //chkrememberme.setStyle("--checkbox-color", "var(--mantine-color-green-outline)");
       form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
 
       // Form Bottom Buttons

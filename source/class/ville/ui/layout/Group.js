@@ -5,12 +5,13 @@
 qx.Class.define("ville.ui.layout.Group", {
     extend: ville.ui.layout.Container,
 
-    construct(align, justify, gap, wrap, grow) {
+    construct() {
+        //align, justify, gap, wrap, grow
         super();
 
         this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
 
-        if (align) {
+        /*if (align) {
             this.setAlign(align);
         } else {
             this.initAlign();
@@ -36,7 +37,7 @@ qx.Class.define("ville.ui.layout.Group", {
 
         if (grow) {
             this.setGrow(grow);
-        }
+        }*/
     },
 
     properties: {
