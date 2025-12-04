@@ -10,7 +10,7 @@
 
 qx.Theme.define("villeui.theme.Color",
 {
-  extend : ville.cssuc.theme.blankslate.Color,
+  extend : qx.theme.simple.Color,
 
   colors :
   {

@@ -3,6 +3,7 @@
  * 
  */
 qx.Class.define("ville.ui.core.Box", {
+    
     extend: qx.ui.core.Widget,
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],

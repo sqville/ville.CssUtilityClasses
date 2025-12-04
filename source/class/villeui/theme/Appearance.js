@@ -10,7 +10,7 @@
 
 qx.Theme.define("villeui.theme.Appearance",
 {
-  extend : ville.cssuc.theme.blankslate.Appearance,
+  extend : qx.theme.simple.Appearance,
 
   appearances :
   {

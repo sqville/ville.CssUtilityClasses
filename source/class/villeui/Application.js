@@ -11,7 +11,6 @@
 /**
  * This is the main application class of "villeui"
  *
- * @asset(villeui/*)
  * @external(villeui/css/villeui.css)
  */
 qx.Class.define("villeui.Application",
@@ -57,18 +56,138 @@ qx.Class.define("villeui.Application",
         qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
       }
 
-      // Document is the application root
+      // Document is the application root and AppShell root
       const doc = this.getRoot();
-      doc.setCssUtilityClass("ville-ui-Application");
+      doc.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
       doc.setExcludeBoundsFromDom(true);
       doc.setClearAllInlineStyles(true);
-
-      // Application Margin Box
-      var docInnerBox = new ville.ui.core.Box();
-      docInnerBox.setCssUtilityClass("ville-ui-InnerAppContainer");
-      doc.add(docInnerBox);
+      doc.getContentElement().setStyles({
+        "--app-shell-transition-duration": "200ms",
+        "--app-shell-transition-timing-function": "ease"
+      });
 
       // Header
+      var docInnerHeaderBox = new ville.ui.core.Box("header");
+      docInnerHeaderBox.setCssUtilityClass("m_3b16f56b mantine-AppShell-header right-scroll-bar-position");
+      docInnerHeaderBox.setAttribute("data-with-border", "true");
+      docInnerHeaderBox.setStyle("--app-shell-header-z-index", "100");
+
+      var headerGroupbox = new ville.ui.layout.Group();
+      headerGroupbox.setStyles({
+        "--group-gap": "var(--mantine-spacing-md)",
+        "--group-align": "center",
+        "--group-justify": "flex-start",
+        "--group-wrap": "wrap",
+        "padding-inline": "var(--mantine-spacing-md)",
+        "height": "100%"
+      });
+      headerGroupbox.setAttribute("html", "Header");
+      docInnerHeaderBox.add(headerGroupbox);
+      doc.add(docInnerHeaderBox);
+
+      // Navbar
+      var docInnerNavBox = new ville.ui.core.Box("nav");
+      docInnerNavBox.setCssUtilityClass("m_45252eee mantine-AppShell-navbar");
+      docInnerNavBox.setAttribute("data-with-border", "true");
+      docInnerNavBox.setStyles({
+        "--app-shell-navbar-z-index": "calc(100 + 1)",
+        "padding": "var(--mantine-spacing-md)"
+      });
+      docInnerNavBox.setAttribute("html", "Navbar");
+      doc.add(docInnerNavBox);
+      
+      // Main
+      var docInnerMainBox = new ville.ui.core.Box("main");
+      docInnerMainBox.setCssUtilityClass("m_8983817 mantine-AppShell-main");
+      docInnerMainBox.setStyle("background-color", "var(--mantine-color-body)");
+      docInnerMainBox.setAttribute("data-with-border", "true");
+
+      var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
+      mainParagraph1.addClass("mantine-focus-auto");
+      var mainParagraph2 = new ville.ui.typography.Text("Header Footer height and Navbar Aside width can be responsive. Try resizing the screen to see sizes changes.");
+      mainParagraph2.addClass("mantine-focus-auto");
+
+      var tblAnchorElement = new ville.ui.core.Box();
+
+      docInnerMainBox.add(mainParagraph1);
+      docInnerMainBox.add(mainParagraph2);
+      //docInnerMainBox.add(tblAnchorElement);
+
+      doc.add(docInnerMainBox);
+
+      docInnerNavBox.add(tblAnchorElement);
+
+      // Add traditional Table widget
+      /*** Table island test */
+      const tableConfig = {
+        columnNames    : ["ID", "Name", "Phone"],
+        columnIds      : ["id", "name", "phone"],
+        columnWidths   : ["20%", "40%", "40%"]
+      };
+
+      var model = new qx.ui.table.model.Simple();
+      model.setColumns(tableConfig.columnNames, tableConfig.columnIds);
+      model.setEditable(false);
+      for (let s = 0; s < model.getColumnCount(); s++) {
+        model.setColumnSortable(s, false);
+      }
+      var rowData = [
+        [1, "John Doe", "555-1234"],
+        [2, "Jane Smith", "555-5678"],
+        [3, "Bob Johnson", "555-8765"],
+        [4, "Alice Williams", "555-4321"]
+      ];
+      model.setData(rowData);
+
+      // Customize the table column model.  We want one that automatically resizes columns.
+      var custom = {
+        tableColumnModel() {return new qx.ui.table.columnmodel.Resize()}
+      };
+
+      var table = new qx.ui.table.Table(model, custom);
+
+      // Obtain the behavior object to manipulate
+      var colrb = table.getTableColumnModel().getBehavior();
+      for (let i = 0; i < tableConfig.columnWidths.length; i++) {
+        colrb.set(i, { width: tableConfig.columnWidths[i] });
+      }
+
+      table.set({
+        maxHeight: 140,
+        width: 400,
+        showCellFocusIndicator: false,
+        focusCellOnPointerMove: true
+      });
+
+      table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.NO_SELECTION);
+
+      //Inline test
+      tblAnchorElement.addListenerOnce("appear", (e) => {
+        var el = e.getTarget().getContentElement().getDomElement();
+        var tblIsle = new qx.ui.root.Inline(el, true, false);
+        tblIsle.setLayout(new qx.ui.layout.Canvas());
+        tblIsle.add(table, {edge: 0});
+      });
+      //tblAnchorElement.setAttribute("id", "tableisle1");
+
+      //table.setExcludeInlineStyles(["left", "top"]);
+
+      //tblAnchorElement.setStyle("position", "relative");
+      //tblAnchorElement.add(table);
+
+      var tblAnchorInnerElement = new ville.ui.core.Box();
+      tblAnchorInnerElement.setAttribute("html", "Traditional Table widget inside Inline root:");
+      //tblAnchorElement.add(tblAnchorInnerElement);
+
+      var qxlabel = new qx.ui.basic.Label("Below is a traditional Qx Table widget added to an Inline root:");
+      //tblAnchorElement.add(qxlabel);
+
+      //docInnerMainBox.add(table);
+      /** End of Table test */
+
+
+      /*
+// Header
       var Header = new ville.ui.core.Box("header");
       Header.addClass("HeaderSearch_header__UPZlW");
       docInnerBox.add(Header);
@@ -82,12 +201,12 @@ qx.Class.define("villeui.Application",
         "--group-justify" : "flex-start",
         "--group-wrap" : "wrap"
       });
-      HeaderGroupLogo.setAttribute("html", "ville PMS");
+      HeaderGroupLogo.setAttribute("html", "villePM");
       HeaderInner.add(HeaderGroupLogo);
 
       var HeaderGroupButtons = new ville.ui.layout.Group();
+      HeaderGroupButtons.setGap("md");
       HeaderGroupButtons.setStyles({
-        "--group-gap" : "var(--mantine-spacing-md)",
         "--group-align" : "center",
         "--group-justify" : "flex-start",
         "--group-wrap" : "wrap"
@@ -100,18 +219,12 @@ qx.Class.define("villeui.Application",
 
       HeaderGroupButtons.add(HeaderActionButton1);
       HeaderGroupButtons.add(HeaderActionButton2);
-      // Need to be set after adding layout children
+      // Need to be set grow property after adding layout children
       HeaderGroupButtons.setGrow(true);
       HeaderInner.add(HeaderGroupButtons);
 
-      // Main AI
 
 
-      // Main Trad
-
-      
-
-      /*
     <div id="__next">
       <div style="padding:0">
         <div style="margin-left:unset;margin-right:unset;padding-top:0rem;max-width:100%" class="">

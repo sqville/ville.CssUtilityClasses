@@ -20,7 +20,7 @@
   "babel" : {
     "options" : {
       "targets" : {
-        "chrome" : "132"
+        "chrome" : "140"
       }
     } 
   },

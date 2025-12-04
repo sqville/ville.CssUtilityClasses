@@ -3,11 +3,13 @@
  * @external(mantine/core/styles/Container.css)
  */
 qx.Class.define("ville.ui.layout.Container", {
+    
     extend: qx.ui.core.Widget,
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(component) {
+        
         if (component) {
             this.__componenttag = component;
         }

@@ -10,7 +10,7 @@
 
 qx.Theme.define("villeui.theme.Font",
 {
-  extend : ville.cssuc.theme.blankslate.Font,
+  extend : qx.theme.simple.Font,
 
   fonts :
   {
