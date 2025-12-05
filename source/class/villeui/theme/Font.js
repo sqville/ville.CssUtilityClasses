@@ -10,7 +10,7 @@
 
 qx.Theme.define("villeui.theme.Font",
 {
-  extend : qx.theme.simple.Font,
+  extend : qx.theme.indigo.Font,
 
   fonts :
   {
