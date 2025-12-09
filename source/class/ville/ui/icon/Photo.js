@@ -1,4 +1,5 @@
 qx.Class.define("ville.ui.icon.Photo", {
+    
     extend: ville.ui.icon.Abstract,
 
     construct(size) {

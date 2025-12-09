@@ -71,8 +71,8 @@ qx.Class.define("mantineapp.Application",
 
       // Login Center Box Container
       var centerbox = new ville.ui.core.Paper();
-      centerbox.setWithBorder(true);
-      centerbox.setRadius("md");
+      centerbox.setAttribute("data-with-border", "true");
+      centerbox.setStyle("--paper-radius", `var(--mantine-radius-md)`);
       centerbox.setStyle("padding", "var(--mantine-spacing-lg)");
 
       // Login Center Box Header Welcome Message

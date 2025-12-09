@@ -3,6 +3,7 @@
  * @external(mantine/core/styles/Button.css)
  */
 qx.Class.define("ville.ui.form.Button", {
+    
     extend: ville.ui.form.UnstyledButton,
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],

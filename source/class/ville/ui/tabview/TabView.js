@@ -82,6 +82,15 @@ qx.Class.define("ville.ui.tabview.TabView", {
   */
 
   properties: {
+
+    variant: {
+        init: "default",
+        check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
+        apply: "_applyVariant",
+        themeable: true,
+        event: "changeVariant"
+    },
+
     /**
      * This property defines on which side of the TabView the bar should be positioned.
      */
@@ -387,50 +396,45 @@ qx.Class.define("ville.ui.tabview.TabView", {
       var bar = this.getChildControl("bar");
       var pane = this.getChildControl("pane");
 
-      var horizontal = value == "left" || value == "right";
-      var reversed = value == "right" || value == "bottom";
+      switch (value) {
+        case "top":
+          //control.setCssUtilityClass("m_576c9d4 m_89d33d6d mantine-Tabs-list");
+          this.setAttribute("data-orientation", "horizontal");
+          this.removeAttribute("data-inverted");
+          this.removeAttribute("data-placement");
+          break;
 
-      var layoutClass = horizontal ? qx.ui.layout.HBox : qx.ui.layout.VBox;
+        case "bottom":
+          this.setAttributes({
+            "data-orientation": "horizontal",
+            "data-inverted": "true"
+          });
+          this.removeAttribute("data-placement");
+          break;
 
-      var layout = this._getLayout();
-      if (layout && layout instanceof layoutClass) {
-        // pass
-      } else {
-        this._setLayout((layout = new layoutClass()));
-      } // Update reversed
-      layout.setReversed(reversed); // Sync orientation to bar
-      bar.setOrientation(horizontal ? "vertical" : "horizontal"); // Read children
-      var children = this.getChildren();
-      var i, l;
-      // Toggle state to bar
-      if (old) {
-        var oldState = this.__barPositionToState[old];
+        case "left":
+          this.setAttributes({
+            "data-orientation": "vertical",
+            "data-placement": "left"
+          });
+          this.removeAttribute("data-inverted");
+          break;
 
-        // Update bar
-        bar.removeState(oldState);
-
-        // Update pane
-        pane.removeState(oldState);
-
-        // Update pages
-        for (i = 0, l = children.length; i < l; i++) {
-          children[i].removeState(oldState);
-        }
+        case "right":
+          this.setAttributes({
+            "data-orientation": "vertical",
+            "data-placement": "right"
+          });
+          this.removeAttribute("data-inverted");
+          break;
       }
+    },
 
+    // property apply
+    _applyVariant(value, old) {
       if (value) {
-        var newState = this.__barPositionToState[value];
-
-        // Update bar
-        bar.addState(newState);
-
-        // Update pane
-        pane.addState(newState);
-
-        // Update pages
-        for (i = 0, l = children.length; i < l; i++) {
-          children[i].addState(newState);
-        }
+        this.setAttribute("data-variant", value);
+        this.getChildControl("bar").setAttribute("data-variant", value);
       }
     },
 

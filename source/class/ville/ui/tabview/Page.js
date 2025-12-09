@@ -1,30 +1,16 @@
 /* ************************************************************************
 
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Martin Wittemann (martinwittemann)
-     * Jonathan Weiß (jonathan_rass)
-
 ************************************************************************ */
 
 /**
  * A page is the way to add content to a {@link TabView}. Each page gets a
  * button to switch to the page. Only one page is visible at a time.
  *
- * @childControl button {qx.ui.tabview.TabButton} tab button connected to the page
+ * @childControl button {ville.ui.tabview.TabButton} tab button connected to the page
  */
 qx.Class.define("ville.ui.tabview.Page", {
-  extend: qx.ui.container.Composite,
+  
+  extend: ville.ui.layout.Container,
 
   /*
   *****************************************************************************
@@ -34,10 +20,12 @@ qx.Class.define("ville.ui.tabview.Page", {
 
   /**
    * @param label {String} Initial label of the tab
-   * @param icon {String} Initial icon of the tab
+   * @param icon {ville.ui.icon.Abstract} Initial icon of the tab
    */
   construct(label, icon) {
     super();
+
+    this.setCssUtilityClass("m_b0c91715 mantine-Tabs-panel");
 
     this._createChildControl("button");
 
@@ -91,7 +79,7 @@ qx.Class.define("ville.ui.tabview.Page", {
     // overridden
     appearance: {
       refine: true,
-      init: "tabview-page"
+      init: "blank"
     },
 
     /** The label/caption/text of the Page's button. */
@@ -103,7 +91,7 @@ qx.Class.define("ville.ui.tabview.Page", {
 
     /** Any URI String supported by qx.ui.basic.Image to display an icon in Page's button. */
     icon: {
-      check: "String",
+      check: "ville.ui.icon.Abstract",
       init: "",
       apply: "_applyIcon",
       nullable: true
@@ -134,24 +122,6 @@ qx.Class.define("ville.ui.tabview.Page", {
   /* eslint-disable @qooxdoo/qx/no-refs-in-members */
 
   members: {
-    /*
-    ---------------------------------------------------------------------------
-      WIDGET API
-    ---------------------------------------------------------------------------
-    */
-
-    // overridden
-    /**
-     * @lint ignoreReferenceField(_forwardStates)
-     */
-    _forwardStates: {
-      barTop: 1,
-      barRight: 1,
-      barBottom: 1,
-      barLeft: 1,
-      firstTab: 1,
-      lastTab: 1
-    },
 
     /*
     ---------------------------------------------------------------------------
@@ -160,7 +130,7 @@ qx.Class.define("ville.ui.tabview.Page", {
     */
 
     // property apply
-    _applyIcon(value, old) {
+    /*_applyIcon(value, old) {
       var btn = this.getChildControl("button");
       if (value) {
         btn.setIcon(value);
@@ -168,7 +138,8 @@ qx.Class.define("ville.ui.tabview.Page", {
       } else {
         btn._excludeChildControl("icon");
       }
-    },
+    },*/
+    _applyIcon() {},
 
     // property apply
     _applyLabel(value, old) {
