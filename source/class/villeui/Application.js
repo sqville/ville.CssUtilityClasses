@@ -105,16 +105,19 @@ qx.Class.define("villeui.Application",
       var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
       mainParagraph1.addClass("mantine-focus-auto");
 
-      var tblAnchorElement = new ville.ui.core.Box();
+      //var tblAnchorElement = new ville.ui.core.Box();
       var tbvQxAnchorElement = new ville.ui.core.Box();
 
       docInnerMainBox.add(mainParagraph1);
-      docInnerMainBox.add(tblAnchorElement);
+      //docInnerMainBox.add(tblAnchorElement);
       docInnerMainBox.add(tbvQxAnchorElement);
 
       doc.add(docInnerMainBox);
 
-      const qxtable = this._getTable();
+      
+      //--tabs-radius: var(--mantine-radius-sm); --tabs-color: var(--mantine-color-blue-filled);
+
+      /*const qxtable = this._getTable();
 
       //Inline tests
       tblAnchorElement.addListenerOnce("appear", (e) => {
@@ -122,7 +125,7 @@ qx.Class.define("villeui.Application",
         var tblIsle = new qx.ui.root.Inline(el, true, false);
         tblIsle.setLayout(new qx.ui.layout.Canvas());
         tblIsle.add(qxtable, {edge: 0});
-      });
+      });*/
 
       const qxtabview = this._getTabView();
 

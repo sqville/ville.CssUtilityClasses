@@ -1,194 +1,249 @@
-/* ************************************************************************
-
-************************************************************************ */
-
 /**
- * Radio buttons can be used in radio groups to allow to the user to select
- * exactly one item from a list. Radio groups are established by adding
- * radio buttons to a radio manager {@link ville.ui.form.RadioGroup}.
- *
- * Example:
- * <pre class="javascript">
- *   var container = new qx.ui.container.Composite(new qx.ui.layout.VBox);
- *
- *   var female = new qx.ui.form.RadioButton("female");
- *   var male = new qx.ui.form.RadioButton("male");
- *
- *   var mgr = new qx.ui.form.RadioGroup();
- *   mgr.add(female, male);
- *
- *   container.add(male);
- *   container.add(female);
- * </pre>
+ * RadioButton
+ * 
+ * @external(mantine/core/styles/Radio.css)
+ * @require(ville.ui.icon.IconRadio)
  */
-qx.Class.define("qx.ui.form.RadioButton", {
-  extend: qx.ui.form.Button,
-  include: [qx.ui.form.MForm, qx.ui.form.MModelProperty],
+qx.Class.define("ville.ui.form.CheckBox", {
+    extend: qx.ui.form.RadioButton,
 
-  implement: [
-    qx.ui.form.IRadioItem,
-    qx.ui.form.IForm,
-    qx.ui.form.IBooleanForm,
-    qx.ui.form.IModel
-  ],
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+    construct(label, alticon) {
+        super();
 
-  /**
-   * @param label {String?null} An optional label for the radio button.
-   */
-  construct(label) {
-    if (qx.core.Environment.get("qx.debug")) {
-      this.assertArgumentsCount(arguments, 0, 1);
+        this._setLayout(new qx.ui.layout.Basic());
+        this.setExcludeBoundsFromDom(true);
+        this.setExcludeInlineStyles(["position"]);
+        this.setCssUtilityClass("m_f3f1af94 mantine-Radio-root m_5f75b09e mantine-Radio-root");
+        this.setSelectable(null);
+
+        //this._createChildControl("label");
+        this._createChildControl("input");
+        if (alticon) {
+            this.setInlineIcon(alticon);
+            this.__alticon = true;
+        }
+        
+        this._createChildControl("icon");
+    
+        if (label) {
+            this.setLabel(label);
+        }
+
+        // Set attributes
+        this.setAttributes({
+            "data-label-position" : this.getLabelPosition(),
+            "data-variant" : this.getVariant()
+        });
+
+        //var cbinput = this.getChildControl("input");
+
+        // Add a change value listener to update the icon
+        /*this.addListener("changeValue", (e) => {
+            var cbinnerwrapper = this.getChildControl("checkboxinnerwrapper");
+            if (this.isTriState() && e.getData() == null) {
+                // replace entire svg inline icon
+                cbinput.setAttribute("data-indeterminate", "true");
+                cbinnerwrapper.removeAt(1);
+                cbinnerwrapper.add(this.getIndeterminateIcon());
+            } else if (this.isTriState() && e.getData() && e.getOldData() == null) {
+                cbinput.removeAttribute("data-indeterminate");
+                cbinnerwrapper.removeAt(1);
+                cbinnerwrapper.add(this.getInlineIcon());
+            }
+        });*/
+    },
+
+    properties: {
+
+        variant: {
+            init: "filled",
+            check: ["filled", "outline"],
+            apply: "_applyVariant",
+            themeable: true,
+            event: "changeVariant"
+        },
+
+        labelPosition: {
+            init: "right",
+            check: ["right", "left"],
+            apply: "_applyLabelPosition",
+            themeable: true,
+            event: "changeLabelPosition"
+        },
+
+        inlineIcon: {
+            check: "qx.ui.core.Widget",
+            nullable: true,
+            themeable: true
+        },
+
+        indeterminateIcon: {
+            check: "qx.ui.core.Widget",
+            nullable: true,
+            themeable: true
+        },
+
+        id: {
+            check: "String",
+            apply: "_applyId",
+            themeable: false,
+            nullable: true,
+            event: "changeId"
+        },
+
+        nestLabel: {
+            check: "Boolean",
+            init: true,
+            nullable: false,
+            themeable: true,
+            apply: "_applyNestLabel"
+        }
+
+    },
+
+    members: {
+
+        // global flag for alt icons
+        __alticon : false,
+
+        __altindeterminateicon : false,
+
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element("div");
+        },
+
+        // overridden
+        _createChildControlImpl(id, hash) {
+            var control;
+            var rbbody;
+            var rbinnerwrapper;
+            var rblabelwrapper;
+
+            switch (id) {
+                case "radiobuttonbody":
+                    control = new ville.ui.core.InnerWrapper("div");
+                    control.setCssUtilityClass("m_5f6e695e mantine-Radio-body");
+                    this._add(control);
+                    break;  
+
+                case "radiobuttoninnerwrapper":
+                    control = new ville.ui.core.InnerWrapper("div");
+                    control.setCssUtilityClass("m_89c4f5e4 mantine-Radio-inner");
+                    control.setAttribute("data-label-position", this.getLabelPosition());
+                    rbbody = this.getChildControl("radiobuttonbody");
+                    rbbody.add(control);
+                    break; 
+
+                case "radiobuttonlabelwrapper":
+                    control = new ville.ui.core.InnerWrapper("div");
+                    control.setCssUtilityClass("m_d3ea56bb mantine-Radio-labelWrapper");
+                    rbbody = this.getChildControl("radiobuttonbody");
+                    rbbody.add(control);
+                    break;
+
+                case "label":
+                    control = new ville.ui.form.Label();
+                    control.setAnonymous(true);
+                    control.setSelectable(false);
+                    control.setCssUtilityClass("m_8ee546b8 mantine-Radio-label");
+                    rblabelwrapper = this.getChildControl("radiobuttonlabelwrapper");
+                    rblabelwrapper.add(control);
+                    break;
+
+                case "input":
+                    control = new ville.ui.core.BaseWidget({ "basetag" : "input", "type" : "radio" });
+                    control.setCssUtilityClass("mantine-focus-auto m_8a3dbb89 mantine-Radio-radio");
+                    rbinnerwrapper = this.getChildControl("radiobuttoninnerwrapper");
+                    rbinnerwrapper.add(control);
+                    break;
+                
+                case "icon":
+                    // check to see if there is an alternative icon, otherwise use default
+                    if (this.__alticon) {
+                        control = this.getInlineIcon();
+                    } else {
+                        control = new ville.ui.icon.IconRadio();
+                        control.setViewBox("0 0 5 5");
+                        control.setCssUtilityClass("m_f3ed6b2b mantine-Radio-icon");
+                        this.setInlineIcon(control);
+                    }
+                    control.setCssUtilityClass("m_bf295423 mantine-Checkbox-icon");
+                    control.setAttribute("aria-hidden", "true");
+                    rbinnerwrapper = this.getChildControl("radiobuttoninnerwrapper");
+                    rbinnerwrapper.add(control);
+                    break;
+                
+            }
+
+            return control || super._createChildControlImpl(id);
+        },
+
+        // property apply
+        _applyVariant(value, old) {
+            if (value) {
+                this.setAttribute("data-variant", value);
+                var input = this.getChildControl("input");
+                if (input) {
+                    if (value = "outline") {
+                        input.getContentElement().addClass("m_215c4542");
+                    } else {
+                        input.getContentElement().removeClass("m_215c4542");
+                    }
+                }
+            }
+        },
+
+        // property apply
+        _applyLabelPosition(value, old) {
+            if (value) {
+                this.setAttribute("data-label-position", value);
+                var rbiw = this.getChildControl("radiobuttoninnerwrapper");
+                if (rbiw) {
+                   rbiw.setAttribute("data-label-position", value);
+                }
+            }
+        },
+
+        // property apply
+        _applyId(value, old) {
+            if (value) {
+                var input = this.getChildControl("input");
+                if (input) {
+                    input.setAttribute("id", value);
+                }
+                var label = this.getChildControl("label", true);
+                if (label) {
+                    label.setAttribute("for", value);
+                }
+            }
+        },
+
+        // overridden
+        _applyIcon() {},
+
+        _applyLabel(value, old) {
+            if (value) {
+                var label = this.getChildControl("label");
+                if (label) {
+                    label.setValue(value);
+                }
+            }
+        },
+
+        // property apply
+        _applyNestLabel(value, old) {
+            if (value) {
+                var label = this.getChildControl("label");
+                if (label) {
+                    var rbinnerwrapper = this.getChildControl("radiobuttoninnerwrapper");
+                    if (rbinnerwrapper) {
+                        label.add(rbinnerwrapper);
+                    }
+                }
+            }
+        }
     }
-
-    super(label);
-
-    // ARIA attrs
-    // Important: (Grouped) radio btns should be children of a div with role 'radiogroup'
-    const contentEl = this.getContentElement();
-    contentEl.setAttribute("role", "radio");
-    contentEl.setAttribute("aria-checked", false);
-
-    // Add listeners
-    this.addListener("execute", this._onExecute);
-    this.addListener("keypress", this._onKeyPress);
-  },
-
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
-
-  properties: {
-    /** The assigned qx.ui.form.RadioGroup which handles the switching between registered buttons */
-    group: {
-      check: "qx.ui.form.RadioGroup",
-      nullable: true,
-      apply: "_applyGroup"
-    },
-
-    /** The value of the widget. True, if the widget is checked. */
-    value: {
-      check: "Boolean",
-      nullable: true,
-      event: "changeValue",
-      apply: "_applyValue",
-      init: false
-    },
-
-    // overridden
-    appearance: {
-      refine: true,
-      init: "radiobutton"
-    },
-
-    // overridden
-    allowGrowX: {
-      refine: true,
-      init: false
-    }
-  },
-
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-  /* eslint-disable @qooxdoo/qx/no-refs-in-members */
-  members: {
-    // overridden
-    /**
-     * @lint ignoreReferenceField(_forwardStates)
-     */
-    _forwardStates: {
-      checked: true,
-      focused: true,
-      invalid: true,
-      hovered: true
-    },
-
-    // overridden (from MExecutable to keep the icon out of the binding)
-    /**
-     * @lint ignoreReferenceField(_bindableProperties)
-     */
-    _bindableProperties: ["enabled", "label", "toolTipText", "value", "menu"],
-
-    /*
-    ---------------------------------------------------------------------------
-      APPLY ROUTINES
-    ---------------------------------------------------------------------------
-    */
-
-    // property apply
-    _applyValue(value, old) {
-      value ? this.addState("checked") : this.removeState("checked");
-      this.getContentElement().setAttribute("aria-checked", Boolean(value));
-    },
-
-    /** The assigned {@link qx.ui.form.RadioGroup} which handles the switching between registered buttons */
-    _applyGroup(value, old) {
-      if (old) {
-        old.remove(this);
-      }
-
-      if (value) {
-        value.add(this);
-      }
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      EVENT-HANDLER
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Event listener for the "execute" event.
-     *
-     * Sets the property "checked" to true.
-     *
-     * @param e {qx.event.type.Event} execute event
-     */
-    _onExecute(e) {
-      var grp = this.getGroup();
-      if (grp && grp.getAllowEmptySelection()) {
-        this.toggleValue();
-      } else {
-        this.setValue(true);
-      }
-    },
-
-    /**
-     * Event listener for the "keyPress" event.
-     *
-     * Selects the previous RadioButton when pressing "Left" or "Up" and
-     * Selects the next RadioButton when pressing "Right" and "Down"
-     *
-     * @param e {qx.event.type.KeySequence} KeyPress event
-     */
-    _onKeyPress(e) {
-      var grp = this.getGroup();
-      if (!grp) {
-        return;
-      }
-
-      switch (e.getKeyIdentifier()) {
-        case "Left":
-        case "Up":
-          grp.selectPrevious();
-          break;
-
-        case "Right":
-        case "Down":
-          grp.selectNext();
-          break;
-      }
-    }
-  }
-});
+  });

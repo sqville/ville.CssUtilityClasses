@@ -32,7 +32,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
   /**
    * @param barPosition {String} Initial bar position ({@link #barPosition})
    */
-  construct(barPosition) {
+  construct(barPosition, variant) {
 
     super();
     
@@ -55,6 +55,12 @@ qx.Class.define("ville.ui.tabview.TabView", {
       this.setBarPosition(barPosition);
     } else {
       this.initBarPosition();
+    }
+
+    if (variant != null) {
+      this.setVariant(variant);
+    } else {
+      this.initVariant();
     }
 
     // ARIA attrs
@@ -85,7 +91,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
 
     variant: {
         init: "default",
-        check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
+        check: ["default", "outline", "pills"],
         apply: "_applyVariant",
         themeable: true,
         event: "changeVariant"
@@ -166,7 +172,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
 
       switch (id) {
         case "bar":
-          control = new ville.ui.layout.Flex();
+          control = new ville.ui.layout.Box();
           control.setCssUtilityClass("m_576c9d4 m_89d33d6d mantine-Tabs-list");
           control.setAttribute("role", "tablist");
           this._add(control);
@@ -402,6 +408,9 @@ qx.Class.define("ville.ui.tabview.TabView", {
           this.setAttribute("data-orientation", "horizontal");
           this.removeAttribute("data-inverted");
           this.removeAttribute("data-placement");
+          bar.setAttribute("data-orientation", "horizontal");
+          bar.removeAttribute("data-inverted");
+          bar.removeAttribute("data-placement");
           break;
 
         case "bottom":
@@ -410,6 +419,11 @@ qx.Class.define("ville.ui.tabview.TabView", {
             "data-inverted": "true"
           });
           this.removeAttribute("data-placement");
+          bar.setAttributes({
+            "data-orientation": "horizontal",
+            "data-inverted": "true"
+          });
+          bar.removeAttribute("data-placement");
           break;
 
         case "left":
@@ -418,6 +432,11 @@ qx.Class.define("ville.ui.tabview.TabView", {
             "data-placement": "left"
           });
           this.removeAttribute("data-inverted");
+          bar.setAttributes({
+            "data-orientation": "vertical",
+            "data-placement": "left"
+          });
+          bar.removeAttribute("data-inverted");
           break;
 
         case "right":
@@ -426,6 +445,11 @@ qx.Class.define("ville.ui.tabview.TabView", {
             "data-placement": "right"
           });
           this.removeAttribute("data-inverted");
+          bar.setAttributes({
+            "data-orientation": "vertical",
+            "data-placement": "right"
+          });
+          bar.removeAttribute("data-inverted");
           break;
       }
     },

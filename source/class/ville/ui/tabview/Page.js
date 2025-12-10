@@ -1,5 +1,6 @@
 /* ************************************************************************
-
+SQ Notes:
+* No need to extend qx page object. It was a light composite at best.
 ************************************************************************ */
 
 /**
@@ -10,7 +11,7 @@
  */
 qx.Class.define("ville.ui.tabview.Page", {
   
-  extend: ville.ui.layout.Container,
+  extend: ville.ui.core.Box,
 
   /*
   *****************************************************************************

@@ -1,18 +1,6 @@
 /* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2009 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Jonathan Weiß (jonathan_rass)
+SQ Notes:
+* 
 
 ************************************************************************ */
 
@@ -20,13 +8,11 @@
  * A TabButton is the tapable part sitting on the {@link qx.ui.tabview.Page}.
  * By tapping on the TabButton the user can set a Page active.
  *
- * @childControl label {qx.ui.basic.Label} label of the tab button
- * @childControl icon {qx.ui.basic.Image} icon of the tab button
- * @childControl close-button {qx.ui.form.Button} close button of the tab button
+ * @childControl label {ville.ui.basic.Label} label of the tab button
+ * @childControl tabsection {qx.ui.core.Widget} icon of the tab button
  */
 qx.Class.define("ville.ui.tabview.TabButton", {
-  extend: qx.ui.form.RadioButton,
-  implement: qx.ui.form.IRadioItem,
+  extend: qx.ui.tabview.TabButton,
 
   /*
   *****************************************************************************
@@ -34,32 +20,34 @@ qx.Class.define("ville.ui.tabview.TabButton", {
   *****************************************************************************
   */
 
-  construct() {
+  construct(label, variant, tabsection) {
     super();
 
-    var layout = new qx.ui.layout.Grid(2, 0);
-    layout.setRowAlign(0, "left", "middle");
-    layout.setColumnAlign(0, "right", "middle");
+    var layout = new qx.ui.layout.Basic();
 
     this._getLayout().dispose();
     this._setLayout(layout);
 
-    this.initShowCloseButton();
-  },
+    this.setExcludeBoundsFromDom(true);
+    this.setExcludeInlineStyles(["position"]);
+    this.setCssUtilityClass("mantine-focus-auto m_539e827b m_4ec4dce6 mantine-Tabs-tab m_87cf2631 mantine-UnstyledButton-root");
+    this.setSelectable(null);
+    this.getContentElement().setAttribute('type', 'button');
 
-  /*
-  *****************************************************************************
-     EVENTS
-  *****************************************************************************
-  */
+    if (label) {
+      this.setLabel(label);
+    }
+        
+    if (variant) {
+      this.setVariant(variant);
+    } else {
+      this.initVariant();
+    }
 
-  events: {
-    /**
-     * Fired by {@link qx.ui.tabview.Page} if the close button is tapped.
-     *
-     * Event data: The tab button.
-     */
-    close: "qx.event.type.Data"
+    if (tabsection !== undefined) {
+      this.setTabSection(tabsection);
+    }
+
   },
 
   /*
@@ -69,11 +57,30 @@ qx.Class.define("ville.ui.tabview.TabButton", {
   */
 
   properties: {
-    /** Indicates if the close button of a TabButton should be shown. */
-    showCloseButton: {
-      check: "Boolean",
-      init: false,
-      apply: "_applyShowCloseButton"
+    iconPosition: {
+      refine: true,
+      init: "left"
+    },
+
+    appearance: {
+      refine: true,
+      init: "blank"
+    },
+
+    variant: {
+      init: "default",
+      check: ["default", "outline", "pills"],
+      apply: "_applyVariant",
+      themeable: true,
+      event: "changeVariant"
+    },
+
+    tabSection: {
+      check: "qx.ui.core.Widget",
+      apply: "_applyTabSection",
+      nullable: true,
+      themeable: true,
+      event: "changeTabSection"
     }
   },
 
@@ -84,14 +91,6 @@ qx.Class.define("ville.ui.tabview.TabButton", {
   */
 
   members: {
-    // overridden
-    /**
-     * @lint ignoreReferenceField(_forwardStates)
-     */
-    _forwardStates: {
-      focused: true,
-      checked: true
-    },
 
     /*
     ---------------------------------------------------------------------------
@@ -99,55 +98,9 @@ qx.Class.define("ville.ui.tabview.TabButton", {
     ---------------------------------------------------------------------------
     */
 
-    _applyIconPosition(value, old) {
-      var children = {
-        icon: this.getChildControl("icon"),
-        label: this.getChildControl("label"),
-        closeButton: this.getShowCloseButton()
-          ? this.getChildControl("close-button")
-          : null
-      };
-
-      // Remove all children before adding them again
-      for (var child in children) {
-        if (children[child]) {
-          this._remove(children[child]);
-        }
-      }
-
-      switch (value) {
-        case "top":
-          this._add(children.label, { row: 3, column: 2 });
-          this._add(children.icon, { row: 1, column: 2 });
-          if (children.closeButton) {
-            this._add(children.closeButton, { row: 0, column: 4 });
-          }
-          break;
-
-        case "bottom":
-          this._add(children.label, { row: 1, column: 2 });
-          this._add(children.icon, { row: 3, column: 2 });
-          if (children.closeButton) {
-            this._add(children.closeButton, { row: 0, column: 4 });
-          }
-          break;
-
-        case "left":
-          this._add(children.label, { row: 0, column: 2 });
-          this._add(children.icon, { row: 0, column: 0 });
-          if (children.closeButton) {
-            this._add(children.closeButton, { row: 0, column: 4 });
-          }
-          break;
-
-        case "right":
-          this._add(children.label, { row: 0, column: 0 });
-          this._add(children.icon, { row: 0, column: 2 });
-          if (children.closeButton) {
-            this._add(children.closeButton, { row: 0, column: 4 });
-          }
-          break;
-      }
+    // overridden
+    _createContentElement() {
+        return new qx.html.Element("button");
     },
 
     // overridden
@@ -155,30 +108,20 @@ qx.Class.define("ville.ui.tabview.TabButton", {
       var control;
 
       switch (id) {
+        case "tabsection":
+          control = new ville.ui.basic.Label();
+          control.setAnonymous(true);
+          control.setCssUtilityClass("m_fc420b1f mantine-Tabs-tabSection");
+          control.getContentElement().setAttribute("data-position", "left");
+          this._add(control);
+          break;
+
         case "label":
-          var control = new qx.ui.basic.Label(this.getLabel());
+          control = new ville.ui.basic.Label();
           control.setAnonymous(true);
-          this._add(control, { row: 0, column: 2 });
-          this._getLayout().setColumnFlex(2, 1);
-          break;
-
-        case "icon":
-          control = new qx.ui.basic.Image(this.getIcon());
-          control.setAnonymous(true);
-          this._add(control, { row: 0, column: 0 });
-          break;
-
-        case "close-button":
-          control = new qx.ui.form.Button();
-          control.setFocusable(false);
-          control.setKeepActive(true);
-          control.addListener("tap", this._onCloseButtonTap, this);
-          this._add(control, { row: 0, column: 4 });
-
-          if (!this.getShowCloseButton()) {
-            control.exclude();
-          }
-
+          control.setSelectable(this.getSelectable());
+          control.setCssUtilityClass("m_42bbd1ae mantine-Tabs-tabLabel");
+          this._add(control);
           break;
       }
 
@@ -187,41 +130,62 @@ qx.Class.define("ville.ui.tabview.TabButton", {
 
     /*
     ---------------------------------------------------------------------------
-      EVENT LISTENERS
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Fires a "close" event when the close button is tapped.
-     */
-    _onCloseButtonTap() {
-      this.fireDataEvent("close", this);
-    },
-
-    /*
-    ---------------------------------------------------------------------------
       PROPERTY APPLY
     ---------------------------------------------------------------------------
     */
 
-    // property apply
-    _applyShowCloseButton(value, old) {
+    // overridden
+    _applyIconPosition(value, old) {
       if (value) {
-        this._showChildControl("close-button");
-      } else {
-        this._excludeChildControl("close-button");
+        var section = this.getChildControl("tabsection");
+        if (section) {
+          if (value === "top" || value === "bottom") {
+            section.getContentElement().setAttribute("data-position", "left");
+          } else {
+            section.getContentElement().setAttribute("data-position", value);
+          }
+        } 
+      }
+    },
+
+    // overridden
+    _applyIcon(value, old) {},
+
+    // overridden
+    _applyLabel(value, old) {
+      if (value) {
+        var label = this.getChildControl("label");
+        if (label) {
+          label.setValue(value);
+        }
       }
     },
 
     // property apply
-    _applyCenter(value) {
-      var layout = this._getLayout();
-
+    _applyVariant(value, old) {
       if (value) {
-        layout.setColumnAlign(2, "center", "middle");
-      } else {
-        layout.setColumnAlign(2, "left", "middle");
+        this.getContentElement().setAttribute("data-variant", value);
       }
-    }
+    },
+
+    _applyTabSection(value, old) {
+      var section = this.getChildControl("tabsection");
+      if (section) {
+        if (old) {
+          section.removeAll();
+        }
+        if (value) {
+          section.add(value);
+          section.getContentElement().setAttribute("data-position", "true");
+        }
+      }
+    },
+
+    // property apply
+    _applyShowCloseButton(value, old) {},
+
+    // property apply
+    _applyCenter(value) {}
+
   }
 });
