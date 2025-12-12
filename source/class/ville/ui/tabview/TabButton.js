@@ -131,6 +131,16 @@ qx.Class.define("ville.ui.tabview.TabButton", {
     */
 
     // overridden
+    _applyValue(value, old) {
+      //value ? this.addState("checked") : this.removeState("checked");
+      //this.getContentElement().setAttribute("aria-checked", Boolean(value));
+      if (value)
+        this.getContentElement().setAttribute('data-active', 'true');
+      else
+        this.getContentElement().removeAttribute('data-active');
+    },
+
+    // overridden
     _applyIconPosition(value, old) {
       if (value) {
         var section = this.getChildControl("tabsection");

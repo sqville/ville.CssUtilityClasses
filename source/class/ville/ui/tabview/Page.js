@@ -166,10 +166,10 @@ qx.Class.define("ville.ui.tabview.Page", {
 
       switch (id) {
         case "button":
-          control = new qx.ui.tabview.TabButton();
+          control = new ville.ui.tabview.TabButton();
           control.setUserData("page", this);
           control.addListener("close", this._onButtonClose, this);
-          control.setVisibility(this.getTabVisibility());
+          //control.setVisibility(this.getTabVisibility());
           break;
       }
 

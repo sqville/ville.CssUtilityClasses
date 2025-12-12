@@ -2,7 +2,7 @@
  * Horizontal flex layout
  * @external(mantine/core/styles/Group.css)
  */
-qx.Class.define("ville.ui.layout.Group", {
+qx.Class.define("ville.ui.layout.HGroup", {
     
     extend: ville.ui.layout.Container,
 

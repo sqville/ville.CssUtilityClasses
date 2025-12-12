@@ -72,7 +72,7 @@ qx.Class.define("villeui.Application",
       headerBox.setAttribute("data-with-border", "true");
       headerBox.setStyle("--app-shell-header-z-index", "100");
 
-      var headerGroupBox = new ville.ui.layout.Group();
+      var headerGroupBox = new ville.ui.layout.HGroup();
       headerGroupBox.setStyles({
         "--group-gap": "var(--mantine-spacing-md)",
         "--group-align": "center",
@@ -132,6 +132,10 @@ qx.Class.define("villeui.Application",
       });*/
 
       const tabView1 = this._getTabView();
+      tabView1.setStyles({
+        "--tabs-radius": "var(--mantine-radius-sm)",
+        "--tabs-color": "var(--mantine-color-blue-filled)"
+      });
 
       // Settings
       var settingsAffix = new ville.ui.overlay.Affix();

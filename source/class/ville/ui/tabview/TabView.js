@@ -64,7 +64,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
     }
 
     // ARIA attrs
-    this.getContentElement().setAttribute("role", "tablist");
+    //this.getContentElement().setAttribute("role", "tablist");
   },
 
   /*
@@ -120,7 +120,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
     /**
      * setValue implements part of the {@link qx.ui.form.IField} interface.
      *
-     * @param item {null|qx.ui.tabview.Page} Page to set as selected value.
+     * @param item {null|ville.ui.tabview.Page} Page to set as selected value.
      * @returns {null|TypeError} The status of this operation.
      */
     setValue(item) {
@@ -184,9 +184,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
           break;
 
         case "pane":
-          control = new qx.ui.container.Stack();
-          control.setExcludeBoundsFromDom(true);
-          control.setExcludeInlineStyles(["position"]);
+          control = new ville.ui.layout.Stack();
           this._add(control);
           break;
       }
@@ -479,7 +477,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
      * Note: The result is only a set of selected items, so the order can
      * differ from the sequence in which the items were added.
      *
-     * @return {qx.ui.tabview.Page[]} List of items.
+     * @return {ville.ui.tabview.Page[]} List of items.
      */
     getSelection() {
       var buttons = this.__radioGroup.getSelection();
@@ -495,7 +493,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
     /**
      * Replaces current selection with the given items.
      *
-     * @param items {qx.ui.tabview.Page[]} Items to select.
+     * @param items {ville.ui.tabview.Page[]} Items to select.
      * @throws {Error} if one of the items is not a child element and if
      *    items contains more than one elements.
      */
@@ -539,7 +537,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
     /**
      * Returns all elements which are selectable.
      *
-     * @return {qx.ui.tabview.Page[]} The contained items.
+     * @return {ville.ui.tabview.Page[]} The contained items.
      * @param all {Boolean} true for all selectables, false for the
      *   selectables the user can interactively select
      */

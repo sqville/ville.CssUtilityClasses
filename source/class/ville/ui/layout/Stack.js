@@ -1,17 +1,35 @@
 /**
- * Vertical flex layout
- * @external(mantine/core/styles/Stack.css)
+ * Stack Container - created specifically for TabView panes
  */
 qx.Class.define("ville.ui.layout.Stack", {
     
-    extend: ville.ui.layout.Container,
+    extend: qx.ui.container.Stack,
 
-    construct() {
+    include: ville.ui.core.MWidget,
+
+    construct(component) {
         
+        if (component) {
+            this.__componenttag = component;
+        }
         super();
 
-        this.setCssUtilityClass("m_6d731127 mantine-Stack-root");
+        //this._setLayout(new qx.ui.layout.Basic());
+        this.setExcludeBoundsFromDom(true);
+        this.setSelectable(null);
+        this.setExcludeInlineStyles(["position"]);
+        //this.setCssUtilityClass("m_7485cace mantine-Container-root");
+
+    },
+
+    members: {
+
+        __componenttag: "div",
+
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element(this.__componenttag);
+        }
 
     }
-
   });
