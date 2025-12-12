@@ -17,6 +17,7 @@ qx.Class.define("ville.ui.core.Box", {
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
         this.setSelectable(null);
     },
 

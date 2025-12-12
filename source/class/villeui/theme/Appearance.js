@@ -15,7 +15,11 @@ qx.Theme.define("villeui.theme.Appearance",
   appearances :
   {
 
-    blank: {}
+    blank: {},
+
+    "blank/button": {},
+
+    "blank/button/icon": {}
 
   }
 });

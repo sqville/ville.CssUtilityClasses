@@ -77,11 +77,6 @@ qx.Class.define("ville.ui.tabview.Page", {
   */
 
   properties: {
-    // overridden
-    appearance: {
-      refine: true,
-      init: "blank"
-    },
 
     /** The label/caption/text of the Page's button. */
     label: {
@@ -92,8 +87,8 @@ qx.Class.define("ville.ui.tabview.Page", {
 
     /** Any URI String supported by qx.ui.basic.Image to display an icon in Page's button. */
     icon: {
-      check: "ville.ui.icon.Abstract",
-      init: "",
+      check: "ville.ui.core.Widget",
+      init: null,
       apply: "_applyIcon",
       nullable: true
     },
@@ -140,7 +135,9 @@ qx.Class.define("ville.ui.tabview.Page", {
         btn._excludeChildControl("icon");
       }
     },*/
-    _applyIcon() {},
+    _applyIcon(value, old) {
+      this.getChildControl("button").setTabSection(value);
+    },
 
     // property apply
     _applyLabel(value, old) {
@@ -170,9 +167,6 @@ qx.Class.define("ville.ui.tabview.Page", {
       switch (id) {
         case "button":
           control = new qx.ui.tabview.TabButton();
-          control.setAllowGrowX(true);
-          control.setAllowGrowY(true);
-
           control.setUserData("page", this);
           control.addListener("close", this._onButtonClose, this);
           control.setVisibility(this.getTabVisibility());
@@ -200,12 +194,12 @@ qx.Class.define("ville.ui.tabview.Page", {
 
     // property apply
     _applyShowCloseButton(value, old) {
-      this.getChildControl("button").setShowCloseButton(value);
+      //this.getChildControl("button").setShowCloseButton(value);
     },
 
     // property apply
     _applyTabVisibility(newValue, oldValue) {
-      this.getButton().setVisibility(newValue);
+      //this.getButton().setVisibility(newValue);
     },
 
     /*

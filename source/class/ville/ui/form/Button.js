@@ -8,7 +8,7 @@ qx.Class.define("ville.ui.form.Button", {
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
-    construct(label, variant, sectionleft, sectionright) {
+    construct(label, variant, sectionLeft, sectionRight) {
         super(); 
 
         this.setCssUtilityClass("m_77c9d27d mantine-Button-root " + this.getCssUtilityClass());
@@ -23,12 +23,12 @@ qx.Class.define("ville.ui.form.Button", {
             this.initVariant();
         }
 
-        if (sectionleft !== undefined) {
-            this.setSectionLeft(sectionleft);
+        if (sectionLeft !== undefined) {
+            this.setSectionLeft(sectionLeft);
         }
 
-        if (sectionright !== undefined) {
-            this.setSectionRight(sectionright);
+        if (sectionRight !== undefined) {
+            this.setSectionRight(sectionRight);
         }
         
     },

@@ -83,12 +83,6 @@ qx.Class.define("ville.ui.form.RadioButtonRaw", {
     },
 
     // overridden
-    appearance: {
-      refine: true,
-      init: "blank"
-    },
-
-    // overridden
     allowGrowX: {
       refine: true,
       init: false

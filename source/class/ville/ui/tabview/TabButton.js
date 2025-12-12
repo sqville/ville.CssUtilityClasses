@@ -12,6 +12,7 @@ SQ Notes:
  * @childControl tabsection {qx.ui.core.Widget} icon of the tab button
  */
 qx.Class.define("ville.ui.tabview.TabButton", {
+  
   extend: qx.ui.tabview.TabButton,
 
   /*
@@ -38,13 +39,13 @@ qx.Class.define("ville.ui.tabview.TabButton", {
       this.setLabel(label);
     }
         
-    if (variant) {
+    if (variant != null) {
       this.setVariant(variant);
     } else {
       this.initVariant();
     }
 
-    if (tabsection !== undefined) {
+    if (tabsection != null) {
       this.setTabSection(tabsection);
     }
 
@@ -60,11 +61,6 @@ qx.Class.define("ville.ui.tabview.TabButton", {
     iconPosition: {
       refine: true,
       init: "left"
-    },
-
-    appearance: {
-      refine: true,
-      init: "blank"
     },
 
     variant: {
@@ -176,7 +172,7 @@ qx.Class.define("ville.ui.tabview.TabButton", {
         }
         if (value) {
           section.add(value);
-          section.getContentElement().setAttribute("data-position", "true");
+          section.getContentElement().setAttribute("data-position", this.getIconPosition());
         }
       }
     },

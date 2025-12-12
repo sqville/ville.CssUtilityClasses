@@ -21,16 +21,6 @@ qx.Class.define("ville.ui.form.UnstyledButton", {
         }
     },
 
-    properties: {
-
-        // Override
-        appearance: {
-            init: "blank",
-            refine: true
-        }
-
-    },
-
     members: {
 
         // overridden

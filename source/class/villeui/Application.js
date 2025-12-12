@@ -127,14 +127,17 @@ qx.Class.define("villeui.Application",
         tblIsle.add(qxtable, {edge: 0});
       });*/
 
-      const qxtabview = this._getTabView();
+      //const qxtabview = this._getQxTabView();
 
-      tbvQxAnchorElement.addListenerOnce("appear", (e) => {
+      /*tbvQxAnchorElement.addListenerOnce("appear", (e) => {
         var el = e.getTarget().getContentElement().getDomElement();
         var tbvIsle = new qx.ui.root.Inline(el, true, false);
         tbvIsle.setLayout(new qx.ui.layout.Canvas());
         tbvIsle.add(qxtabview, {edge: 0});
-      });
+      });*/
+
+      const villetabview = this._getTabView();
+      docInnerMainBox.add(villetabview);
 
       // Settings
       var settings = new ville.ui.overlay.Affix();
@@ -143,14 +146,14 @@ qx.Class.define("villeui.Application",
         "--affix-bottom": "calc(1.25rem * var(--mantine-scale))",
         "--affix-right": "calc(1.25rem * var(--mantine-scale))"
       });
-      var btntheme = new ville.ui.form.UnstyledToggleButton("DARK");
+      var btntheme = new ville.ui.form.UnstyledToggleButton("&#9790;");
       btntheme.addListener("click", (e) => {
         if (btntheme.getValue()) {
           document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
-          btntheme.getContentElement().setAttribute("html", "LIGHT");
+          btntheme.getContentElement().setAttribute("html", "&#9728;"); //"&#9728;");
         } else {
           document.documentElement.setAttribute("data-mantine-color-scheme", "light");
-          btntheme.getContentElement().setAttribute("html", "DARK");
+          btntheme.getContentElement().setAttribute("html", "&#9790;");
         }
       });
       settings.add(btntheme);
@@ -211,7 +214,7 @@ qx.Class.define("villeui.Application",
 
     },
 
-    _getTabView() {
+    _getQxTabView() {
 
       var tabView = new qx.ui.tabview.TabView();
       tabView.setWidth(500);
@@ -232,6 +235,32 @@ qx.Class.define("villeui.Application",
       var page3 = new qx.ui.tabview.Page("Calculator");
       page3.setLayout(new qx.ui.layout.VBox());
       page3.add(new qx.ui.basic.Label("Calculator..."));
+      tabView.add(page3);
+
+      return tabView;
+    },
+
+    _getTabView() {
+
+      var tabView = new ville.ui.tabview.TabView();
+      //tabView.setWidth(500);
+
+      ////////////////// TEST PAGE 1 ////////////////////
+      var page1 = new ville.ui.tabview.Page("Layout");
+      var page1Paragraph = new ville.ui.typography.Text("Layout tab page message...");
+      page1.add(page1Paragraph);
+      tabView.add(page1);
+
+      ////////////////// TEST PAGE 2 ////////////////////
+      var page2 = new ville.ui.tabview.Page("Notes");
+      var page2Paragraph = new ville.ui.typography.Text("Notes tab page message...");
+      page2.add(page2Paragraph);
+      tabView.add(page2);
+
+      ////////////////// TEST PAGE 3 ////////////////////
+      var page3 = new ville.ui.tabview.Page("Calculator");
+      var page3Paragraph = new ville.ui.typography.Text("Calculator tab page message...");
+      page3.add(page3Paragraph);
       tabView.add(page3);
 
       return tabView;

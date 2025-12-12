@@ -13,8 +13,8 @@
  * focus to that tab; this is undesirable (and inconsistent with other parts
  * of the framework) and is no longer done automatically.
  *
- * @external(mantine/core/styles/TabView.css)
- * @childControl bar {ville.ui.layout.Flex} slidebar for all tab buttons
+ * @external(mantine/core/styles/Tabs.css)
+ * @childControl bar {ville.ui.core.Box} slidebar for all tab buttons
  * @childControl pane {qx.ui.container.Stack} stack container to show one tab page
  */
 qx.Class.define("ville.ui.tabview.TabView", {
@@ -167,12 +167,17 @@ qx.Class.define("ville.ui.tabview.TabView", {
     */
 
     // overridden
+    _createContentElement() {
+      return new qx.html.Element("div");
+    },
+
+    // overridden
     _createChildControlImpl(id, hash) {
       var control;
 
       switch (id) {
         case "bar":
-          control = new ville.ui.layout.Box();
+          control = new ville.ui.core.Box();
           control.setCssUtilityClass("m_576c9d4 m_89d33d6d mantine-Tabs-list");
           control.setAttribute("role", "tablist");
           this._add(control);
@@ -243,9 +248,9 @@ qx.Class.define("ville.ui.tabview.TabView", {
       this.__radioGroup.add(button);
 
       // Add state to page
-      page.addState(this.__barPositionToState[this.getBarPosition()]);
+      //page.addState(this.__barPositionToState[this.getBarPosition()]);
 
-      this.__updateFirstLastTabStates();
+      //this.__updateFirstLastTabStates();
 
       page.addListener("close", this._onPageClose, this);
       page.addListener(
@@ -264,7 +269,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
      */
     addAt(page, index) {
       if (qx.core.Environment.get("qx.debug")) {
-        if (!(page instanceof qx.ui.tabview.Page)) {
+        if (!(page instanceof ville.ui.tabview.Page)) {
           throw new Error("Incompatible child for TabView: " + page);
         }
       }
@@ -292,10 +297,10 @@ qx.Class.define("ville.ui.tabview.TabView", {
       this.__radioGroup.add(button);
 
       // Add state to page
-      page.addState(this.__barPositionToState[this.getBarPosition()]);
+      //page.addState(this.__barPositionToState[this.getBarPosition()]);
 
       // Update states
-      this.__updateFirstLastTabStates();
+      //this.__updateFirstLastTabStates();
 
       page.addListener("close", this._onPageClose, this);
       page.addListener(
@@ -338,9 +343,9 @@ qx.Class.define("ville.ui.tabview.TabView", {
       this.__radioGroup.remove(button);
 
       // Remove state from page
-      page.removeState(this.__barPositionToState[this.getBarPosition()]);
+      //page.removeState(this.__barPositionToState[this.getBarPosition()]);
 
-      this.__updateFirstLastTabStates();
+      //this.__updateFirstLastTabStates();
 
       page.removeListener("close", this._onPageClose, this);
       page.removeListener(
@@ -400,7 +405,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
      */
     _applyBarPosition(value, old) {
       var bar = this.getChildControl("bar");
-      var pane = this.getChildControl("pane");
+      //var pane = this.getChildControl("pane");
 
       switch (value) {
         case "top":
