@@ -57,23 +57,23 @@ qx.Class.define("villeui.Application",
       }
 
       // Document is the application root and AppShell root
-      const doc = this.getRoot();
-      doc.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
-      doc.setExcludeBoundsFromDom(true);
-      doc.setClearAllInlineStyles(true);
-      doc.getContentElement().setStyles({
+      const appShell = this.getRoot();
+      appShell.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
+      appShell.setExcludeBoundsFromDom(true);
+      appShell.setClearAllInlineStyles(true);
+      appShell.getContentElement().setStyles({
         "--app-shell-transition-duration": "200ms",
         "--app-shell-transition-timing-function": "ease"
       });
 
       // Header
-      var docInnerHeaderBox = new ville.ui.core.Box("header");
-      docInnerHeaderBox.setCssUtilityClass("m_3b16f56b mantine-AppShell-header right-scroll-bar-position");
-      docInnerHeaderBox.setAttribute("data-with-border", "true");
-      docInnerHeaderBox.setStyle("--app-shell-header-z-index", "100");
+      var headerBox = new ville.ui.core.Box("header");
+      headerBox.setCssUtilityClass("m_3b16f56b mantine-AppShell-header right-scroll-bar-position");
+      headerBox.setAttribute("data-with-border", "true");
+      headerBox.setStyle("--app-shell-header-z-index", "100");
 
-      var headerGroupbox = new ville.ui.layout.Group();
-      headerGroupbox.setStyles({
+      var headerGroupBox = new ville.ui.layout.Group();
+      headerGroupBox.setStyles({
         "--group-gap": "var(--mantine-spacing-md)",
         "--group-align": "center",
         "--group-justify": "flex-start",
@@ -81,38 +81,33 @@ qx.Class.define("villeui.Application",
         "padding-inline": "var(--mantine-spacing-md)",
         "height": "100%"
       });
-      headerGroupbox.setAttribute("html", "Header");
-      docInnerHeaderBox.add(headerGroupbox);
-      doc.add(docInnerHeaderBox);
+      headerGroupBox.setAttribute("html", "Header");
 
       // Navbar
-      var docInnerNavBox = new ville.ui.core.Box("nav");
-      docInnerNavBox.setCssUtilityClass("m_45252eee mantine-AppShell-navbar");
-      docInnerNavBox.setAttribute("data-with-border", "true");
-      docInnerNavBox.setStyles({
+      var navBox = new ville.ui.core.Box("nav");
+      navBox.setCssUtilityClass("m_45252eee mantine-AppShell-navbar");
+      navBox.setAttribute("data-with-border", "true");
+      navBox.setStyles({
         "--app-shell-navbar-z-index": "calc(100 + 1)",
         "padding": "var(--mantine-spacing-md)"
       });
-      docInnerNavBox.setAttribute("html", "Navbar");
-      doc.add(docInnerNavBox);
+      navBox.setAttribute("html", "Navbar");
       
       // Main
-      var docInnerMainBox = new ville.ui.core.Box("main");
-      docInnerMainBox.setCssUtilityClass("m_8983817 mantine-AppShell-main");
-      docInnerMainBox.setStyle("background-color", "var(--mantine-color-body)");
-      docInnerMainBox.setAttribute("data-with-border", "true");
+      var mainBox = new ville.ui.core.Box("main");
+      mainBox.setCssUtilityClass("m_8983817 mantine-AppShell-main");
+      mainBox.setStyle("background-color", "var(--mantine-color-body)");
+      mainBox.setAttribute("data-with-border", "true");
 
       var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
       mainParagraph1.addClass("mantine-focus-auto");
 
       //var tblAnchorElement = new ville.ui.core.Box();
-      var tbvQxAnchorElement = new ville.ui.core.Box();
+      //var tbvQxAnchorElement = new ville.ui.core.Box();
 
-      docInnerMainBox.add(mainParagraph1);
+      
       //docInnerMainBox.add(tblAnchorElement);
-      docInnerMainBox.add(tbvQxAnchorElement);
-
-      doc.add(docInnerMainBox);
+      //docInnerMainBox.add(tbvQxAnchorElement);
 
       
       //--tabs-radius: var(--mantine-radius-sm); --tabs-color: var(--mantine-color-blue-filled);
@@ -136,29 +131,35 @@ qx.Class.define("villeui.Application",
         tbvIsle.add(qxtabview, {edge: 0});
       });*/
 
-      const villetabview = this._getTabView();
-      docInnerMainBox.add(villetabview);
+      const tabView1 = this._getTabView();
 
       // Settings
-      var settings = new ville.ui.overlay.Affix();
-      settings.setStyles({
+      var settingsAffix = new ville.ui.overlay.Affix();
+      settingsAffix.setStyles({
         "--affix-z-index": "200",
         "--affix-bottom": "calc(1.25rem * var(--mantine-scale))",
         "--affix-right": "calc(1.25rem * var(--mantine-scale))"
       });
-      var btntheme = new ville.ui.form.UnstyledToggleButton("&#9790;");
-      btntheme.addListener("click", (e) => {
-        if (btntheme.getValue()) {
+      var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
+      btnTheme.addListener("click", (e) => {
+        if (btnTheme.getValue()) {
           document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
-          btntheme.getContentElement().setAttribute("html", "&#9728;"); //"&#9728;");
+          btnTheme.getContentElement().setAttribute("html", `&#9728;`); //"&#9728;");
         } else {
           document.documentElement.setAttribute("data-mantine-color-scheme", "light");
-          btntheme.getContentElement().setAttribute("html", "&#9790;");
+          btnTheme.getContentElement().setAttribute("html", `&#9790;`);
         }
       });
-      settings.add(btntheme);
 
-      doc.add(settings);
+      // Assemble AppShell
+      appShell.add(headerBox);
+        headerBox.add(headerGroupBox);
+      appShell.add(navBox);
+      appShell.add(mainBox);
+        mainBox.add(mainParagraph1);
+        mainBox.add(tabView1);
+      appShell.add(settingsAffix);
+        settingsAffix.add(btnTheme);
 
 
       /** End of Table test */

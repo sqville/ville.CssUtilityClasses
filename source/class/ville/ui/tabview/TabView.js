@@ -90,11 +90,11 @@ qx.Class.define("ville.ui.tabview.TabView", {
   properties: {
 
     variant: {
-        init: "default",
-        check: ["default", "outline", "pills"],
-        apply: "_applyVariant",
-        themeable: true,
-        event: "changeVariant"
+      init: "default",
+      check: ["default", "outline", "pills"],
+      apply: "_applyVariant",
+      themeable: true,
+      event: "changeVariant"
     },
 
     /**
@@ -171,7 +171,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
       return new qx.html.Element("div");
     },
 
-    // overridden
+    // overridde
     _createChildControlImpl(id, hash) {
       var control;
 
