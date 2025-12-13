@@ -5,6 +5,8 @@
 qx.Class.define("ville.ui.form.UnstyledButton", {
     extend: qx.ui.form.Button,
 
+    include: ville.ui.core.MWidget,
+
     construct(label) {
         super();
 

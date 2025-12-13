@@ -12,6 +12,7 @@
  * This is the main application class of "villeui"
  *
  * @external(villeui/css/villeui.css)
+ * @asset(villeui/css/villeuilast.css)
  */
 qx.Class.define("villeui.Application",
 {
@@ -64,7 +65,7 @@ qx.Class.define("villeui.Application",
       appShell.getContentElement().setStyles({
         "--app-shell-transition-duration": "200ms",
         "--app-shell-transition-timing-function": "ease"
-      });
+      }, true);
 
       // Header
       var headerBox = new ville.ui.core.Box("header");
@@ -81,7 +82,54 @@ qx.Class.define("villeui.Application",
         "padding-inline": "var(--mantine-spacing-md)",
         "height": "100%"
       });
-      headerGroupBox.setAttribute("html", "Header");
+      
+      // Burger
+      var headerBurger = new ville.ui.core.Burger();
+      headerBurger.addClass("mantine-hidden-from-sm");
+      headerBurger.setStyles({
+        "--burger-size": "var(--burger-size-sm)",
+        "--burger-line-size": "calc(0.125rem * var(--mantine-scale))"
+      });
+
+      var headerContentGroupBox = new ville.ui.layout.HGroup();
+      headerContentGroupBox.setStyles({
+        "--group-gap": "var(--mantine-spacing-md)",
+        "--group-align": "center",
+        "--group-justify": "space-between",
+        "--group-wrap": "wrap",
+        "flex": "1 1 0%"
+      });
+      headerContentGroupBox.setAttribute("html", "Ville UI");
+
+      var headerLinkGroupBox = new ville.ui.layout.HGroup();
+      //headerLinkGroupBox.addClass("mantine-hidden-from-sm");
+      headerLinkGroupBox.setStyles({
+        "--group-gap": "0rem",
+        "--group-align": "center",
+        "--group-justify": "flex-start",
+        "--group-wrap": "wrap",
+        "margin-left": "var(--mantine-spacing-xl)"
+      });
+
+      var navLinkDocs = new ville.ui.form.UnstyledButton("Docs");
+      navLinkDocs.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
+      var navLinkGithub = new ville.ui.form.UnstyledButton("GitHub");
+      navLinkGithub.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
+      var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
+      btnTheme.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
+      btnTheme.addListener("click", (e) => {
+        if (btnTheme.getValue()) {
+          document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
+          btnTheme.getContentElement().setAttribute("html", `&#9728;`); //"&#9728;");
+        } else {
+          document.documentElement.setAttribute("data-mantine-color-scheme", "light");
+          btnTheme.getContentElement().setAttribute("html", `&#9790;`);
+        }
+      });
+      headerLinkGroupBox.add(navLinkDocs);
+      headerLinkGroupBox.add(navLinkGithub);
+      headerLinkGroupBox.add(btnTheme);
+
 
       // Navbar
       var navBox = new ville.ui.core.Box("nav");
@@ -89,9 +137,15 @@ qx.Class.define("villeui.Application",
       navBox.setAttribute("data-with-border", "true");
       navBox.setStyles({
         "--app-shell-navbar-z-index": "calc(100 + 1)",
-        "padding": "var(--mantine-spacing-md)"
+        "padding-inline": "calc(0.25rem * var(--mantine-scale))",
+        "padding-block": "var(--mantine-spacing-md)"
       });
-      navBox.setAttribute("html", "Navbar");
+      const navLinkDocsClone = navLinkDocs.clone();
+      navLinkDocsClone.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
+      const navLinkGithubClone = navLinkGithub.clone();
+      navLinkGithubClone.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
+      navBox.add(navLinkDocsClone);
+      navBox.add(navLinkGithubClone);
       
       // Main
       var mainBox = new ville.ui.core.Box("main");
@@ -143,27 +197,18 @@ qx.Class.define("villeui.Application",
         "--affix-z-index": "200",
         "--affix-bottom": "calc(1.25rem * var(--mantine-scale))",
         "--affix-right": "calc(1.25rem * var(--mantine-scale))"
-      });
-      var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
-      btnTheme.addListener("click", (e) => {
-        if (btnTheme.getValue()) {
-          document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
-          btnTheme.getContentElement().setAttribute("html", `&#9728;`); //"&#9728;");
-        } else {
-          document.documentElement.setAttribute("data-mantine-color-scheme", "light");
-          btnTheme.getContentElement().setAttribute("html", `&#9790;`);
-        }
-      });
+      });      
 
       // Assemble AppShell
       appShell.add(headerBox);
         headerBox.add(headerGroupBox);
+          headerGroupBox.add(headerBurger);
+          headerGroupBox.add(headerContentGroupBox);
+            headerContentGroupBox.add(headerLinkGroupBox);
       appShell.add(navBox);
       appShell.add(mainBox);
         mainBox.add(mainParagraph1);
         mainBox.add(tabView1);
-      appShell.add(settingsAffix);
-        settingsAffix.add(btnTheme);
 
 
       /** End of Table test */
@@ -269,6 +314,12 @@ qx.Class.define("villeui.Application",
       tabView.add(page3);
 
       return tabView;
+    },
+
+    finalize () {
+      // load the last css bundle
+      //console.log(qx.util.ResourceManager.getInstance().toUri("villeui/css/villeuilast.css"));
+      qx.bom.Stylesheet.includeFile(qx.util.ResourceManager.getInstance().toUri("villeui/css/villeuilast.css"));
     }
 
   }

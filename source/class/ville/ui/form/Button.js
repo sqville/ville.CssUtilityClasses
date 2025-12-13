@@ -6,7 +6,7 @@ qx.Class.define("ville.ui.form.Button", {
     
     extend: ville.ui.form.UnstyledButton,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    include: qx.ui.core.MChildrenHandling,
 
     construct(label, variant, sectionLeft, sectionRight) {
         super(); 
