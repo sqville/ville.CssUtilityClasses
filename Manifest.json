@@ -2,7 +2,7 @@
  "$schema": "https://qooxdoo.org/schema/Manifest-2-0-0.json",
   "info" :
   {
-    "name" : "twindapp",
+    "name" : "villeui",
     "summary" : "",
     "description" : "",
     "homepage" : "",
@@ -10,7 +10,7 @@
     "authors" : [
   {
     "name": "",
-    "email": "sqville"
+    "email": "sqville@gmail.com"
   }
 ],
     "version" : "1.0.0"
@@ -18,14 +18,30 @@
 
   "provides" :
   {
-    "namespace"   : "twindapp",
+    "namespace"   : "villeui",
     "encoding"    : "utf-8",
     "class"       : "source/class",
     "resource"    : "source/resource",
-    "translation" : "source/translation"
+    "translation" : "source/translation",
+    "fonts": {
+      "Providence": {
+        "fontFaces": [
+          {
+            "fontFamily": "Providence",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+            "paths": [
+              "villeui/font/Providence/Providence.woff2",
+              "villeui/font/Providence/Providence.woff",
+              "villeui/font/Providence/Providence.ttf"
+            ]
+          }
+        ]
+      }
+    }
   },
 
   "requires": {
-    "@qooxdoo/framework": "^7.8.0"
+    "@qooxdoo/framework": "^7.9.0"
   }
 }

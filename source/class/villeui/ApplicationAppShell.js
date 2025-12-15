@@ -14,11 +14,12 @@
  * @external(mantine/core/styles/baseline.css)
  * @external(mantine/core/styles/default-css-variables.css)
  * @external(mantine/core/styles/global.css)
+ * @external(mantine/core/styles/AppShell.css)
  * @external(villeui/css/villeui-styles.css)
  * @asset(villeui/css/villeui-priority.css)
  * @usefont(Providence)
  */
-qx.Class.define("villeui.Application",
+qx.Class.define("villeui.ApplicationAppShell",
 {
   extend : qx.application.Standalone,
 
@@ -66,45 +67,25 @@ qx.Class.define("villeui.Application",
       appShell.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
       appShell.setExcludeBoundsFromDom(true);
       appShell.setClearAllInlineStyles(true);
+      appShell.getContentElement().setStyles({
+        "--app-shell-transition-duration": "200ms",
+        "--app-shell-transition-timing-function": "ease"
+      }, true);
 
       // Header
       var headerBox = new ville.ui.core.Box("header");
       headerBox.setCssUtilityClass("m_3b16f56b mantine-AppShell-header right-scroll-bar-position");
-      headerBox.addClass("HeaderSearch_header__UPZlW");
       headerBox.setAttribute("data-with-border", "true");
       headerBox.setStyle("--app-shell-header-z-index", "100");
 
-      var headerInnerBox = new ville.ui.core.Box();
-      headerInnerBox.setStyles({
-        "height": "calc(3.5rem * var(--mantine-scale))",
-        "display": "flex",
-        "justify-content": "space-between",
-        "align-items": "center"
-      });
-
-      var headerLogoBurgerGroupBox = new ville.ui.layout.HGroup();
-      headerLogoBurgerGroupBox.setStyles({
+      var headerGroupBox = new ville.ui.layout.HGroup();
+      headerGroupBox.setStyles({
         "--group-gap": "var(--mantine-spacing-md)",
-        "--group-align": "center",
-        "--group-justify": "flex-start",
-        "--group-wrap": "wrap"
-      });
-
-      var headerNavGroupBox = new ville.ui.layout.HGroup();
-      headerNavGroupBox.setStyles({
-        "--group-gap": "var(--mantine-spacing-md)",
-        "--group-align": "center",
-        "--group-justify": "flex-start",
-        "--group-wrap": "wrap"
-      });
-
-      var headerLinksGroupBox = new ville.ui.layout.HGroup();
-      headerLinksGroupBox.setStyles({
-        "--group-gap": "calc(0.3125rem * var(--mantine-scale))",
         "--group-align": "center",
         "--group-justify": "flex-start",
         "--group-wrap": "wrap",
-        "margin-left": "calc(3.125rem * var(--mantine-scale))"
+        "padding-inline": "var(--mantine-spacing-md)",
+        "height": "100%"
       });
       
       // Burger
@@ -115,26 +96,43 @@ qx.Class.define("villeui.Application",
         "--burger-line-size": "calc(0.125rem * var(--mantine-scale))"
       });
 
+      var headerContentGroupBox = new ville.ui.layout.HGroup();
+      headerContentGroupBox.setStyles({
+        "--group-gap": "var(--mantine-spacing-md)",
+        "--group-align": "center",
+        "--group-justify": "space-between",
+        "--group-wrap": "wrap",
+        "flex": "1 1 0%"
+      });
+
       // Logo
       var headerLogoBox = new ville.ui.core.Box("span");
+      //headerLogoBox.addClass("villeui-logo-font");
       headerLogoBox.setStyles({
-        "font-weight": "bold",
+        "font-family": "Providence",
+        "font-weight": "normal",
         "font-style": "normal",
         "color": "inherit",
-        "font-size": "20px"
+        "font-size": "24px"
       });
-      headerLogoBox.setAttribute("html", "Ville UI");
+      headerLogoBox.setAttribute("html", "ville ui");
 
-      // Links
-      var navLinkDocs = new ville.ui.basic.Element("a");
-      navLinkDocs.setAttribute("href", "/docs");
-      navLinkDocs.setAttribute("html", "Docs");
-      navLinkDocs.addClass("HeaderSearch_link__qyDsk");
-      var navLinkGithub = new ville.ui.basic.Element("a");
-      navLinkGithub.setAttribute("href", "/githubproject");
-      navLinkGithub.setAttribute("html", "GitHub");
-      navLinkGithub.addClass("HeaderSearch_link__qyDsk");
+      var headerLinkGroupBox = new ville.ui.layout.HGroup();
+      //headerLinkGroupBox.addClass("mantine-hidden-from-sm");
+      headerLinkGroupBox.setStyles({
+        "--group-gap": "0rem",
+        "--group-align": "center",
+        "--group-justify": "flex-start",
+        "--group-wrap": "wrap",
+        "margin-left": "var(--mantine-spacing-xl)"
+      });
+
+      var navLinkDocs = new ville.ui.form.UnstyledButton("Docs");
+      navLinkDocs.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
+      var navLinkGithub = new ville.ui.form.UnstyledButton("GitHub");
+      navLinkGithub.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
       var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
+      btnTheme.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
       btnTheme.addListener("click", (e) => {
         if (btnTheme.getValue()) {
           document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
@@ -144,9 +142,9 @@ qx.Class.define("villeui.Application",
           btnTheme.getContentElement().setAttribute("html", `&#9790;`);
         }
       });
-      headerLinksGroupBox.add(navLinkDocs);
-      headerLinksGroupBox.add(navLinkGithub);
-      headerLinksGroupBox.add(btnTheme);
+      headerLinkGroupBox.add(navLinkDocs);
+      headerLinkGroupBox.add(navLinkGithub);
+      headerLinkGroupBox.add(btnTheme);
 
 
       // Navbar
@@ -225,16 +223,15 @@ qx.Class.define("villeui.Application",
 
       // Assemble AppShell
       appShell.add(headerBox);
-        headerBox.add(headerInnerBox);
-          headerInnerBox.add(headerLogoBurgerGroupBox);
-            headerLogoBurgerGroupBox.add(headerBurger);
-            headerLogoBurgerGroupBox.add(headerLogoBox);
-          headerInnerBox.add(headerNavGroupBox);
-            headerNavGroupBox.add(headerLinksGroupBox);
+        headerBox.add(headerGroupBox);
+          headerGroupBox.add(headerBurger);
+          headerGroupBox.add(headerLogoBox);
+          headerGroupBox.add(headerContentGroupBox);
+            headerContentGroupBox.add(headerLinkGroupBox);
       //appShell.add(navBox);
       appShell.add(mainBox);
         mainBox.add(mainParagraph1);
-        //mainBox.add(tabView1);
+        mainBox.add(tabView1);
 
 
       /** End of Table test */

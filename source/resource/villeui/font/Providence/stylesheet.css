@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'Providence';
+    src: url('Providence.woff2') format('woff2'),
+        url('Providence.woff') format('woff'),
+        url('Providence.svg#Providence') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
