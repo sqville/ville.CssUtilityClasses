@@ -3,11 +3,16 @@
  * @external(mantine/core/styles/UnstyledButton.css)
  */
 qx.Class.define("ville.ui.form.UnstyledButton", {
+    
     extend: qx.ui.form.Button,
 
-    include: ville.ui.core.MWidget,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
-    construct(label) {
+    construct(component, label) {
+        
+        if (component != null)
+            this.__componenttag = component;
+
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
@@ -16,18 +21,21 @@ qx.Class.define("ville.ui.form.UnstyledButton", {
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_87cf2631 mantine-UnstyledButton-root");
         this.setSelectable(null);
-        this.getContentElement().setAttribute('type', 'button');
+        if (this.__componenttag !== "button")
+            this.getContentElement().removeAttribute('type');
 
-        if (label) {
+        if (label != null)
             this.getContentElement().setAttribute('html', label);
-        }
+
     },
 
     members: {
 
+        __componenttag: "button",
+
         // overridden
         _createContentElement() {
-            return new qx.html.Element("button");
+            return new qx.html.Element(this.__componenttag);
         }
     }
   });

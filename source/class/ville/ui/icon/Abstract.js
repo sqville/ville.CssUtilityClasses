@@ -37,6 +37,7 @@ qx.Class.define("ville.ui.icon.Abstract", {
         fill: {
             check: "String",
             init: "none",
+            apply: "_applyFill",
             nullable: true,
             themeable: true,
             event: "changeFill"
@@ -45,6 +46,7 @@ qx.Class.define("ville.ui.icon.Abstract", {
         strokeWidth: {
             check: "Number",
             init: "1",
+            apply: "_applyStrokeWidth",
             nullable: true,
             themeable: true,
             event: "changeStrokeWidth"
@@ -83,6 +85,18 @@ qx.Class.define("ville.ui.icon.Abstract", {
         _applyViewBox(value, old) {
             if (value) {
                 this.setAttribute("viewBox", value);
+            }
+        },
+
+        _applyFill(value, old) {
+            if (value) {
+                this.setAttribute("fill", value);
+            }
+        },
+
+        _applyStrokeWidth(value, old) {
+            if (value) {
+                this.setAttribute("stroke-width", value);
             }
         },
 

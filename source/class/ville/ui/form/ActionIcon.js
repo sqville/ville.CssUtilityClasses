@@ -5,7 +5,7 @@
 qx.Class.define("ville.ui.form.ActionIcon", {
     extend: ville.ui.form.UnstyledButton,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    include: qx.ui.core.MChildrenHandling,
 
     construct(icon, variant, component) {
         if (component) {

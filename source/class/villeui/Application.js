@@ -14,9 +14,11 @@
  * @external(mantine/core/styles/baseline.css)
  * @external(mantine/core/styles/default-css-variables.css)
  * @external(mantine/core/styles/global.css)
+ * @external(mantine/core/styles/AppShell.css)
  * @external(villeui/css/villeui-styles.css)
  * @asset(villeui/css/villeui-priority.css)
- * @usefont(Providence)
+ * @asset(villeui/images/villeui_logo.png)
+ * @asset(villeui/images/villeui_logo.svg)
  */
 qx.Class.define("villeui.Application",
 {
@@ -70,16 +72,17 @@ qx.Class.define("villeui.Application",
       // Header
       var headerBox = new ville.ui.core.Box("header");
       headerBox.setCssUtilityClass("m_3b16f56b mantine-AppShell-header right-scroll-bar-position");
-      headerBox.addClass("HeaderSearch_header__UPZlW");
       headerBox.setAttribute("data-with-border", "true");
       headerBox.setStyle("--app-shell-header-z-index", "100");
 
       var headerInnerBox = new ville.ui.core.Box();
       headerInnerBox.setStyles({
-        "height": "calc(3.5rem * var(--mantine-scale))",
+        "--container-size": "var(--container-size-xl)",
+        "padding-inline": "var(--mantine-spacing-md)",
         "display": "flex",
         "justify-content": "space-between",
-        "align-items": "center"
+        "align-items": "center",
+        "height": "100%"
       });
 
       var headerLogoBurgerGroupBox = new ville.ui.layout.HGroup();
@@ -108,14 +111,24 @@ qx.Class.define("villeui.Application",
       });
       
       // Burger
-      var headerBurger = new ville.ui.core.Burger();
+      /*var headerBurger = new ville.ui.core.Burger();
       headerBurger.addClass("mantine-hidden-from-sm");
       headerBurger.setStyles({
         "--burger-size": "var(--burger-size-sm)",
         "--burger-line-size": "calc(0.125rem * var(--mantine-scale))"
-      });
+      });*/
 
       // Logo
+      var villeuiLogo = new ville.ui.basic.Image();
+      villeuiLogo.setAttributes({
+        "src": "resource/villeui/images/villeui_logo.svg",
+        "alt": "Ville UI Logo"
+      }, true);
+      villeuiLogo.setStyles({
+        "width": "32px",
+        "height": "32px"
+      });
+
       var headerLogoBox = new ville.ui.core.Box("span");
       headerLogoBox.setStyles({
         "font-weight": "bold",
@@ -130,11 +143,21 @@ qx.Class.define("villeui.Application",
       navLinkDocs.setAttribute("href", "/docs");
       navLinkDocs.setAttribute("html", "Docs");
       navLinkDocs.addClass("HeaderSearch_link__qyDsk");
-      var navLinkGithub = new ville.ui.basic.Element("a");
-      navLinkGithub.setAttribute("href", "/githubproject");
-      navLinkGithub.setAttribute("html", "GitHub");
-      navLinkGithub.addClass("HeaderSearch_link__qyDsk");
+      var navLinkGithub = new ville.ui.form.UnstyledButton("a");
+      navLinkGithub.addClass("maintine-focus-auto m_18a11a80");
+      var IconGitHub = new ville.ui.icon.IconGitHub();
+      IconGitHub.setViewBox("0 0 16 16");
+      IconGitHub.setFill("currentColor");
+      navLinkGithub.add(IconGitHub);
+
+
+              /*<svg xmlns="http://www.w3.org/2000/svg" 
+        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" 
+        stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-sun m_83c3d5d1 m_f4e3c6be">
+            </svg>*/
+      
       var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
+      btnTheme.addClass("maintine-focus-auto m_18a11a80");
       btnTheme.addListener("click", (e) => {
         if (btnTheme.getValue()) {
           document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
@@ -144,13 +167,13 @@ qx.Class.define("villeui.Application",
           btnTheme.getContentElement().setAttribute("html", `&#9790;`);
         }
       });
-      headerLinksGroupBox.add(navLinkDocs);
+      //headerLinksGroupBox.add(navLinkDocs);
       headerLinksGroupBox.add(navLinkGithub);
       headerLinksGroupBox.add(btnTheme);
 
 
       // Navbar
-      var navBox = new ville.ui.core.Box("nav");
+      /*var navBox = new ville.ui.core.Box("nav");
       navBox.setCssUtilityClass("m_45252eee mantine-AppShell-navbar");
       navBox.setAttribute("data-with-border", "true");
       navBox.setStyles({
@@ -163,22 +186,45 @@ qx.Class.define("villeui.Application",
       const navLinkGithubClone = navLinkGithub.clone();
       navLinkGithubClone.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
       navBox.add(navLinkDocsClone);
-      navBox.add(navLinkGithubClone);
-
-      headerBurger.addListener("changeValue", (e) => {
-        if (e.getData()) {
-          //navBox.setStyle("transform", "translateX(0%)");
-        }
-      }, this);
+      navBox.add(navLinkGithubClone);*/
       
       // Main
-      var mainBox = new ville.ui.core.Box("main");
+      var mainBox = new ville.ui.core.Box();
       mainBox.setCssUtilityClass("m_8983817 mantine-AppShell-main");
-      mainBox.setStyle("background-color", "var(--mantine-color-body)");
-      mainBox.setAttribute("data-with-border", "true");
+      var mainShell = new ville.ui.core.Box();
+      mainShell.setCssUtilityClass("Shell_main__g9BIV");
+        mainBox.add(mainShell);
+      var mainBannerwrapper = new ville.ui.core.Box();
+      mainBannerwrapper.setCssUtilityClass("Banner_wrapper__g6dkO");
+        mainShell.add(mainBannerwrapper);
+      var mainContainerroot = new ville.ui.layout.Container();
+      mainContainerroot.setStyles({
+        "--container-size": "calc(43.75rem * var(--mantine-scale));",
+        "padding-inline": "var(--mantine-spacing-md)"
+      });
+      mainContainerroot.setAttributes({
+        "data-size": "xl",
+        "data-strategy": "block"
+      });
+        mainBannerwrapper.add(mainContainerroot);
+      var mainBannerbody = new ville.ui.core.Box();
+      mainBannerbody.setCssUtilityClass("Banner_body__K_Xm0");
+        mainContainerroot.add(mainBannerbody);
+      var mainBannerTitle = new ville.ui.typography.Title(1, "Qooxdoo Components Library & Patterns");
+      mainBannerTitle.addClass("Banner_title__PG16e");
+      mainBannerTitle.setStyles({
+        "--title-fw": "var(--mantine-h1-font-weight)",
+        "--title-lh": "var(--mantine-h1-line-height)",
+        "--title-fz": "var(--mantine-h1-font-size)"
+      });
+        mainBannerbody.add(mainBannerTitle);
+      var mainBannerDesc = new ville.ui.typography.Text("Comprehensive Qooxdoo component library for building modern, high-performance web apps. Copy-paste UI components library & patterns crafted with Mantine CSS");
+      mainBannerDesc.addClass("mantine-focus-auto Banner_description__asVMP");
+      mainBannerDesc.setStyle("--text-color", "var(--mantine-color-dimmed)");
+        mainBannerbody.add(mainBannerDesc);
 
-      var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
-      mainParagraph1.addClass("mantine-focus-auto");
+      //var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
+      //mainParagraph1.addClass("mantine-focus-auto");
 
       //var tblAnchorElement = new ville.ui.core.Box();
       //var tbvQxAnchorElement = new ville.ui.core.Box();
@@ -209,31 +255,32 @@ qx.Class.define("villeui.Application",
         tbvIsle.add(qxtabview, {edge: 0});
       });*/
 
-      const tabView1 = this._getTabView();
+      /*const tabView1 = this._getTabView();
       tabView1.setStyles({
         "--tabs-radius": "var(--mantine-radius-sm)",
         "--tabs-color": "var(--mantine-color-blue-filled)"
-      });
+      });*/
 
       // Settings
-      var settingsAffix = new ville.ui.overlay.Affix();
-      settingsAffix.setStyles({
+      //var settingsAffix = new ville.ui.overlay.Affix();
+      /*settingsAffix.setStyles({
         "--affix-z-index": "200",
         "--affix-bottom": "calc(1.25rem * var(--mantine-scale))",
         "--affix-right": "calc(1.25rem * var(--mantine-scale))"
-      });      
+      });*/    
 
       // Assemble AppShell
       appShell.add(headerBox);
         headerBox.add(headerInnerBox);
           headerInnerBox.add(headerLogoBurgerGroupBox);
-            headerLogoBurgerGroupBox.add(headerBurger);
+            //headerLogoBurgerGroupBox.add(headerBurger);
+            headerLogoBurgerGroupBox.add(villeuiLogo);
             headerLogoBurgerGroupBox.add(headerLogoBox);
           headerInnerBox.add(headerNavGroupBox);
             headerNavGroupBox.add(headerLinksGroupBox);
       //appShell.add(navBox);
       appShell.add(mainBox);
-        mainBox.add(mainParagraph1);
+        //mainBox.add(mainParagraph1);
         //mainBox.add(tabView1);
 
 

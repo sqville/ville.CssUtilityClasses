@@ -6,9 +6,8 @@ qx.Class.define("ville.ui.form.Button", {
     
     extend: ville.ui.form.UnstyledButton,
 
-    include: qx.ui.core.MChildrenHandling,
-
     construct(label, variant, sectionLeft, sectionRight) {
+        
         super(); 
 
         this.setCssUtilityClass("m_77c9d27d mantine-Button-root " + this.getCssUtilityClass());
