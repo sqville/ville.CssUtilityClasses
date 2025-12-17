@@ -3,9 +3,10 @@
  * @external(mantine/core/styles/Title.css)
  */
 qx.Class.define("ville.ui.typography.Title", {
+    
     extend: qx.ui.core.Widget,
 
-    include: ville.ui.core.MWidget,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(order, text) {
         
@@ -20,9 +21,9 @@ qx.Class.define("ville.ui.typography.Title", {
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_8a5d1357 mantine-Title-root");
         
-        if (text) {
+        if (text) 
             this.setText(text);
-        }
+        
     },
 
     properties: {
@@ -37,7 +38,7 @@ qx.Class.define("ville.ui.typography.Title", {
 
     members: {
 
-        __componenttag : "p",
+        __componenttag : "div",
 
         // overridden
         _createContentElement() {
