@@ -6,27 +6,31 @@ qx.Class.define("ville.ui.form.Button", {
     
     extend: ville.ui.form.UnstyledButton,
 
-    construct(label, variant, sectionLeft, sectionRight) {
+    construct(label, variant, sectionLeft, sectionRight, component) {
+        
+        if (component) {
+            this.__componenttag = component;
+        }
         
         super(); 
 
         this.setCssUtilityClass("m_77c9d27d mantine-Button-root " + this.getCssUtilityClass());
 
-        if (label != null) {
-            this.setLabel(label);
-        }
-        
         if (variant) {
             this.setVariant(variant);
         } else {
             this.initVariant();
         }
 
-        if (sectionLeft !== undefined) {
+        if (sectionLeft != null) {
             this.setSectionLeft(sectionLeft);
         }
 
-        if (sectionRight !== undefined) {
+        if (label != null) {
+            this.setLabel(label);
+        }
+
+        if (sectionRight != null) {
             this.setSectionRight(sectionRight);
         }
         
@@ -61,9 +65,11 @@ qx.Class.define("ville.ui.form.Button", {
 
     members: {
 
+        __componenttag: "button",
+
         // overridden
         _createContentElement() {
-            return new qx.html.Element("button");
+            return new qx.html.Element(this.__componenttag);
         },
 
         // overridden

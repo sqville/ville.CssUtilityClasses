@@ -29,13 +29,19 @@ qx.Class.define("ville.ui.form.ToggleActionIcon", {
 
         var innerwrapper = this.getChildControl("innerwrapper");
 
-        // Set icon based on value
-        if (this.isValue()) {
-            // checked
-            innerwrapper.add(trueicon);
-        } else {
-            innerwrapper.add(falseicon);
-        }
+        innerwrapper.add(trueicon);
+
+        innerwrapper.add(falseicon);
+
+        this.addListenerOnce("appear", (e) => {
+            if (this.isValue()) {
+                trueicon.setStyle("display", "block");
+                falseicon.setStyle("display", "none");
+            } else {
+                trueicon.setStyle("display", "none");
+                falseicon.setStyle("display", "block");
+            }
+        });
 
         // Add a change value listener to update the icon
         this.addListener("changeValue", (e) => {
@@ -52,11 +58,15 @@ qx.Class.define("ville.ui.form.ToggleActionIcon", {
                 }
             } else {
                 // replace entire svg inline icon
-                innerwrapper.removeAll();
+                //innerwrapper.removeAll();
                 if (e.getData()) {
-                    innerwrapper.add(this.getTrueIcon());
+                    //innerwrapper.add(this.getTrueIcon());
+                    trueicon.setStyle("display", "block");
+                    falseicon.setStyle("display", "none");
                 } else {
-                    innerwrapper.add(this.getFalseIcon());
+                    //innerwrapper.add(this.getFalseIcon());
+                    trueicon.setStyle("display", "none");
+                    falseicon.setStyle("display", "block");
                 }
             }
             

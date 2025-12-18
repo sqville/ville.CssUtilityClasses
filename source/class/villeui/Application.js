@@ -145,26 +145,37 @@ qx.Class.define("villeui.Application",
       navLinkDocs.addClass("HeaderSearch_link__qyDsk");
       var navLinkGithub = new ville.ui.form.UnstyledButton("a");
       navLinkGithub.addClass("maintine-focus-auto m_18a11a80");
+      navLinkGithub.setStyles({
+        "width": "34px",
+        "height": "34px"
+      });
       var IconGitHub = new ville.ui.icon.IconGitHub();
       IconGitHub.setViewBox("0 0 16 16");
       IconGitHub.setFill("currentColor");
       navLinkGithub.add(IconGitHub);
 
+      var IconSun = new ville.ui.icon.IconSun();
+      var IconMoon = new ville.ui.icon.IconMoon();
 
-              /*<svg xmlns="http://www.w3.org/2000/svg" 
-        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" 
-        stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-sun m_83c3d5d1 m_f4e3c6be">
-            </svg>*/
+      var btnTheme = new ville.ui.form.ToggleActionIcon(IconSun, IconMoon);
+      btnTheme.setStyles({
+        "--ai-size": "var(--ai-size-lg)",
+        "--ai-radius": "var(--mantine-radius-md)",
+        "--ai-bg": "var(--mantine-color-default)",
+        "--ai-hover": "var(--mantine-color-default-hover)",
+        "--ai-color": "var(--mantine-color-default-color)",
+        "--ai-bd": "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)"
+      });
       
-      var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
-      btnTheme.addClass("maintine-focus-auto m_18a11a80");
+      //var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
+      //btnTheme.addClass("maintine-focus-auto m_18a11a80");
       btnTheme.addListener("click", (e) => {
         if (btnTheme.getValue()) {
           document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
-          btnTheme.getContentElement().setAttribute("html", `&#9728;`); //"&#9728;");
+          //btnTheme.getContentElement().setAttribute("html", `&#9728;`); //"&#9728;");
         } else {
           document.documentElement.setAttribute("data-mantine-color-scheme", "light");
-          btnTheme.getContentElement().setAttribute("html", `&#9790;`);
+          //btnTheme.getContentElement().setAttribute("html", `&#9790;`);
         }
       });
       //headerLinksGroupBox.add(navLinkDocs);
@@ -210,18 +221,112 @@ qx.Class.define("villeui.Application",
       var mainBannerbody = new ville.ui.core.Box();
       mainBannerbody.setCssUtilityClass("Banner_body__K_Xm0");
         mainContainerroot.add(mainBannerbody);
-      var mainBannerTitle = new ville.ui.typography.Title(1, "Qooxdoo Components Library & Patterns");
+      var mainBannerVilleui = new ville.ui.typography.Text("Ville UI<br>", "span");
+      mainBannerVilleui.setAttributes({
+        "data-variant": "gradient",
+        "data-inherit": "true"
+      });
+      mainBannerVilleui.setStyles({
+        "font-weight": "bold",
+        "--text-gradient": "linear-gradient(45deg, #25962b 0%, #25ef34 100%)"
+      });
+      var mainBannerMore1 = new ville.ui.typography.Text("Qooxdoo Components Library & Patterns", "span");
+      mainBannerMore1.setAttributes({
+        "data-inherit": "true"
+      });
+      var mainBannerTitle = new ville.ui.typography.Title(1);
       mainBannerTitle.addClass("Banner_title__PG16e");
       mainBannerTitle.setStyles({
         "--title-fw": "var(--mantine-h1-font-weight)",
         "--title-lh": "var(--mantine-h1-line-height)",
-        "--title-fz": "var(--mantine-h1-font-size)"
+        "--title-fz": "var(--mantine-h1-font-size)",
+        "text-align": "center"
       });
-        mainBannerbody.add(mainBannerTitle);
-      var mainBannerDesc = new ville.ui.typography.Text("Comprehensive Qooxdoo component library for building modern, high-performance web apps. Copy-paste UI components library & patterns crafted with Mantine CSS");
+      mainBannerTitle.add(mainBannerVilleui);
+      mainBannerTitle.add(mainBannerMore1);
+      mainBannerbody.add(mainBannerTitle);
+
+      var bannerVilleui = new ville.ui.typography.Text("Ville UI ", "span");
+      bannerVilleui.setStyles({
+        "color": "#25962b",
+        "font-weight": "bold"
+      });
+      bannerVilleui.setAttribute("data-inherit", "true");
+      var bannerMore1 = new ville.ui.typography.Text("is a comprehensive ", "span");
+      bannerMore1.setAttribute("data-inherit", "true");
+      var bannerMore2Qooxdoo = new ville.ui.typography.Text("Qooxdoo ", "span");
+      bannerMore2Qooxdoo.setAttribute("data-inherit", "true");
+      bannerMore2Qooxdoo.setStyles({
+        "font-weight": "bold"
+      });
+      var bannerMore3 = new ville.ui.typography.Text("component library for building modern, high-performance web apps.<br>Crafted with ", "span");
+      bannerMore3.setAttribute("data-inherit", "true");
+      var bannerMore4Mantine = new ville.ui.typography.Text("Mantine CSS ", "span");
+      bannerMore4Mantine.setAttributes({
+        "data-variant": "gradient",
+        "data-inherit": "true"
+      });
+      bannerMore4Mantine.setStyles({
+        "font-weight": "bold",
+        "--text-gradient": "linear-gradient(45deg, var(--mantine-color-blue-filled) 0%, var(--mantine-color-cyan-filled) 100%)"
+      });
+      var bannerMore5 = new ville.ui.typography.Text("(and &#10084;&#65039; love)", "span");
+      bannerMore5.setAttribute("data-inherit", "true");
+
+      var mainBannerDesc = new ville.ui.typography.Text();
+      mainBannerDesc.add(bannerVilleui);
+      mainBannerDesc.add(bannerMore1);
+      mainBannerDesc.add(bannerMore2Qooxdoo);
+      mainBannerDesc.add(bannerMore3);
+      mainBannerDesc.add(bannerMore4Mantine);
+      mainBannerDesc.add(bannerMore5);
       mainBannerDesc.addClass("mantine-focus-auto Banner_description__asVMP");
-      mainBannerDesc.setStyle("--text-color", "var(--mantine-color-dimmed)");
         mainBannerbody.add(mainBannerDesc);
+
+      // Buttons
+      var mainButtonGroup = new ville.ui.layout.HGroup();
+      mainButtonGroup.setStyles({
+        "--group-gap": "var(--mantine-spacing-md)",
+        "--group-align": "center",
+        "--group-justify": "center",
+        "--group-wrap": "wrap",
+        "margin-top": "calc(var(--mantine-spacing-xl) * 2)"
+      });
+        mainBannerbody.add(mainButtonGroup);
+
+      var btnGetStarted = new ville.ui.form.Button("Get Started");
+      btnGetStarted.setStyles({
+        "--button-height": "var(--button-height-xl)",
+        "--button-padding-x": "var(--button-padding-x-xl)",
+        "--button-fz": "var(--mantine-font-size-xl)",
+        "--button-bg": "linear-gradient(45deg, #25962b 0%, #25ef34 100%)",
+        "--button-hover": "linear-gradient(45deg, #25962b 0%, #25ef34 100%)",
+        "--button-color": "var(--mantine-color-white)",
+        "--button-bd": "none"
+      });
+      mainButtonGroup.add(btnGetStarted);
+
+      var btniconGitHub = new ville.ui.icon.IconGitHub();
+      btniconGitHub.setViewBox("0 0 16 16");
+      btniconGitHub.setFill("currentColor");
+      var btnGitHub = new ville.ui.form.Button("GitHub", "default", btniconGitHub, null, "a");
+      btnGitHub.setAttributes({
+        "data-size": "xl",
+        "data-with-left-section": "true",
+        "href": "https://github.com/sqville/ville"
+      });
+      btnGitHub.setStyles({
+        "--button-height": "var(--button-height-xl)",
+        "--button-padding-x": "var(--button-padding-x-xl)",
+        "--button-fz": "var(--mantine-font-size-xl)",
+        "--button-bg": "var(--mantine-color-default)",
+        "--button-hover": "var(--mantine-color-default-hover)",
+        "--button-color": "var(--mantine-color-default-color)",
+        "--button-bd": "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)"
+      });
+      mainButtonGroup.add(btnGitHub);
+
+      //mainContainerroot.add(IconSun);
 
       //var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
       //mainParagraph1.addClass("mantine-focus-auto");

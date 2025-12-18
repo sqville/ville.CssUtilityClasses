@@ -44,7 +44,7 @@
     }
 }
 
-.m_18a11a80 svg {
+.villeuilinkicon {
     width:calc(1.375rem * var(--mantine-scale));
     height:calc(1.375rem * var(--mantine-scale));
 }
@@ -185,18 +185,19 @@
 }
 
 .Banner_description__asVMP {
-    color: var(--mantine-color-gray-7)
+    color: var(--mantine-color-dark-8)
 }
 
 [data-mantine-color-scheme=dark] .Banner_description__asVMP {
-    color: var(--mantine-color-dark-2)
+    color: var(--mantine-color-dark-0)
 }
 
 .Banner_description__asVMP {
     line-height: 1.5;
-    max-width: calc(36.25rem * var(--mantine-scale));
+    /*max-width: calc(36.25rem * var(--mantine-scale));*/
     margin-top: var(--mantine-spacing-xl);
     font-size: calc(1.5rem * var(--mantine-scale));
+    text-align: center;
 }
 
 .Banner_body__K_Xm0 {
