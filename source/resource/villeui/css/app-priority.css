@@ -126,10 +126,24 @@
     padding-bottom: calc(7.5rem * var(--mantine-scale))
 }
 
+[data-mantine-color-scheme=dark] .HeroText_dots__XvXkZ {
+    color: var(--mantine-color-dark-5);
+}
+
+.HeroText_dots__XvXkZ {
+    position: absolute;
+    color: var(--mantine-color-gray-1);
+}
+
+@media (max-width: 48em) {
+    .HeroText_dots__XvXkZ {
+        display: none;
+    }
+}
+
 .Banner_wrapper__g6dkO {
     position: relative;
     min-height: calc(43.75rem * var(--mantine-scale));
-    background-color: var(--mantine-color-gray-1)
 }
 
 [data-mantine-color-scheme=dark] .Banner_wrapper__g6dkO {
