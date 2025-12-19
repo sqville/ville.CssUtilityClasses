@@ -19,6 +19,7 @@
  * @asset(villeui/css/villeui-priority.css)
  * @asset(villeui/images/villeui_logo.png)
  * @asset(villeui/images/villeui_logo.svg)
+ * @asset(villeui/images/ville_logo.png)
  */
 qx.Class.define("villeui.Application",
 {
@@ -271,12 +272,17 @@ qx.Class.define("villeui.Application",
       bannerVilleui.setAttribute("data-inherit", "true");
       var bannerMore1 = new ville.ui.typography.Text("is a comprehensive ", "span");
       bannerMore1.setAttribute("data-inherit", "true");
-      var bannerMore2Qooxdoo = new ville.ui.typography.Text("Qooxdoo ", "span");
+      var bannerMore2Qooxdoo = new ville.ui.typography.Text("Qooxdoo", "span");
       bannerMore2Qooxdoo.setAttribute("data-inherit", "true");
       bannerMore2Qooxdoo.setStyles({
-        "font-weight": "bold"
+        "font-weight": "bold",
+        "text-decoration": "underline",
+        "text-decoration-thickness": "2px",
+        "text-decoration-color": "currentColor",
+        "text-decoration-style": "wavy",
+        "text-underline-offset": "calc(0.125rem * var(--mantine-scale))"
       });
-      var bannerMore3 = new ville.ui.typography.Text("component library for building modern, high-performance web apps.<br>Crafted with ", "span");
+      var bannerMore3 = new ville.ui.typography.Text(" component library for building modern, high-performance web apps.<br>Crafted with ", "span");
       bannerMore3.setAttribute("data-inherit", "true");
       var bannerMore4Mantine = new ville.ui.typography.Text("Mantine CSS ", "span");
       bannerMore4Mantine.setAttributes({
@@ -344,6 +350,69 @@ qx.Class.define("villeui.Application",
       mainButtonGroup.add(btnGitHub);
 
       // FIRE Emoji &#x1F525;
+
+      // Sponsored by section
+      var mainSponsoredBy = new ville.ui.layout.Container();
+      mainSponsoredBy.setStyles({
+        "--container-size": "calc(90rem * var(--mantine-scale))",
+        "text-align": "center",
+        "padding-bottom": "calc(5rem * var(--mantine-scale))"
+      });
+      mainSponsoredBy.setAttribute("data-strategy", "block");
+      mainShell.add(mainSponsoredBy);
+
+      // Sponsored by title
+      var mainSponsoredByTitle = new ville.ui.typography.Text("Sponsored by");
+      mainSponsoredByTitle.addClass("mantine-focus-auto");
+      mainSponsoredByTitle.setStyles({
+        "font-size": "var(--mantine-font-size-lg)",
+        "margin-bottom": "var(--mantine-spacing-md)"
+      });
+      mainSponsoredBy.add(mainSponsoredByTitle);
+
+      // Sponsored by body
+      var mainSponsoredByBody = new ville.ui.core.Box();
+      mainSponsoredByBody.setCssUtilityClass("HomePageSponsors_sponsors__3YyzB");
+      mainSponsoredBy.add(mainSponsoredByBody);
+
+      // Sponsor link - Ville Software example
+      var sponsorVilleSoftware = new ville.ui.core.Box("a");
+      sponsorVilleSoftware.setCssUtilityClass("HomePageSponsors_sponsor__c9Sun");
+      sponsorVilleSoftware.setAttributes({
+        "href": "https://github.com/Ville-Software",
+        "target": "_blank"
+      });
+      var sponsorVilleSoftwareLogo = new ville.ui.basic.Image();
+      sponsorVilleSoftwareLogo.addClass("HomePageSponsors_image__DWa8c");
+      sponsorVilleSoftwareLogo.setAttributes({
+        "src": "resource/villeui/images/ville_logo.png",
+        "alt": "Ville Software Logo",
+        "width": "80px",
+        "height": "80px"
+      }, true);
+      var sponsorVilleSoftwareText = new ville.ui.basic.Label("Ville Software");
+      sponsorVilleSoftwareText.setCssUtilityClass("HomePageSponsors_name__MEYj1");
+      sponsorVilleSoftware.add(sponsorVilleSoftwareLogo);
+      sponsorVilleSoftware.add(sponsorVilleSoftwareText);
+      mainSponsoredByBody.add(sponsorVilleSoftware);
+
+      // Sponsor link - You?
+      var sponsorYou = new ville.ui.core.Box("a");
+      sponsorYou.setCssUtilityClass("HomePageSponsors_sponsor__c9Sun");
+      sponsorYou.setAttributes({
+        "href": "https://github.com/Ville-Software",
+        "target": "_blank"
+      });
+      var sponsorYouText = new ville.ui.basic.Label("You? ❤️");
+      sponsorYouText.setCssUtilityClass("HomePageSponsors_name__MEYj1");
+      sponsorYou.add(sponsorYouText);
+      var sponsorYouDesc = new ville.ui.basic.Element();
+      sponsorYouDesc.setAttribute("html", "If you are interested in sponsoring Ville UI, please reach out to us via GitHub or email."); 
+      sponsorYouDesc.setCssUtilityClass("HomePageSponsors_description__UOTKq");
+      sponsorYouDesc.setStyle("text-align", "left");
+      sponsorYou.add(sponsorYouDesc);
+      mainSponsoredByBody.add(sponsorYou);
+      
 
       //mainContainerroot.add(IconSun);
 
