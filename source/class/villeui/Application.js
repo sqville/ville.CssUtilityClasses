@@ -270,7 +270,7 @@ qx.Class.define("villeui.Application",
         "font-weight": "bold"
       });
       bannerVilleui.setAttribute("data-inherit", "true");
-      var bannerMore1 = new ville.ui.typography.Text("is a comprehensive ", "span");
+      var bannerMore1 = new ville.ui.typography.Text("is a ", "span");
       bannerMore1.setAttribute("data-inherit", "true");
       var bannerMore2Qooxdoo = new ville.ui.typography.Text("Qooxdoo", "span");
       bannerMore2Qooxdoo.setAttribute("data-inherit", "true");
@@ -391,6 +391,9 @@ qx.Class.define("villeui.Application",
         "height": "80px"
       }, true);
       var sponsorVilleSoftwareText = new ville.ui.basic.Label("Ville Software");
+      sponsorVilleSoftwareText.setStyles({
+        "font-weight": "bold"
+      });
       sponsorVilleSoftwareText.setCssUtilityClass("HomePageSponsors_name__MEYj1");
       sponsorVilleSoftware.add(sponsorVilleSoftwareLogo);
       sponsorVilleSoftware.add(sponsorVilleSoftwareText);
@@ -403,11 +406,11 @@ qx.Class.define("villeui.Application",
         "href": "https://github.com/Ville-Software",
         "target": "_blank"
       });
-      var sponsorYouText = new ville.ui.basic.Label("You? ❤️");
+      var sponsorYouText = new ville.ui.basic.Label("📣");
       sponsorYouText.setCssUtilityClass("HomePageSponsors_name__MEYj1");
       sponsorYou.add(sponsorYouText);
       var sponsorYouDesc = new ville.ui.basic.Element();
-      sponsorYouDesc.setAttribute("html", "If you are interested in sponsoring Ville UI, please reach out to us via GitHub or email."); 
+      sponsorYouDesc.setAttribute("html", "We specialize in modernizing and advancing Qooxdoo applications. Let us help you advance your digital products."); 
       sponsorYouDesc.setCssUtilityClass("HomePageSponsors_description__UOTKq");
       sponsorYouDesc.setStyle("text-align", "left");
       sponsorYou.add(sponsorYouDesc);
@@ -422,7 +425,8 @@ qx.Class.define("villeui.Application",
       mainWidgetBrowser.setAttributes({"data-strategy": "block"});
       mainWidgetBrowserroot.add(mainWidgetBrowser);
       var mainWidgetBrowserTitle = new ville.ui.typography.Title(2);
-      mainWidgetBrowserTitle.setCssUtilityClass("HomePageComponents_title__3QZ1");
+      mainWidgetBrowserTitle.setAttributes({"data-order": "2"});
+      mainWidgetBrowserTitle.setCssUtilityClass("HomePageTitle_title__Vmv_b");
       mainWidgetBrowserTitle.setStyles({
         "--title-fw": "var(--mantine-h2-font-weight)",
         "--title-lh": "var(--mantine-h2-line-height)",

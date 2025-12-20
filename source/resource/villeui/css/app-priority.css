@@ -173,6 +173,49 @@
     z-index: 1
 }
 
+.HomePageTitle_title__Vmv_b {
+    font-family: var(--docs-font-primary);
+    font-weight: 450;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    color: var(--mantine-color-bright);
+    text-wrap: balance
+}
+
+.HomePageTitle_title__Vmv_b[data-order="1"] {
+    font-size: calc(4.5rem * var(--mantine-scale))
+}
+
+@media (max-width: 61.99375em) {
+    .HomePageTitle_title__Vmv_b[data-order="1"] {
+        font-size:calc(2.25rem * var(--mantine-scale))
+    }
+}
+
+.HomePageTitle_title__Vmv_b[data-order="2"] {
+    font-size: calc(3.375rem * var(--mantine-scale))
+}
+
+@media (max-width: 61.99375em) {
+    .HomePageTitle_title__Vmv_b[data-order="2"] {
+        font-size:calc(2.375rem * var(--mantine-scale))
+    }
+}
+
+.HomePageDescription_root__VdcJm {
+    max-width: calc(41.875rem * var(--mantine-scale));
+    font-size: var(--mantine-font-size-xl);
+    color: var(--mantine-color-gray-7);
+    margin-top: var(--mantine-spacing-lg);
+    text-wrap: balance
+}
+
+[data-mantine-color-scheme=dark] .HomePageDescription_root__VdcJm {
+    color: var(--mantine-color-dark-1)
+}
+
 /* Home Page Sponsors */
 .HomePageSponsors_sponsors__3YyzB {
     display: flex;
@@ -197,7 +240,7 @@
 
 .HomePageSponsors_sponsor__c9Sun {
     text-decoration: none;
-    font-size: var(--mantine-font-size-sm);
+    font-size: var(--mantine-font-size-lg);
     color: var(--mantine-color-bright);
     background-color: var(--mantine-color-white);
 }
