@@ -362,7 +362,7 @@ qx.Class.define("villeui.Application",
       mainShell.add(mainSponsoredBy);
 
       // Sponsored by title
-      var mainSponsoredByTitle = new ville.ui.typography.Text("Sponsored by");
+      var mainSponsoredByTitle = new ville.ui.typography.Text("Brought to you by");
       mainSponsoredByTitle.addClass("mantine-focus-auto");
       mainSponsoredByTitle.setStyles({
         "font-size": "var(--mantine-font-size-lg)",
@@ -412,9 +412,32 @@ qx.Class.define("villeui.Application",
       sponsorYouDesc.setStyle("text-align", "left");
       sponsorYou.add(sponsorYouDesc);
       mainSponsoredByBody.add(sponsorYou);
-      
 
-      //mainContainerroot.add(IconSun);
+      // Widget Browser section
+      var mainWidgetBrowserroot = new ville.ui.core.Box();
+      mainWidgetBrowserroot.setCssUtilityClass("HomePageComponents_root__uexW5");
+      mainShell.add(mainWidgetBrowserroot);
+      var mainWidgetBrowser = new ville.ui.layout.Container();
+      mainWidgetBrowser.setStyles({"--container-size": "calc(90rem * var(--mantine-scale))"});
+      mainWidgetBrowser.setAttributes({"data-strategy": "block"});
+      mainWidgetBrowserroot.add(mainWidgetBrowser);
+      var mainWidgetBrowserTitle = new ville.ui.typography.Title(2);
+      mainWidgetBrowserTitle.setCssUtilityClass("HomePageComponents_title__3QZ1");
+      mainWidgetBrowserTitle.setStyles({
+        "--title-fw": "var(--mantine-h2-font-weight)",
+        "--title-lh": "var(--mantine-h2-line-height)",
+        "--title-fz": "var(--mantine-h2-font-size)"
+      });
+      mainWidgetBrowserTitle.setAttribute("html", "Widget Browser");
+      mainWidgetBrowser.add(mainWidgetBrowserTitle);
+      var mainWidgetBrowserDesc = new ville.ui.typography.Text("Explore the available widgets and components in Ville UI.");
+      mainWidgetBrowserDesc.setCssUtilityClass("mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY");
+      mainWidgetBrowser.add(mainWidgetBrowserDesc);
+
+      // Widget Browser stack
+      var mainWidgetBrowserButtons = new ville.ui.layout.SimpleGrid();
+      mainWidgetBrowserButtons.setCssUtilityClass("HomePageComponents_buttons__2zG3");
+      mainWidgetBrowser.add(mainWidgetBrowserButtons);
 
       //var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
       //mainParagraph1.addClass("mantine-focus-auto");
