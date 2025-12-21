@@ -400,7 +400,7 @@ qx.Class.define("villeui.Application",
       mainSponsoredByBody.add(sponsorVilleSoftware);
 
       // Sponsor link - You?
-      var sponsorYou = new ville.ui.core.Box("a");
+      /*var sponsorYou = new ville.ui.core.Box("a");
       sponsorYou.setCssUtilityClass("HomePageSponsors_sponsor__c9Sun");
       sponsorYou.setAttributes({
         "href": "https://github.com/Ville-Software",
@@ -414,10 +414,10 @@ qx.Class.define("villeui.Application",
       sponsorYouDesc.setCssUtilityClass("HomePageSponsors_description__UOTKq");
       sponsorYouDesc.setStyle("text-align", "left");
       sponsorYou.add(sponsorYouDesc);
-      mainSponsoredByBody.add(sponsorYou);
+      mainSponsoredByBody.add(sponsorYou);*/
 
       // Widget Browser section
-      var mainWidgetBrowserroot = new ville.ui.core.Box();
+      var mainWidgetBrowserroot = new ville.ui.core.Box("section");
       mainWidgetBrowserroot.setCssUtilityClass("HomePageComponents_root__uexW5");
       mainShell.add(mainWidgetBrowserroot);
       var mainWidgetBrowser = new ville.ui.layout.Container();
@@ -439,9 +439,29 @@ qx.Class.define("villeui.Application",
       mainWidgetBrowser.add(mainWidgetBrowserDesc);
 
       // Widget Browser stack
-      var mainWidgetBrowserButtons = new ville.ui.layout.SimpleGrid();
-      mainWidgetBrowserButtons.setCssUtilityClass("HomePageComponents_buttons__2zG3");
+      var mainWidgetBrowserButtons = new ville.ui.core.Box();
+      mainWidgetBrowserButtons.setCssUtilityClass("HomePageTabs_controls___TiQU");
       mainWidgetBrowser.add(mainWidgetBrowserButtons);
+
+      // Widget Browser buttons - Form
+      var btnForm = new ville.ui.form.UnstyledButtonButton("Form");
+      btnForm.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
+      btnForm.setAttribute("data-active", "true");
+
+      // Widget Browser buttons - Tab
+      var btnTab = new ville.ui.form.UnstyledButtonButton("Tab");
+      btnTab.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
+
+      // Widget Browser buttons - Basic
+      var btnBasic = new ville.ui.form.UnstyledButtonButton("Basic");
+      btnBasic.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
+
+      // Widget Browser buttons - FloatingIndicator
+      var wbButtonIndicator = new ville.ui.overlay.FloatingIndicator();
+      wbButtonIndicator.addClass("HomePageTabs_indicator__U7Dx4");
+      wbButtonIndicator.setAttributes({
+        "data-initialized": "true"
+      });
 
       //var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
       //mainParagraph1.addClass("mantine-focus-auto");

@@ -284,6 +284,90 @@
     text-wrap: balance
 }
 
+/* Home Page Tabs */
+
+.HomePageTabs_controls___TiQU {
+    display: flex;
+    gap: calc(.1875rem * var(--mantine-scale));
+    position: relative
+}
+
+.HomePageTabs_control__Oee_u {
+    font-size: var(--mantine-font-size-lg);
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-lg);
+    color: var(--mantine-color-gray-7)
+}
+
+[data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u {
+    color: var(--mantine-color-dark-1)
+}
+
+.HomePageTabs_control__Oee_u {
+    font-family: var(--docs-font-primary);
+    transition: color .1s ease,background-color .1s ease;
+    font-weight: 500;
+    border-radius: var(--mantine-radius-md)
+}
+
+.HomePageTabs_control__Oee_u[data-active] {
+    color: var(--mantine-color-blue-0)
+}
+
+@media (hover: hover) {
+    .HomePageTabs_control__Oee_u:hover {
+        background-color:var(--mantine-color-gray-0)
+    }
+
+    [data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u:hover {
+        background-color: var(--mantine-color-dark-6)
+    }
+
+    .HomePageTabs_control__Oee_u:hover:not([data-active]) {
+        color: var(--mantine-color-black)
+    }
+
+    [data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u:hover:not([data-active]) {
+        color: var(--mantine-color-white)
+    }
+}
+
+@media (hover: none) {
+    .HomePageTabs_control__Oee_u:active {
+        background-color:var(--mantine-color-gray-0)
+    }
+
+    [data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u:active {
+        background-color: var(--mantine-color-dark-6)
+    }
+
+    .HomePageTabs_control__Oee_u:active:not([data-active]) {
+        color: var(--mantine-color-black)
+    }
+
+    [data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u:active:not([data-active]) {
+        color: var(--mantine-color-white)
+    }
+}
+
+.HomePageTabs_controlLabel__cdlU8 {
+    position: relative;
+    z-index: 2
+}
+
+.HomePageTabs_content__t1yFb {
+    padding-top: var(--mantine-spacing-xl)
+}
+
+.HomePageTabs_indicator__U7Dx4 {
+    cursor: pointer;
+    background-image: var(--hp-primary-bg);
+    box-shadow: var(--hp-primary-shadow);
+    border-bottom: var(--hp-primary-border);
+    border-radius: var(--mantine-radius-md);
+    z-index: 1
+}
+
+
 
 
 
