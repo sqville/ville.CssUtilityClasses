@@ -293,6 +293,16 @@
     text-wrap: balance
 }
 
+/* Home Page Widget Browser section */
+
+.HomePageComponents_root__uexW5 {
+    padding-block:var(--hp-block-spacing);}
+
+.HomePageComponents_description__JLMyY {
+    max-width: calc(62.5rem * var(--mantine-scale));
+    margin-bottom: var(--mantine-spacing-xl)
+}
+
 /* Home Page Tabs */
 
 .HomePageTabs_controls___TiQU {

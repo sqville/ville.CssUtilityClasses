@@ -39,7 +39,7 @@ qx.Class.define("ville.ui.form.Label", {
         _applySize(value, old) {
             if (value) {
                 this.setAttribute("data-size", value);
-                this.setStyle("--input-label-size", `var(--mantine-font-size-${value}`);
+                this.setStyle("--input-label-size", `var(--mantine-font-size-${value})`);
             }
         },
 

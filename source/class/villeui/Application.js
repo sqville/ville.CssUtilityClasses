@@ -506,7 +506,7 @@ qx.Class.define("villeui.Application",
       var mainWidgetBrowserStack = new ville.ui.layout.Stack();
       mainWidgetBrowserStack.setCssUtilityClass("HomePageTabs_content__t1yFb");
       mainWidgetBrowserStack.setDynamic(true);
-      mainWidgetBrowserroot.add(mainWidgetBrowserStack);
+      mainWidgetBrowser.add(mainWidgetBrowserStack);
 
       // Form widgets
       var stackFrompage = new ville.ui.layout.SimpleGrid();
@@ -517,7 +517,7 @@ qx.Class.define("villeui.Application",
       var txtTextField = new ville.ui.form.TextField();
       txtTextField.setAttribute("id", "villetxttextfield");
       txtTextField.setPlaceholder("TextField");
-      var txtTextFieldWrapper = new ville.ui.form.TextFieldWrapper(txtTextField);
+      var txtTextFieldWrapper = new ville.ui.form.TextFieldWrapper(txtTextField).set({size : "lg"});
       var lblTextField = new ville.ui.form.Label("TextField").set({size : "lg"});
       lblTextField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       lblTextField.setAttributes({
