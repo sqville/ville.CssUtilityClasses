@@ -5,7 +5,7 @@
 qx.Class.define("ville.ui.form.UnstyledToggleButton", {
     extend: qx.ui.form.ToggleButton,
 
-    include: ville.ui.core.MWidget,
+    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(label) {
         super();

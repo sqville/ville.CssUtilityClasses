@@ -5,8 +5,6 @@
 qx.Class.define("ville.ui.form.ToggleActionIcon", {
     extend: ville.ui.form.UnstyledToggleButton,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
-
     construct(trueicon, falseicon, variant, component) {
         if (component) {
             this.__componenttag = component;
