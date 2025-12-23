@@ -438,7 +438,7 @@ qx.Class.define("villeui.Application",
       mainWidgetBrowserDesc.setCssUtilityClass("mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY");
       mainWidgetBrowser.add(mainWidgetBrowserDesc);
 
-      // Widget Browser stack
+      // Widget Browser buttons
       var mainWidgetBrowserButtons = new ville.ui.core.Box();
       mainWidgetBrowserButtons.setCssUtilityClass("HomePageTabs_controls___TiQU");
       mainWidgetBrowser.add(mainWidgetBrowserButtons);
@@ -491,16 +491,6 @@ qx.Class.define("villeui.Application",
         btnBasic
       );
 
-      btnForm.addListenerOnce("appear", (e) => {
-        var movetobounds = e.getTarget().getContentElement().getDomElement().clientWidth;//.getDimensions();
-        console.log(e.getTarget().getContentElement());
-        /*wbButtonIndicator.getContentElement().setStyles({
-          transform: `translateY(0px) translateX(0px)`,
-          width: `${movetobounds.width}px`,
-          height: `${movetobounds.height}px`
-        }, true);*/
-      });
-
       wbRadioGroup.addListener("changeSelection", (e) => {
         e.getOldData()[0].getContentElement().removeAttribute("data-active");
         e.getData()[0].getContentElement().setAttribute("data-active", "true");
@@ -512,20 +502,29 @@ qx.Class.define("villeui.Application",
         }, true);
       });
 
-      /*mainWidgetBrowserButtons.addListenerOnce("appear", (e) => {
-        var movetobounds = wbRadioGroup.getSelection()[0].getContentElement();
-        console.log("movetobounds: ", movetobounds);
-        wbButtonIndicator.getContentElement().setStyles({
-          transform: `translateY(0px) translateX(${movetobounds.left}px)`,
-          width: `${movetobounds.width}px`,
-          height: `${movetobounds.height}px`
-        }, true);
-      });*/
+      // Widget Browser stack
+      var mainWidgetBrowserStack = new ville.ui.layout.Stack();
+      mainWidgetBrowserStack.setCssUtilityClass("HomePageTabs_content__t1yFb");
+      mainWidgetBrowserStack.setDynamic(true);
+      mainWidgetBrowserroot.add(mainWidgetBrowserStack);
 
-      var mainParagraph1 = new ville.ui.typography.Text("This is the main section, your app content here.");
-      mainParagraph1.setStyle("margin-top", "100px");
-      mainParagraph1.addClass("mantine-focus-auto");
-      mainWidgetBrowserroot.add(mainParagraph1);
+      // Form widgets
+      var stackFrompage = new ville.ui.layout.SimpleGrid();
+      stackFrompage.addClass("__m__-r10g");
+      mainWidgetBrowserStack.add(stackFrompage);
+
+      // Text field
+      var txtTextField = new ville.ui.form.TextField();
+      txtTextField.setAttribute("id", "villetxttextfield");
+      txtTextField.setPlaceholder("TextField");
+      var txtTextFieldWrapper = new ville.ui.form.TextFieldWrapper(txtTextField);
+      var lblTextField = new ville.ui.form.Label("TextField").set({size : "lg"});
+      lblTextField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+      lblTextField.setAttributes({
+        "for": "villetxttextfield"
+      });
+      txtTextFieldWrapper.setLabel(lblTextField);
+      stackFrompage.add(txtTextFieldWrapper);
 
 
       //var tblAnchorElement = new ville.ui.core.Box();

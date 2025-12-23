@@ -123,16 +123,16 @@
 }
 
 .Shell_main__g9BIV {
-    --hp-primary-bg: linear-gradient(45deg,var(--mantine-color-blue-6) 15%,var(--mantine-color-blue-7)),linear-gradient(135deg,rgba(255,255,255,0.3) 25%,transparent),linear-gradient(45deg,rgba(0,0,0,0.3) 15%,transparent);
-    --hp-primary-shadow: 0px 0px 15px 2px color-mix(in srgb,var(--mantine-color-blue-filled),transparent 80%);
-    --hp-primary-border: 3px solid var(--mantine-color-blue-7)
+    --hp-primary-bg: linear-gradient(45deg,var(--mantine-color-green-6) 15%,var(--mantine-color-green-7)),linear-gradient(135deg,rgba(255,255,255,0.3) 25%,transparent),linear-gradient(45deg,rgba(0,0,0,0.3) 15%,transparent);
+    --hp-primary-shadow: 0px 0px 15px 2px color-mix(in srgb,var(--mantine-color-green-filled),transparent 80%);
+    --hp-primary-border: 3px solid var(--mantine-color-green-7)
     padding-bottom: calc(7.5rem * var(--mantine-scale))
 }
 
 [data-mantine-color-scheme=dark] .Shell_main__g9BIV {
-    --hp-primary-bg: linear-gradient(45deg,var(--mantine-color-blue-7) 15%,var(--mantine-color-blue-8)),linear-gradient(135deg,rgba(255,255,255,0.3) 25%,transparent),linear-gradient(45deg,rgba(0,0,0,0.3) 15%,transparent);
-    --hp-primary-shadow: 0px 0px 15px 2px color-mix(in srgb,var(--mantine-color-blue-5),transparent 70%);
-    --hp-primary-border: 3px solid var(--mantine-color-blue-8)
+    --hp-primary-bg: linear-gradient(45deg,var(--mantine-color-green-7) 15%,var(--mantine-color-green-8)),linear-gradient(135deg,rgba(255,255,255,0.3) 25%,transparent),linear-gradient(45deg,rgba(0,0,0,0.3) 15%,transparent);
+    --hp-primary-shadow: 0px 0px 15px 2px color-mix(in srgb,var(--mantine-color-green-5),transparent 70%);
+    --hp-primary-border: 3px solid var(--mantine-color-green-8)
 }
 
 .Banner_wrapper__g6dkO {
@@ -379,6 +379,30 @@
     border-bottom: var(--hp-primary-border);
     border-radius: var(--mantine-radius-md);
     z-index: 1
+}
+
+/* Widget Browser pages */
+
+@media (min-width: 62em) {
+    .__m__-r10g {
+        --sg-cols: 3;
+    }
+}
+
+.__m__-r10g {
+    --sg-spacing-x: var(--mantine-spacing-xl);
+    --sg-spacing-y: calc(1.5625rem * var(--mantine-scale));
+}
+
+@media (min-width: 62em) {
+    .__m__-r14h {
+        --sg-cols: 2;
+    }
+}
+
+.__m__-r14h {
+    --sg-spacing-x: var(--mantine-spacing-xl);
+    --sg-spacing-y: var(--mantine-spacing-xl);
 }
 
 
