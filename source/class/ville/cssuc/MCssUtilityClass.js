@@ -3,12 +3,12 @@ qx.Mixin.define("ville.cssuc.MCssUtilityClass",
       properties :
       {
         cssUtilityClass: {
-            check: "String",
-            nullable: true,
-            init: null,
-            apply: "_applyCssUtilityClass",
-            themeable: true
-          },
+          check: "String",
+          nullable: true,
+          init: null,
+          apply: "_applyCssUtilityClass",
+          themeable: true
+        },
 
         excludeInlineStyles: {
           check: "Array",

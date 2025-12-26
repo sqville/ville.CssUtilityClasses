@@ -279,8 +279,8 @@ qx.Class.define("villeui.Application",
         "text-decoration": "underline",
         "text-decoration-thickness": "2px",
         "text-decoration-color": "currentColor",
-        "text-decoration-style": "wavy",
-        "text-underline-offset": "calc(0.125rem * var(--mantine-scale))"
+        "text-decoration-style": "double",
+        "text-underline-offset": "calc(0.325rem * var(--mantine-scale))"
       });
       var bannerMore3 = new ville.ui.typography.Text(" component library for building modern, high-performance web apps.<br>Crafted with ", "span");
       bannerMore3.setAttribute("data-inherit", "true");
@@ -513,6 +513,10 @@ qx.Class.define("villeui.Application",
       stackFrompage.addClass("__m__-r10g");
       mainWidgetBrowserStack.add(stackFrompage);
 
+      // Text widget vstack
+      var vstackTextWidgets = new ville.ui.layout.VStack();
+      stackFrompage.add(vstackTextWidgets);
+
       // Text field
       var txtTextField = new ville.ui.form.TextField();
       txtTextField.setAttribute("id", "villetxttextfield");
@@ -524,7 +528,55 @@ qx.Class.define("villeui.Application",
         "for": "villetxttextfield"
       });
       txtTextFieldWrapper.setLabel(lblTextField);
-      stackFrompage.add(txtTextFieldWrapper);
+      vstackTextWidgets.add(txtTextFieldWrapper);
+
+      // Password field
+      var txtPasswordField = new ville.ui.form.PasswordField();
+      txtPasswordField.setAttribute("id", "villetxtpasswordfield");
+      txtPasswordField.setPlaceholder("PasswordField");
+      var IconEye = new ville.ui.icon.IconEye().set({ "viewBox" : "0 0 15 15" });
+      IconEye.setStyles({ width: "var(--psi-icon-size-lg)", height: "var(--psi-icon-size-lg)" });
+      var IconEyeOff = new ville.ui.icon.IconEyeOff().set({ "viewBox" : "0 0 15 15" });
+      IconEyeOff.setStyles({ width: "var(--psi-icon-size-lg)", height: "var(--psi-icon-size-lg)" });
+      var btnShowHidePassword = new ville.ui.form.ToggleActionIcon(IconEyeOff, IconEye, "subtle");
+      btnShowHidePassword.setStyles({
+        "--ai-radius" : "var(--mantine-radius-md)",
+        "--ai-bg" : "transparent",
+        "--ai-hover" : "var(--mantine-color-gray-light-hover)",
+        "--ai-color" : "var(--mantine-color-gray-light-color)",
+        "--ai-bd" : "calc(0.0625rem * var(--mantine-scale)) solid transparent"
+      });
+      var txtPasswordFieldWrapper = new ville.ui.form.PasswordWrapper(txtPasswordField, null, null, btnShowHidePassword).set({size : "lg"});
+      var lblPasswordField = new ville.ui.form.Label("PasswordField").set({size : "lg"});
+      lblPasswordField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-PasswordInput-label");
+      lblPasswordField.setAttributes({"for": "villetxtpasswordfield"});
+      txtPasswordFieldWrapper.setLabel(lblPasswordField);
+      vstackTextWidgets.add(txtPasswordFieldWrapper);
+
+      // Button widget vstack
+      var vstackButtonWidgets = new ville.ui.layout.VStack();
+      stackFrompage.add(vstackButtonWidgets);
+      var lblButtonWidgets = new ville.ui.form.Label("Buttons").set({size : "lg"});
+      lblButtonWidgets.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+      vstackButtonWidgets.add(lblButtonWidgets);
+
+      // Buttons
+      var btnBasicButton = new ville.ui.form.Button("Default");
+      vstackButtonWidgets.add(btnBasicButton);
+      var btnBasicButtonFilled = new ville.ui.form.Button("Filled", "filled");
+      vstackButtonWidgets.add(btnBasicButtonFilled);
+      var btnBasicButtonLight = new ville.ui.form.Button("Light", "light");
+      vstackButtonWidgets.add(btnBasicButtonLight);
+
+      // Boolean
+      var vstackBooleanWidgets = new ville.ui.layout.VStack();
+      stackFrompage.add(vstackBooleanWidgets);
+      var lblBooleanWidgets = new ville.ui.form.Label("Boolean").set({size : "lg"});
+      lblBooleanWidgets.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+      vstackBooleanWidgets.add(lblBooleanWidgets);
+
+      var chkCheckBox1 = new ville.ui.form.CheckBox("CheckBox");
+      vstackBooleanWidgets.add(chkCheckBox1);
 
 
       //var tblAnchorElement = new ville.ui.core.Box();

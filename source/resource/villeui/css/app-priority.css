@@ -1,3 +1,59 @@
+:root {
+
+    --mantine-primary-color-filled: var(--villeui-color-filled);
+    --mantine-primary-color-filled-hover: var(--villeui-color-filled-hover);
+    --mantine-primary-color-light: var(--villeui-color-light);
+    --mantine-primary-color-light-hover: var(--villeui-color-light-hover);
+    --mantine-primary-color-light-color: var(--villeui-color-light-color);
+
+    /* Ville UI color array */
+    --villeui-color-0: #effbef;
+    --villeui-color-1: #ddf4de;
+    --villeui-color-2: #b5eab7;
+    --villeui-color-3: #8bdf8e;
+    --villeui-color-4: #69d66c;
+    --villeui-color-5: #54d056;
+    --villeui-color-6: #48cd4a;
+    --villeui-color-7: #3ab53c;
+    --villeui-color-8: #30a133;
+    --villeui-color-9: #25962b;
+
+    --mantine-primary-color-0: var(--villeui-color-0);
+    --mantine-primary-color-1: var(--villeui-color-1);
+    --mantine-primary-color-2: var(--villeui-color-2);
+    --mantine-primary-color-3: var(--villeui-color-3);
+    --mantine-primary-color-4: var(--villeui-color-4);
+    --mantine-primary-color-5: var(--villeui-color-5);
+    --mantine-primary-color-6: var(--villeui-color-6);
+    --mantine-primary-color-7: var(--villeui-color-7);
+    --mantine-primary-color-8: var(--villeui-color-8);
+    --mantine-primary-color-9: var(--villeui-color-9);
+}
+
+:root[data-mantine-color-scheme='dark'] {
+    --mantine-color-anchor: var(--villeui-color-4);
+    --villeui-color-text: var(--villeui-color-4);
+    --villeui-color-filled: var(--villeui-color-8);
+    --villeui-color-filled-hover: var(--villeui-color-9);
+    --villeui-color-light: rgba(34, 139, 230, 0.15);
+    --villeui-color-light-hover: rgba(34, 139, 230, 0.2);
+    --villeui-color-light-color: var(--villeui-color-3);
+    --villeui-color-outline: var(--villeui-color-4);
+    --villeui-color-outline-hover: rgba(77, 171, 247, 0.05);
+}
+
+:root[data-mantine-color-scheme='light'] {
+    --mantine-color-anchor: var(--villeui-color-6);
+    --villeui-color-text: var(--villeui-color-filled);
+    --villeui-color-filled: var(--villeui-color-6);
+    --villeui-color-filled-hover: var(--villeui-color-7);
+    --villeui-color-light: rgba(34, 139, 230, 0.1);
+    --villeui-color-light-hover: rgba(34, 139, 230, 0.12);
+    --villeui-color-light-color: var(--villeui-color-6);
+    --villeui-color-outline: var(--villeui-color-6);
+    --villeui-color-outline-hover: rgba(34, 139, 230, 0.05);
+}
+
 .m_18a11a80 {
     width: calc(2.125rem * var(--mantine-scale));
     height: calc(2.125rem * var(--mantine-scale));
@@ -329,7 +385,7 @@
 }
 
 .HomePageTabs_control__Oee_u[data-active] {
-    color: var(--mantine-color-blue-0)
+    color: var(--villeui-color-0)
 }
 
 .HomePageTabs_controlLabel__cdlU8 {
