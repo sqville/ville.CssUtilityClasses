@@ -275,6 +275,7 @@ qx.Class.define("villeui.Application",
       var bannerMore2Qooxdoo = new ville.ui.typography.Text("Qooxdoo", "span");
       bannerMore2Qooxdoo.setAttribute("data-inherit", "true");
       bannerMore2Qooxdoo.setStyles({
+        "color": "var(--mantine-color-bright)",
         "font-weight": "bold",
         "text-decoration": "underline",
         "text-decoration-thickness": "2px",
@@ -562,11 +563,54 @@ qx.Class.define("villeui.Application",
 
       // Buttons
       var btnBasicButton = new ville.ui.form.Button("Default");
+      btnBasicButton.addClass("mantine-focus-auto mantine-active");
+      btnBasicButton.setStyles({
+        "--button-height": "var(--button-height-sm)",
+        "--button-padding-x": "var(--button-padding-x-sm)",
+        "--button-fz": "var(--mantine-font-size-sm)",
+        "--button-radius": "var(--mantine-radius-sm)",
+        "--button-bg": "var(--mantine-color-default)",
+        "--button-hover": "var(--mantine-color-default-hover)",
+        "--button-color": "var(--mantine-color-default-color)",
+        "--button-bd": "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)"
+      });
       vstackButtonWidgets.add(btnBasicButton);
       var btnBasicButtonFilled = new ville.ui.form.Button("Filled", "filled");
+      btnBasicButtonFilled.addClass("mantine-focus-auto mantine-active");
+      btnBasicButtonFilled.setStyles({
+        "--button-height": "var(--button-height-sm)",
+        "--button-padding-x": "var(--button-padding-x-sm)",
+        "--button-fz": "var(--mantine-font-size-sm)",
+        "--button-radius": "var(--mantine-radius-sm)",
+        "--button-bd": "calc(0.0625rem * var(--mantine-scale)) solid transparent"
+      });
       vstackButtonWidgets.add(btnBasicButtonFilled);
       var btnBasicButtonLight = new ville.ui.form.Button("Light", "light");
+      btnBasicButtonLight.addClass("mantine-focus-auto mantine-active");
+      btnBasicButtonLight.setStyles({
+        "--button-height": "var(--button-height-sm)",
+        "--button-padding-x": "var(--button-padding-x-sm)",
+        "--button-fz": "var(--mantine-font-size-sm)",
+        "--button-radius": "var(--mantine-radius-sm)",
+        "--button-bg": "var(--villeui-color-light)",
+        "--button-hover": "var(--villeui-color-light-hover)",
+        "--button-color": "var(--villeui-color-light-color)",
+        "--button-bd": "calc(0.0625rem * var(--mantine-scale)) solid transparent"
+      });
       vstackButtonWidgets.add(btnBasicButtonLight);
+      var btnBasicButtonOutline = new ville.ui.form.Button("Outline", "outline");
+      btnBasicButtonOutline.addClass("mantine-focus-auto mantine-active");
+      btnBasicButtonOutline.setStyles({
+        "--button-height": "var(--button-height-sm)",
+        "--button-padding-x": "var(--button-padding-x-sm)",
+        "--button-fz": "var(--mantine-font-size-sm)",
+        "--button-radius": "var(--mantine-radius-sm)",
+        "--button-bg": "transparent",
+        "--button-hover": "var(--villeui-color-outline-hover)",
+        "--button-color": "var(--villeui-color-outline)",
+        "--button-bd": "calc(0.0625rem * var(--mantine-scale)) solid var(--villeui-color-outline)"
+      });
+      vstackButtonWidgets.add(btnBasicButtonOutline);
 
       // Boolean
       var vstackBooleanWidgets = new ville.ui.layout.VStack();
