@@ -400,23 +400,6 @@ qx.Class.define("villeui.Application",
       sponsorVilleSoftware.add(sponsorVilleSoftwareText);
       mainSponsoredByBody.add(sponsorVilleSoftware);
 
-      // Sponsor link - You?
-      /*var sponsorYou = new ville.ui.core.Box("a");
-      sponsorYou.setCssUtilityClass("HomePageSponsors_sponsor__c9Sun");
-      sponsorYou.setAttributes({
-        "href": "https://github.com/Ville-Software",
-        "target": "_blank"
-      });
-      var sponsorYouText = new ville.ui.basic.Label("📣");
-      sponsorYouText.setCssUtilityClass("HomePageSponsors_name__MEYj1");
-      sponsorYou.add(sponsorYouText);
-      var sponsorYouDesc = new ville.ui.basic.Element();
-      sponsorYouDesc.setAttribute("html", "We specialize in modernizing and advancing Qooxdoo applications. Let us help you advance your digital products."); 
-      sponsorYouDesc.setCssUtilityClass("HomePageSponsors_description__UOTKq");
-      sponsorYouDesc.setStyle("text-align", "left");
-      sponsorYou.add(sponsorYouDesc);
-      mainSponsoredByBody.add(sponsorYou);*/
-
       // Widget Browser section
       var mainWidgetBrowserroot = new ville.ui.core.Box("section");
       mainWidgetBrowserroot.setCssUtilityClass("HomePageComponents_root__uexW5");
@@ -452,6 +435,7 @@ qx.Class.define("villeui.Application",
       btnFormText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
       btnFormText.setAttribute("html", "Form", true);
       btnForm.add(btnFormText);
+      btnForm.setUserData("stackpageindex", 0);
 
       // Widget Browser buttons - Tab
       var btnTab = new ville.ui.form.UnstyledToggleButton();
@@ -460,14 +444,16 @@ qx.Class.define("villeui.Application",
       btnTabText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
       btnTabText.setAttribute("html", "Tab");
       btnTab.add(btnTabText);
+      btnTab.setUserData("stackpageindex", 1);
 
       // Widget Browser buttons - Basic
       var btnBasic = new ville.ui.form.UnstyledToggleButton();
       btnBasic.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
       var btnBasicText = new ville.ui.basic.Element("span");
       btnBasicText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
-      btnBasicText.setAttribute("html", "Basic", true);
+      btnBasicText.setAttribute("html", "Window", true);
       btnBasic.add(btnBasicText);
+      btnBasic.setUserData("stackpageindex", 2);
 
       // Widget Browser buttons - FloatingIndicator
       var wbButtonIndicator = new ville.ui.overlay.FloatingIndicator();
@@ -492,6 +478,15 @@ qx.Class.define("villeui.Application",
         btnBasic
       );
 
+      // Widget Browser stack
+      var mainWidgetBrowserStack = new ville.ui.layout.Stack();
+      mainWidgetBrowserStack.setCssUtilityClass("HomePageTabs_content__t1yFb");
+      //mainWidgetBrowserStack.setDynamic(true);
+      mainWidgetBrowserStack.setStyles({
+        "margin-bottom": "50px"
+      });
+      mainWidgetBrowser.add(mainWidgetBrowserStack);
+
       wbRadioGroup.addListener("changeSelection", (e) => {
         e.getOldData()[0].getContentElement().removeAttribute("data-active");
         e.getData()[0].getContentElement().setAttribute("data-active", "true");
@@ -501,13 +496,8 @@ qx.Class.define("villeui.Application",
           width: `${movetobounds.width}px`,
           height: `${movetobounds.height}px`
         }, true);
+        mainWidgetBrowserStack.setSelection([mainWidgetBrowserStack.getChildren()[e.getData()[0].getUserData("stackpageindex")]]);
       });
-
-      // Widget Browser stack
-      var mainWidgetBrowserStack = new ville.ui.layout.Stack();
-      mainWidgetBrowserStack.setCssUtilityClass("HomePageTabs_content__t1yFb");
-      mainWidgetBrowserStack.setDynamic(true);
-      mainWidgetBrowser.add(mainWidgetBrowserStack);
 
       // Form widgets
       var stackFrompage = new ville.ui.layout.SimpleGrid();
@@ -618,18 +608,69 @@ qx.Class.define("villeui.Application",
       var lblBooleanWidgets = new ville.ui.form.Label("Boolean").set({size : "lg"});
       lblBooleanWidgets.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       vstackBooleanWidgets.add(lblBooleanWidgets);
-
       var chkCheckBox1 = new ville.ui.form.CheckBox("CheckBox");
+      chkCheckBox1.setId("villeuiCheckBox1");
       vstackBooleanWidgets.add(chkCheckBox1);
+      var chkTriCheckBox1 = new ville.ui.form.CheckBox("Tri-State CheckBox");
+      chkTriCheckBox1.setTriState(true);
+      chkTriCheckBox1.setValue(null);
+      chkTriCheckBox1.setId("villeuiTriCheckBox1");
+      vstackBooleanWidgets.add(chkTriCheckBox1);
+      var rdoButton1 = new ville.ui.form.RadioButton("RadioButton");
+      vstackBooleanWidgets.add(rdoButton1);
+      var rdoButton2 = new ville.ui.form.RadioButton("Outlined RadioButton");
+      rdoButton2.setVariant("outline");
+      rdoButton2.setStyles({
+        "--radio-color": "var(--villeui-color-outline)"
+      });
+      vstackBooleanWidgets.add(rdoButton2);
 
+      // Tab widgets tab page
+      var stackTabpage = new ville.ui.layout.SimpleGrid();
+      stackTabpage.addClass("__m__-r10g");
+      mainWidgetBrowserStack.add(stackTabpage);
+
+      // Normal tab
+      var tvDefault = this._getTabView("top", "default");
+      stackTabpage.add(tvDefault);
+      var tvOutline = this._getTabView("top", "outline");
+      stackTabpage.add(tvOutline);
+      var tvPills = this._getTabView("top", "pills");
+      stackTabpage.add(tvPills);
+      var tvLeftDefault = this._getTabView("left", "default");
+      stackTabpage.add(tvLeftDefault);
+      var tvRightOutline = this._getTabView("right", "outline");
+      stackTabpage.add(tvRightOutline);
+      var tvBottomPills = this._getTabView("bottom", "pills");
+      stackTabpage.add(tvBottomPills);
+
+      // Window widgets tab page
+      var stackWindowpage = new ville.ui.layout.SimpleGrid();
+      stackWindowpage.addClass("__m__-r10g");
+      mainWidgetBrowserStack.add(stackWindowpage);
+
+      // Sponsor link - You?
+      var sponsorYou = new ville.ui.core.Box("a");
+      sponsorYou.setCssUtilityClass("HomePageSponsors_sponsor__c9Sun");
+      sponsorYou.setAttributes({
+        "href": "https://github.com/Ville-Software",
+        "target": "_blank"
+      });
+      var sponsorYouText = new ville.ui.basic.Label("📣");
+      sponsorYouText.setCssUtilityClass("HomePageSponsors_name__MEYj1");
+      sponsorYou.add(sponsorYouText);
+      var sponsorYouDesc = new ville.ui.basic.Element();
+      sponsorYouDesc.setAttribute("html", "We specialize in modernizing and advancing Qooxdoo applications. Let us help you advance your digital products."); 
+      sponsorYouDesc.setCssUtilityClass("HomePageSponsors_description__UOTKq");
+      sponsorYouDesc.setStyle("text-align", "left");
+      sponsorYou.add(sponsorYouDesc);
+      stackWindowpage.add(sponsorYou);
 
       //var tblAnchorElement = new ville.ui.core.Box();
       //var tbvQxAnchorElement = new ville.ui.core.Box();
 
-      
       //docInnerMainBox.add(tblAnchorElement);
       //docInnerMainBox.add(tbvQxAnchorElement);
-
       
       //--tabs-radius: var(--mantine-radius-sm); --tabs-color: var(--mantine-color-blue-filled);
 
@@ -760,10 +801,9 @@ qx.Class.define("villeui.Application",
       return tabView;
     },
 
-    _getTabView() {
+    _getTabView(postion, variant) {
 
-      var tabView = new ville.ui.tabview.TabView();
-      //tabView.setWidth(500);
+      var tabView = new ville.ui.tabview.TabView(postion, variant);
 
       ////////////////// TEST PAGE 1 ////////////////////
       var page1 = new ville.ui.tabview.Page("Layout");

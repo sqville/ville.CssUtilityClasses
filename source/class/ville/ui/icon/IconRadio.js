@@ -1,4 +1,4 @@
-qx.Class.define("ville.ui.icon.IconCheck", {
+qx.Class.define("ville.ui.icon.IconRadio", {
     extend: ville.ui.icon.Abstract,
 
     construct() {

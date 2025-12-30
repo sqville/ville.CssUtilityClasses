@@ -4,7 +4,8 @@
  * @external(mantine/core/styles/Radio.css)
  * @require(ville.ui.icon.IconRadio)
  */
-qx.Class.define("ville.ui.form.CheckBox", {
+qx.Class.define("ville.ui.form.RadioButton", {
+    
     extend: qx.ui.form.RadioButton,
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
@@ -18,7 +19,6 @@ qx.Class.define("ville.ui.form.CheckBox", {
         this.setCssUtilityClass("m_f3f1af94 mantine-Radio-root m_5f75b09e mantine-Radio-root");
         this.setSelectable(null);
 
-        //this._createChildControl("label");
         this._createChildControl("input");
         if (alticon) {
             this.setInlineIcon(alticon);
@@ -170,7 +170,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
                         control.setCssUtilityClass("m_f3ed6b2b mantine-Radio-icon");
                         this.setInlineIcon(control);
                     }
-                    control.setCssUtilityClass("m_bf295423 mantine-Checkbox-icon");
+                    control.setCssUtilityClass("m_f3ed6b2b mantine-Radio-icon");
                     control.setAttribute("aria-hidden", "true");
                     rbinnerwrapper = this.getChildControl("radiobuttoninnerwrapper");
                     rbinnerwrapper.add(control);
