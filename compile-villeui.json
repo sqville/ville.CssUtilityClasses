@@ -13,16 +13,12 @@
   "defaultTarget": "source",
   "locales": ["en"],
   "environment": {
-      "qx.icontheme": "Tango",
-      "qx.nativeScrollBars": true,
       "ville.cssuc": true
   },
   "babel" : {
     "options" : {
-      "targets" : {
-        "chrome" : "140"
-      }
-    } 
+      "targets" : "> 0.25%, not dead"
+    }
   },
   "applications": [
     {

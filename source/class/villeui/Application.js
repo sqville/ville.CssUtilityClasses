@@ -70,7 +70,7 @@ qx.Class.define("villeui.Application",
       appShell.setExcludeBoundsFromDom(true);
       appShell.setClearAllInlineStyles(true);
 
-      // Header
+      /* ::: Header ::: */
       var headerBox = new ville.ui.core.Box("header");
       headerBox.setCssUtilityClass("m_3b16f56b mantine-AppShell-header right-scroll-bar-position");
       headerBox.setAttribute("data-with-border", "true");
@@ -158,7 +158,7 @@ qx.Class.define("villeui.Application",
       var IconSun = new ville.ui.icon.IconSun();
       var IconMoon = new ville.ui.icon.IconMoon();
 
-      var btnTheme = new ville.ui.form.ToggleActionIcon(IconSun, IconMoon);
+      var btnTheme = new ville.ui.form.ToggleActionIcon(IconMoon, IconSun);
       btnTheme.setStyles({
         "--ai-size": "var(--ai-size-lg)",
         "--ai-radius": "var(--mantine-radius-md)",
@@ -167,22 +167,15 @@ qx.Class.define("villeui.Application",
         "--ai-color": "var(--mantine-color-default-color)",
         "--ai-bd": "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)"
       });
-      
-      //var btnTheme = new ville.ui.form.UnstyledToggleButton(`&#9790;`);
-      //btnTheme.addClass("maintine-focus-auto m_18a11a80");
       btnTheme.addListener("click", (e) => {
         if (btnTheme.getValue()) {
-          document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
-          //btnTheme.getContentElement().setAttribute("html", `&#9728;`); //"&#9728;");
-        } else {
           document.documentElement.setAttribute("data-mantine-color-scheme", "light");
-          //btnTheme.getContentElement().setAttribute("html", `&#9790;`);
+        } else {
+          document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
         }
       });
-      //headerLinksGroupBox.add(navLinkDocs);
       headerLinksGroupBox.add(navLinkGithub);
       headerLinksGroupBox.add(btnTheme);
-
 
       // Navbar
       /*var navBox = new ville.ui.core.Box("nav");
@@ -199,33 +192,39 @@ qx.Class.define("villeui.Application",
       navLinkGithubClone.addClass("mantine-focus-auto MobileNavbar_control__jg3Mn");
       navBox.add(navLinkDocsClone);
       navBox.add(navLinkGithubClone);*/
+
+      /* ::: End of Header ::: */
       
-      // Main
+      /* ::: Main ::: */
+
       var mainBox = new ville.ui.core.Box();
       mainBox.setCssUtilityClass("m_8983817 mantine-AppShell-main");
       var mainShell = new ville.ui.core.Box();
       mainShell.setCssUtilityClass("Shell_main__g9BIV");
-        mainBox.add(mainShell);
+      mainBox.add(mainShell);
       var mainBannerwrapper = new ville.ui.core.Box();
       mainBannerwrapper.setCssUtilityClass("Banner_wrapper__g6dkO");
       var svgmarkup1 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:0;top:0"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
       var svgmarkup2 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:180;top:0"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
       var svgmarkup3 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:0;top:180"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
       var svgmarkup4 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;right:0;top:60"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
-    
+      var svgmarkup5 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;right:0;top:480"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
       var svgWidget1 = new ville.ui.basic.Element();
       var svgWidget2 = new ville.ui.basic.Element();
       var svgWidget3 = new ville.ui.basic.Element();
       var svgWidget4 = new ville.ui.basic.Element();
+      var svgWidget5 = new ville.ui.basic.Element();
       svgWidget1.getContentElement().useMarkup(svgmarkup1);
       svgWidget2.getContentElement().useMarkup(svgmarkup2);
       svgWidget3.getContentElement().useMarkup(svgmarkup3);
       svgWidget4.getContentElement().useMarkup(svgmarkup4);
+      svgWidget5.getContentElement().useMarkup(svgmarkup5);
       mainBannerwrapper.add(svgWidget1);
       mainBannerwrapper.add(svgWidget2);
       mainBannerwrapper.add(svgWidget3);
       mainBannerwrapper.add(svgWidget4);
-        mainShell.add(mainBannerwrapper);
+      mainBannerwrapper.add(svgWidget5);
+      mainShell.add(mainBannerwrapper);
       var mainContainerroot = new ville.ui.layout.Container();
       mainContainerroot.setStyles({
         "--container-size": "calc(43.75rem * var(--mantine-scale));",
@@ -235,10 +234,10 @@ qx.Class.define("villeui.Application",
         "data-size": "xl",
         "data-strategy": "block"
       });
-        mainBannerwrapper.add(mainContainerroot);
+      mainBannerwrapper.add(mainContainerroot);
       var mainBannerbody = new ville.ui.core.Box();
       mainBannerbody.setCssUtilityClass("Banner_body__K_Xm0");
-        mainContainerroot.add(mainBannerbody);
+      mainContainerroot.add(mainBannerbody);
       var mainBannerVilleui = new ville.ui.typography.Text("Ville UI<br>", "span");
       mainBannerVilleui.setAttributes({
         "data-variant": "gradient",
@@ -305,7 +304,7 @@ qx.Class.define("villeui.Application",
       mainBannerDesc.add(bannerMore4Mantine);
       mainBannerDesc.add(bannerMore5);
       mainBannerDesc.addClass("mantine-focus-auto Banner_description__asVMP");
-        mainBannerbody.add(mainBannerDesc);
+      mainBannerbody.add(mainBannerDesc);
 
       // Buttons
       var mainButtonGroup = new ville.ui.layout.HGroup();
@@ -314,9 +313,10 @@ qx.Class.define("villeui.Application",
         "--group-align": "center",
         "--group-justify": "center",
         "--group-wrap": "wrap",
-        "margin-top": "calc(var(--mantine-spacing-xl) * 2)"
+        "margin-top": "calc(var(--mantine-spacing-xl) * 2)",
+        "margin-bottom": "var(--mantine-spacing-md)"
       });
-        mainBannerbody.add(mainButtonGroup);
+      mainBannerbody.add(mainButtonGroup);
 
       var btnGetStarted = new ville.ui.form.Button("Get Started");
       btnGetStarted.setStyles({
@@ -352,7 +352,7 @@ qx.Class.define("villeui.Application",
 
       // FIRE Emoji &#x1F525;
 
-      // Sponsored by section
+      /* MAIN SECTION ::: Sponsored By ::: */
       var mainSponsoredBy = new ville.ui.layout.Container();
       mainSponsoredBy.setStyles({
         "--container-size": "calc(90rem * var(--mantine-scale))",
@@ -367,6 +367,7 @@ qx.Class.define("villeui.Application",
       mainSponsoredByTitle.addClass("mantine-focus-auto");
       mainSponsoredByTitle.setStyles({
         "font-size": "var(--mantine-font-size-lg)",
+        "margin-top": "var(--mantine-spacing-md)",
         "margin-bottom": "var(--mantine-spacing-md)"
       });
       mainSponsoredBy.add(mainSponsoredByTitle);
@@ -400,7 +401,9 @@ qx.Class.define("villeui.Application",
       sponsorVilleSoftware.add(sponsorVilleSoftwareText);
       mainSponsoredByBody.add(sponsorVilleSoftware);
 
-      // Widget Browser section
+      /* ::: End of Sponsored By ::: */
+
+      /* MAIN SECTION ::: Widget Browser ::: */
       var mainWidgetBrowserroot = new ville.ui.core.Box("section");
       mainWidgetBrowserroot.setCssUtilityClass("HomePageComponents_root__uexW5");
       mainShell.add(mainWidgetBrowserroot);
@@ -418,9 +421,16 @@ qx.Class.define("villeui.Application",
       });
       mainWidgetBrowserTitle.setAttribute("html", "Widget Browser");
       mainWidgetBrowser.add(mainWidgetBrowserTitle);
-      var mainWidgetBrowserDesc = new ville.ui.typography.Text("Explore the available widgets and components in Ville UI.");
-      mainWidgetBrowserDesc.setCssUtilityClass("mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY");
-      mainWidgetBrowser.add(mainWidgetBrowserDesc);
+      var mainWidgetBrowserDesc1 = new ville.ui.typography.Text("Yup, that widget browser. Some familiar with the new. The best way to get aquainted with your new ");
+      mainWidgetBrowserDesc1.setCssUtilityClass("mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY");
+      mainWidgetBrowser.add(mainWidgetBrowserDesc1);
+      var mainWidgetBrowserDesc2 = new ville.ui.basic.Label("Native CSS super powers. &#128170;");
+      mainWidgetBrowserDesc2.setAttribute("data-inherit", "true");
+      mainWidgetBrowserDesc2.setStyles({
+        "color": "var(--mantine-color-bright)",
+        "font-weight": "bold"
+      });
+      mainWidgetBrowserDesc1.add(mainWidgetBrowserDesc2);
 
       // Widget Browser buttons
       var mainWidgetBrowserButtons = new ville.ui.core.Box();
@@ -512,7 +522,7 @@ qx.Class.define("villeui.Application",
       var txtTextField = new ville.ui.form.TextField();
       txtTextField.setAttribute("id", "villetxttextfield");
       txtTextField.setPlaceholder("TextField");
-      var txtTextFieldWrapper = new ville.ui.form.TextFieldWrapper(txtTextField).set({size : "lg"});
+      var txtTextFieldWrapper = new ville.ui.form.TextFieldWrapper(txtTextField).set({size : "md"});
       var lblTextField = new ville.ui.form.Label("TextField").set({size : "lg"});
       lblTextField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       lblTextField.setAttributes({
@@ -537,7 +547,7 @@ qx.Class.define("villeui.Application",
         "--ai-color" : "var(--mantine-color-gray-light-color)",
         "--ai-bd" : "calc(0.0625rem * var(--mantine-scale)) solid transparent"
       });
-      var txtPasswordFieldWrapper = new ville.ui.form.PasswordWrapper(txtPasswordField, null, null, btnShowHidePassword).set({size : "lg"});
+      var txtPasswordFieldWrapper = new ville.ui.form.PasswordWrapper(txtPasswordField, null, null, btnShowHidePassword).set({size : "md"});
       var lblPasswordField = new ville.ui.form.Label("PasswordField").set({size : "lg"});
       lblPasswordField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-PasswordInput-label");
       lblPasswordField.setAttributes({"for": "villetxtpasswordfield"});
@@ -632,13 +642,20 @@ qx.Class.define("villeui.Application",
 
       // Normal tab
       var tvDefault = this._getTabView("top", "default");
+      /*tvDefault.setStyles({
+        "--tabs-radius": "var(--mantine-radius-sm)",
+        "--tabs-color": "var(--villeui-color-filled)"
+      });*/
       stackTabpage.add(tvDefault);
+
       var tvOutline = this._getTabView("top", "outline");
       stackTabpage.add(tvOutline);
       var tvPills = this._getTabView("top", "pills");
       stackTabpage.add(tvPills);
+
       var tvLeftDefault = this._getTabView("left", "default");
       stackTabpage.add(tvLeftDefault);
+
       var tvRightOutline = this._getTabView("right", "outline");
       stackTabpage.add(tvRightOutline);
       var tvBottomPills = this._getTabView("bottom", "pills");
@@ -665,6 +682,56 @@ qx.Class.define("villeui.Application",
       sponsorYouDesc.setStyle("text-align", "left");
       sponsorYou.add(sponsorYouDesc);
       stackWindowpage.add(sponsorYou);
+
+      var IconCamper = new ville.ui.basic.Element("span");
+      IconCamper.setCssUtilityClass("tabler--camper");
+      IconCamper.setStyles({
+        "width": "60px",
+        "height": "60px"
+      });
+      stackWindowpage.add(IconCamper);
+      /* ::: End of Widget Browser ::: */
+
+      /* MAIN SECTIION ::: Native CSS Powers ::: */
+      var mainNativeCssroot = new ville.ui.core.Box("section");
+      mainNativeCssroot.setCssUtilityClass("HomePageComponents_root__uexW5");
+      mainNativeCssroot.setStyles({
+        "margin-top": "150px"
+      });
+      mainShell.add(mainNativeCssroot);
+      var mainNativeCss = new ville.ui.layout.Container();
+      mainNativeCss.setStyles({"--container-size": "calc(90rem * var(--mantine-scale))"});
+      mainNativeCss.setAttributes({"data-strategy": "block"});
+      mainNativeCssroot.add(mainNativeCss);
+      var mainNativeCssTitle = new ville.ui.typography.Title(2);
+      mainNativeCssTitle.setAttributes({"data-order": "2"});
+      mainNativeCssTitle.setCssUtilityClass("HomePageTitle_title__Vmv_b");
+      mainNativeCssTitle.setStyles({
+        "--title-fw": "var(--mantine-h2-font-weight)",
+        "--title-lh": "var(--mantine-h2-line-height)",
+        "--title-fz": "var(--mantine-h2-font-size)"
+      });
+      mainNativeCssTitle.setAttribute("html", "Qooxdoo + Native CSS = Fire");
+      mainNativeCss.add(mainNativeCssTitle);
+      var mainNativeCssDesc1 = new ville.ui.typography.Text("Flexible styling using modern Css.");
+      mainNativeCssDesc1.setCssUtilityClass("mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY");
+      mainNativeCss.add(mainNativeCssDesc1);
+      /* ::: End of Native CSS Powers ::: */
+      /* ::: End of Main ::: */
+
+      /* ::: Footer ::: */
+      var footerBox = new ville.ui.core.Box("footer");
+      footerBox.setCssUtilityClass("m_3840c879 mantine-AppShell-footer right-scroll-bar-position");
+      footerBox.setAttributes({
+        "data-with-border": "true",
+        "html": "Footer"
+      });
+      footerBox.setStyles({
+        "--app-shell-footer-z-index": "100",
+        "padding": "var(--mantine-spacing-md)"
+      });
+      /* ::: End of Footer ::: */
+
 
       //var tblAnchorElement = new ville.ui.core.Box();
       //var tbvQxAnchorElement = new ville.ui.core.Box();
@@ -693,12 +760,6 @@ qx.Class.define("villeui.Application",
         tbvIsle.add(qxtabview, {edge: 0});
       });*/
 
-      /*const tabView1 = this._getTabView();
-      tabView1.setStyles({
-        "--tabs-radius": "var(--mantine-radius-sm)",
-        "--tabs-color": "var(--mantine-color-blue-filled)"
-      });*/
-
       // Settings
       //var settingsAffix = new ville.ui.overlay.Affix();
       /*settingsAffix.setStyles({
@@ -716,13 +777,8 @@ qx.Class.define("villeui.Application",
             headerLogoBurgerGroupBox.add(headerLogoBox);
           headerInnerBox.add(headerNavGroupBox);
             headerNavGroupBox.add(headerLinksGroupBox);
-      //appShell.add(navBox);
       appShell.add(mainBox);
-        //mainBox.add(mainParagraph1);
-        //mainBox.add(tabView1);
-
-
-      /** End of Table test */
+      //appShell.add(footerBox);
 
     },
 
@@ -801,9 +857,18 @@ qx.Class.define("villeui.Application",
       return tabView;
     },
 
-    _getTabView(postion, variant) {
+    _getTabView(position, variant) {
 
-      var tabView = new ville.ui.tabview.TabView(postion, variant);
+      var tabView = new ville.ui.tabview.TabView(position, variant);
+
+      tabView.setStyles({
+        "--tabs-radius": "var(--mantine-radius-sm)",
+        "--tabs-color": "var(--villeui-color-filled)"
+      });
+
+      var pane = tabView.getChildControl("pane");
+      var padposition = `padding-${position}`;
+      pane.setStyle(padposition, "var(--mantine-spacing-xs)");
 
       ////////////////// TEST PAGE 1 ////////////////////
       var page1 = new ville.ui.tabview.Page("Layout");

@@ -31,7 +31,7 @@ qx.Class.define("ville.ui.tabview.TabButton", {
 
     this.setExcludeBoundsFromDom(true);
     this.setExcludeInlineStyles(["position"]);
-    this.setCssUtilityClass("mantine-focus-auto m_539e827b m_4ec4dce6 mantine-Tabs-tab m_87cf2631 mantine-UnstyledButton-root");
+    this.setCssUtilityClass("mantine-focus-auto m_4ec4dce6 mantine-Tabs-tab m_87cf2631 mantine-UnstyledButton-root");
     this.setSelectable(null);
     this.getContentElement().setAttribute('type', 'button');
 
@@ -49,6 +49,16 @@ qx.Class.define("ville.ui.tabview.TabButton", {
       this.setTabSection(tabsection);
     }
 
+  },
+
+  statics: {
+
+    btnVariantClasses: {
+      default: "m_539e827b",
+      outline: "m_b59ab47c",
+      pills: "m_c3381914"
+    }
+    
   },
 
   /*
@@ -170,7 +180,12 @@ qx.Class.define("ville.ui.tabview.TabButton", {
     // property apply
     _applyVariant(value, old) {
       if (value) {
-        this.getContentElement().setAttribute("data-variant", value);
+        var elem = this.getContentElement();
+        elem.setAttribute("data-variant", value, true);
+        if (old)
+          elem.removeClass(ville.ui.tabview.TabButton.btnVariantClasses[old]);
+
+        elem.addClass(ville.ui.tabview.TabButton.btnVariantClasses[value]);
       }
     },
 

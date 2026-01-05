@@ -100,11 +100,6 @@
     }
 }
 
-.villeuilinkicon {
-    width:calc(1.375rem * var(--mantine-scale));
-    height:calc(1.375rem * var(--mantine-scale));
-}
-
 :root {
     --app-shell-header-height: calc(3.75rem * var(--mantine-scale));
     --app-shell-header-offset: calc(3.75rem * var(--mantine-scale));
@@ -188,7 +183,8 @@
 [data-mantine-color-scheme=dark] .Shell_main__g9BIV {
     --hp-primary-bg: linear-gradient(45deg,var(--mantine-color-green-7) 15%,var(--mantine-color-green-8)),linear-gradient(135deg,rgba(255,255,255,0.3) 25%,transparent),linear-gradient(45deg,rgba(0,0,0,0.3) 15%,transparent);
     --hp-primary-shadow: 0px 0px 15px 2px color-mix(in srgb,var(--mantine-color-green-5),transparent 70%);
-    --hp-primary-border: 3px solid var(--mantine-color-green-8)
+    --hp-primary-border: 3px solid var(--mantine-color-green-8);
+    background-color: var(--mantine-color-dark-8);
 }
 
 .Banner_wrapper__g6dkO {
@@ -469,6 +465,22 @@
 .__m__-r14h {
     --sg-spacing-x: var(--mantine-spacing-xl);
     --sg-spacing-y: var(--mantine-spacing-xl);
+}
+
+/* Icon CSS */
+
+.villeuilinkicon {
+    width:calc(1.375rem * var(--mantine-scale));
+    height:calc(1.375rem * var(--mantine-scale));
+}
+
+.tabler--camper {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%2325962b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M5 18a2 2 0 1 0 4 0a2 2 0 0 0-4 0m10 0a2 2 0 1 0 4 0a2 2 0 0 0-4 0'/%3E%3Cpath d='M5 18H4a1 1 0 0 1-1-1V6a2 2 0 0 1 2-2h12a4 4 0 0 1 4 4H3m6 10h6'/%3E%3Cpath d='M19 18h1a1 1 0 0 0 1-1v-4l-3-5m3 5h-7m0-5v10'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 

@@ -15,7 +15,7 @@ qx.Theme.define("ville.cssuc.theme.blankslate.Theme",
     color : ville.cssuc.theme.blankslate.Color,
     decoration : ville.cssuc.theme.blankslate.Decoration,
     font : ville.cssuc.theme.blankslate.Font,
-    icon : qx.theme.icon.Tango,
+    icon : ville.cssuc.theme.blankslate.Icon,
     appearance : ville.cssuc.theme.blankslate.Appearance
   }
 });

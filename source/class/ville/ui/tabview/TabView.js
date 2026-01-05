@@ -81,6 +81,16 @@ qx.Class.define("ville.ui.tabview.TabView", {
     changeValue: "qx.event.type.Data"
   },
 
+  statics: {
+
+    barVariantClasses: {
+      default: "m_576c9d4",
+      outline: "m_6772fbd5",
+      pills: ""
+    }
+
+  },
+
   /*
   *****************************************************************************
      PROPERTIES
@@ -178,7 +188,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
       switch (id) {
         case "bar":
           control = new ville.ui.core.Box();
-          control.setCssUtilityClass("m_576c9d4 m_89d33d6d mantine-Tabs-list");
+          control.setCssUtilityClass("m_89d33d6d mantine-Tabs-list");
           control.setAttribute("role", "tablist");
           this._add(control);
           break;
@@ -235,6 +245,11 @@ qx.Class.define("ville.ui.tabview.TabView", {
       var bar = this.getChildControl("bar");
       var pane = this.getChildControl("pane");
 
+      // Set button's variant value to match tabview
+      button.setVariant(this.getVariant());
+      // Bind the button's variant value to the TabView's variant value
+      this.bind("variant", button, "variant");
+
       // Exclude page
       page.exclude();
 
@@ -283,6 +298,11 @@ qx.Class.define("ville.ui.tabview.TabView", {
       var button = page.getButton();
       var bar = this.getChildControl("bar");
       var pane = this.getChildControl("pane");
+
+      // Set button's variant value to match tabview
+      button.setVariant(this.getVariant());
+      // Bind the button's variant value to the TabView's variant value
+      this.bind("variant", button, "variant");
 
       // Exclude page
       page.exclude();
@@ -403,11 +423,9 @@ qx.Class.define("ville.ui.tabview.TabView", {
      */
     _applyBarPosition(value, old) {
       var bar = this.getChildControl("bar");
-      //var pane = this.getChildControl("pane");
 
       switch (value) {
         case "top":
-          //control.setCssUtilityClass("m_576c9d4 m_89d33d6d mantine-Tabs-list");
           this.setAttribute("data-orientation", "horizontal");
           this.removeAttribute("data-inverted");
           this.removeAttribute("data-placement");
@@ -461,7 +479,13 @@ qx.Class.define("ville.ui.tabview.TabView", {
     _applyVariant(value, old) {
       if (value) {
         this.setAttribute("data-variant", value);
-        this.getChildControl("bar").setAttribute("data-variant", value);
+        var bar = this.getChildControl("bar");
+        bar.setAttribute("data-variant", value);
+        if (old)
+          bar.removeClass(ville.ui.tabview.TabView.barVariantClasses[old]);
+
+        bar.addClass(ville.ui.tabview.TabView.barVariantClasses[value]);
+
       }
     },
 
