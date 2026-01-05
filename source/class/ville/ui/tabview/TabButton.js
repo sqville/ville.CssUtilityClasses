@@ -87,6 +87,13 @@ qx.Class.define("ville.ui.tabview.TabButton", {
       nullable: true,
       themeable: true,
       event: "changeTabSection"
+    },
+
+    barPosition: {
+      check: ["left", "right", "top", "bottom"],
+      init: "top",
+      apply: "_applyBarPosition",
+      event: "changeBarPosition"
     }
   },
 
@@ -183,9 +190,9 @@ qx.Class.define("ville.ui.tabview.TabButton", {
         var elem = this.getContentElement();
         elem.setAttribute("data-variant", value, true);
         if (old)
-          elem.removeClass(ville.ui.tabview.TabButton.btnVariantClasses[old]);
+          elem.removeClass(this.constructor.btnVariantClasses[old]);
 
-        elem.addClass(ville.ui.tabview.TabButton.btnVariantClasses[value]);
+        elem.addClass(this.constructor.btnVariantClasses[value]);
       }
     },
 
@@ -199,6 +206,43 @@ qx.Class.define("ville.ui.tabview.TabButton", {
           section.add(value);
           section.getContentElement().setAttribute("data-position", this.getIconPosition());
         }
+      }
+    },
+
+    _applyBarPosition(value, old) {
+
+      var elem = this.getContentElement();
+
+      switch (value) {
+        case "top":
+          elem.setAttribute("data-orientation", "horizontal");
+          elem.removeAttribute("data-inverted");
+          elem.removeAttribute("data-placement");
+          break;
+
+        case "bottom":
+          elem.setAttributes({
+            "data-orientation": "horizontal",
+            "data-inverted": "true"
+          });
+          elem.removeAttribute("data-placement");
+          break;
+
+        case "left":
+          elem.setAttributes({
+            "data-orientation": "vertical",
+            "data-placement": "left"
+          });
+          elem.removeAttribute("data-inverted");
+          break;
+
+        case "right":
+          elem.setAttributes({
+            "data-orientation": "vertical",
+            "data-placement": "right"
+          });
+          elem.removeAttribute("data-inverted");
+          break;
       }
     },
 

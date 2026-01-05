@@ -113,7 +113,8 @@ qx.Class.define("ville.ui.tabview.TabView", {
     barPosition: {
       check: ["left", "right", "top", "bottom"],
       init: "top",
-      apply: "_applyBarPosition"
+      apply: "_applyBarPosition",
+      event: "changeBarPosition"
     }
   },
 
@@ -247,8 +248,10 @@ qx.Class.define("ville.ui.tabview.TabView", {
 
       // Set button's variant value to match tabview
       button.setVariant(this.getVariant());
+      button.setBarPosition(this.getBarPosition());
       // Bind the button's variant value to the TabView's variant value
       this.bind("variant", button, "variant");
+      this.bind("barPosition", button, "barPosition");
 
       // Exclude page
       page.exclude();
@@ -301,8 +304,10 @@ qx.Class.define("ville.ui.tabview.TabView", {
 
       // Set button's variant value to match tabview
       button.setVariant(this.getVariant());
+      button.setBarPosition(this.getBarPosition());
       // Bind the button's variant value to the TabView's variant value
       this.bind("variant", button, "variant");
+      this.bind("barPosition", button, "barPosition");
 
       // Exclude page
       page.exclude();
@@ -482,9 +487,9 @@ qx.Class.define("ville.ui.tabview.TabView", {
         var bar = this.getChildControl("bar");
         bar.setAttribute("data-variant", value);
         if (old)
-          bar.removeClass(ville.ui.tabview.TabView.barVariantClasses[old]);
+          bar.removeClass(this.constructor.barVariantClasses[old]);
 
-        bar.addClass(ville.ui.tabview.TabView.barVariantClasses[value]);
+        bar.addClass(this.constructor.barVariantClasses[value]);
 
       }
     },
