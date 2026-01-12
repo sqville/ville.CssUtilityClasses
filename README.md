@@ -12,21 +12,35 @@ Demo applications to show how qooxdoo and CSS utility class frameworks can work 
 
 This project consists of three namespaces:
 
-* ville.cssuc (library) - Mixins for bypassing layout functionality.
+* ville.cssuc (library) - Mixins for bypassing qooxdoo layout functionality.
 * twindapp (application) - Qooxdoo application integrated with [Tailwindcss (version 3)](https://v3.tailwindcss.com/).
 * tablerapp (application) - Qooxdoo applicaion loosly integrated with [Tabler's](https://docs.tabler.io/ui/getting-started/installation) bootstrap implementation.
 
 ## Getting Started
 
-**Important Note:** This requires replacing or updating framework classes. It is advised to use a local installation of the qooxdoo framework.
+**Important Note:** This requires patching framework classes using qx.Class.patch().
 
-### Update locally installed framework classes
+### Patching framework classes
 
-Update the following classes in your project's nodes_modules @qooxdoo/framework copy. Instead of replacing you can update your local copy with just the changes. Search replacement files for the "ville.cssuc" environment variable.
+Add an environment variable named "ville.cssuc" to your project's compile.json file. This variable is only used during a build.
 
-* Replace/Update local framework's qx.ui.form.AbstractField.js file with replacements/AbstractField.js
-* Replace/Update local framework's local framework's qx.html.Label.js with replacements/Label.js
-* Replace/Update local framework's local framework's qx.ui.core.Widget.js with replacements/Widget.js
+```json
+"environment": {
+    "ville.cssuc": true
+},
+```
+
+Any standalone application wanting to use utility classes must include the block of code below:
+
+```javascript
+// Add this to the top of the application class
+if (qx.core.Environment.get("ville.cssuc")) {
+    qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+    qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+    qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
+    qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
+}
+```
 
 ### Install Tailwindcss V3
 
