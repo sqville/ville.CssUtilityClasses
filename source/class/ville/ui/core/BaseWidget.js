@@ -2,7 +2,7 @@
  * Base widget
  */
 qx.Class.define("ville.ui.core.BaseWidget", {
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
     include: ville.ui.core.MWidget,
 
@@ -14,7 +14,7 @@ qx.Class.define("ville.ui.core.BaseWidget", {
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
+        //this.setSelectable(null);
         this.setExcludeInlineStyles(["position"]);
     },
 

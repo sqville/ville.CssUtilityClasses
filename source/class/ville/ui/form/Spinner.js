@@ -27,9 +27,9 @@ qx.Class.define("ville.ui.form.Spinner", {
     this._setLayout(layout);
 
     this.setExcludeBoundsFromDom(true);
-    this.setExcludeInlineStyles(["position"]);
+    this.setClearAllInlineStyles(true);
     this.setCssUtilityClass("m_e2f5cd4e m_46b77525 mantine-InputWrapper-root mantine-NumberInput-root");
-    this.setSelectable(null);
+
     this.getContentElement().setAttribute('type', 'button');
 
     if (label) {

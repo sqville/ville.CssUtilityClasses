@@ -3,7 +3,7 @@
  * @external(mantine/core/styles/InlineInput.css)
  */
 qx.Class.define("ville.ui.core.InnerWrapper", {
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
@@ -15,8 +15,7 @@ qx.Class.define("ville.ui.core.InnerWrapper", {
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
-        this.setSelectable(null);
+        //this.setExcludeInlineStyles(["position"]);
     },
 
     members: {

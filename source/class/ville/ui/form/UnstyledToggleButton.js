@@ -13,9 +13,8 @@ qx.Class.define("ville.ui.form.UnstyledToggleButton", {
         this._setLayout(new qx.ui.layout.Basic());
 
         this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
         this.setCssUtilityClass("m_87cf2631 mantine-UnstyledButton-root");
-        this.setSelectable(null);
         this.getContentElement().setAttribute('type', 'button');
 
         if (label) {

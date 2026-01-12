@@ -13,8 +13,8 @@ qx.Class.define("ville.ui.form.Label", {
         }
 
         this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
+
     },
 
     properties: {

@@ -3,7 +3,7 @@
  * @external(mantine/core/styles/Divider.css)
  */
 qx.Class.define("ville.ui.core.Divider", {
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
     construct() {
         super();
@@ -16,8 +16,7 @@ qx.Class.define("ville.ui.core.Divider", {
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
+        //this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_3eebeb36 mantine-Divider-root");
 
         this.getContentElement().setAttribute('role', 'separator');

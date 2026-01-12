@@ -3,9 +3,9 @@
  * @external(mantine/core/styles/Text.css)
  */
 qx.Class.define("ville.ui.typography.Text", {
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    include: qx.ui.core.MChildrenHandling,
 
     construct(text, component) {
         if (component) {
@@ -14,9 +14,6 @@ qx.Class.define("ville.ui.typography.Text", {
         
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_b6d8b162 mantine-Text-root");
         
         if (text) {

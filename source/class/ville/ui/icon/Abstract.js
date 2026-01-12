@@ -1,8 +1,6 @@
 qx.Class.define("ville.ui.icon.Abstract", {
     
-    extend: qx.ui.core.Widget,
-
-    include: ville.ui.core.MWidget,
+    extend: ville.ui.core.Widget,
 
     type: "abstract",
 
@@ -10,11 +8,6 @@ qx.Class.define("ville.ui.icon.Abstract", {
 
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
-
-        this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]); 
-        this.setSelectable(null);
     },
 
     properties: {

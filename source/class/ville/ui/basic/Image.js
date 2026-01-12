@@ -4,7 +4,7 @@
  */
 qx.Class.define("ville.ui.basic.Image", {
     
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
     include: ville.ui.core.MWidget,
 
@@ -18,9 +18,8 @@ qx.Class.define("ville.ui.basic.Image", {
         //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setCssUtilityClass("m_9e117634 mantine-Image-root");
-        this.setExcludeInlineStyles(["position"]);
+        //this.setExcludeInlineStyles(["position"]);
         this.setClearAllInlineStyles(true);
-        this.setSelectable(null);
     },
 
     members: {

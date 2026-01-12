@@ -11,11 +11,7 @@
 /**
  * This is the main application class of "villeui"
  *
- * @external(mantine/core/styles/baseline.css)
- * @external(mantine/core/styles/default-css-variables.css)
- * @external(mantine/core/styles/global.css)
  * @external(mantine/core/styles/AppShell.css)
- * @external(villeui/css/villeui-styles.css)
  * @asset(villeui/css/villeui-priority.css)
  * @asset(villeui/images/villeui_logo.png)
  * @asset(villeui/images/villeui_logo.svg)
@@ -23,7 +19,7 @@
  */
 qx.Class.define("villeui.Application",
 {
-  extend : qx.application.Standalone,
+  extend : ville.ui.application.Standalone,
 
   /*
   *****************************************************************************
@@ -58,11 +54,6 @@ qx.Class.define("villeui.Application",
         Below is your actual application code...
       -------------------------------------------------------------------------
       */
-
-      if (qx.core.Environment.get("ville.cssuc")) {
-        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
-      }
 
       // Document is the application root and AppShell root
       const appShell = this.getRoot();
@@ -110,14 +101,6 @@ qx.Class.define("villeui.Application",
         "--group-wrap": "wrap",
         "margin-left": "calc(3.125rem * var(--mantine-scale))"
       });
-      
-      // Burger
-      /*var headerBurger = new ville.ui.core.Burger();
-      headerBurger.addClass("mantine-hidden-from-sm");
-      headerBurger.setStyles({
-        "--burger-size": "var(--burger-size-sm)",
-        "--burger-line-size": "calc(0.125rem * var(--mantine-scale))"
-      });*/
 
       // Logo
       var villeuiLogo = new ville.ui.basic.Image();
@@ -424,7 +407,7 @@ qx.Class.define("villeui.Application",
       var mainWidgetBrowserDesc1 = new ville.ui.typography.Text("Yup, that widget browser. Some familiar with the new. The best way to get aquainted with your new ");
       mainWidgetBrowserDesc1.setCssUtilityClass("mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY");
       mainWidgetBrowser.add(mainWidgetBrowserDesc1);
-      var mainWidgetBrowserDesc2 = new ville.ui.basic.Label("Native CSS super powers. &#128170;");
+      var mainWidgetBrowserDesc2 = new ville.ui.basic.Label("modern CSS super powers. &#128170;");
       mainWidgetBrowserDesc2.setAttribute("data-inherit", "true");
       mainWidgetBrowserDesc2.setStyles({
         "color": "var(--mantine-color-bright)",
@@ -434,7 +417,9 @@ qx.Class.define("villeui.Application",
 
       // Widget Browser buttons
       var mainWidgetBrowserButtons = new ville.ui.core.Box();
+      //var mainWidgetBrowserButtons = new ville.ui.layout.SimpleGrid();
       mainWidgetBrowserButtons.setCssUtilityClass("HomePageTabs_controls___TiQU");
+      //mainWidgetBrowserButtons.addClass("__m__-r10g");
       mainWidgetBrowser.add(mainWidgetBrowserButtons);
 
       // Widget Browser buttons - Form
@@ -447,6 +432,42 @@ qx.Class.define("villeui.Application",
       btnForm.add(btnFormText);
       btnForm.setUserData("stackpageindex", 0);
 
+      // Widget Browser buttons - Tree
+      var btnTree = new ville.ui.form.UnstyledToggleButton();
+      btnTree.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
+      var btnTreeText = new ville.ui.basic.Element("span");
+      btnTreeText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
+      btnTreeText.setAttribute("html", "Tree");
+      btnTree.add(btnTreeText);
+      btnTree.setUserData("stackpageindex", 1);
+
+      // Widget Browser buttons - Table
+      var btnTable = new ville.ui.form.UnstyledToggleButton();
+      btnTable.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
+      var btnTableText = new ville.ui.basic.Element("span");
+      btnTableText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
+      btnTableText.setAttribute("html", "Table");
+      btnTable.add(btnTableText);
+      btnTable.setUserData("stackpageindex", 2);
+
+      // Widget Browser buttons - Menu
+      var btnMenu = new ville.ui.form.UnstyledToggleButton();
+      btnMenu.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
+      var btnMenuText = new ville.ui.basic.Element("span");
+      btnMenuText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
+      btnMenuText.setAttribute("html", "Menu");
+      btnMenu.add(btnMenuText);
+      btnMenu.setUserData("stackpageindex", 3);
+
+      // Widget Browser buttons - Window
+      var btnWindow = new ville.ui.form.UnstyledToggleButton();
+      btnWindow.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
+      var btnWindowText = new ville.ui.basic.Element("span");
+      btnWindowText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
+      btnWindowText.setAttribute("html", "Window", true);
+      btnWindow.add(btnWindowText);
+      btnWindow.setUserData("stackpageindex", 4);
+
       // Widget Browser buttons - Tab
       var btnTab = new ville.ui.form.UnstyledToggleButton();
       btnTab.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
@@ -454,16 +475,9 @@ qx.Class.define("villeui.Application",
       btnTabText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
       btnTabText.setAttribute("html", "Tab");
       btnTab.add(btnTabText);
-      btnTab.setUserData("stackpageindex", 1);
+      btnTab.setUserData("stackpageindex", 5);
 
-      // Widget Browser buttons - Basic
-      var btnBasic = new ville.ui.form.UnstyledToggleButton();
-      btnBasic.addClass("mantine-focus-auto HomePageTabs_control__Oee_u");
-      var btnBasicText = new ville.ui.basic.Element("span");
-      btnBasicText.setCssUtilityClass("HomePageTabs_controlLabel__cdlU8");
-      btnBasicText.setAttribute("html", "Window", true);
-      btnBasic.add(btnBasicText);
-      btnBasic.setUserData("stackpageindex", 2);
+      
 
       // Widget Browser buttons - FloatingIndicator
       var wbButtonIndicator = new ville.ui.overlay.FloatingIndicator();
@@ -478,20 +492,25 @@ qx.Class.define("villeui.Application",
       }, true);
 
       mainWidgetBrowserButtons.add(btnForm);
+      mainWidgetBrowserButtons.add(btnTree);
+      mainWidgetBrowserButtons.add(btnTable);
+      mainWidgetBrowserButtons.add(btnMenu);
+      mainWidgetBrowserButtons.add(btnWindow);
       mainWidgetBrowserButtons.add(btnTab);
-      mainWidgetBrowserButtons.add(btnBasic);
       mainWidgetBrowserButtons.add(wbButtonIndicator);
 
       var wbRadioGroup = new qx.ui.form.RadioGroup(
         btnForm,
-        btnTab,
-        btnBasic
+        btnTree,
+        btnTable,
+        btnMenu,
+        btnWindow,
+        btnTab
       );
 
       // Widget Browser stack
       var mainWidgetBrowserStack = new ville.ui.layout.Stack();
       mainWidgetBrowserStack.setCssUtilityClass("HomePageTabs_content__t1yFb");
-      //mainWidgetBrowserStack.setDynamic(true);
       mainWidgetBrowserStack.setStyles({
         "margin-bottom": "50px"
       });
@@ -501,8 +520,10 @@ qx.Class.define("villeui.Application",
         e.getOldData()[0].getContentElement().removeAttribute("data-active");
         e.getData()[0].getContentElement().setAttribute("data-active", "true");
         var movetobounds = e.getData()[0].getContentElement().getDimensions();
+        var parentbounds = e.getData()[0].getContentElement().getParent().getDimensions();
+        var newtop = movetobounds.top - parentbounds.top;
         wbButtonIndicator.getContentElement().setStyles({
-          transform: `translateY(0px) translateX(${(movetobounds.left - 16)}px)`,
+          transform: `translateY(${newtop}px) translateX(${(movetobounds.left - 16)}px)`,
           width: `${movetobounds.width}px`,
           height: `${movetobounds.height}px`
         }, true);
@@ -635,31 +656,37 @@ qx.Class.define("villeui.Application",
       });
       vstackBooleanWidgets.add(rdoButton2);
 
-      // Tab widgets tab page
-      var stackTabpage = new ville.ui.layout.SimpleGrid();
-      stackTabpage.addClass("__m__-r10g");
-      mainWidgetBrowserStack.add(stackTabpage);
+      // Tree widget page
+      var stackTreepage = new ville.ui.layout.SimpleGrid();
+      stackTreepage.addClass("__m__-r10g");
+      mainWidgetBrowserStack.add(stackTreepage);
 
-      // Normal tab
-      var tvDefault = this._getTabView("top", "default");
-      /*tvDefault.setStyles({
-        "--tabs-radius": "var(--mantine-radius-sm)",
-        "--tabs-color": "var(--villeui-color-filled)"
-      });*/
-      stackTabpage.add(tvDefault);
+      var IconCamper = new ville.ui.basic.Element("span");
+      IconCamper.setCssUtilityClass("tabler--camper");
+      IconCamper.setStyles({
+        "width": "60px",
+        "height": "60px"
+      });
+      stackTreepage.add(IconCamper);
 
-      var tvOutline = this._getTabView("top", "outline");
-      stackTabpage.add(tvOutline);
-      var tvPills = this._getTabView("top", "pills");
-      stackTabpage.add(tvPills);
+      // Table widget page
+      var stackTablepage = new ville.ui.layout.SimpleGrid();
+      stackTablepage.addClass("__m__-r10g");
+      mainWidgetBrowserStack.add(stackTablepage);
 
-      var tvLeftDefault = this._getTabView("left", "default");
-      stackTabpage.add(tvLeftDefault);
+      // Menu widgets page
+      var stackMenupage = new ville.ui.layout.SimpleGrid();
+      stackMenupage.addClass("__m__-r10g");
+      mainWidgetBrowserStack.add(stackMenupage);
 
-      var tvRightOutline = this._getTabView("right", "outline");
-      stackTabpage.add(tvRightOutline);
-      var tvBottomPills = this._getTabView("bottom", "pills");
-      stackTabpage.add(tvBottomPills);
+      // Burger
+      var headerBurger = new ville.ui.core.Burger();
+      //headerBurger.addClass("mantine-hidden-from-sm");
+      headerBurger.setStyles({
+        "--burger-size": "var(--burger-size-sm)",
+        "--burger-line-size": "calc(0.125rem * var(--mantine-scale))"
+      });
+      stackMenupage.add(headerBurger);
 
       // Window widgets tab page
       var stackWindowpage = new ville.ui.layout.SimpleGrid();
@@ -683,13 +710,31 @@ qx.Class.define("villeui.Application",
       sponsorYou.add(sponsorYouDesc);
       stackWindowpage.add(sponsorYou);
 
-      var IconCamper = new ville.ui.basic.Element("span");
-      IconCamper.setCssUtilityClass("tabler--camper");
-      IconCamper.setStyles({
-        "width": "60px",
-        "height": "60px"
-      });
-      stackWindowpage.add(IconCamper);
+      // Tab widgets tab page
+      var stackTabpage = new ville.ui.layout.SimpleGrid();
+      stackTabpage.addClass("__m__-r10g");
+      mainWidgetBrowserStack.add(stackTabpage);
+
+      // Normal tab
+      var tvDefault = this._getTabView("top", "default");
+      stackTabpage.add(tvDefault);
+
+      // Top Outline tab
+      var tvOutline = this._getTabView("top", "outline");
+      stackTabpage.add(tvOutline);
+
+      // Top Pills tab
+      var tvPills = this._getTabView("top", "pills");
+      stackTabpage.add(tvPills);
+
+      var tvLeftPills = this._getTabView("left", "pills");
+      stackTabpage.add(tvLeftPills);
+
+      var tvRightOutline = this._getTabView("right", "outline");
+      stackTabpage.add(tvRightOutline);
+
+      var tvBottomOutline = this._getTabView("bottom", "outline");
+      stackTabpage.add(tvBottomOutline);
       /* ::: End of Widget Browser ::: */
 
       /* MAIN SECTIION ::: Native CSS Powers ::: */

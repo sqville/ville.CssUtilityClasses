@@ -16,8 +16,7 @@ qx.Class.define("ville.ui.layout.Stack", {
 
         //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
         //this.setCssUtilityClass("m_7485cace mantine-Container-root");
 
     },

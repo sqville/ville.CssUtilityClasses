@@ -19,9 +19,9 @@
  */
 qx.Class.define("ville.ui.tabview.TabView", {
   
-  extend: qx.ui.core.Widget,
+  extend: ville.ui.core.Widget,
   implement: qx.ui.core.ISingleSelection,
-  include: [qx.ui.core.MContentPadding, ville.ui.core.MWidget],
+  include: qx.ui.core.MContentPadding,
 
   /*
   *****************************************************************************
@@ -36,14 +36,15 @@ qx.Class.define("ville.ui.tabview.TabView", {
 
     super();
     
-    this._setLayout(new qx.ui.layout.Basic());
-    this.setExcludeBoundsFromDom(true);
     this.setCssUtilityClass("m_89d60db1 mantine-Tabs-root");
-    this.setSelectable(null);
-    this.setExcludeInlineStyles(["position"]);
 
-    this._createChildControl("bar");
-    this._createChildControl("pane");
+    if (barPosition == "bottom") {
+      this._createChildControl("pane");
+      this._createChildControl("bar");
+    } else {
+      this._createChildControl("bar");
+      this._createChildControl("pane");
+    }
 
     // Create manager
     var mgr = (this.__radioGroup = this._createRadioGroupInstance());
@@ -437,6 +438,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
           bar.setAttribute("data-orientation", "horizontal");
           bar.removeAttribute("data-inverted");
           bar.removeAttribute("data-placement");
+
           break;
 
         case "bottom":
@@ -450,6 +452,7 @@ qx.Class.define("ville.ui.tabview.TabView", {
             "data-inverted": "true"
           });
           bar.removeAttribute("data-placement");
+
           break;
 
         case "left":

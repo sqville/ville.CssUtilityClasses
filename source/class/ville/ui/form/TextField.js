@@ -11,7 +11,7 @@ qx.Class.define("ville.ui.form.TextField", {
         super();
 
         this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
         this.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
         this.setCssUtilityClass("m_8fb7ebe7 mantine-Input-input mantine-TextInput-input");
     }

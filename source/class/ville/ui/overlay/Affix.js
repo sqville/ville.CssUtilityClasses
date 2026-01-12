@@ -4,9 +4,9 @@
  */
 qx.Class.define("ville.ui.overlay.Affix", {
     
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    include: qx.ui.core.MChildrenHandling,
 
     construct(component) {
         
@@ -15,10 +15,6 @@ qx.Class.define("ville.ui.overlay.Affix", {
         }
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
-        this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_7f854edf mantine-Affix-root");
 
     },

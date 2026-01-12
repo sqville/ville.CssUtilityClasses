@@ -11,7 +11,7 @@ qx.Class.define("ville.ui.form.PasswordField", {
         super();
 
         this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
         this.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
         this.setCssUtilityClass("m_f2d85dd2 mantine-PasswordInput-innerInput");
     }

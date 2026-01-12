@@ -15,9 +15,8 @@ qx.Class.define("ville.ui.form.RadioButton", {
 
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
         this.setCssUtilityClass("m_f3f1af94 mantine-Radio-root m_5f75b09e mantine-Radio-root");
-        this.setSelectable(null);
 
         this._createChildControl("input");
         if (alticon) {

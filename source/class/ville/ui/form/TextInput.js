@@ -6,16 +6,11 @@
  * @external(mantine/core/styles/Input.css)
  */
 qx.Class.define("ville.ui.form.TextInput", {
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
     construct(variant, size, radius, sectionleft, sectionright) {
         super(); 
 
-        this._setLayout(new qx.ui.layout.Basic());
-
-        this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
-        this.setRemoveCssClasses(["qx-abstract-field", "qx-placeholder-color"]);
         this.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
 
         // CREATE CONTROLS

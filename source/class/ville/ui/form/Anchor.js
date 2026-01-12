@@ -18,7 +18,7 @@ qx.Class.define("ville.ui.form.Anchor", {
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root");
-        this.setSelectable(null);
+        //this.setSelectable(null);
         
         if (component)
             if (component = "button")

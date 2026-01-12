@@ -358,8 +358,8 @@
 /* Home Page Tabs */
 
 .HomePageTabs_controls___TiQU {
-    display: flex;
-    gap: calc(.1875rem * var(--mantine-scale));
+    display: flow;
+    /*gap: calc(.1875rem * var(--mantine-scale));*/
     position: relative
 }
 

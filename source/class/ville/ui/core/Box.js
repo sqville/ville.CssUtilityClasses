@@ -4,21 +4,15 @@
  */
 qx.Class.define("ville.ui.core.Box", {
     
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    include: qx.ui.core.MChildrenHandling,
 
     construct(component) {
         if (component) {
             this.__componenttag = component;
         }
         super();
-
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
-        this.setClearAllInlineStyles(true);
-        this.setSelectable(null);
     },
 
     members: {

@@ -30,9 +30,9 @@ qx.Class.define("ville.ui.tabview.TabButton", {
     this._setLayout(layout);
 
     this.setExcludeBoundsFromDom(true);
-    this.setExcludeInlineStyles(["position"]);
+    this.setClearAllInlineStyles(true);
     this.setCssUtilityClass("mantine-focus-auto m_4ec4dce6 mantine-Tabs-tab m_87cf2631 mantine-UnstyledButton-root");
-    this.setSelectable(null);
+
     this.getContentElement().setAttribute('type', 'button');
 
     if (label) {

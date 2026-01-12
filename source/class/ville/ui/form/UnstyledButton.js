@@ -18,9 +18,9 @@ qx.Class.define("ville.ui.form.UnstyledButton", {
         this._setLayout(new qx.ui.layout.Basic());
 
         this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
+        this.setClearAllInlineStyles(true);
         this.setCssUtilityClass("m_87cf2631 mantine-UnstyledButton-root");
-        this.setSelectable(null);
+
         if (this.__componenttag !== "button")
             this.getContentElement().removeAttribute('type');
 

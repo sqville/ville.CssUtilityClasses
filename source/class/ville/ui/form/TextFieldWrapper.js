@@ -7,19 +7,12 @@
  * @external(mantine/core/styles/Input.css)
  */
 qx.Class.define("ville.ui.form.TextFieldWrapper", {
-    extend: qx.ui.core.Widget,
-
-    include: ville.ui.core.MWidget,
+    extend: ville.ui.core.Widget,
 
     construct(textfield, variant, sectionleft, sectionright) {
         super(); 
 
-        this._setLayout(new qx.ui.layout.Basic());
-
-        this.setExcludeBoundsFromDom(true);
-        this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-TextInput-root");
-        this.setSelectable(null);
 
         if (textfield) {
             this.setTextField(textfield);

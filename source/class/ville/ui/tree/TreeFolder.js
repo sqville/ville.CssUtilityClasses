@@ -13,7 +13,7 @@ qx.Class.define("ville.ui.tree.TreeFolder", {
         this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setCssUtilityClass("m_f6970eb1 mantine-Tree-node");
-        this.setSelectable(null);
+        //this.setSelectable(null);
         this.setExcludeInlineStyles(["position"]);
 
         this.setAttribute("role", "treeitem");
