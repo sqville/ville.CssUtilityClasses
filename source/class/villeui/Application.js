@@ -16,6 +16,8 @@
  * @asset(villeui/images/villeui_logo.png)
  * @asset(villeui/images/villeui_logo.svg)
  * @asset(villeui/images/ville_logo.png)
+ * @require(ville.cssuc.patch.MAbstractField)
+ * 
  */
 qx.Class.define("villeui.Application",
 {
@@ -54,6 +56,10 @@ qx.Class.define("villeui.Application",
         Below is your actual application code...
       -------------------------------------------------------------------------
       */
+
+      if (qx.core.Environment.get("ville.cssuc")) {
+        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
+      }
 
       // Document is the application root and AppShell root
       const appShell = this.getRoot();

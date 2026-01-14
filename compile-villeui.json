@@ -13,7 +13,8 @@
   "defaultTarget": "source",
   "locales": ["en"],
   "environment": {
-      "ville.cssuc": true
+      "ville.cssuc": true,
+      "qx.dyntheme": false
   },
   "babel" : {
     "options" : {

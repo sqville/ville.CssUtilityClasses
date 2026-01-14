@@ -35,7 +35,7 @@ Any standalone application wanting to use utility classes must include the block
 ```javascript
 // Add this to the top of the application class
 if (qx.core.Environment.get("ville.cssuc")) {
-    qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+    qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
     qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
     qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
     qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);

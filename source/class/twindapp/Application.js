@@ -56,11 +56,10 @@ qx.Class.define("twindapp.Application",
       
 
       if (qx.core.Environment.get("ville.cssuc")) {
-        //qx.Class.patch(qx.html.Label, twindapp.MLabel);
-        //qx.Class.patch(qx.ui.core.Widget, twindapp.MWidget);
-        //qx.Class.patch(qx.ui.form.AbstractField, twindapp.MAbstractField);
-        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+        qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
+        qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+        qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
+        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
 
         // clear out all styling of html and body tags
         document.documentElement.style = "";
@@ -72,7 +71,7 @@ qx.Class.define("twindapp.Application",
       // CssUtilityClasses
       doc.setCssUtilityClass("md:flex md:flex-col");
       doc.setExcludeBoundsFromDom(true);
-      doc.setExcludeInlineStyles(["position"]);
+      doc.setClearAllInlineStyles(true);
       doc.getContentElement().enableScrolling();
 
       // Header
