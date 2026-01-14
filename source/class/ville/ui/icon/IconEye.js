@@ -24,9 +24,6 @@ qx.Class.define("ville.ui.icon.IconEye", {
         
         super();
 
-        /*if (size) {
-            this.setSize(size);
-        }*/
     },
 
     members: {

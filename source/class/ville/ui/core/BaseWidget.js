@@ -4,18 +4,11 @@
 qx.Class.define("ville.ui.core.BaseWidget", {
     extend: ville.ui.core.Widget,
 
-    include: ville.ui.core.MWidget,
-
     construct(component) {
         if (component) {
             this.__componentmap = component;
         }
         super();
-
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
-        //this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
     },
 
     members: {
