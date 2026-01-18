@@ -7,7 +7,6 @@ qx.Class.define("ville.ui.core.Widget", {
     construct() {
         super();
 
-        //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
     },

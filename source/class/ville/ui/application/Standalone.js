@@ -23,18 +23,23 @@ qx.Class.define("ville.ui.application.Standalone", {
   members: {
 
     main () {
-        // Call super class
-        super.main();
-
+        
+        // Patch core classes
         qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
         qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
         qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
+
+        // Call super class
+        super.main();
 
     },
 
     // overridden
     _createRootWidget() {
-      return new ville.ui.root.Application(document);
+      var rootwidget = new ville.ui.root.Application(document);
+      rootwidget.setExcludeBoundsFromDom(true);
+      rootwidget.setClearAllInlineStyles(true);
+      return rootwidget;
     }
   }
 });

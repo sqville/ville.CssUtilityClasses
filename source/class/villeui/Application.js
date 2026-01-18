@@ -64,8 +64,8 @@ qx.Class.define("villeui.Application",
       // Document is the application root and AppShell root
       const appShell = this.getRoot();
       appShell.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
-      appShell.setExcludeBoundsFromDom(true);
-      appShell.setClearAllInlineStyles(true);
+      //appShell.setExcludeBoundsFromDom(true);
+      //appShell.setClearAllInlineStyles(true);
 
       /* ::: Header ::: */
       var headerBox = new ville.ui.core.Box("header");
