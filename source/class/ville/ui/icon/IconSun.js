@@ -1,23 +1,35 @@
+/**
+ * body variable contains path svg from Iconify Icon Sets
+ * 
+ * Iconify:
+ * https://icon-sets.iconify.design/
+ * 
+ * Iconify's Tabler icons:
+ * https://github.com/iconify/icon-sets/blob/master/json/tabler.json
+ * 
+ * Tabler icon in json - "sun"
+ */
 qx.Class.define("ville.ui.icon.IconSun", {
     extend: ville.ui.icon.Abstract,
 
     construct() {
 
-        this.__fulliconmarkup = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="" class="tabler-icon tabler-icon-sun">
-        <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path>
-        <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
+        // Taken from Iconify icon-set tabler.json sun.body value
+		var body = "<path fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M8 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0m-5 0h1m8-9v1m8 8h1m-9 8v1M5.6 5.6l.7.7m12.1-.7l-.7.7m0 11.4l.7.7m-12.1-.7l-.7.7\"/>"
+
+        this.__fulliconmarkup = `<svg 
+            viewBox="${this.getViewBox()}" 
+            xmlns="${this.getXmlns()}" 
+            fill="${this.getFill()}" 
+            stroke-width="${this.getStrokeWidth()}" 
+            stroke="${this.getStroke()}" 
+            stroke-linecap="${this.getStrokeLinecap()}" 
+            stroke-linejoin="${this.getStrokeLinejoin()}">
+                ${body}
         </svg>`;
         
         super();
 
-        /*this.addListenerOnce("appear", (e) => {
-            const fulliconmarkupParser = new DOMParser();
-            const doc = fulliconmarkupParser.parseFromString(this.__fulliconmarkup, "image/svg+xml");
-            const svgNode = doc.documentElement;
-            e.getTarget().getContentElement().getDomElement().appendChild(svgNode);
-            //thiselem.add(svgNode);
-            this.__fulliconmarkup = null; 
-        });*/
     },
 
     members: {
