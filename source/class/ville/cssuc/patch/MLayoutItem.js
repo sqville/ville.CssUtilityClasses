@@ -2,6 +2,12 @@ qx.Mixin.define("ville.cssuc.patch.MLayoutItem",
 {      
   properties :
   {
+    bypassRenderLayout: {
+      check: "Boolean",
+      init: false,
+      themeable: true
+    },
+    
     excludeBoundsFromDom: {
       check: "Boolean",
       init: false,
@@ -19,10 +25,9 @@ qx.Mixin.define("ville.cssuc.patch.MLayoutItem",
   members :
   {
     renderLayout(left, top, width, height) {
-      if (qx.core.Environment.get("ville.cssuc")) {
-        if (this.getExcludeBoundsFromDom())
-          return null;
-      }
+
+      if (this.getBypassRenderLayout())
+        return null;
       
       // do not render if the layout item is already disposed
       if (this.isDisposed()) {

@@ -5,18 +5,13 @@ qx.Mixin.define("ville.cssuc.patch.MAbstractField", {
     // overridden
     renderLayout(left, top, width, height) {
 
-      if (qx.core.Environment.get("ville.cssuc")) {
-        var updateInsets = this._updateInsets;
-        if (qx.core.Environment.get("qx.debug"))
-            this.assert(qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom"), "Missing ExcludeBoundsFromDom property.");
-        if (!this.getExcludeBoundsFromDom())
-          var changes = super.renderLayout(left, top, width, height);
-        else
-          var changes = undefined;
-      } else {
-        var updateInsets = this._updateInsets;
+      var updateInsets = this._updateInsets;
+      if (qx.core.Environment.get("qx.debug"))
+          this.assert(qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom"), "Missing ExcludeBoundsFromDom property.");
+      if (!this.getExcludeBoundsFromDom())
         var changes = super.renderLayout(left, top, width, height);
-      }
+      else
+        var changes = undefined;
 
       // Directly return if superclass has detected that no
       // changes needs to be applied

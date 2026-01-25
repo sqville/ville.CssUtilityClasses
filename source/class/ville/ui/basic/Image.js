@@ -15,11 +15,8 @@ qx.Class.define("ville.ui.basic.Image", {
 
         super();
 
-        //this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
         this.setCssUtilityClass("m_9e117634 mantine-Image-root");
-        //this.setExcludeInlineStyles(["position"]);
-        this.setClearAllInlineStyles(true);
+
     },
 
     members: {

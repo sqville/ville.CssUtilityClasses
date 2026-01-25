@@ -4,7 +4,9 @@
  */
 qx.Class.define("ville.ui.layout.HGroup", {
     
-    extend: ville.ui.layout.Container,
+    extend: ville.ui.core.Widget,
+
+    include: qx.ui.core.MChildrenHandling,
 
     construct() {
 
@@ -40,9 +42,9 @@ qx.Class.define("ville.ui.layout.HGroup", {
 
         _applyGap(value, old) {
             if (value) {
-                this.getContentElement().setStyle("--group-gap", `var(--mantine-spacing-${value})`);
+                this.setStyle("--group-gap", `var(--mantine-spacing-${value})`);
             } else if (old && value == null) {
-                this.getContentElement().removeStyle("--group-gap");
+                this.removeStyle("--group-gap");
             }
         },
         

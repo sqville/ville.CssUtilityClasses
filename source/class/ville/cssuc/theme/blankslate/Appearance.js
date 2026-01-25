@@ -305,6 +305,9 @@ qx.Theme.define("ville.cssuc.theme.blankslate.Appearance", {
 
     textarea: "textfield",
 
+    "textfield/scrollbar-y/button-begin": "scrollbar/button",
+    "textfield/scrollbar-y/button-end": "scrollbar/button",
+
     /*
     ---------------------------------------------------------------------------
       RADIO BUTTON
@@ -357,6 +360,8 @@ qx.Theme.define("ville.cssuc.theme.blankslate.Appearance", {
     "selectbox/list": "list",
 
     "selectbox/arrow": "button-frame",
+
+    "selectbox-arrow-button": {},
 
     /*
     ---------------------------------------------------------------------------

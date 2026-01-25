@@ -41,22 +41,24 @@ qx.Class.define("twindapp.views.Header", {
     orglabel.setExcludeBoundsFromDom(true);
     orglabel.setClearAllInlineStyles(true);
 
-    // Logged in users Full name
-    var menuButton = new qx.ui.form.MenuButton("John Doe").set({ appearance : "ping-exp-menubutton" });
-    menuButton.setExcludeBoundsFromDom(true); //ExcludeBoundsFromDom 
-    menuButton.setExcludeBoundsFromDomMods(["left", "top"]); //ExcludeBoundsFromDomMods
-    menuButton.setCssUtilityClass("mt-1");
-    menuButton.getContentElement().setStyle("position", "relative", true);
-
     // Menu and MenuButton
-    var menu = new qx.ui.menu.Menu;
+    var menu = new qx.ui.menu.Menu();
     var myprofilebtn = new qx.ui.menu.Button("My Profile");
     var mngusersbtn = new qx.ui.menu.Button("Manage Users");
     var logoutbtn = new qx.ui.menu.Button("Logout");
     menu.add(myprofilebtn);
     menu.add(mngusersbtn);
     menu.add(logoutbtn);
-    menuButton.setMenu(menu);
+
+    // Logged in users Full name
+    var menuButton = new qx.ui.form.MenuButton("John Doe", null, menu);//.set({ appearance : "ping-exp-menubutton" });
+    menuButton.setExcludeBoundsFromDom(true); //ExcludeBoundsFromDom 
+    menuButton.setExcludeBoundsFromDomMods(["left", "top"]); //ExcludeBoundsFromDomMods
+    menuButton.setCssUtilityClass("mt-1");
+    menuButton.getContentElement().setStyle("position", "relative", true);
+
+    
+    //menuButton.setMenu(menu);
 
     logoutbtn.addListener("execute", () => {
       localStorage.userloggedin = false;

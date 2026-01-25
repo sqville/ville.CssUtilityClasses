@@ -13,6 +13,7 @@ qx.Class.define("ville.ui.layout.Container", {
         if (component) {
             this.__componenttag = component;
         }
+        
         super();
 
         this.setCssUtilityClass("m_7485cace mantine-Container-root");

@@ -5,8 +5,8 @@
  * @external(mantine/core/styles/default-css-variables.css)
  * @external(mantine/core/styles/global.css)
  * @require(ville.ui.root.Application)
- * @require(ville.cssuc.patch.MLayoutItem)
- * @require(ville.cssuc.patch.MWidget)
+ * @require(ville.cssuc.MControl)
+ * @require(ville.cssuc.MCssUtilityClass)
  * @require(ville.cssuc.patch.MLabel)
  * 
  */
@@ -25,8 +25,10 @@ qx.Class.define("ville.ui.application.Standalone", {
     main () {
         
         // Patch core classes
-        qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
-        qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+        //qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
+        //qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
         qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
 
         // Call super class

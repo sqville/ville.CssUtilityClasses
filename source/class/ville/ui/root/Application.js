@@ -40,11 +40,11 @@ qx.Class.define("ville.ui.root.Application", {
       this
     );
 
-    // Use a hard-coded basic layout
-    this._setLayout(new qx.ui.layout.Basic());
+    // Use a hard-coded canvas layout
+    this._setLayout(new qx.ui.layout.Canvas());
 
     // Directly schedule layout for root element
-    //qx.ui.core.queue.Layout.add(this);
+    qx.ui.core.queue.Layout.add(this);
 
     // Register as root
     qx.ui.core.FocusHandler.getInstance().connectTo(this);

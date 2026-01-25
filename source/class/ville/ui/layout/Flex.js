@@ -4,7 +4,9 @@
  */
 qx.Class.define("ville.ui.layout.Flex", {
     
-    extend: ville.ui.layout.Container,
+    extend: ville.ui.core.Widget,
+
+    include: qx.ui.core.MChildrenHandling,
 
     construct() {
 

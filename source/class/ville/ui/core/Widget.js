@@ -7,6 +7,8 @@ qx.Class.define("ville.ui.core.Widget", {
     construct() {
         super();
 
+        this._setLayout(new qx.ui.layout.Basic());
+
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
     },
@@ -14,9 +16,9 @@ qx.Class.define("ville.ui.core.Widget", {
     members: {
 
         // overridden
-        renderLayout(left, top, width, height) {
-            return null;
-        },
+        //renderLayout(left, top, width, height) {
+          //  return null;
+        //},
 
         // overridden
          _createContentElement() {

@@ -58,12 +58,24 @@ qx.Class.define("villeui.Application",
       */
 
       if (qx.core.Environment.get("ville.cssuc")) {
+
+        // clear out all styling of html and body tags
+        //document.documentElement.style = "";
+        //document.body.style = "";
+        //qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
+        //qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+       // qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+       // qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
+       // qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
         qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
       }
 
       // Document is the application root and AppShell root
       const appShell = this.getRoot();
+      //appShell.setExcludeBoundsFromDom(true);
+      //appShell.setClearAllInlineStyles(true);
       appShell.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
+      //console.log(appShell.getExcludeBoundsFromDom());
 
       /* ::: Header ::: */
       var headerBox = new ville.ui.core.Box("header");
@@ -581,6 +593,25 @@ qx.Class.define("villeui.Application",
       txtPasswordFieldWrapper.setLabel(lblPasswordField);
       vstackTextWidgets.add(txtPasswordFieldWrapper);
 
+      // ComboBox
+      var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
+      lblComboBox.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+      vstackTextWidgets.add(lblComboBox);
+      var comboBox = new ville.ui.form.ComboBox();
+      for (var i = 1; i < 31; i++) {
+        var tempItem = new qx.ui.form.ListItem(
+          "2^ " + i + " = " + Math.pow(2, i)
+        );
+        comboBox.add(tempItem);
+      }
+      var cmbobtn = comboBox.getChildControl("button");
+      //cmbobtn.setExcludeBoundsFromDom(true);
+      //cmbobtn.setClearAllInlineStyles(true);
+      cmbobtn.setWidth(16);
+      cmbobtn.setBackgroundColor("#30a133");
+      //var cmbobtnelem = cmbobtn.getContentElement();
+      vstackTextWidgets.add(comboBox);
+
       // Button widget vstack
       var vstackButtonWidgets = new ville.ui.layout.VStack();
       stackFrompage.add(vstackButtonWidgets);
@@ -639,6 +670,21 @@ qx.Class.define("villeui.Application",
       });
       vstackButtonWidgets.add(btnBasicButtonOutline);
 
+      // Menu Button
+      var btnMenu = new qx.ui.menu.Menu();
+      var menuitem01 = new qx.ui.menu.Button("Menu item 01");
+      var menuitem02 = new qx.ui.menu.Button("Menu item 02");
+      //var menuitem03 = new ville.ui.menu.Button("Menu item 03");
+      //var menuitem04 = new ville.ui.menu.Button("Menu item 04");
+      btnMenu.add(menuitem01);
+      btnMenu.add(menuitem02);
+      //btnMenu.add(menuitem03);
+      //btnMenu.add(menuitem04);
+      //btnMenu.setDomMove(true);
+      var btnMenuButton = new qx.ui.form.MenuButton("Menu Button", null, btnMenu);
+
+      vstackButtonWidgets.add(btnMenuButton);
+
       // Boolean
       var vstackBooleanWidgets = new ville.ui.layout.VStack();
       stackFrompage.add(vstackBooleanWidgets);
@@ -661,6 +707,24 @@ qx.Class.define("villeui.Application",
         "--radio-color": "var(--villeui-color-outline)"
       });
       vstackBooleanWidgets.add(rdoButton2);
+
+      // Selection
+      var lblSelectionWidgets = new ville.ui.form.Label("Selection").set({size : "lg"});
+      lblSelectionWidgets.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+      var vstackSelectionWidgets = new ville.ui.layout.VStack();
+      stackFrompage.add(vstackSelectionWidgets);
+      vstackSelectionWidgets.add(lblSelectionWidgets);
+      var selectBox = new qx.ui.form.SelectBox();
+      for (var i = 0; i < 30; i++) {
+        var tempItem = new qx.ui.form.ListItem("Item " + (i + 1));
+        selectBox.add(tempItem);
+        // select sixth item
+        if (i == 5) {
+          selectBox.setSelection([tempItem]);
+        }
+      }
+      vstackSelectionWidgets.add(selectBox);
+      
 
       // Tree widget page
       var stackTreepage = new ville.ui.layout.SimpleGrid();

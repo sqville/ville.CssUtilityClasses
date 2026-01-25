@@ -2,6 +2,13 @@ qx.Mixin.define("ville.cssuc.MControl",
 {      
   properties :
   {
+
+    bypassRenderLayout: {
+      check: "Boolean",
+      init: false,
+      themeable: true
+    },
+
     excludeBoundsFromDom: {
       check: "Boolean",
       init: false,

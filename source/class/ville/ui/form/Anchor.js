@@ -14,7 +14,7 @@ qx.Class.define("ville.ui.form.Anchor", {
         
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
+        //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root");

@@ -26,7 +26,8 @@
       "class": "villeui.Application",
       "theme": "ville.cssuc.theme.blankslate.Theme",
       "name": "villeui",
-      "bootPath": "source/boot/villeui"
+      "bootPath": "source/boot/villeui",
+      "include": ["ville.cssuc.*"]
     }
   ]
 }

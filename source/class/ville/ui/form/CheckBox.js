@@ -17,7 +17,7 @@ qx.Class.define("ville.ui.form.CheckBox", {
     construct(label, alticon, altindeterminateicon) {
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
+        //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
         this.setCssUtilityClass("m_bf2d988c mantine-Checkbox-root m_5f75b09e");
