@@ -16,7 +16,7 @@ qx.Class.define("ville.ui.form.ComboBox", {
         //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
-        //this.setExcludeBoundsFromDomMods(["left", "top", "overflow-x", "overflow-y"]);
+        this.setExcludeBoundsFromDomMods(["left", "top"]);
         this.setCssUtilityClass("m_6c018570 mantine-Input-wrapper mantine-InputBase-wrapper");
         this.setStyle("position", "relative", true);
         this.setAttributes({ 
@@ -24,11 +24,11 @@ qx.Class.define("ville.ui.form.ComboBox", {
             "data-with-right-section": "true"
         }, true);
 
-        var popup = this.getChildControl("popup");
-        popup.setDomMove(true);
-        popup.setPosition("bottom-left");
+        //var popup = this.getChildControl("popup");
+        //popup.setDomMove(true);
+        //popup.setPosition("bottom-left");
 
-        var button = this.getChildControl("button");
+        /*var button = this.getChildControl("button");
         button.addListener("execute", function(e)
         {
             //var popup = this.getChildControl("popup");
@@ -45,7 +45,7 @@ qx.Class.define("ville.ui.form.ComboBox", {
             //popup.moveTo(rect.left, rect.top);
         }, this);
         //button.setWidth(16);
-        //button.setBackgroundColor("green");
+        //button.setBackgroundColor("green");*/
         
         this.initSize();
         this.initRadius();

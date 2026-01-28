@@ -5,8 +5,6 @@
 qx.Class.define("ville.ui.core.Burger", {
     extend: ville.ui.form.UnstyledToggleButton,
 
-    include: qx.ui.core.MChildrenHandling,
-
     construct(component) {
         if (component) {
             this.__componenttag = component;

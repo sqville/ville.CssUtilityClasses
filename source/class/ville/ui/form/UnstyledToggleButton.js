@@ -10,7 +10,7 @@ qx.Class.define("ville.ui.form.UnstyledToggleButton", {
     construct(label) {
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
+        //this._setLayout(new qx.ui.layout.Basic());
 
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);

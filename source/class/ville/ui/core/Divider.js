@@ -14,8 +14,8 @@ qx.Class.define("ville.ui.core.Divider", {
         this.initSpacing();
         this.initLabelPosition();
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
+        //this._setLayout(new qx.ui.layout.Basic());
+        //this.setExcludeBoundsFromDom(true);
         //this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_3eebeb36 mantine-Divider-root");
 

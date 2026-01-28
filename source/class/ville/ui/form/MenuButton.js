@@ -9,30 +9,71 @@ qx.Class.define("ville.ui.form.MenuButton", {
 
     include: ville.ui.core.MWidget,
 
-    construct(label, menu, component) {
+    construct(label, variant, sectionLeft, sectionRight, menu, component) {
         
         if (component != null)
             this.__componenttag = component;
 
-        if (menu != null) {
-            super(label, null, menu);
-        } else {
-            super();
-        }
-        
-        //this._setLayout(new qx.ui.layout.Basic());
+        super();
 
         this.setExcludeBoundsFromDom(true);
-        //this.setClearAllInlineStyles(true);
-        this.setStyle("position", "relative", true);
-        this.setCssUtilityClass("m_87cf2631 mantine-UnstyledButton-root");
+        this.setClearAllInlineStyles(true);
+        //this.setStyle("position", "relative", true);
+        //this.setExcludeBoundsFromDomMods(["left", "top"]);
+        this.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
 
         if (this.__componenttag !== "button")
             this.getContentElement().removeAttribute('type');
 
-        //if (label != null)
-          //  this.getContentElement().setAttribute('html', label);
+        if (variant) {
+            this.setVariant(variant);
+        } else {
+            this.initVariant();
+        }
 
+        if (sectionLeft != null) {
+            this.setSectionLeft(sectionLeft);
+        }
+
+        if (label != null) {
+            this.setLabel(label);
+        }
+
+        if (sectionRight != null) {
+            this.setSectionRight(sectionRight);
+        }
+
+        if (menu != null) {
+            this.setMenu(menu);
+        }
+
+    },
+
+    properties: {
+
+        variant: {
+            init: "default",
+            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
+            apply: "_applyVariant",
+            themeable: true,
+            event: "changeVariant"
+        },
+
+        sectionLeft: {
+            check: "qx.ui.core.Widget",
+            apply: "_applySectionLeft",
+            nullable: true,
+            themeable: true,
+            event: "changeSectionLeft"
+        },
+
+        sectionRight: {
+            check: "qx.ui.core.Widget",
+            apply: "_applySectionRight",
+            nullable: true,
+            themeable: true,
+            event: "changeSectionRight"
+        }
     },
 
     members: {
@@ -42,68 +83,113 @@ qx.Class.define("ville.ui.form.MenuButton", {
         // overridden
         _createContentElement() {
             return new qx.html.Element(this.__componenttag);
+        },
+
+        // overridden
+        _createChildControlImpl(id, hash) {
+            var control;
+            var innerwrapper;
+
+            switch (id) {
+                case "innerwrapper":
+                    control = new ville.ui.core.InnerWrapper();
+                    control.setCssUtilityClass("m_80f1301b mantine-Button-inner");
+                    this._add(control);
+                    break;
+                
+                case "label":
+                    control = new ville.ui.basic.Label();
+                    control.setAnonymous(true);
+                    control.setSelectable(this.getSelectable());
+                    control.setCssUtilityClass("m_811560b9 mantine-Button-label");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
+                    break;
+
+                case "sectionleft":
+                    control = new ville.ui.basic.Label();
+                    control.setAnonymous(true);
+                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
+                    control.getContentElement().setAttribute("data-position", "left");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
+                    break;
+
+                case "sectionright":
+                    control = new ville.ui.basic.Label();
+                    control.setAnonymous(true);
+                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
+                    control.getContentElement().setAttribute("data-position", "right");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
+                    break;
+            }
+
+            return control || super._createChildControlImpl(id);
+        },
+
+        // property apply
+        _applyVariant(value, old) {
+            if (value) {
+                this.getContentElement().setAttribute("data-variant", value);
+            }
+        },
+
+        // overridden
+        // Replaced by Section Left and Right
+        _applyIcon(value, old) {},
+
+        // overridden
+        _applyShow(value, old) {},
+
+        // overridden
+        _applyLabel(value, old) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var label = this.getChildControl("label");
+                if (label) {
+                    label.setValue(value);
+                }
+            }
+        },
+
+        _applySectionLeft(value, old) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var section = this.getChildControl("sectionleft");
+                if (section) {
+                    if (old) {
+                        section.removeAll();
+                    }
+
+                    if (value) {
+                        section.add(value);
+                        this.getContentElement().setAttribute("data-with-left-section", "true");
+                    } else {
+                        this.getContentElement().removeAttribute("data-with-left-section");
+                    }
+                }
+            }
+        },
+
+        _applySectionRight(value, old) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var section = this.getChildControl("sectionright");
+                if (section) {
+                    if (old) {
+                        section.removeAll();
+                    }
+
+                    if (value) {
+                        section.add(value);
+                        this.getContentElement().setAttribute("data-with-right-section", "true");
+                    } else {
+                        this.getContentElement().removeAttribute("data-with-right-section");
+                    }
+                }
+            }
         }
 
-        // overridden
-        /*open(selectFirst) {
-            var menu = this.getMenu();
-
-            if (menu) {
-                // Focus this button when the menu opens
-                if (
-                this.isFocusable() &&
-                !qx.ui.core.FocusHandler.getInstance().isFocused(this)
-                ) {
-                this.focus();
-                }
-                // Hide all menus first
-                qx.ui.menu.Manager.getInstance().hideAll();
-
-                // Open the attached menu
-                menu.setOpener(this);
-
-                var element = this.getContentElement().getDomElement();
-                const rect = element.getBoundingClientRect();
-                console.log('Top (viewport):', rect.top);
-                console.log('Left (viewport):', rect.left);
-                menu.setPosition("bottom-left");
-                menu.placeToElement(element);
-                menu.show();
-
-                //menu.open();
-
-                // Select first item
-                if (selectFirst) {
-                var first = menu.getSelectables()[0];
-                if (first) {
-                    menu.setSelectedButton(first);
-                }
-                }
-            }
-        }*/
-
-        // overridden
-        /*_onPointerDown(e) {
-            // call the base function to get into the capture phase [BUG #4340]
-            super._onPointerDown(e);
-
-            // only open on left clicks [BUG #5125]
-            if (e.getButton() != "left") {
-                return;
-            }
-
-            var menu = this.getMenu();
-            if (menu) {
-                // Toggle sub menu visibility
-                if (!menu.isVisible()) {
-                this.open();
-                } else {
-                menu.exclude();
-                }
-
-                // Event is processed, stop it for others
-                e.stopPropagation();
-            }
-        }*/
     }
   });

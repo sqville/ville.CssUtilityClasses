@@ -1,11 +1,12 @@
 /**
  * Menu Button
  * @external(mantine/core/styles/UnstyledButton.css)
+ * @external(mantine/core/styles/NavLink.css)
  * @external(mantine/core/styles/Menu.css)
  */
-qx.Class.define("ville.ui.menu.Button", {
+qx.Class.define("ville.ui.menu.NavLink", {
     
-    extend: qx.ui.menu.Button,
+    extend: qx.ui.menu.RadioButton,
 
     include: ville.ui.core.MWidget,
 
@@ -64,12 +65,24 @@ qx.Class.define("ville.ui.menu.Button", {
             nullable: true,
             themeable: true,
             event: "changeSectionRight"
+        },
+
+        href: {
+            apply: "_applyHref",
+            nullable: true,
+            check: "String"
+        },
+
+        target: {
+            apply: "_applyTarget",
+            nullable: true,
+            check: "String"
         }
     },
 
     members: {
 
-        __componenttag: "button",
+        __componenttag: "a",
 
         // overridden
         _createContentElement() {
@@ -158,6 +171,33 @@ qx.Class.define("ville.ui.menu.Button", {
                     this.setAttribute("data-with-right-section", "true");
                 } else {
                     this.removeAttribute("data-with-right-section");
+                }
+            }
+        },
+
+        // property apply
+        _applyHref(value) {
+            // only apply if tag is an anchor "a"
+            if (this.__componenttag == "a") {
+                if (value) {
+                    this.setAttribute("href", value);
+                    this.__clickpreventListnerId = this.addListener("click", (e) => {e.preventDefault()});
+                } else {
+                    this.removeAttribute("href");
+                    if (this.__clickpreventListnerId != null)
+                        this.removeListener(this.__clickpreventListnerId);
+                }
+            }
+        },
+
+        // property apply
+        _applyTarget(value) {
+            // only apply if tag is an anchor "a"
+            if (this.__componenttag == "a") {
+                if (value) {
+                    this.setAttribute("target", value);
+                } else {
+                    this.removeAttribute("target");
                 }
             }
         }

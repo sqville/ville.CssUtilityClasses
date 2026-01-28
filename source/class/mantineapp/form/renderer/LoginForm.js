@@ -55,7 +55,7 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
        */
       addItems(items, names, title, customize) {
         // create items content container
-        var itemscontainer = new ville.ui.layout.Stack();
+        var itemscontainer = new ville.ui.layout.VStack();
         itemscontainer.addClass("ville-mantineapp-LoginFormStack");
 
         // add the items
@@ -129,7 +129,7 @@ qx.Class.define("mantineapp.form.renderer.LoginForm", {
       addButton(button) {
         if (this._buttonRow == null) {
           // create button row
-          this._buttonRow = new ville.ui.layout.Group("center", "space-between");
+          this._buttonRow = new ville.ui.layout.HGroup("center", "space-between");
           this._buttonRow.addClass("ville-mantineapp-LoginFormButtonGroup");
           
           this._add(this._buttonRow);

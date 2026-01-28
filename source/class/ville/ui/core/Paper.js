@@ -14,10 +14,10 @@ qx.Class.define("ville.ui.core.Paper", {
         
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
+        //this._setLayout(new qx.ui.layout.Basic());
+        //this.setExcludeBoundsFromDom(true);
         //this.setSelectable(null);
-        this.setExcludeInlineStyles(["position"]);
+        //this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_1b7284a3 mantine-Paper-root");
     },
 

@@ -13,8 +13,8 @@ qx.Class.define("ville.ui.core.InnerWrapper", {
         }
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
-        this.setExcludeBoundsFromDom(true);
+        //this._setLayout(new qx.ui.layout.Basic());
+        //this.setExcludeBoundsFromDom(true);
         //this.setExcludeInlineStyles(["position"]);
     },
 

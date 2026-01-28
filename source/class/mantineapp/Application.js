@@ -16,7 +16,7 @@
  */
 qx.Class.define("mantineapp.Application",
 {
-  extend : qx.application.Standalone,
+  extend : ville.ui.application.Standalone,
 
   /*
   *****************************************************************************
@@ -53,20 +53,27 @@ qx.Class.define("mantineapp.Application",
       */
 
       if (qx.core.Environment.get("ville.cssuc")) {
-        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
-      } 
+        //qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
+        //qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+
+        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
+
+        // clear out all styling of html and body tags
+        //document.documentElement.style = "";
+        //document.body.style = "";
+      }
 
       // Document is the application root
       const doc = this.getRoot();
       doc.setCssUtilityClass("ville-mantineapp-Application");
-      doc.setExcludeBoundsFromDom(true);
-      doc.setClearAllInlineStyles(true);
+      //doc.setExcludeBoundsFromDom(true);
+      //doc.setClearAllInlineStyles(true);
 
       // Application Margin Box
-      var docMarginBox = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-      docMarginBox.setExcludeBoundsFromDom(true);
-      docMarginBox.setClearAllInlineStyles(true);
+      //var docMarginBox = new qx.ui.container.Composite(new qx.ui.layout.Basic());
+      var docMarginBox = new ville.ui.core.Box();
+      //docMarginBox.setExcludeBoundsFromDom(true);
+      //docMarginBox.setClearAllInlineStyles(true);
       docMarginBox.setCssUtilityClass("ville-mantineapp-InnerAppContainer");
 
       // Login Center Box Container
@@ -81,7 +88,7 @@ qx.Class.define("mantineapp.Application",
       welcomeMsg.addClass("mantine-focus-auto");
 
       // Login Auth Group Box
-      var LoginAuthGroupbox = new ville.ui.layout.Group("center");
+      var LoginAuthGroupbox = new ville.ui.layout.HGroup("center");
       LoginAuthGroupbox.addClass("ville-mantineapp-AuthButtonGroup");      
 
       // Google Button
@@ -93,6 +100,33 @@ qx.Class.define("mantineapp.Application",
       // Twitter Button
       var twitButton = new ville.ui.form.Button("Twitter", "default");//, new ville.ui.icon.Photo("14"));
       twitButton.addClass("mantine-focus-auto mantine-active"); 
+
+      // Dropdown, Popup testing
+      // Menu Button
+      var btnMenu = new ville.ui.menu.Menu();
+      var menuitem01 = new ville.ui.menu.Button("Menu item 01");
+      var menuitem02 = new ville.ui.menu.Button("Menu item 02");
+      btnMenu.add(menuitem01);
+      btnMenu.add(menuitem02);
+      //btnMenu.setDomMove(true);
+      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button", btnMenu);
+      var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
+      //PopupTestingGroupbox.add(btnMenuButton);
+      // ComboBox
+      //var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
+      //lblComboBox.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+      //vstackTextWidgets.add(lblComboBox);
+      var comboBox = new ville.ui.form.ComboBox();
+      for (var i = 1; i < 31; i++) {
+        var tempItem = new qx.ui.form.ListItem(
+          "2^ " + i + " = " + Math.pow(2, i)
+        );
+        comboBox.add(tempItem);
+      }
+      var cmbobtn = comboBox.getChildControl("button");
+      cmbobtn.setWidth(16);
+      cmbobtn.setBackgroundColor("yellow");
+      PopupTestingGroupbox.add(comboBox);
 
       // Separator
       var divider = new ville.ui.core.Divider();
@@ -145,6 +179,7 @@ qx.Class.define("mantineapp.Application",
 
       centerbox.add(welcomeMsg);
       centerbox.add(LoginAuthGroupbox);
+      centerbox.add(PopupTestingGroupbox);
       centerbox.add(divider);
       centerbox.add(loginForm);
 

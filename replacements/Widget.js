@@ -949,11 +949,12 @@ qx.Class.define("qx.ui.core.Widget", {
 
       if (qx.core.Environment.get("ville.cssuc")) {
         var incstyles = true;
-        if (qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom")) {
-          if (this.getExcludeBoundsFromDom()) {
+        if (qx.core.Environment.get("qx.debug"))
+          this.assert(qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom"), "Missing ExcludeBoundsFromDom property.");
+        if (this.getExcludeBoundsFromDom()) {
             incstyles = false;
-          }
         }
+
         if (incstyles) {
           if (Object.keys(contentStyles).length > 0) {
             content.setStyles(contentStyles);
@@ -2188,13 +2189,23 @@ qx.Class.define("qx.ui.core.Widget", {
         value = "default";
       }
 
-      // In Opera the cursor must be set directly.
-      // http://bugzilla.qooxdoo.org/show_bug.cgi?id=1729
-      this.getContentElement().setStyle(
-        "cursor",
-        value,
-        qx.core.Environment.get("engine.name") == "opera"
-      );
+      if (qx.core.Environment.get("ville.cssuc")) {
+        if (!this.getExcludeBoundsFromDom()) {
+          this.getContentElement().setStyle(
+            "cursor",
+            value,
+            qx.core.Environment.get("engine.name") == "opera"
+          );
+        }
+      } else {
+        // In Opera the cursor must be set directly.
+        // http://bugzilla.qooxdoo.org/show_bug.cgi?id=1729
+        this.getContentElement().setStyle(
+          "cursor",
+          value,
+          qx.core.Environment.get("engine.name") == "opera"
+        );
+      }
     },
 
     // property apply
@@ -2653,11 +2664,9 @@ qx.Class.define("qx.ui.core.Widget", {
 
         // Omit native dotted outline border
         if (qx.core.Environment.get("ville.cssuc")) {
-          if (qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom")) {
             if (this.getExcludeBoundsFromDom()) {
-              target.removeStyle("outline");
+                target.removeStyle("outline");
             }
-          }
         } else {
           target.setStyle("outline", "none");
         }
