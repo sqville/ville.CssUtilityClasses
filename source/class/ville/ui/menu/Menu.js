@@ -13,8 +13,6 @@ qx.Class.define("ville.ui.menu.Menu", {
 
         super();
 
-        this.setDomMove(true);
-
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true); 
         this.setExcludeBoundsFromDomMods(["width", "height"]);

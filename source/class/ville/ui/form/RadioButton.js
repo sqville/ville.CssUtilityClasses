@@ -187,9 +187,9 @@ qx.Class.define("ville.ui.form.RadioButton", {
                 var input = this.getChildControl("input");
                 if (input) {
                     if (value = "outline") {
-                        input.getContentElement().addClass("m_215c4542");
+                        input.getContentElement().addClass("m_1bfe9d39");
                     } else {
-                        input.getContentElement().removeClass("m_215c4542");
+                        input.getContentElement().removeClass("m_1bfe9d39");
                     }
                 }
             }

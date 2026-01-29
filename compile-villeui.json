@@ -10,7 +10,7 @@
       "outputPath": "compiled/build"
     }
   ],
-  "defaultTarget": "source",
+  "defaultTarget": "build",
   "locales": ["en"],
   "environment": {
       "ville.cssuc": true,

@@ -16,6 +16,7 @@
  * @asset(villeui/images/villeui_logo.png)
  * @asset(villeui/images/villeui_logo.svg)
  * @asset(villeui/images/ville_logo.png)
+ * @asset(villeui/images/QxCSS_example_01.png)
  * @require(ville.cssuc.patch.MAbstractField)
  * 
  */
@@ -561,7 +562,7 @@ qx.Class.define("villeui.Application",
       var txtTextField = new ville.ui.form.TextField();
       txtTextField.setAttribute("id", "villetxttextfield");
       txtTextField.setPlaceholder("TextField");
-      var txtTextFieldWrapper = new ville.ui.form.TextFieldWrapper(txtTextField).set({size : "md"});
+      var txtTextFieldWrapper = new ville.ui.form.TextFieldWrapper(txtTextField).set({size : "sm", radius : "sm"});
       var lblTextField = new ville.ui.form.Label("TextField").set({size : "lg"});
       lblTextField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       lblTextField.setAttributes({
@@ -575,23 +576,30 @@ qx.Class.define("villeui.Application",
       txtPasswordField.setAttribute("id", "villetxtpasswordfield");
       txtPasswordField.setPlaceholder("PasswordField");
       var IconEye = new ville.ui.icon.IconEye().set({ "viewBox" : "0 0 15 15" });
-      IconEye.setStyles({ width: "var(--psi-icon-size-lg)", height: "var(--psi-icon-size-lg)" });
+      IconEye.setStyles({ width: "var(--psi-icon-size-md)", height: "var(--psi-icon-size-md)" });
       var IconEyeOff = new ville.ui.icon.IconEyeOff().set({ "viewBox" : "0 0 15 15" });
-      IconEyeOff.setStyles({ width: "var(--psi-icon-size-lg)", height: "var(--psi-icon-size-lg)" });
+      IconEyeOff.setStyles({ width: "var(--psi-icon-size-md)", height: "var(--psi-icon-size-md)" });
       var btnShowHidePassword = new ville.ui.form.ToggleActionIcon(IconEyeOff, IconEye, "subtle");
       btnShowHidePassword.setStyles({
-        "--ai-radius" : "var(--mantine-radius-md)",
+        "--ai-radius" : "var(--mantine-radius-sm)",
         "--ai-bg" : "transparent",
         "--ai-hover" : "var(--mantine-color-gray-light-hover)",
         "--ai-color" : "var(--mantine-color-gray-light-color)",
         "--ai-bd" : "calc(0.0625rem * var(--mantine-scale)) solid transparent"
       });
-      var txtPasswordFieldWrapper = new ville.ui.form.PasswordWrapper(txtPasswordField, null, null, btnShowHidePassword).set({size : "md"});
+      var txtPasswordFieldWrapper = new ville.ui.form.PasswordWrapper(txtPasswordField, null, null, btnShowHidePassword).set({size : "sm", radius : "sm"});
       var lblPasswordField = new ville.ui.form.Label("PasswordField").set({size : "lg"});
       lblPasswordField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-PasswordInput-label");
       lblPasswordField.setAttributes({"for": "villetxtpasswordfield"});
       txtPasswordFieldWrapper.setLabel(lblPasswordField);
       vstackTextWidgets.add(txtPasswordFieldWrapper);
+
+      var lblSpinner = new ville.ui.form.Label("Spinner").set({size : "lg"});
+      lblSpinner.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
+      vstackTextWidgets.add(lblSpinner);
+      var comingsoonSpinner = new ville.ui.basic.Element("span");
+      comingsoonSpinner.setAttribute("html", "<em>Spinner Widget - Coming soon</em>");
+      vstackTextWidgets.add(comingsoonSpinner);
 
       // ComboBox
       var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
@@ -611,7 +619,12 @@ qx.Class.define("villeui.Application",
       cmbobtn.setBackgroundColor("#30a133");
       var cmbopopup = comboBox.getChildControl("popup");
       cmbopopup.setDomMove(true);
-      vstackTextWidgets.add(comboBox);
+      cmbopopup.setPlacementModeX("best-fit");
+      cmbopopup.setPlacementModeY("direct");
+      //vstackTextWidgets.add(comboBox);
+      var comingsoonComboBox = new ville.ui.basic.Element("span");
+      comingsoonComboBox.setAttribute("html", "<em>ComboBox Widget - Coming soon</em>");
+      vstackTextWidgets.add(comingsoonComboBox);
 
       // Button widget vstack
       var vstackButtonWidgets = new ville.ui.layout.VStack();
@@ -673,6 +686,9 @@ qx.Class.define("villeui.Application",
 
       // Menu Button
       var btnMenu = new ville.ui.menu.Menu();
+      btnMenu.setPlacementModeX("best-fit");
+      btnMenu.setPlacementModeY("direct");
+      btnMenu.setDomMove(true);
       var menuitem01 = new ville.ui.menu.Button("Menu item 01").set({ maxWidth : 150, minHeight : 40 });
       var menuitem02 = new ville.ui.menu.Button("Menu item 02").set({ maxWidth : 150, minHeight : 40 });
       var menuitem03 = new ville.ui.menu.Button("Menu item 03").set({ maxWidth : 150, minHeight : 40 });
@@ -683,7 +699,7 @@ qx.Class.define("villeui.Application",
       btnMenu.add(menuitem04);
       var btnMenuButton = new ville.ui.form.MenuButton("Menu Button").set({ menu : btnMenu });
       vstackButtonWidgets.add(btnMenuButton);
-      //btnMenu.setDomMove(false);
+      
 
       // Boolean
       var vstackBooleanWidgets = new ville.ui.layout.VStack();
@@ -724,6 +740,9 @@ qx.Class.define("villeui.Application",
         }
       }
       vstackSelectionWidgets.add(selectBox);*/
+      var comingsoonSelectBox = new ville.ui.basic.Element("span");
+      comingsoonSelectBox.setAttribute("html", "<em>SelectBox Widget - Coming soon</em>");
+      vstackSelectionWidgets.add(comingsoonSelectBox);
       
 
       // Tree widget page
@@ -731,37 +750,45 @@ qx.Class.define("villeui.Application",
       stackTreepage.addClass("__m__-r10g");
       mainWidgetBrowserStack.add(stackTreepage);
 
-      var IconCamper = new ville.ui.basic.Element("span");
-      IconCamper.setCssUtilityClass("tabler--camper");
-      IconCamper.setStyles({
-        "width": "60px",
-        "height": "60px"
-      });
-      stackTreepage.add(IconCamper);
+      var comingsoonTree = new ville.ui.basic.Element("span");
+      comingsoonTree.setAttribute("html", "<em>Tree Widget - Coming soon</em>");
+      stackTreepage.add(comingsoonTree);
 
       // Table widget page
       var stackTablepage = new ville.ui.layout.SimpleGrid();
       stackTablepage.addClass("__m__-r10g");
       mainWidgetBrowserStack.add(stackTablepage);
 
+      var comingsoonTable = new ville.ui.basic.Element("span");
+      comingsoonTable.setAttribute("html", "<em>Table Widget - Coming soon</em>");
+      stackTablepage.add(comingsoonTable);
+
       // Menu widgets page
       var stackMenupage = new ville.ui.layout.SimpleGrid();
       stackMenupage.addClass("__m__-r10g");
       mainWidgetBrowserStack.add(stackMenupage);
 
+      var comingsoonMenu = new ville.ui.basic.Element("span");
+      comingsoonMenu.setAttribute("html", "<em>Menu and Toolbar Widgets - Coming soon</em>");
+      stackMenupage.add(comingsoonMenu);
+
       // Burger
-      var headerBurger = new ville.ui.core.Burger();
+      //var headerBurger = new ville.ui.core.Burger();
       //headerBurger.addClass("mantine-hidden-from-sm");
-      headerBurger.setStyles({
+      /*headerBurger.setStyles({
         "--burger-size": "var(--burger-size-sm)",
         "--burger-line-size": "calc(0.125rem * var(--mantine-scale))"
-      });
-      stackMenupage.add(headerBurger);
+      });*/
+      //stackMenupage.add(headerBurger);
 
       // Window widgets tab page
       var stackWindowpage = new ville.ui.layout.SimpleGrid();
       stackWindowpage.addClass("__m__-r10g");
       mainWidgetBrowserStack.add(stackWindowpage);
+
+      var comingsoonWindow = new ville.ui.basic.Element("span");
+      comingsoonWindow.setAttribute("html", "<em>Window Widgets - Coming soon</em>");
+      stackWindowpage.add(comingsoonWindow);
 
       // Sponsor link - You?
       var sponsorYou = new ville.ui.core.Box("a");
@@ -778,7 +805,7 @@ qx.Class.define("villeui.Application",
       sponsorYouDesc.setCssUtilityClass("HomePageSponsors_description__UOTKq");
       sponsorYouDesc.setStyle("text-align", "left");
       sponsorYou.add(sponsorYouDesc);
-      stackWindowpage.add(sponsorYou);
+      //stackWindowpage.add(sponsorYou);
 
       // Tab widgets tab page
       var stackTabpage = new ville.ui.layout.SimpleGrid();
@@ -826,11 +853,64 @@ qx.Class.define("villeui.Application",
         "--title-lh": "var(--mantine-h2-line-height)",
         "--title-fz": "var(--mantine-h2-font-size)"
       });
-      mainNativeCssTitle.setAttribute("html", "Qooxdoo + Native CSS = Fire");
+      mainNativeCssTitle.setAttribute("html", "Qooxdoo + Native CSS = &#x1F525;");
       mainNativeCss.add(mainNativeCssTitle);
-      var mainNativeCssDesc1 = new ville.ui.typography.Text("Flexible styling using modern Css.");
+      var mainNativeCssDesc1 = new ville.ui.typography.Text("Flexible styling using native CSS.");
       mainNativeCssDesc1.setCssUtilityClass("mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY");
       mainNativeCss.add(mainNativeCssDesc1);
+
+      var mainNativeFeatures = new ville.ui.layout.SimpleGrid();
+      mainNativeFeatures.addClass("__m__-r14h");
+      mainNativeCss.add(mainNativeFeatures);
+
+      // Feature list
+      var mainNativeFeatureList = new ville.ui.layout.VStack();
+      var Feature01 = new ville.ui.typography.Title(3);
+      Feature01.setStyles({
+        "--title-fw": "var(--mantine-h3-font-weight)",
+        "--title-lh": "var(--mantine-h3-line-height)",
+        "--title-fz": "var(--mantine-h3-font-size)"
+      });
+      Feature01.setAttribute("html", "&#9874; Built with CSS");
+      var Feature02 = new ville.ui.typography.Title(3);
+      Feature02.setStyles({
+        "--title-fw": "var(--mantine-h3-font-weight)",
+        "--title-lh": "var(--mantine-h3-line-height)",
+        "--title-fz": "var(--mantine-h3-font-size)"
+      });
+      Feature02.setAttribute("html", "&#9775; Extends only core widgets");
+      var Feature03 = new ville.ui.typography.Title(3);
+      Feature03.setStyles({
+        "--title-fw": "var(--mantine-h3-font-weight)",
+        "--title-lh": "var(--mantine-h3-line-height)",
+        "--title-fz": "var(--mantine-h3-font-size)"
+      });
+      Feature03.setAttribute("html", "&#10042; Override anything");
+      mainNativeFeatureList.add(Feature01);
+      var Feature01Desc = new ville.ui.typography.Text("Styles are exposed as .css files – styles are performant and do not have any runtime overhead.");
+      mainNativeFeatureList.add(Feature01Desc);
+      mainNativeFeatureList.add(Feature02);
+      var Feature02Desc = new ville.ui.typography.Text("All Ville UI widgets either directly extend complex widgets (i.e. qx.ui.form.Button) or Qooxdoo's core widget (qx.ui.core.Widget). Everything is a Qooxdoo widget.");
+      mainNativeFeatureList.add(Feature02Desc);
+      mainNativeFeatureList.add(Feature03);
+      var Feature03Desc = new ville.ui.typography.Text("All component styles can be overriden with inline styles. All Ville UI widgets expose Content Element functions such as setStyles and addClass (among others) for simple and direct changes as needed.");
+      mainNativeFeatureList.add(Feature03Desc);
+      mainNativeFeatures.add(mainNativeFeatureList);
+
+      // Reference code (image)
+      var imgCodeBox = new ville.ui.core.Box();
+      imgCodeBox.setCssUtilityClass("HomePageSponsors_sponsor__c9Sun");
+      var imgExample01 = new ville.ui.basic.Image();
+      imgExample01.setAttributes({
+        "src": "resource/villeui/images/QxCSS_example_01.png",
+        "alt": "Ville UI code example 01"
+      }, true);
+      imgCodeBox.add(imgExample01)
+      mainNativeFeatures.add(imgCodeBox);
+      /*imgExample01.setStyles({
+        "width": "32px",
+        "height": "32px"
+      });*/
       /* ::: End of Native CSS Powers ::: */
       /* ::: End of Main ::: */
 
