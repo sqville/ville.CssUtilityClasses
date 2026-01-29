@@ -4,6 +4,8 @@ Demo applications to show how qooxdoo and CSS utility class frameworks can work 
 
 ## Demos
 
+[Ville UI](https://sqville.github.io/ville.CssUtilityClasses/published/villeui/)
+
 [Tailwindcss App](https://sqville.github.io/ville.CssUtilityClasses/published/tailwindapp/)
 
 [Tabler App](https://sqville.github.io/ville.CssUtilityClasses/published/tablerapp/)
