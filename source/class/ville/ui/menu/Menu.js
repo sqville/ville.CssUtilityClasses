@@ -28,10 +28,10 @@ qx.Class.define("ville.ui.menu.Menu", {
         // overridden
         _createContentElement() {
             return new qx.html.Element();
-        },
+        }
 
         // overridden
-        _createChildControlImpl(id, hash) {},
+        /*_createChildControlImpl(id, hash) {},
 
         open() {
             if (this.getOpener() != null) {
@@ -84,6 +84,6 @@ qx.Class.define("ville.ui.menu.Menu", {
                 }
                 //this.__updateSlideBar();
             }
-        }
+        }*/
     }
   });

@@ -14,7 +14,8 @@
   "locales": ["en"],
   "environment": {
       "ville.cssuc": true,
-      "qx.dyntheme": false
+      "qx.dyntheme": false,
+      "qx.nativeScrollBars": true
   },
   "babel" : {
     "options" : {

@@ -10,7 +10,7 @@ Demo applications to show how qooxdoo and CSS utility class frameworks can work 
 
 ## About the Project
 
-This project consists of three namespaces:
+This project consists of five namespaces:
 
 * ville.cssuc (library) - Mixins for bypassing qooxdoo layout functionality.
 * twindapp (application) - Qooxdoo application integrated with [Tailwindcss (version 3)](https://v3.tailwindcss.com/).

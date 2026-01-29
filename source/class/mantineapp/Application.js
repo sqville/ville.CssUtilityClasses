@@ -109,7 +109,8 @@ qx.Class.define("mantineapp.Application",
       btnMenu.add(menuitem01);
       btnMenu.add(menuitem02);
       //btnMenu.setDomMove(true);
-      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button", btnMenu);
+      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
+      btnMenuButton.setMenu(btnMenu);
       var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
       //PopupTestingGroupbox.add(btnMenuButton);
       // ComboBox
