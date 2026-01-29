@@ -13,8 +13,10 @@ Demo applications to show how qooxdoo and CSS utility class frameworks can work 
 This project consists of five namespaces:
 
 * ville.cssuc (library) - Mixins for bypassing qooxdoo layout functionality.
+* ville.ui (library) - Controls for building full applications using Qooxdoo and Mantine CSS.
 * twindapp (application) - Qooxdoo application integrated with [Tailwindcss (version 3)](https://v3.tailwindcss.com/).
 * tablerapp (application) - Qooxdoo applicaion loosly integrated with [Tabler's](https://docs.tabler.io/ui/getting-started/installation) bootstrap implementation.
+* villeui (application) - Qooxdoo application showing Ville UI controls using Mantine's native CSS implementation
 
 ## Getting Started
 
@@ -26,7 +28,8 @@ Add an environment variable named "ville.cssuc" to your project's compile.json f
 
 ```json
 "environment": {
-    "ville.cssuc": true
+    "ville.cssuc": true,
+    "qx.nativeScrollBars": true
 },
 ```
 
@@ -35,8 +38,8 @@ Any standalone application wanting to use utility classes must include the block
 ```javascript
 // Add this to the top of the application class
 if (qx.core.Environment.get("ville.cssuc")) {
-    qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
-    qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+    qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+    qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
     qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
     qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
 }
