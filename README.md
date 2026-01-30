@@ -41,7 +41,7 @@ Add an environment variable named "ville.cssuc" to your project's compile.json f
 },
 ```
 
-### Extend, and patch framework classes
+### Extend and patch framework classes
 
 Any standalone application wanting to use utility classes must include the block of code below:
 
