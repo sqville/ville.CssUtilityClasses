@@ -26,6 +26,8 @@ qx.Mixin.define("ville.cssuc.patch.MLayoutItem",
   {
     renderLayout(left, top, width, height) {
 
+      if (qx.core.Environment.get("qx.debug"))
+        this.assert(qx.Class.hasProperty(this.constructor, "bypassRenderLayout"), "Missing BypassRenderLayout property.");
       if (this.getBypassRenderLayout())
         return null;
       

@@ -210,6 +210,8 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
         value = "default";
       }
 
+      if (qx.core.Environment.get("qx.debug"))
+        this.assert(qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom"), "Missing ExcludeBoundsFromDom property.");
       if (!this.getExcludeBoundsFromDom()) {
         this.getContentElement().setStyle(
           "cursor",

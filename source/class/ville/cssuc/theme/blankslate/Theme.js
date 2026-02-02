@@ -9,7 +9,7 @@
 ************************************************************************ */
 
 qx.Theme.define("ville.cssuc.theme.blankslate.Theme",
-{
+{  
   meta :
   {
     color : ville.cssuc.theme.blankslate.Color,

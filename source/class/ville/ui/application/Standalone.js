@@ -7,6 +7,8 @@
  * @require(ville.ui.root.Application)
  * @require(ville.cssuc.MControl)
  * @require(ville.cssuc.MCssUtilityClass)
+ * @require(ville.cssuc.patch.MLayoutItem)
+ * @require(ville.cssuc.patch.MWidget)
  * @require(ville.cssuc.patch.MLabel)
  * 
  */
@@ -39,8 +41,6 @@ qx.Class.define("ville.ui.application.Standalone", {
     // overridden
     _createRootWidget() {
       var rootwidget = new ville.ui.root.Application(document);
-      rootwidget.setExcludeBoundsFromDom(true);
-      rootwidget.setClearAllInlineStyles(true);
       return rootwidget;
     }
   }

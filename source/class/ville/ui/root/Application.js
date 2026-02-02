@@ -11,6 +11,7 @@
  * @ignore(qx.ui.menu)
  * @ignore(qx.ui.menu.Manager.*)
  * @ignore(qx.ui)
+ * 
  */
 qx.Class.define("ville.ui.root.Application", {
   extend: qx.ui.root.Abstract,
@@ -31,6 +32,9 @@ qx.Class.define("ville.ui.root.Application", {
 
     // Base call
     super();
+
+    this.setExcludeBoundsFromDom(true);
+    this.setClearAllInlineStyles(true);
 
     // Resize handling
     qx.event.Registration.addListener(
@@ -121,7 +125,7 @@ qx.Class.define("ville.ui.root.Application", {
      * @param e {qx.event.type.Event} Event object
      */
     _onResize(e) {
-      //qx.ui.core.queue.Layout.add(this);
+      qx.ui.core.queue.Layout.add(this);
 
       // close all popups
       if (qx.ui.popup && qx.ui.popup.Manager) {
@@ -150,7 +154,14 @@ qx.Class.define("ville.ui.root.Application", {
     },
 
     // overridden
-    _applyPadding(value, old, name) {},
+    _applyPadding(value, old, name) {
+      if (value && (name == "paddingTop" || name == "paddingLeft")) {
+        throw new Error(
+          "The root widget does not support 'left', or 'top' paddings!"
+        );
+      }
+      super._applyPadding(value, old, name);
+    },
 
     /**
      * Handler for the native 'touchstart' on the window which prevents

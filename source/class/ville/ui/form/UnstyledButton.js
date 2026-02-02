@@ -15,7 +15,7 @@ qx.Class.define("ville.ui.form.UnstyledButton", {
 
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
+        //this._setLayout(new qx.ui.layout.Basic());
 
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);

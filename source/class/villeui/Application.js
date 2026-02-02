@@ -59,15 +59,6 @@ qx.Class.define("villeui.Application",
       */
 
       if (qx.core.Environment.get("ville.cssuc")) {
-
-        // clear out all styling of html and body tags
-        //document.documentElement.style = "";
-        //document.body.style = "";
-        //qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
-        //qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
-       // qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
-       // qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-       // qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
         qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
       }
 
