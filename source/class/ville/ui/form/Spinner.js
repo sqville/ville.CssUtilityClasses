@@ -18,33 +18,29 @@ qx.Class.define("ville.ui.form.Spinner", {
   *****************************************************************************
   */
 
-  construct(min, value, max) {
-    super();
-
-    var layout = new qx.ui.layout.Basic();
-
-    this._getLayout().dispose();
-    this._setLayout(layout);
+  construct(min, value, max, variant, sectionleft, sectionright) {
+    super(min, value, max);
 
     this.setExcludeBoundsFromDom(true);
     this.setClearAllInlineStyles(true);
-    this.setCssUtilityClass("m_e2f5cd4e m_46b77525 mantine-InputWrapper-root mantine-NumberInput-root");
-
-    this.getContentElement().setAttribute('type', 'button');
-
-    if (label) {
-      this.setLabel(label);
-    }
+    this.setCssUtilityClass("m_6c018570 mantine-Input-wrapper mantine-NumberInput-wrapper");
         
-    if (variant != null) {
+    if (variant) {
       this.setVariant(variant);
     } else {
       this.initVariant();
     }
 
-    if (tabsection != null) {
-      this.setTabSection(tabsection);
+    if (sectionleft) {
+      this.setSectionLeft(sectionleft);
     }
+
+    if (sectionright) {
+      this.setSectionRight(sectionright);
+    }
+
+    this.initSize();
+    this.initRadius();
 
   },
 
@@ -55,26 +51,47 @@ qx.Class.define("ville.ui.form.Spinner", {
   */
 
   properties: {
-    iconPosition: {
-      refine: true,
-      init: "left"
-    },
 
     variant: {
-      init: "default",
-      check: ["default", "outline", "pills"],
-      apply: "_applyVariant",
-      themeable: true,
-      event: "changeVariant"
+        init: "default",
+        check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
+        apply: "_applyVariant",
+        themeable: true,
+        event: "changeVariant"
     },
 
-    tabSection: {
-      check: "qx.ui.core.Widget",
-      apply: "_applyTabSection",
-      nullable: true,
-      themeable: true,
-      event: "changeTabSection"
+    size: {
+        init: "sm",
+        check: ["xs", "sm", "md", "lg", "xl"],
+        apply: "_applySize",
+        nullable: true,
+        themeable: true,
+        event: "changeSize"
+    },
+
+    radius: {
+        init: "md",
+        check: ["xs", "sm", "md", "lg", "xl"],
+        apply: "_applyRadius",
+        nullable: true,
+        themeable: true,
+        event: "changeRadius"
+    },
+
+    sectionLeft: {
+        check: "qx.ui.core.Widget",
+        apply: "_applySectionLeft",
+        nullable: true,
+        event: "changeSectionLeft"
+    },
+
+    sectionRight: {
+        check: "qx.ui.core.Widget",
+        apply: "_applySectionRight",
+        nullable: true,
+        event: "changeSectionRight"
     }
+
   },
 
   /*
@@ -99,22 +116,61 @@ qx.Class.define("ville.ui.form.Spinner", {
     // overridden
     _createChildControlImpl(id, hash) {
       var control;
+      var innerwrapper;
 
       switch (id) {
-        case "tabsection":
-          control = new ville.ui.basic.Label();
-          control.setAnonymous(true);
-          control.setCssUtilityClass("m_fc420b1f mantine-Tabs-tabSection");
-          control.getContentElement().setAttribute("data-position", "left");
+        case "textfield":
+          control = new ville.ui.form.TextField();
+          control.setFilter(this._getFilterRegExp());
+          control.addState("inner");
+          //control.setWidth(40);
+          control.setFocusable(false);
+          control.addListener("changeValue", this._onTextChange, this);
+
+          //this._add(control, { column: 0, row: 0, rowSpan: 2 });
           this._add(control);
           break;
 
-        case "label":
-          control = new ville.ui.basic.Label();
+        case "upbutton":
+          control = new ville.ui.form.RepeatButton();
+          control.addState("inner");
+          control.setFocusable(false);
+          control.addListener("execute", this._countUp, this);
+          //this._add(control, { column: 1, row: 0 });
+
+          break;
+
+        case "downbutton":
+          control = new qx.ui.form.RepeatButton();
+          control.addState("inner");
+          control.setFocusable(false);
+          control.addListener("execute", this._countDown, this);
+          this._add(control, { column: 1, row: 1 });
+          break;
+
+        case "sectionleft":
+          control = new ville.ui.form.InputSection();
           control.setAnonymous(true);
-          control.setSelectable(this.getSelectable());
-          control.setCssUtilityClass("m_42bbd1ae mantine-Tabs-tabLabel");
-          this._add(control);
+          control.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-TextInput-section");
+          control.setAttribute("data-position", "left");
+          innerwrapper = this.getChildControl("innerwrapper");
+          innerwrapper.add(control);
+          break;
+
+        case "sectionright":
+          control = new ville.ui.form.InputSection();
+          control.setAnonymous(true);
+          control.setCssUtilityClass("m_82577fc2 mantine-Input-section mantine-TextInput-section");
+          control.setAttribute("data-position", "right");
+          innerwrapper = this.getChildControl("innerwrapper");
+          innerwrapper.add(control);
+          break;
+
+        case "inputwrapper":
+          control = new ville.ui.core.InnerWrapper("div");
+          control.setCssUtilityClass("m_8fb7ebe7 mantine-Input-input");
+          innerwrapper = this.getChildControl("innerwrapper");
+          innerwrapper.add(control);
           break;
       }
 
@@ -127,68 +183,81 @@ qx.Class.define("ville.ui.form.Spinner", {
     ---------------------------------------------------------------------------
     */
 
-    // overridden
-    _applyValue(value, old) {
-      //value ? this.addState("checked") : this.removeState("checked");
-      //this.getContentElement().setAttribute("aria-checked", Boolean(value));
-      if (value)
-        this.getContentElement().setAttribute('data-active', 'true');
-      else
-        this.getContentElement().removeAttribute('data-active');
-    },
-
-    // overridden
-    _applyIconPosition(value, old) {
-      if (value) {
-        var section = this.getChildControl("tabsection");
-        if (section) {
-          if (value === "top" || value === "bottom") {
-            section.getContentElement().setAttribute("data-position", "left");
-          } else {
-            section.getContentElement().setAttribute("data-position", value);
-          }
-        } 
-      }
-    },
-
-    // overridden
-    _applyIcon(value, old) {},
-
-    // overridden
-    _applyLabel(value, old) {
-      if (value) {
-        var label = this.getChildControl("label");
-        if (label) {
-          label.setValue(value);
-        }
-      }
-    },
-
     // property apply
     _applyVariant(value, old) {
-      if (value) {
-        this.getContentElement().setAttribute("data-variant", value);
-      }
-    },
-
-    _applyTabSection(value, old) {
-      var section = this.getChildControl("tabsection");
-      if (section) {
-        if (old) {
-          section.removeAll();
-        }
         if (value) {
-          section.add(value);
-          section.getContentElement().setAttribute("data-position", this.getIconPosition());
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                innerwrapper.setAttribute("data-variant", value);
+            }
         }
-      }
+    },
+
+    _applySize(value, old) {
+        if (value) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                this.setAttribute("data-size", value);
+                innerwrapper.setAttribute("data-size", value);
+                innerwrapper.setStyles({
+                    "--input-height" : `var(--input-height-${value})`, 
+                    "--input-fz" : `var(--mantine-font-size-${value})`
+                });
+                var label = this.getLabel();
+                if (label) {
+                    label.setSize(value);
+                }
+            }
+        }
+    },
+
+    _applyRadius(value, old) {
+        if (value) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                innerwrapper.setStyle("--input-radius", `var(--mantine-radius-${value})`);
+            }
+        }
     },
 
     // property apply
-    _applyShowCloseButton(value, old) {},
+    _applySectionLeft(value, old) {
+        var innerwrapper = this.getChildControl("innerwrapper");
+        if (innerwrapper) {
+            var section = this.getChildControl("sectionleft");
+            if (section) {
+                if (old) {
+                    section.removeAll();
+                }
 
-    // property apply
-    _applyCenter(value) {}
+                if (value) {
+                    section.add(value);
+                    this.setAttribute("data-with-left-section", "true");
+                } else {
+                    this.removeAttribute("data-with-left-section");
+                }
+            }
+        }
+    },
+
+    _applySectionRight(value, old) {
+        var innerwrapper = this.getChildControl("innerwrapper");
+        if (innerwrapper) {
+            var section = this.getChildControl("sectionright");
+            if (section) {
+                if (old) {
+                    section.removeAll();
+                }
+
+                if (value) {
+                    section.add(value);
+                    this.setAttribute("data-with-right-section", "true");
+                } else {
+                    this.removeAttribute("data-with-right-section");
+                }
+            }
+        }
+    }
 
   }
 });
