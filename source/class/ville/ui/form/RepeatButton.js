@@ -8,7 +8,7 @@ qx.Class.define("ville.ui.form.RepeatButton", {
 
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
-    construct(component, label) {
+    construct(label, component) {
         
         if (component != null)
             this.__componenttag = component;

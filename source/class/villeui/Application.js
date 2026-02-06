@@ -590,7 +590,12 @@ qx.Class.define("villeui.Application",
       vstackTextWidgets.add(lblSpinner);
       var comingsoonSpinner = new ville.ui.basic.Element("span");
       comingsoonSpinner.setAttribute("html", "<em>Spinner Widget - Coming soon</em>");
-      vstackTextWidgets.add(comingsoonSpinner);
+      //vstackTextWidgets.add(comingsoonSpinner);
+      var iconDollar = new ville.ui.icon.CurrencyDollar();
+      iconDollar.setStrokeWidth(1.5);
+      iconDollar.setStyles({"width": "20px", "height": "20px"});
+      var txtSpinner = new ville.ui.form.Spinner(-100, 0, 100, "default", iconDollar).set({size : "sm", radius : "sm"});
+      vstackTextWidgets.add(txtSpinner);
 
       // ComboBox
       var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
