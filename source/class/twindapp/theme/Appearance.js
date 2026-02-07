@@ -7,6 +7,9 @@
    Authors: undefined
 
 ************************************************************************ */
+/**
+ * @asset(twindapp/css/villetest.css)
+ */
 
 qx.Theme.define("twindapp.theme.Appearance",
 {
@@ -120,7 +123,11 @@ qx.Theme.define("twindapp.theme.Appearance",
 
     "ping-exp-menubutton": {
       style() {
+        qx.bom.Stylesheet.includeFile(qx.util.ResourceManager.getInstance().toUri("twindapp/css/villetest.css"));
         return {
+          excludeBoundsFromDom: true, 
+          excludeBoundsFromDomMods: ["left", "top"],
+          cssUtilityClass: "mt-1, villetest",
           icon: qx.theme.simple.Image.URLS["arrow-down"],
           iconPosition: "right"
         };

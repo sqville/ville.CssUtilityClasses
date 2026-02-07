@@ -51,10 +51,16 @@ qx.Class.define("twindapp.views.Header", {
     menu.add(logoutbtn);
 
     // Logged in users Full name
-    var menuButton = new qx.ui.form.MenuButton("John Doe", null, menu);//.set({ appearance : "ping-exp-menubutton" });
+    var menuButton = new qx.ui.form.MenuButton("John Doe", null, menu).set({ appearance : "ping-exp-menubutton" });
+    /* CssUtilityClasses - Moved to Appearance - see "ping-exp-menubutton" entry.
+    ** Also, included a test to see if the appearance entry would include an external css file only when referrenced.
+    ** Simple test shows that the css file "twindapp/css/villetest.css" is only included when the appearance is set.
+    ** Needs further testing to make sure that the css file is only included once.
+    
     menuButton.setExcludeBoundsFromDom(true); //ExcludeBoundsFromDom 
     menuButton.setExcludeBoundsFromDomMods(["left", "top"]); //ExcludeBoundsFromDomMods
     menuButton.setCssUtilityClass("mt-1");
+    */
     menuButton.getContentElement().setStyle("position", "relative", true);
 
     
