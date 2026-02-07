@@ -35,6 +35,16 @@ qx.Class.define("twindapp.Application",
      */
     main()
     {
+
+      if (qx.core.Environment.get("ville.cssuc")) {
+        //qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
+        //qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
+        qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
+        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
+      } 
+
       // Call super class
       super.main();
 
@@ -51,49 +61,50 @@ qx.Class.define("twindapp.Application",
       -------------------------------------------------------------------------
         Below is your actual application code...
       -------------------------------------------------------------------------
-      */
-
-      
+      */ 
 
       if (qx.core.Environment.get("ville.cssuc")) {
-        //qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
-        //qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
-        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
-        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-        qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
-        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
-
         // clear out all styling of html and body tags
         document.documentElement.style = "";
         document.body.style = "";
-      }   
+      } 
 
       // Document is the application root
       const doc = this.getRoot();
-      // CssUtilityClasses
-      doc.setCssUtilityClass("md:flex md:flex-col");
-      doc.setExcludeBoundsFromDom(true);
-      doc.setClearAllInlineStyles(true);
+
+      /* CssUtilityClasses - Moved to Appearance - see "root" entry
+      //doc.setCssUtilityClass("md:flex md:flex-col");
+      //doc.setExcludeBoundsFromDom(true);
+      //doc.setClearAllInlineStyles(true);
+      */
       doc.getContentElement().enableScrolling();
 
-      // Header
-      var header = new twindapp.views.Header();
-      header.setCssUtilityClass("md:flex md:shrink-0");
-      header.setExcludeBoundsFromDom(true);
-      header.setClearAllInlineStyles(true);
-
-      // TabView
-      var tabs = new twindapp.views.TabView(header);
-      tabs.setCssUtilityClass("md:flex md:grow md:overflow-hidden");
-      tabs.setExcludeBoundsFromDom(true);
-      tabs.setClearAllInlineStyles(true);
-
-      // Setup the app layout and add the views
+      // Setup the app layout
       var dockLayout = new qx.ui.layout.Dock().set({sort: "x"});
-      var doccomp = new qx.ui.container.Composite(dockLayout);
+      var doccomp = new qx.ui.container.Composite(dockLayout).set({ appearance : "appdoclayout" });
+      /* CssUtilityClasses - Moved to Appearance - see "appdoclayout" entry
       doccomp.setCssUtilityClass("md:flex md:flex-col md:h-screen");
       doccomp.setClearAllInlineStyles(true);
       doccomp.setExcludeBoundsFromDom(true);
+      */
+
+      // Header
+      var header = new twindapp.views.Header().set({ appearance : "appheader" });
+      /* CssUtilityClasses - Moved to Appearance - see "appheader" entry
+      header.setCssUtilityClass("md:flex md:shrink-0");
+      header.setExcludeBoundsFromDom(true);
+      header.setClearAllInlineStyles(true);
+      */
+
+      // TabView
+      var tabs = new twindapp.views.TabView(header);
+      /* CssUtilityClasses - Moved to Appearance - see "exp-tabview" entry
+      tabs.setCssUtilityClass("md:flex md:grow md:overflow-hidden");
+      tabs.setExcludeBoundsFromDom(true);
+      tabs.setClearAllInlineStyles(true);
+      */
+
+      // Add header and tabs to the doc layout root
       doccomp.add(header, { edge: "north" });
       doccomp.add(tabs, { edge: "center" });
       

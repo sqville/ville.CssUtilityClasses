@@ -585,12 +585,10 @@ qx.Class.define("villeui.Application",
       txtPasswordFieldWrapper.setLabel(lblPasswordField);
       vstackTextWidgets.add(txtPasswordFieldWrapper);
 
+      // Spinner
       var lblSpinner = new ville.ui.form.Label("Spinner").set({size : "lg"});
       lblSpinner.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       vstackTextWidgets.add(lblSpinner);
-      var comingsoonSpinner = new ville.ui.basic.Element("span");
-      comingsoonSpinner.setAttribute("html", "<em>Spinner Widget - Coming soon</em>");
-      //vstackTextWidgets.add(comingsoonSpinner);
       var iconDollar = new ville.ui.icon.CurrencyDollar();
       iconDollar.setStrokeWidth(1.5);
       iconDollar.setStyles({"width": "20px", "height": "20px"});
@@ -601,26 +599,31 @@ qx.Class.define("villeui.Application",
       var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
       lblComboBox.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       vstackTextWidgets.add(lblComboBox);
-      var comboBox = new ville.ui.form.ComboBox();
+      var comboBox = new qx.ui.form.ComboBox();
       for (var i = 1; i < 31; i++) {
         var tempItem = new qx.ui.form.ListItem(
           "2^ " + i + " = " + Math.pow(2, i)
         );
+        //tempItem.setCssUtilityClass("m_92253aa5 mantine-Combobox-option");
+        //tempItem.setAttribute("data-combobox-option", true);
+        //tempItem.set({width: 200, height: 30});
         comboBox.add(tempItem);
       }
-      var cmbobtn = comboBox.getChildControl("button");
+      //var cmbobtn = comboBox.getChildControl("button");
       //cmbobtn.setExcludeBoundsFromDom(true);
       //cmbobtn.setClearAllInlineStyles(true);
-      cmbobtn.setWidth(16);
-      cmbobtn.setBackgroundColor("#30a133");
-      var cmbopopup = comboBox.getChildControl("popup");
-      cmbopopup.setDomMove(true);
-      cmbopopup.setPlacementModeX("best-fit");
-      cmbopopup.setPlacementModeY("direct");
-      //vstackTextWidgets.add(comboBox);
+      //cmbobtn.setWidth(20);
+      //cmbobtn.setHeight(20);
+      //cmbobtn.setBackgroundColor("#30a133");
+      //cmbobtn.getContentElement().setStyles({"width": "20px", "height": "20px"});
+      //var cmbopopup = comboBox.getChildControl("popup");
+      //cmbopopup.setDomMove(true);
+      //cmbopopup.setPlacementModeX("best-fit");
+      //cmbopopup.setPlacementModeY("direct");
+      vstackTextWidgets.add(comboBox);
       var comingsoonComboBox = new ville.ui.basic.Element("span");
       comingsoonComboBox.setAttribute("html", "<em>ComboBox Widget - Coming soon</em>");
-      vstackTextWidgets.add(comingsoonComboBox);
+      //vstackTextWidgets.add(comingsoonComboBox);
 
       // Button widget vstack
       var vstackButtonWidgets = new ville.ui.layout.VStack();
@@ -1082,9 +1085,11 @@ qx.Class.define("villeui.Application",
       return tabView;
     },
 
+    // overridden
     finalize () {
       // load the last css bundle to make it have highest priority
       qx.bom.Stylesheet.includeFile(qx.util.ResourceManager.getInstance().toUri("villeui/css/villeui-priority.css"));
+      this.render();
     }
 
   }

@@ -15,31 +15,102 @@ qx.Theme.define("twindapp.theme.Appearance",
   appearances :
   {
 
-    root: {},
-
-    "selectbox-arrow-button": {},
-
-    "exp-tabview-page": "widget",
-
-    "tabview/pane": {},
-
-    "exp-tabview-page/button": {
-      style(states) {
+    // New - include for repeating items
+    excludeclear: {
+      style() {
         return {
-          cssUtilityClass: states.checked ? "group flex items-center py-3 mb-4 text-white" : "group text-indigo-300 flex items-center py-3 mb-4", 
           excludeBoundsFromDom: true,
           clearAllInlineStyles: true
         };
       }
     },
+    // Overridden
+    root: {
+      include: "excludeclear",
+      style() {
+        return {
+          cssUtilityClass: "md:flex md:flex-col"
+        };
+      }
+    },
 
-    "exp-tabview-page/button/label": {
-      alias: "label",
+    // New entry - App specific
+    appdoclayout: {
+      include: "excludeclear",
+      style() {
+        return {
+          cssUtilityClass: "md:flex md:flex-col md:h-screen"
+        };
+      }
+    },
 
+    // New entry - App specific
+    appheader: {
+      include: "excludeclear",
+      style() {
+        return {
+          cssUtilityClass: "md:flex md:shrink-0"
+        };
+      }
+    },
+
+    "exp-tabview": {
+      include: "excludeclear",
+      alias: "tabview",
+      style() {
+        return {
+          cssUtilityClass: "md:flex md:grow md:overflow-hidden"
+        };
+      }
+    },
+
+    "exp-tabview/bar": {
+      include: "excludeclear",
+      style() {
+        return {
+          cssUtilityClass: "hidden shrink-0 p-12 w-56 bg-indigo-800 overflow-y-auto md:block"
+        };
+      }
+    },
+
+    "exp-tabview/bar/scrollpane": "excludeclear",
+
+    "exp-tabview/bar/content": "excludeclear",
+
+    "exp-tabview/pane": {
+      include: "excludeclear",
+      style() {
+        return {
+          cssUtilityClass: "md:flex md:grow md:overflow-hidden",
+          removeCssClasses: ["qx-main"],
+          backgroundColor: null
+        };
+      }
+    },
+
+    "exp-tabview-page": {
+      include: "excludeclear",
+      style() {
+        return {
+          cssUtilityClass: "px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto"
+        };
+      }
+    },
+
+    "exp-tabview-page/button": {
+      include: "excludeclear",
       style(states) {
         return {
-          excludeBoundsFromDom: true,
-          clearAllInlineStyles: true,
+          cssUtilityClass: states.checked ? "group flex items-center py-3 mb-4 text-white" : "group text-indigo-300 flex items-center py-3 mb-4"
+        };
+      }
+    },
+
+    "exp-tabview-page/button/label": {
+      include: "excludeclear",
+      alias: "label",
+      style(states) {
+        return {
           cssUtilityClass: states.checked ? "text-white" : "text-indigo-300 group-hover:text-white"
         };
       }
@@ -159,6 +230,8 @@ qx.Theme.define("twindapp.theme.Appearance",
       }
     },
 
-    "ping-exp-checkbox/icon": {}
+    "ping-exp-checkbox/icon": {},
+
+    "selectbox-arrow-button": {}
   }
 });

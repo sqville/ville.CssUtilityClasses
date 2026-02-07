@@ -16,6 +16,12 @@ qx.Class.define("twindapp.views.TabView", {
     this.init(header);
   },
 
+  properties: {
+    appearance: {
+      init: "exp-tabview",
+      refine: true
+    }
+  },
 
   members: {
 
@@ -33,6 +39,7 @@ qx.Class.define("twindapp.views.TabView", {
       this.add(detailspage);
       this.add(login);
 
+      /* CssUtilityClasses - Moved to Appearance - see "exp-tabview/[child-control]" entries
       // Slidebar
       var slidebar = this.getChildControl("bar");
       slidebar.setExcludeBoundsFromDom(true);
@@ -52,6 +59,7 @@ qx.Class.define("twindapp.views.TabView", {
       stack.setRemoveCssClasses(["qx-main"]);
       stack.setBackgroundColor(null);
       stack.setCssUtilityClass("md:flex md:grow md:overflow-hidden");
+      */
 
       header.setLoginRefs(this, login);
 

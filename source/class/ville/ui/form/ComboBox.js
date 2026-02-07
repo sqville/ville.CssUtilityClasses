@@ -2,6 +2,7 @@
  * ComboBox
  * 
  * @external(mantine/core/styles/Input.css)
+ * @external(mantine/core/styles/Combobox.css)
  */
 qx.Class.define("ville.ui.form.ComboBox", {
     
@@ -16,9 +17,9 @@ qx.Class.define("ville.ui.form.ComboBox", {
         //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
-        this.setExcludeBoundsFromDomMods(["left", "top"]);
+        //this.setExcludeBoundsFromDomMods(["left", "top"]);
         this.setCssUtilityClass("m_6c018570 mantine-Input-wrapper mantine-InputBase-wrapper");
-        this.setStyle("position", "relative", true);
+        //this.setStyle("position", "relative", true);
         this.setAttributes({ 
             "data-pointer": "true",
             "data-with-right-section": "true"

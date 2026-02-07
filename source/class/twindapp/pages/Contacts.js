@@ -22,9 +22,11 @@ qx.Class.define("twindapp.pages.Contacts", {
       this.setLabel(pageName);
       this.addListener("appear", () => {document.title = `${pageName} - Ping CRM Qooxdoo`});
       this.setUserData("pageurl", pageurl);
+      /* CssUtilityClasses - Moved to Appearance - see "exp-tabview-page" entries
       this.setExcludeBoundsFromDom(true);
       this.setClearAllInlineStyles(true);
       this.setCssUtilityClass("px-4 py-8 md:flex-1 md:p-12 md:overflow-y-auto");
+      */
 
       // Page Button
       var pagebtnlink = this.getButton();
