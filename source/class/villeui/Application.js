@@ -782,12 +782,35 @@ qx.Class.define("villeui.Application",
 
       // Window widgets tab page
       var stackWindowpage = new ville.ui.layout.SimpleGrid();
-      stackWindowpage.addClass("__m__-r10g");
+      stackWindowpage.addClass("__m__-r14h");
       mainWidgetBrowserStack.add(stackWindowpage);
+
+      // Window - open test
+      var btnOpenwin = new ville.ui.form.Button("Open window");
+      btnOpenwin.setStyle("max-width", "200px");
+      stackWindowpage.add(btnOpenwin);
+
+      var winDrawer = this._createDetailWindow();
+      winDrawer.set({height: 300, width: 250});
+      //winDrawer.setLayout(new qx.ui.layout.Canvas());
+      var btnClosewin = new ville.ui.form.Button("Close window");
+      btnClosewin.setStyle("max-width", "150px");
+      winDrawer.add(btnClosewin);
+
+      btnOpenwin.addListener("execute", () => {
+        //winDrawer.fadeIn(200);
+        winDrawer.show();
+        winDrawer.center();
+      });
+
+      btnClosewin.addListener("execute", () => {
+        winDrawer.close();
+      });
+
 
       var comingsoonWindow = new ville.ui.basic.Element("span");
       comingsoonWindow.setAttribute("html", "<em>Window Widgets - Coming soon</em>");
-      stackWindowpage.add(comingsoonWindow);
+      //stackWindowpage.add(comingsoonWindow);
 
       // Sponsor link - You?
       var sponsorYou = new ville.ui.core.Box("a");
@@ -1083,6 +1106,17 @@ qx.Class.define("villeui.Application",
       tabView.add(page3);
 
       return tabView;
+    },
+
+    _createDetailWindow() {
+      // Create the Window
+      var win = new qx.ui.window.Window("Qx Window").set({ allowMaximize : true, allowMinimize : false, modal: true, movable: true });
+      win.setLayout(new qx.ui.layout.VBox(4));
+      win.setShowStatusbar(true);
+      win.setStatus("Generic Message"); 
+      //win.getChildControl("title").set({padding: [10,0,0,10]});
+
+      return win;
     },
 
     // overridden

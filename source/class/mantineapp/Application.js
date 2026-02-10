@@ -99,7 +99,26 @@ qx.Class.define("mantineapp.Application",
 
       // Twitter Button
       var twitButton = new ville.ui.form.Button("Twitter", "default");//, new ville.ui.icon.Photo("14"));
-      twitButton.addClass("mantine-focus-auto mantine-active"); 
+      twitButton.addClass("mantine-focus-auto mantine-active");
+      
+      // Window testing
+      var winDrawer = this._createDetailWindow();
+      winDrawer.set({height: 200, width: 180});
+      //winDrawer.setLayout(new qx.ui.layout.Canvas());
+      var btnClosewin = new ville.ui.form.Button("Close window");
+      btnClosewin.setStyle("max-width", "140px");
+      winDrawer.add(btnClosewin);
+
+      twitButton.addListener("execute", () => {
+        winDrawer.fadeIn(200);
+        winDrawer.show();
+        winDrawer.center();
+      });
+
+      btnClosewin.addListener("execute", () => {
+        winDrawer.close();
+      });
+      
 
       // Dropdown, Popup testing
       // Menu Button
@@ -112,7 +131,7 @@ qx.Class.define("mantineapp.Application",
       var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
       btnMenuButton.setMenu(btnMenu);
       var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
-      //PopupTestingGroupbox.add(btnMenuButton);
+      PopupTestingGroupbox.add(btnMenuButton);
       // ComboBox
       //var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
       //lblComboBox.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
@@ -127,7 +146,7 @@ qx.Class.define("mantineapp.Application",
       var cmbobtn = comboBox.getChildControl("button");
       cmbobtn.setWidth(16);
       cmbobtn.setBackgroundColor("yellow");
-      PopupTestingGroupbox.add(comboBox);
+      //PopupTestingGroupbox.add(comboBox);
 
       // Separator
       var divider = new ville.ui.core.Divider();
@@ -241,6 +260,18 @@ qx.Class.define("mantineapp.Application",
 
       
 
+    },
+    
+    _createDetailWindow() {
+      // Create the Window
+      var win = new qx.ui.window.Window("Qx Window").set({ allowMaximize : true, allowMinimize : false, modal: true, movable: true });
+      win.setLayout(new qx.ui.layout.VBox(4));
+      win.setShowStatusbar(true);
+      win.setStatus("Generic Message"); 
+      //win.getChildControl("title").set({padding: [10,0,0,10]});
+
+      return win;
     }
+
   }
 });
