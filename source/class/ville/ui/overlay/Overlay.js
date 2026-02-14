@@ -1,22 +1,19 @@
 /**
- * Stack Container
+ * Overlay
+ * @external(mantine/core/styles/Overlay.css)
  */
-qx.Class.define("ville.ui.layout.Stack", {
+qx.Class.define("ville.ui.overlay.Overlay", {
     
-    extend: qx.ui.container.Stack,
-
-    include: ville.ui.core.MWidget,
+    extend: ville.ui.core.Widget,
 
     construct(component) {
         
         if (component) {
             this.__componenttag = component;
         }
-        
         super();
 
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
+        this.setCssUtilityClass("m_9814e45f mantine-Overlay-root");
 
     },
 

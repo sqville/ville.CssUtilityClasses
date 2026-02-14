@@ -1,11 +1,11 @@
 /**
- * Stack Container
+ * @external(mantine/core/styles/Container.css)
  */
-qx.Class.define("ville.ui.layout.Stack", {
+qx.Class.define("ville.ui.container.Composite", {
     
-    extend: qx.ui.container.Stack,
+    extend: ville.ui.container.Composite,
 
-    include: ville.ui.core.MWidget,
+    include: qx.ui.core.MWidget,
 
     construct(component) {
         
@@ -15,8 +15,7 @@ qx.Class.define("ville.ui.layout.Stack", {
         
         super();
 
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
+        this.setCssUtilityClass("m_7485cace mantine-Container-root");
 
     },
 

@@ -1,7 +1,7 @@
 /**
  * Stack Container
  */
-qx.Class.define("ville.ui.layout.Stack", {
+qx.Class.define("ville.ui.container.Stack", {
     
     extend: qx.ui.container.Stack,
 

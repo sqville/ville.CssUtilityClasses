@@ -6,7 +6,7 @@ qx.Class.define("ville.ui.form.Label", {
     construct(text) {
         super();
 
-        this._setLayout(new qx.ui.layout.Basic());
+        //this._setLayout(new qx.ui.layout.Basic());
 
         if (text) {
             this.setValue(text);

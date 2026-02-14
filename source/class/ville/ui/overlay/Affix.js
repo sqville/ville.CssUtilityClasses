@@ -1,5 +1,4 @@
 /**
- * Base Container
  * @external(mantine/core/styles/Affix.css)
  */
 qx.Class.define("ville.ui.overlay.Affix", {

@@ -53,37 +53,31 @@ qx.Class.define("mantineapp.Application",
       */
 
       if (qx.core.Environment.get("ville.cssuc")) {
-        //qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-        //qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
 
         qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
 
-        // clear out all styling of html and body tags
-        //document.documentElement.style = "";
-        //document.body.style = "";
       }
 
       // Document is the application root
       const doc = this.getRoot();
       doc.setCssUtilityClass("ville-mantineapp-Application");
-      //doc.setExcludeBoundsFromDom(true);
-      //doc.setClearAllInlineStyles(true);
 
       // Application Margin Box
-      //var docMarginBox = new qx.ui.container.Composite(new qx.ui.layout.Basic());
       var docMarginBox = new ville.ui.core.Box();
-      //docMarginBox.setExcludeBoundsFromDom(true);
-      //docMarginBox.setClearAllInlineStyles(true);
       docMarginBox.setCssUtilityClass("ville-mantineapp-InnerAppContainer");
 
       // Login Center Box Container
       var centerbox = new ville.ui.core.Paper();
       centerbox.setAttribute("data-with-border", "true");
-      centerbox.setStyle("--paper-radius", `var(--mantine-radius-md)`);
-      centerbox.setStyle("padding", "var(--mantine-spacing-lg)");
+      centerbox.setStyles({
+        "--paper-radius": "var(--mantine-radius-md)",
+        "--paper-shadow": "var(--mantine-shadow-md)",
+        "padding": "var(--mantine-spacing-lg)",
+        "margin-bottom": "40px"
+      });
 
       // Login Center Box Header Welcome Message
-      var welcomeMsg = new ville.ui.typography.Text("Welcome to Mantine, login with");
+      var welcomeMsg = new ville.ui.typography.Text("Welcome to Ville UI (Qooxdoo + Mantine)");
       welcomeMsg.set({ size : "lg", fontWeight : 500 });
       welcomeMsg.addClass("mantine-focus-auto");
 
@@ -97,20 +91,31 @@ qx.Class.define("mantineapp.Application",
       var googleButton = new ville.ui.form.Button("Google", "default");
       googleButton.addClass("mantine-focus-auto mantine-active");
 
+      // Tooltip
+      var tooltip = new qx.ui.tooltip.ToolTip("Test ToolTip");
+      googleButton.setToolTip(tooltip);
+
       // Twitter Button
       var twitButton = new ville.ui.form.Button("Twitter", "default");//, new ville.ui.icon.Photo("14"));
       twitButton.addClass("mantine-focus-auto mantine-active");
       
       // Window testing
-      var winDrawer = this._createDetailWindow();
+      var winDrawer = this._createVuiModalWindow();
       winDrawer.set({height: 200, width: 180});
+      winDrawer.getContentElement().setStyles({
+        "--modal-radius": "var(--mantine-radius-md)",
+        "--modal-y-offset": "5dvh"
+      });
       //winDrawer.setLayout(new qx.ui.layout.Canvas());
       var btnClosewin = new ville.ui.form.Button("Close window");
-      btnClosewin.setStyle("max-width", "140px");
+      btnClosewin.setStyles({
+        "max-width": "140px",
+        "margin-top": "60px"
+      });
       winDrawer.add(btnClosewin);
 
       twitButton.addListener("execute", () => {
-        winDrawer.fadeIn(200);
+        //winDrawer.fadeIn(200);
         winDrawer.show();
         winDrawer.center();
       });
@@ -119,19 +124,6 @@ qx.Class.define("mantineapp.Application",
         winDrawer.close();
       });
       
-
-      // Dropdown, Popup testing
-      // Menu Button
-      var btnMenu = new ville.ui.menu.Menu();
-      var menuitem01 = new ville.ui.menu.Button("Menu item 01");
-      var menuitem02 = new ville.ui.menu.Button("Menu item 02");
-      btnMenu.add(menuitem01);
-      btnMenu.add(menuitem02);
-      //btnMenu.setDomMove(true);
-      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
-      btnMenuButton.setMenu(btnMenu);
-      var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
-      PopupTestingGroupbox.add(btnMenuButton);
       // ComboBox
       //var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
       //lblComboBox.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
@@ -199,13 +191,61 @@ qx.Class.define("mantineapp.Application",
 
       centerbox.add(welcomeMsg);
       centerbox.add(LoginAuthGroupbox);
-      centerbox.add(PopupTestingGroupbox);
+      //centerbox.add(PopupTestingGroupbox);
       centerbox.add(divider);
       centerbox.add(loginForm);
 
-      //centerbox.add(expwidget);
+      // Separator
+      var dividerPopups = new ville.ui.core.Divider().set({size: "xl"});
+      dividerPopups.setLabel("Dropdown, Popup testing");
+
+      // Menu Button
+      var btnMenu = new ville.ui.menu.Menu();
+      var menuitem01 = new ville.ui.menu.Button("Menu item 01");
+      var menuitem02 = new ville.ui.menu.Button("Menu item 02");
+      btnMenu.add(menuitem01);
+      btnMenu.add(menuitem02);
+      //btnMenu.setDomMove(true);
+      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
+      btnMenuButton.setMenu(btnMenu);
+      var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
+      PopupTestingGroupbox.add(btnMenuButton);
+
+      // Theme Affix
+      var IconSun = new ville.ui.icon.IconSun();
+      IconSun.setStyles({ "width" : "24", "height" : "24" });
+      IconSun.setAttribute("stroke-width", "1.5");
+      var IconMoon = new ville.ui.icon.IconMoon();
+
+      var btnTheme = new ville.ui.form.ToggleActionIcon(IconMoon, IconSun);
+      btnTheme.setStyles({
+        "--ai-size": "var(--ai-size-lg)",
+        "--ai-radius": "var(--mantine-radius-md)",
+        "--ai-bg": "var(--mantine-color-default)",
+        "--ai-hover": "var(--mantine-color-default-hover)",
+        "--ai-color": "var(--mantine-color-default-color)",
+        "--ai-bd": "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)"
+      });
+      btnTheme.addListener("click", (e) => {
+        if (btnTheme.getValue()) {
+          document.documentElement.setAttribute("data-mantine-color-scheme", "light");
+        } else {
+          document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
+        }
+      });
+
+      var settingsAffix = new ville.ui.overlay.Affix();
+      settingsAffix.setStyles({
+        "--affix-z-index": "200",
+        "--affix-top": "calc(1.25rem * var(--mantine-scale))",
+        "--affix-right": "calc(1.25rem * var(--mantine-scale))"
+      });
+      settingsAffix.add(btnTheme);
+      doc.add(settingsAffix);
 
       docMarginBox.add(centerbox);
+      docMarginBox.add(dividerPopups);
+      docMarginBox.add(btnMenuButton);
       doc.add(docMarginBox);
 
       /*
@@ -228,47 +268,25 @@ qx.Class.define("mantineapp.Application",
       orCard.setCssUtilityClass("card-body");
       orCard.setExcludeBoundsFromDom(true);
       orCard.setClearAllInlineStyles(true);
-      mainCard.add(orCard);
-
-      // AltButtons
-      var altRow = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-      altRow.setCssUtilityClass("row");
-      altRow.setExcludeBoundsFromDom(true);
-      altRow.setClearAllInlineStyles(true);
-      orCard.add(altRow);
-      var altCol1 = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-      altCol1.setCssUtilityClass("col");
-      altCol1.setExcludeBoundsFromDom(true);
-      altCol1.setClearAllInlineStyles(true);
-      altRow.add(altCol1);
-      var btngh = new mantineapp.components.Link("Login with Github", null, ".", true);
-      btngh.setCssUtilityClass("btn btn-4 w-100");
-      btngh.setExcludeBoundsFromDom(true);
-      btngh.setClearAllInlineStyles(true);
-      altCol1.add(btngh);
-      var altCol2 = new qx.ui.container.Composite(new qx.ui.layout.Basic());
-      altCol2.setCssUtilityClass("col");
-      altCol2.setExcludeBoundsFromDom(true);
-      altCol2.setClearAllInlineStyles(true);
-      altRow.add(altCol2);
-      var btntwit = new mantineapp.components.Link("Login with X", null, ".", true);
-      btntwit.setCssUtilityClass("btn btn-4 w-100");
-      btntwit.setExcludeBoundsFromDom(true);
-      btntwit.setClearAllInlineStyles(true);
-      altCol2.add(btntwit);
-      */
-
+      mainCard.add(orCard);*/
       
 
     },
-    
-    _createDetailWindow() {
+
+    _createVuiModalWindow() {
       // Create the Window
-      var win = new qx.ui.window.Window("Qx Window").set({ allowMaximize : true, allowMinimize : false, modal: true, movable: true });
+      var win = new ville.ui.window.Modal("Vui Modal Window");
+
+      return win;
+    },
+    
+    _createQxWindow() {
+      // Create the Window
+      var win = new qx.ui.window.Window("Qx Window").set({ allowMaximize : false, allowMinimize : false, modal: true, movable: false });
       win.setLayout(new qx.ui.layout.VBox(4));
       win.setShowStatusbar(true);
       win.setStatus("Generic Message"); 
-      //win.getChildControl("title").set({padding: [10,0,0,10]});
+      win.getChildControl("title").set({padding: [10,0,0,10]});
 
       return win;
     }

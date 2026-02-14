@@ -790,6 +790,10 @@ qx.Class.define("villeui.Application",
       btnOpenwin.setStyle("max-width", "200px");
       stackWindowpage.add(btnOpenwin);
 
+      // Tooltip
+      var tooltip = new qx.ui.tooltip.ToolTip("Test ToolTip");
+      btnOpenwin.setToolTip(tooltip);
+
       var winDrawer = this._createDetailWindow();
       winDrawer.set({height: 300, width: 250});
       //winDrawer.setLayout(new qx.ui.layout.Canvas());

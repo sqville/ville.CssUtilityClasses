@@ -5,20 +5,16 @@ qx.Class.define("ville.ui.core.Widget", {
     include: ville.ui.core.MWidget,
 
     construct() {
+        this.setExcludeBoundsFromDom(true);
+        
         super();
 
         this._setLayout(new qx.ui.layout.Basic());
 
-        this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
     },
 
     members: {
-
-        // overridden
-        //renderLayout(left, top, width, height) {
-          //  return null;
-        //},
 
         // overridden
          _createContentElement() {
