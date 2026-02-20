@@ -10,9 +10,20 @@
 
 qx.Theme.define("mantineapp.theme.Decoration",
 {
-  extend : ville.cssuc.theme.blankslate.Decoration,
+  extend : qx.theme.indigo.Decoration,
 
   decorations :
   {
+    // overridden
+    "menu-popup" : 
+    {
+      include : "popup",
+      style :
+      {
+        transitionProperty: ['display', 'top', 'left'],
+        transitionDuration: "350ms",
+        transitionTimingFunction : "ease"
+      }
+    }
   }
 });

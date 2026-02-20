@@ -599,7 +599,7 @@ qx.Class.define("villeui.Application",
       var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
       lblComboBox.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       vstackTextWidgets.add(lblComboBox);
-      var comboBox = new qx.ui.form.ComboBox();
+      var comboBox = new ville.ui.form.ComboBox();
       for (var i = 1; i < 31; i++) {
         var tempItem = new qx.ui.form.ListItem(
           "2^ " + i + " = " + Math.pow(2, i)

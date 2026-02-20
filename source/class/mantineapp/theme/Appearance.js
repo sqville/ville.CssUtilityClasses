@@ -12,10 +12,99 @@
  */
 qx.Theme.define("mantineapp.theme.Appearance",
 {
-  extend : ville.cssuc.theme.blankslate.Appearance,
+  extend : qx.theme.indigo.Appearance,
 
   appearances :
   {
+    // overridden
+    root: {},
+
+    // overridden
+    popup: {},
+    /*popup: {
+      style(states) {
+        return {
+          decorator: "popup"
+        };
+      }
+    },*/
+
+    // overridden
+    label: {},
+
+    /*
+    ---------------------------------------------------------------------------
+      MENU
+    ---------------------------------------------------------------------------
+    */
+
+    // overridden
+    menu: {
+      style(states) {
+        var result = {
+          spacingX: 6,
+          spacingY: 1,
+          iconColumnWidth: 16,
+          arrowColumnWidth: 4,
+          placementModeY:
+            states.submenu || states.contextmenu ? "best-fit" : "keep-align"
+        };
+
+        if (states.submenu) {
+          result.position = "right-top";
+          result.offset = [-2, -3];
+        }
+
+        if (states.contextmenu) {
+          result.offset = 4;
+        }
+
+        return result;
+      }
+    },
+
+    "menu-button": "atom",
+    /*
+    ---------------------------------------------------------------------------
+      BUTTON
+    ---------------------------------------------------------------------------
+    */
+   // overridden
+    "button-frame": {
+      alias: "atom",
+
+      style(states) {
+        var decorator = "button-box";
+
+        /*if (!states.disabled) {
+          if (states.hovered && !states.pressed && !states.checked) {
+            decorator = "button-box-hovered";
+          } else if (states.hovered && (states.pressed || states.checked)) {
+            decorator = "button-box-pressed-hovered";
+          } else if (states.pressed || states.checked) {
+            decorator = "button-box-pressed";
+          }
+        }
+
+        if (states.invalid && !states.disabled) {
+          decorator += "-invalid";
+        } else if (states.focused) {
+          decorator += "-focused";
+        }
+
+        return {
+          decorator: decorator,
+          padding: [3, 8],
+          cursor: states.disabled ? undefined : "pointer",
+          minWidth: 5,
+          minHeight: 5
+        };*/
+        return {
+          minWidth: 5,
+          minHeight: 5
+        };
+      }
+    },
     /*
     ---------------------------------------------------------------------------
       WINDOW

@@ -63,7 +63,7 @@ qx.Class.define("mantineapp.Application",
       doc.setCssUtilityClass("ville-mantineapp-Application");
 
       // Application Margin Box
-      var docMarginBox = new ville.ui.core.Box();
+      var docMarginBox = new ville.ui.container.Composite(new qx.ui.layout.VBox());
       docMarginBox.setCssUtilityClass("ville-mantineapp-InnerAppContainer");
 
       // Login Center Box Container
@@ -201,6 +201,15 @@ qx.Class.define("mantineapp.Application",
 
       // Menu Button
       var btnMenu = new ville.ui.menu.Menu();
+      /* See Decoration's approach to transitioning popups */
+      /*btnMenu.setStyles({
+        "transition-property": "opacity, transform",
+        "backface-visibility": "hidden",
+        "transition-duration": "350ms",
+        "transition-timing-function": "ease"
+      });*/
+      btnMenu.setAttribute("data-position","bottom");
+      btnMenu.addClass("ville-menu-popup");
       var menuitem01 = new ville.ui.menu.Button("Menu item 01");
       var menuitem02 = new ville.ui.menu.Button("Menu item 02");
       btnMenu.add(menuitem01);
@@ -208,8 +217,21 @@ qx.Class.define("mantineapp.Application",
       //btnMenu.setDomMove(true);
       var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
       btnMenuButton.setMenu(btnMenu);
-      var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
-      PopupTestingGroupbox.add(btnMenuButton);
+
+      btnMenu.addListener("appear", () => {
+        var menubounds = btnMenu.getBounds(); 
+        var ptopstart = menubounds.top;
+        //var plftstart = menubounds.left;
+        if (ptopstart > btnMenu.getOpener().getContentLocation().top) {
+          btnMenu.setAttribute("data-position","bottom");
+        } else {
+          btnMenu.setAttribute("data-position","top");
+        }
+      });
+
+      //var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
+      //PopupTestingGroupbox.add(btnMenuButton);
+
 
       // Theme Affix
       var IconSun = new ville.ui.icon.IconSun();
@@ -243,9 +265,10 @@ qx.Class.define("mantineapp.Application",
       settingsAffix.add(btnTheme);
       doc.add(settingsAffix);
 
-      docMarginBox.add(centerbox);
+      //docMarginBox.add(centerbox);
       docMarginBox.add(dividerPopups);
       docMarginBox.add(btnMenuButton);
+      //docMarginBox.add(comboBox);
       doc.add(docMarginBox);
 
       /*

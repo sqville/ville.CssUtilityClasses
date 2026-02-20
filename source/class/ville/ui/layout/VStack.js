@@ -12,6 +12,8 @@ qx.Class.define("ville.ui.layout.VStack", {
         
         super();
 
+        this._setLayout(new qx.ui.layout.VBox());
+
         this.setCssUtilityClass("m_6d731127 mantine-Stack-root");
 
         if (align != null) {

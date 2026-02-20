@@ -1,21 +1,25 @@
 /**
- * @external(mantine/core/styles/Container.css)
+ * 
  */
 qx.Class.define("ville.ui.container.Composite", {
     
-    extend: ville.ui.container.Composite,
+    extend: qx.ui.container.Composite,
 
-    include: qx.ui.core.MWidget,
+    include: ville.ui.core.MWidget,
 
-    construct(component) {
+    construct(layout, component) {
         
-        if (component) {
+        if (component != null) {
             this.__componenttag = component;
         }
-        
-        super();
 
-        this.setCssUtilityClass("m_7485cace mantine-Container-root");
+        if (layout != null)
+            super(layout);
+        else
+            super();
+
+        this.setExcludeBoundsFromDom(true);
+        this.setClearAllInlineStyles(true);
 
     },
 

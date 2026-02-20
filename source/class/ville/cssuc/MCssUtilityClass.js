@@ -49,10 +49,13 @@ qx.Mixin.define("ville.cssuc.MCssUtilityClass",
 
     // property apply
     _applyExcludeInlineStyles(value, old) {
-      var elem = this.getContentElement();
-      for (const style of value) {
-        elem.removeStyle(style, true);
+      if (value) {
+        var elem = this.getContentElement();
+        for (const style of value) {
+          elem.removeStyle(style, true);
+        }
       }
+      
     },
 
     // property apply

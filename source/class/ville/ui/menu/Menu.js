@@ -13,9 +13,9 @@ qx.Class.define("ville.ui.menu.Menu", {
 
         super();
 
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true); 
-        this.setExcludeBoundsFromDomMods(["width", "height"]);
+        //this.setExcludeBoundsFromDom(true);
+        //this.setClearAllInlineStyles(true);
+        this.setExcludeInlineStyles(["touch-action","cursor","userSelect","boxSizing"]);
         this.setCssUtilityClass("m_38a85659 mantine-Menu-dropdown m_dc9b7c9f");
         this.setAttribute('role', "menu");
 

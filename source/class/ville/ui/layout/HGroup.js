@@ -12,6 +12,8 @@ qx.Class.define("ville.ui.layout.HGroup", {
 
         super();
 
+        this._setLayout(new qx.ui.layout.HBox());
+
         this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
 
     },

@@ -16,8 +16,8 @@ qx.Class.define("ville.ui.menu.Button", {
 
         super();
 
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
+        //this.setExcludeBoundsFromDom(true);
+        //this.setClearAllInlineStyles(true);
         this.setCssUtilityClass("mantine-focus-auto m_99ac2aa1 mantine-Menu-item m_87cf2631 mantine-UnstyledButton-root");
 
         if (variant) {
@@ -83,7 +83,8 @@ qx.Class.define("ville.ui.menu.Button", {
             switch (id) {
                 
                 case "label":
-                    control = new ville.ui.basic.Label(null, "div");
+                    //control = new ville.ui.basic.Label(null, "div");
+                    control = new qx.ui.basic.Label();
                     control.setAnonymous(true);
                     control.setCssUtilityClass("m_5476e0d3 mantine-Menu-itemLabel");
                     this._add(control);
