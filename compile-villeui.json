@@ -28,7 +28,25 @@
       "theme": "ville.cssuc.theme.blankslate.Theme",
       "name": "villeui",
       "bootPath": "source/boot/villeui",
-      "include": ["ville.cssuc.*"]
+      "include": ["ville.cssuc.*"],
+      "parts": {
+        "boot": {
+            "include": [
+                "villeui.Application",
+                "ville.cssuc.*"
+            ]
+        },
+        "WidgetBrowser": {
+            "include": [
+                "villeui.WidgetBrowser"
+            ]
+        },
+        "NativeCss": {
+            "include": [
+                "villeui.NativeCss"
+            ]
+        }
+      }
     }
   ]
 }

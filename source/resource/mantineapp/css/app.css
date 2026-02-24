@@ -41,26 +41,5 @@
     }
 }
 
-.ville-menu-popup {
-    opacity: 1;
-    transform: translateY(0px);
-    transition-property: opacity, transform;
-    transition-duration: 150ms;
-    transition-timing-function: ease;
-    @starting-style {
-        opacity: 0;
-    }
-}
-.ville-menu-popup:where([data-position='top']) {
-    @starting-style {  
-        transform: translateY(10px);
-    }
-}
-.ville-menu-popup:where([data-position='bottom']) {
-    @starting-style {  
-        transform: translateY(-10px);
-    }
-}
-
 
 

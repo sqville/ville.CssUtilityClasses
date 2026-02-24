@@ -135,9 +135,9 @@ qx.Class.define("mantineapp.Application",
         );
         comboBox.add(tempItem);
       }
-      var cmbobtn = comboBox.getChildControl("button");
-      cmbobtn.setWidth(16);
-      cmbobtn.setBackgroundColor("yellow");
+      //var cmbobtn = comboBox.getChildControl("button");
+      //cmbobtn.setWidth(16);
+      //cmbobtn.setBackgroundColor("yellow");
       //PopupTestingGroupbox.add(comboBox);
 
       // Separator
@@ -191,7 +191,6 @@ qx.Class.define("mantineapp.Application",
 
       centerbox.add(welcomeMsg);
       centerbox.add(LoginAuthGroupbox);
-      //centerbox.add(PopupTestingGroupbox);
       centerbox.add(divider);
       centerbox.add(loginForm);
 
@@ -202,14 +201,14 @@ qx.Class.define("mantineapp.Application",
       // Menu Button
       var btnMenu = new ville.ui.menu.Menu();
       /* See Decoration's approach to transitioning popups */
-      /*btnMenu.setStyles({
-        "transition-property": "opacity, transform",
+      btnMenu.setStyles({
+        "transition-property": "opacity",
         "backface-visibility": "hidden",
-        "transition-duration": "350ms",
+        "transition-duration": "150ms",
         "transition-timing-function": "ease"
-      });*/
-      btnMenu.setAttribute("data-position","bottom");
-      btnMenu.addClass("ville-menu-popup");
+      });
+      //btnMenu.setAttribute("data-position","bottom");
+      //btnMenu.addClass("ville-menu-popup");
       var menuitem01 = new ville.ui.menu.Button("Menu item 01");
       var menuitem02 = new ville.ui.menu.Button("Menu item 02");
       btnMenu.add(menuitem01);
@@ -218,7 +217,7 @@ qx.Class.define("mantineapp.Application",
       var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
       btnMenuButton.setMenu(btnMenu);
 
-      btnMenu.addListener("appear", () => {
+      /*btnMenu.addListener("appear", () => {
         var menubounds = btnMenu.getBounds(); 
         var ptopstart = menubounds.top;
         //var plftstart = menubounds.left;
@@ -227,11 +226,21 @@ qx.Class.define("mantineapp.Application",
         } else {
           btnMenu.setAttribute("data-position","top");
         }
+      });*/
+
+      // Window - popup testing
+      var windowPopup = new qx.ui.window.Window("Test Window Popup");
+      windowPopup.add(centerbox);
+      var windowBtn = new ville.ui.form.Button("Modal Window");
+      windowBtn.addListener("click", () => {
+        windowPopup.show();
       });
 
-      //var PopupTestingGroupbox = new ville.ui.layout.HGroup("center");
-      //PopupTestingGroupbox.add(btnMenuButton);
-
+      var PopupTestingGroupbox = new ville.ui.layout.HGroup("flex-start");
+      PopupTestingGroupbox.add(btnMenuButton);
+      PopupTestingGroupbox.add(comboBox);
+      PopupTestingGroupbox.setGap("xl");
+      PopupTestingGroupbox.setStyle("margin-bottom","40px");
 
       // Theme Affix
       var IconSun = new ville.ui.icon.IconSun();
@@ -267,8 +276,10 @@ qx.Class.define("mantineapp.Application",
 
       //docMarginBox.add(centerbox);
       docMarginBox.add(dividerPopups);
-      docMarginBox.add(btnMenuButton);
+      //docMarginBox.add(btnMenuButton);
       //docMarginBox.add(comboBox);
+      docMarginBox.add(PopupTestingGroupbox);
+      docMarginBox.add(windowBtn);
       doc.add(docMarginBox);
 
       /*

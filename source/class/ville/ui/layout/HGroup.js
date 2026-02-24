@@ -8,9 +8,15 @@ qx.Class.define("ville.ui.layout.HGroup", {
 
     include: qx.ui.core.MChildrenHandling,
 
-    construct() {
+    construct(justify) {
 
         super();
+
+        if (justify != null) {
+            this.setJustify(justify);
+        } else {
+            this.initJustify();
+        }
 
         this._setLayout(new qx.ui.layout.HBox());
 
@@ -19,6 +25,15 @@ qx.Class.define("ville.ui.layout.HGroup", {
     },
 
     properties: {
+
+        justify: {
+            init: "flex-start",
+            check: ["center", "flex-start", "flex-end", "space-between", "space-around"],
+            apply: "_applyJustify",
+            nullable: true,
+            themeable: true,
+            event: "changeJustify"
+        },
 
         gap: {
             init: "md",
@@ -41,6 +56,14 @@ qx.Class.define("ville.ui.layout.HGroup", {
     },
 
     members: {
+
+        _applyJustify(value, old) {
+            if (value) {
+                this.getContentElement().setStyle("--group-justify", value);
+            } else if (old && value == null) {
+                this.getContentElement().removeStyle("--group-justify");
+            }
+        },
 
         _applyGap(value, old) {
             if (value) {
