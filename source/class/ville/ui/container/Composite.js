@@ -13,12 +13,13 @@ qx.Class.define("ville.ui.container.Composite", {
             this.__componenttag = component;
         }
 
+        this.setExcludeBoundsFromDom(true);
+
         if (layout != null)
             super(layout);
         else
             super();
 
-        this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
 
     },

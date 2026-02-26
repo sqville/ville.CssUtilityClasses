@@ -25,7 +25,7 @@
   "applications": [
     {
       "class": "villeui.Application",
-      "theme": "ville.cssuc.theme.blankslate.Theme",
+      "theme": "ville.cssuc.theme.MiddleMan",
       "name": "villeui",
       "bootPath": "source/boot/villeui",
       "include": ["ville.cssuc.*"],

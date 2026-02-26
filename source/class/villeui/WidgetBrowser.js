@@ -273,18 +273,20 @@ qx.Class.define("villeui.WidgetBrowser", {
 
       // Menu Button
       var btnMenu = new ville.ui.menu.Menu();
-      btnMenu.setPlacementModeX("best-fit");
-      btnMenu.setPlacementModeY("direct");
-      btnMenu.setDomMove(true);
-      var menuitem01 = new ville.ui.menu.Button("Menu item 01").set({ maxWidth : 150, minHeight : 40 });
-      var menuitem02 = new ville.ui.menu.Button("Menu item 02").set({ maxWidth : 150, minHeight : 40 });
-      var menuitem03 = new ville.ui.menu.Button("Menu item 03").set({ maxWidth : 150, minHeight : 40 });
-      var menuitem04 = new ville.ui.menu.Button("Menu item 04").set({ maxWidth : 150, minHeight : 40 });
+      //btnMenu.setPlacementModeX("best-fit");
+      //btnMenu.setPlacementModeY("direct");
+      //btnMenu.setDomMove(true);
+      var menuitem01 = new ville.ui.menu.Button("Menu item 01");
+      var menuitem02 = new ville.ui.menu.Button("Menu item 02");
+      var menuitem03 = new ville.ui.menu.Button("Menu item 03");
+      var menuitem04 = new ville.ui.menu.Button("Menu item 04");
       btnMenu.add(menuitem01);
       btnMenu.add(menuitem02);
       btnMenu.add(menuitem03);
       btnMenu.add(menuitem04);
-      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button").set({ menu : btnMenu });
+      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
+      btnMenuButton.setMenu(btnMenu );
+      btnMenuButton.setStyle("width","140px");
       vstackButtonWidgets.add(btnMenuButton);
       
 

@@ -29,8 +29,9 @@ qx.Class.define("ville.ui.menu.Menu", {
         }
 
         // overridden
-        /*_createChildControlImpl(id, hash) {},
+        //_createChildControlImpl(id, hash) {}
 
+        /*
         open() {
             if (this.getOpener() != null) {
                 var isPlaced = this.placeToWidget(this.getOpener(), true);

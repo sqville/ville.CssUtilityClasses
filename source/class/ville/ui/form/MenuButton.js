@@ -18,8 +18,9 @@ qx.Class.define("ville.ui.form.MenuButton", {
 
         this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
+        //this.setExcludeInlineStyles(["touch-action","cursor","userSelect","boxSizing"]);
         //this.setStyle("position", "relative", true);
-        //this.setExcludeBoundsFromDomMods(["left", "top"]);
+        //this.setExcludeBoundsFromDomMods(["left", "top", "height"]);
         this.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
 
         if (this.__componenttag !== "button")

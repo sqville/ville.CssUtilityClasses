@@ -44,8 +44,17 @@ qx.Class.define("ville.ui.root.Application", {
       this
     );
 
+    // Resize handling
+    /*qx.event.Registration.addListener(
+      this.__doc,
+      "resize",
+      this._onResizeDoc,
+      this
+    );*/
+
     // Use a hard-coded canvas layout
     this._setLayout(new qx.ui.layout.Canvas());
+    //this._setLayout(new qx.ui.layout.Grow());
 
     // Directly schedule layout for root element
     qx.ui.core.queue.Layout.add(this);
@@ -73,6 +82,7 @@ qx.Class.define("ville.ui.root.Application", {
         true
       );
     }
+    
   },
 
   /*
@@ -136,7 +146,16 @@ qx.Class.define("ville.ui.root.Application", {
       if (qx.ui.menu && qx.ui.menu.Manager) {
         qx.ui.menu.Manager.getInstance().hideAll();
       }
+
+      var elemDims = qx.bom.element.Dimension.getSize(this.getContentElement().getDomElement());
+      this.setUserBounds(0, 0, elemDims.width, elemDims.height);
     },
+
+    /*_onResizeDoc(e) {
+      //qx.ui.core.queue.Layout.add(this);
+      var elemDims = qx.bom.element.Dimension.getSize(this.getContentElement().getDomElement());
+      this.setUserBounds(0, 0, elemDims.width, elemDims.height);
+    },*/
 
     // overridden
     _computeSizeHint() {

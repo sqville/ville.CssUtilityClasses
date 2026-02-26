@@ -65,10 +65,33 @@ qx.Class.define("villeui.Application",
 
       // Document is the application root and AppShell root
       const appShell = this.getRoot();
-      //appShell.setExcludeBoundsFromDom(true);
-      //appShell.setClearAllInlineStyles(true);
+      //appShell.setAllowGrowY(true);
+      //appShell.setLayout(new qx.ui.layout.VBox());
       appShell.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
-      //console.log(appShell.getExcludeBoundsFromDom());
+
+      /*appShell.addListener("resize", () => {
+        var elemDims = qx.bom.element.Dimension.getSize(appShell.getContentElement().getDomElement());
+        appShell.setUserBounds(0, 0, elemDims.width, elemDims.height);
+      });*/
+
+      // Menu Button TEST
+      var btnMenutest = new ville.ui.menu.Menu();
+      var menui01 = new ville.ui.menu.Button("Menu item 01");
+      var menui02 = new ville.ui.menu.Button("Menu item 02");
+      //var menui03 = new ville.ui.menu.Button("Menu item 03");
+      //var menui04 = new ville.ui.menu.Button("Menu item 04");
+      btnMenutest.add(menui01);
+      btnMenutest.add(menui02);
+      //btnMenutest.add(menui03);
+      //btnMenutest.add(menui04);
+      var btnMenuButt = new ville.ui.form.MenuButton("MB");
+      btnMenuButt.setMenu(btnMenutest);
+      //btnMenuButt.setStyle("width","140px");
+      //mainWidgetBrowserroot.add(btnMenuButt);
+      btnMenuButt.addListener("appear", () => {
+        var elemDims = qx.bom.element.Dimension.getSize(appShell.getContentElement().getDomElement());
+        appShell.setUserBounds(0, 0, elemDims.width, elemDims.height);
+      });
 
       /* ::: Header ::: */
       var headerBox = new ville.ui.core.Box("header");
@@ -168,6 +191,7 @@ qx.Class.define("villeui.Application",
           document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
         }
       });
+      headerLinksGroupBox.add(btnMenuButt);
       headerLinksGroupBox.add(navLinkGithub);
       headerLinksGroupBox.add(btnTheme);
 
@@ -191,12 +215,17 @@ qx.Class.define("villeui.Application",
       
       /* ::: Main ::: */
 
-      var mainBox = new ville.ui.core.Box();
+      //var mainBox = new ville.ui.core.Box();
+      var mainBox = new ville.ui.container.Composite(new qx.ui.layout.Basic());
       mainBox.setCssUtilityClass("m_8983817 mantine-AppShell-main");
-      var mainShell = new ville.ui.core.Box();
+      //var mainShell = new ville.ui.core.Box();
+      var mainShell = new ville.ui.container.Composite(new qx.ui.layout.VBox());
       mainShell.setCssUtilityClass("Shell_main__g9BIV");
       mainBox.add(mainShell);
-      var mainBannerwrapper = new ville.ui.core.Box();
+      
+      // Banner
+      //var mainBannerwrapper = new ville.ui.core.Box();
+      var mainBannerwrapper = new ville.ui.container.Composite(new qx.ui.layout.Basic());
       mainBannerwrapper.setCssUtilityClass("Banner_wrapper__g6dkO");
       var svgmarkup1 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:0;top:0"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
       var svgmarkup2 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:180;top:0"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
@@ -219,7 +248,10 @@ qx.Class.define("villeui.Application",
       mainBannerwrapper.add(svgWidget4);
       mainBannerwrapper.add(svgWidget5);
       mainShell.add(mainBannerwrapper);
-      var mainContainerroot = new ville.ui.layout.Container();
+
+      //var mainContainerroot = new ville.ui.layout.Container();
+      var mainContainerroot = new ville.ui.container.Composite(new qx.ui.layout.VBox());
+
       mainContainerroot.setStyles({
         "--container-size": "calc(43.75rem * var(--mantine-scale));",
         "padding-inline": "var(--mantine-spacing-md)"
@@ -230,6 +262,7 @@ qx.Class.define("villeui.Application",
       });
       mainBannerwrapper.add(mainContainerroot);
       var mainBannerbody = new ville.ui.core.Box();
+
       mainBannerbody.setCssUtilityClass("Banner_body__K_Xm0");
       mainContainerroot.add(mainBannerbody);
       var mainBannerVilleui = new ville.ui.typography.Text("Ville UI<br>", "span");
@@ -367,7 +400,9 @@ qx.Class.define("villeui.Application",
       mainSponsoredBy.add(mainSponsoredByTitle);
 
       // Sponsored by body
-      var mainSponsoredByBody = new ville.ui.core.Box();
+      // SQUpdate - was Box
+      var mainSponsoredByBody = new ville.ui.layout.Container();
+
       mainSponsoredByBody.setCssUtilityClass("HomePageSponsors_sponsors__3YyzB");
       mainSponsoredBy.add(mainSponsoredByBody);
 
@@ -398,8 +433,10 @@ qx.Class.define("villeui.Application",
       /* ::: End of Sponsored By ::: */
 
       /* MAIN SECTION ::: Widget Browser ::: */
-      var mainWidgetBrowserroot = new ville.ui.core.Box("section");
+      //var mainWidgetBrowserroot = new ville.ui.core.Box("section");
+      var mainWidgetBrowserroot = new ville.ui.container.Composite(new qx.ui.layout.Basic(), "section");
       mainWidgetBrowserroot.setCssUtilityClass("HomePageComponents_root__uexW5");
+
 
       var mainWidgetBrowserTitle = new ville.ui.typography.Title(2);
       mainWidgetBrowserTitle.setAttributes({"data-order": "2"});
@@ -431,6 +468,10 @@ qx.Class.define("villeui.Application",
               qx.io.PartLoader.require(["WidgetBrowser"],() => {
                 var mainWidgetBrowser = new villeui.WidgetBrowser();
                 mainWidgetBrowserroot.add(mainWidgetBrowser);
+                mainWidgetBrowser.addListenerOnce("appear", () => {
+                  var elemDims = qx.bom.element.Dimension.getSize(appShell.getContentElement().getDomElement());
+                  appShell.setUserBounds(appShell.getBounds().left, appShell.getBounds().top, appShell.getBounds().width, elemDims.height);
+                });
               });
               // Optional: Stop observing the element after the action fires once
               observer.unobserve(entry.target);
@@ -509,6 +550,10 @@ qx.Class.define("villeui.Application",
               qx.io.PartLoader.require(["NativeCss"],() => {
                 var mainNativeCss = new villeui.NativeCss();
                 mainNativeCssroot.add(mainNativeCss);
+                mainNativeCss.addListenerOnce("appear", () => {
+                  var elemDims = qx.bom.element.Dimension.getSize(appShell.getContentElement().getDomElement());
+                  appShell.setUserBounds(appShell.getBounds().left, appShell.getBounds().top, appShell.getBounds().width, elemDims.height);
+                });
               });
               // Optional: Stop observing the element after the action fires once
               observerNC.unobserve(entry.target);
@@ -583,6 +628,9 @@ qx.Class.define("villeui.Application",
             headerNavGroupBox.add(headerLinksGroupBox);
       appShell.add(mainBox);
       //appShell.add(footerBox);
+
+      //console.log("headerbox height: " + headerBox.getBounds());
+      //console.log("mainbox height: " + mainBox.getBounds());
 
     },
 

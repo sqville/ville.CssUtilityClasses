@@ -1,14 +1,12 @@
 /* ************************************************************************
 
-   Copyright: 2024 undefined
-
+   Copyright: 2026 Ville Software
    License: MIT license
-
-   Authors: undefined
+   Authors: sqville - Chris Eskew
 
 ************************************************************************ */
 
-qx.Theme.define("ville.cssuc.theme.blankslate.Theme",
+qx.Theme.define("ville.cssuc.theme.BlankSlate",
 {  
   meta :
   {

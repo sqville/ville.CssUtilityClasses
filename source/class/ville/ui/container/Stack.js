@@ -12,10 +12,11 @@ qx.Class.define("ville.ui.container.Stack", {
         if (component) {
             this.__componenttag = component;
         }
+
+        this.setExcludeBoundsFromDom(true);
         
         super();
 
-        this.setExcludeBoundsFromDom(true);
         this.setClearAllInlineStyles(true);
 
     },

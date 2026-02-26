@@ -12,7 +12,7 @@
  */
 qx.Theme.define("mantineapp.theme.Appearance",
 {
-  extend : qx.theme.indigo.Appearance,
+  extend : ville.cssuc.theme.middleman.Appearance,
 
   appearances :
   {

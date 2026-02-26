@@ -10,7 +10,7 @@
 
 qx.Theme.define("mantineapp.theme.Font",
 {
-  extend : qx.theme.indigo.Font,
+  extend : ville.cssuc.theme.middleman.Font,
 
   fonts :
   {

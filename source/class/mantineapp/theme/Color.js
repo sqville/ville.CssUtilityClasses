@@ -10,7 +10,7 @@
 
 qx.Theme.define("mantineapp.theme.Color",
 {
-  extend : qx.theme.indigo.Color,
+  extend : ville.cssuc.theme.middleman.Color,
 
   colors :
   {
