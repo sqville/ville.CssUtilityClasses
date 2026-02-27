@@ -1,5 +1,5 @@
 qx.Mixin.define("ville.ui.core.MWidget",
-{
+{ 
   members: {
 
     addClass(classname) {

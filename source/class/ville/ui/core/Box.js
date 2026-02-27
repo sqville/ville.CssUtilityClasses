@@ -13,6 +13,8 @@ qx.Class.define("ville.ui.core.Box", {
             this.__componenttag = component;
         }
         super();
+
+        
     },
 
     members: {

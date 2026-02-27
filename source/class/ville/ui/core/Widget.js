@@ -12,6 +12,16 @@ qx.Class.define("ville.ui.core.Widget", {
         this._setLayout(new qx.ui.layout.Basic());
 
         this.setClearAllInlineStyles(true);
+
+        this.addListenerOnce("appear", () => {
+            var elemDims = qx.bom.element.Dimension.getSize(this.getContentElement().getDomElement());
+            if (this.hasUserBounds()) {
+                var bxBds = this.getBounds();
+                this.setUserBounds(bxBds.left, bxBds.top, Math.round(elemDims.width), Math.round(elemDims.height));
+            } else {
+                this.setUserBounds(0, 0, Math.round(elemDims.width), Math.round(elemDims.height));
+            }        
+        }, this);
     },
 
     members: {

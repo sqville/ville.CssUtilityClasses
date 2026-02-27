@@ -65,8 +65,6 @@ qx.Class.define("villeui.Application",
 
       // Document is the application root and AppShell root
       const appShell = this.getRoot();
-      //appShell.setAllowGrowY(true);
-      //appShell.setLayout(new qx.ui.layout.VBox());
       appShell.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
 
       /*appShell.addListener("resize", () => {
@@ -78,17 +76,14 @@ qx.Class.define("villeui.Application",
       var btnMenutest = new ville.ui.menu.Menu();
       var menui01 = new ville.ui.menu.Button("Menu item 01");
       var menui02 = new ville.ui.menu.Button("Menu item 02");
-      //var menui03 = new ville.ui.menu.Button("Menu item 03");
-      //var menui04 = new ville.ui.menu.Button("Menu item 04");
       btnMenutest.add(menui01);
       btnMenutest.add(menui02);
-      //btnMenutest.add(menui03);
-      //btnMenutest.add(menui04);
       var btnMenuButt = new ville.ui.form.MenuButton("MB");
       btnMenuButt.setMenu(btnMenutest);
       btnMenuButt.addListener("appear", () => {
         var elemDims = qx.bom.element.Dimension.getSize(appShell.getContentElement().getDomElement());
-        appShell.setUserBounds(0, 0, elemDims.width, elemDims.height);
+        //appShell.setUserBounds(0, 0, elemDims.width, elemDims.height);
+        appShell.setUserBounds(appShell.getBounds().left, appShell.getBounds().top, appShell.getBounds().width, elemDims.height);
       });
 
       /* ::: Header ::: */

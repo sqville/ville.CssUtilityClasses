@@ -4,9 +4,9 @@
  * @external(mantine/core/styles/Combobox.css)
  * @require(ville.ui.icon.ComboBoxChevron)
  */
-qx.Class.define("ville.ui.form.ComboBox", {
+qx.Class.define("ville.ui.form.DateField", {
     
-    extend: qx.ui.form.ComboBox,
+    extend: qx.ui.form.DateField,
 
     include: ville.ui.core.MWidget,
 
@@ -16,39 +16,8 @@ qx.Class.define("ville.ui.form.ComboBox", {
         
         super();
         
-        //this._setLayout(new qx.ui.layout.Basic());
         this.setClearAllInlineStyles(true);
-        //this.setExcludeBoundsFromDomMods(["left", "top"]);
         this.setCssUtilityClass("m_46b77525 mantine-InputWrapper-root mantine-InputBase-root");
-        //this.setCssUtilityClass("m_6c018570 mantine-Input-wrapper mantine-InputBase-wrapper");
-        //this.setStyle("position", "relative", true);
-        /*this.setAttributes({ 
-            "data-pointer": "true",
-            "data-with-right-section": "true"
-        }, true);*/
-
-        //var popup = this.getChildControl("popup");
-        //popup.setDomMove(true);
-        //popup.setPosition("bottom-left");
-
-        /*var button = this.getChildControl("button");
-        button.addListener("execute", function(e)
-        {
-            //var popup = this.getChildControl("popup");
-            //popup.placeToMouse(e);
-            //console.log(e.getTarget());
-            var element = e.getTarget().getContentElement().getDomElement();
-            const rect = element.getBoundingClientRect();
-            console.log('Top (viewport):', rect.top);
-            console.log('Left (viewport):', rect.left);
-            popup.setPosition("bottom-left");
-            popup.placeToElement(element);
-            popup.show();
-            //popup.show();
-            //popup.moveTo(rect.left, rect.top);
-        }, this);
-        //button.setWidth(16);
-        //button.setBackgroundColor("green");*/
         
         this.initVariant();
         this.initSize();
@@ -175,11 +144,10 @@ qx.Class.define("ville.ui.form.ComboBox", {
                 break;
 
                 case "list":
-                // Get the list from the AbstractSelectBox
-                control = super._createChildControlImpl(id);
-                
-                // Change selection mode
-                control.setSelectionMode("single");
+                control = new qx.ui.control.DateChooser();
+                control.setFocusable(false);
+                control.setKeepFocus(true);
+                control.addListener("execute", this._onChangeDate, this);
                 break;
 
                 case "innerwrapper":
@@ -189,6 +157,17 @@ qx.Class.define("ville.ui.form.ComboBox", {
                 this._add(control);
                 break;
 
+                case "popup":
+                control = new qx.ui.popup.Popup(new qx.ui.layout.VBox());
+                control.setAutoHide(false);
+                control.add(this.getChildControl("list"));
+                control.addListener("pointerup", this._onChangeDate, this);
+                control.addListener(
+                    "changeVisibility",
+                    this._onPopupChangeVisibility,
+                    this
+                );
+                break;
                 
             }
 
