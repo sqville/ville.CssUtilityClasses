@@ -86,8 +86,6 @@ qx.Class.define("villeui.Application",
       //btnMenutest.add(menui04);
       var btnMenuButt = new ville.ui.form.MenuButton("MB");
       btnMenuButt.setMenu(btnMenutest);
-      //btnMenuButt.setStyle("width","140px");
-      //mainWidgetBrowserroot.add(btnMenuButt);
       btnMenuButt.addListener("appear", () => {
         var elemDims = qx.bom.element.Dimension.getSize(appShell.getContentElement().getDomElement());
         appShell.setUserBounds(0, 0, elemDims.width, elemDims.height);
@@ -215,17 +213,17 @@ qx.Class.define("villeui.Application",
       
       /* ::: Main ::: */
 
-      //var mainBox = new ville.ui.core.Box();
-      var mainBox = new ville.ui.container.Composite(new qx.ui.layout.Basic());
+      var mainBox = new ville.ui.core.Box();
+      //var mainBox = new ville.ui.container.Composite(new qx.ui.layout.Basic());
       mainBox.setCssUtilityClass("m_8983817 mantine-AppShell-main");
-      //var mainShell = new ville.ui.core.Box();
-      var mainShell = new ville.ui.container.Composite(new qx.ui.layout.VBox());
+      var mainShell = new ville.ui.core.Box();
+      //var mainShell = new ville.ui.container.Composite(new qx.ui.layout.VBox());
       mainShell.setCssUtilityClass("Shell_main__g9BIV");
       mainBox.add(mainShell);
       
       // Banner
-      //var mainBannerwrapper = new ville.ui.core.Box();
-      var mainBannerwrapper = new ville.ui.container.Composite(new qx.ui.layout.Basic());
+      var mainBannerwrapper = new ville.ui.core.Box();
+      //var mainBannerwrapper = new ville.ui.container.Composite(new qx.ui.layout.Basic());
       mainBannerwrapper.setCssUtilityClass("Banner_wrapper__g6dkO");
       var svgmarkup1 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:0;top:0"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
       var svgmarkup2 = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:180;top:0"> <circle cx="10" cy="10" r="5" /> <rect x="35" y="5" width="10" height="10" rx="2" /> <polygon points="70,5 75,15 65,15" /> <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)" /> <circle cx="130" cy="10" r="5" /> <rect x="155" y="5" width="10" height="10" rx="2" /> <rect x="5" y="35" width="10" height="10" rx="2" /> <polygon points="40,35 45,45 35,45" /> <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)" /> <circle cx="100" cy="40" r="5" /> <rect x="125" y="35" width="10" height="10" rx="2" /> <polygon points="160,35 165,45 155,45" /> <polygon points="10,65 15,75 5,75" /> <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)" /> <circle cx="70" cy="70" r="5" /> <rect x="95" y="65" width="10" height="10" rx="2" /> <polygon points="130,65 135,75 125,75" /> <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)" /> <circle cx="10" cy="100" r="5" /> <rect x="35" y="95" width="10" height="10" rx="2" /> <polygon points="70,95 75,105 65,105" /> <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)" /> <circle cx="130" cy="100" r="5" /> <rect x="155" y="95" width="10" height="10" rx="2" /> <rect x="5" y="125" width="10" height="10" rx="2" /> <polygon points="40,125 45,135 35,135" /> <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)" /> <circle cx="100" cy="130" r="5" /> <rect x="125" y="125" width="10" height="10" rx="2" /> <polygon points="160,125 165,135 155,135" /> <polygon points="10,155 15,165 5,165" /> <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)" /> <circle cx="70" cy="160" r="5" /> <rect x="95" y="155" width="10" height="10" rx="2" /> <polygon points="130,155 135,165 125,165" /> <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)" /> </svg>`;
@@ -249,8 +247,8 @@ qx.Class.define("villeui.Application",
       mainBannerwrapper.add(svgWidget5);
       mainShell.add(mainBannerwrapper);
 
-      //var mainContainerroot = new ville.ui.layout.Container();
-      var mainContainerroot = new ville.ui.container.Composite(new qx.ui.layout.VBox());
+      var mainContainerroot = new ville.ui.layout.Container();
+      //var mainContainerroot = new ville.ui.container.Composite(new qx.ui.layout.VBox());
 
       mainContainerroot.setStyles({
         "--container-size": "calc(43.75rem * var(--mantine-scale));",
@@ -628,9 +626,6 @@ qx.Class.define("villeui.Application",
             headerNavGroupBox.add(headerLinksGroupBox);
       appShell.add(mainBox);
       //appShell.add(footerBox);
-
-      //console.log("headerbox height: " + headerBox.getBounds());
-      //console.log("mainbox height: " + mainBox.getBounds());
 
     },
 

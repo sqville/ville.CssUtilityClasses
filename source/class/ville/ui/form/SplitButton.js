@@ -1,0 +1,205 @@
+/**
+ * Menu Button
+ * @external(mantine/core/styles/Group.css)
+ */
+qx.Class.define("ville.ui.form.SplitButton", {
+    
+    extend: qx.ui.form.SplitButton,
+
+    include: ville.ui.core.MWidget,
+
+    construct(label, variant, sectionLeft, menu, command) {
+
+        this.setExcludeBoundsFromDom(true);
+        
+        super();
+        
+        this.setClearAllInlineStyles(true);
+        this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
+        this.setStyles({
+            "--group-gap": "0rem",
+            "--group-align": "center",
+            "--group-justify": "flex-start",
+            "--group-wrap": "nowrap"
+        });
+        
+
+        if (variant) {
+            this.setVariant(variant);
+        } else {
+            this.initVariant();
+        }
+
+        if (sectionLeft != null) {
+            this.setSectionLeft(sectionLeft);
+        }
+
+        if (label != null) {
+            this.setLabel(label);
+        }
+
+        if (menu != null) {
+            this.setMenu(menu);
+        }
+
+        if (command != null) {
+            this.setCommand(command);
+        }
+
+    },
+
+    properties: {
+
+        variant: {
+            init: "default",
+            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
+            apply: "_applyVariant",
+            themeable: true,
+            event: "changeVariant"
+        },
+
+        sectionLeft: {
+            check: "qx.ui.core.Widget",
+            apply: "_applySectionLeft",
+            nullable: true,
+            themeable: true,
+            event: "changeSectionLeft"
+        },
+
+        sectionRight: {
+            check: "qx.ui.core.Widget",
+            apply: "_applySectionRight",
+            nullable: true,
+            themeable: true,
+            event: "changeSectionRight"
+        }
+    },
+
+    members: {
+
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element();
+        },
+
+        // overridden
+        _createChildControlImpl(id, hash) {
+            var control;
+            var innerwrapper;
+
+            switch (id) {
+                case "button":
+                control = new ville.ui.form.Button();
+                control.addListener("execute", this._onButtonExecute, this);
+                control.setFocusable(false);
+                this._addAt(control, 0);
+                break;
+
+                case "arrow":
+                control = new ville.ui.form.MenuButton();
+                control.setFocusable(false);
+                this._addAt(control, 1);
+                break;
+
+                case "innerwrapper":
+                    control = new ville.ui.core.InnerWrapper();
+                    control.setCssUtilityClass("m_80f1301b mantine-Button-inner");
+                    this._add(control);
+                    break;
+                
+                case "label":
+                    control = new ville.ui.basic.Label();
+                    control.setAnonymous(true);
+                    control.setSelectable(this.getSelectable());
+                    control.setCssUtilityClass("m_811560b9 mantine-Button-label");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
+                    break;
+
+                case "sectionleft":
+                    control = new ville.ui.basic.Label();
+                    control.setAnonymous(true);
+                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
+                    control.getContentElement().setAttribute("data-position", "left");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
+                    break;
+
+                case "sectionright":
+                    control = new ville.ui.basic.Label();
+                    control.setAnonymous(true);
+                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
+                    control.getContentElement().setAttribute("data-position", "right");
+                    innerwrapper = this.getChildControl("innerwrapper");
+                    innerwrapper.add(control);
+                    break;
+            }
+
+            return control || super._createChildControlImpl(id);
+        },
+
+        // property apply
+        _applyVariant(value, old) {
+            if (value) {
+                this.getContentElement().setAttribute("data-variant", value);
+            }
+        },
+
+        // overridden
+        // Replaced by Section Left and Right
+        _applyIcon(value, old) {},
+
+        // overridden
+        _applyShow(value, old) {},
+
+        // overridden
+        _applyLabel(value, old) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var label = this.getChildControl("label");
+                if (label) {
+                    label.setValue(value);
+                }
+            }
+        },
+
+        _applySectionLeft(value, old) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var section = this.getChildControl("sectionleft");
+                if (section) {
+                    if (old) {
+                        section.removeAll();
+                    }
+
+                    if (value) {
+                        section.add(value);
+                        this.getContentElement().setAttribute("data-with-left-section", "true");
+                    } else {
+                        this.getContentElement().removeAttribute("data-with-left-section");
+                    }
+                }
+            }
+        },
+
+        _applySectionRight(value, old) {
+            var innerwrapper = this.getChildControl("innerwrapper");
+            if (innerwrapper) {
+                var section = this.getChildControl("sectionright");
+                if (section) {
+                    if (old) {
+                        section.removeAll();
+                    }
+
+                    if (value) {
+                        section.add(value);
+                        this.getContentElement().setAttribute("data-with-right-section", "true");
+                    } else {
+                        this.getContentElement().removeAttribute("data-with-right-section");
+                    }
+                }
+            }
+        }
+
+    }
+  });

@@ -279,7 +279,11 @@ qx.Class.define("mantineapp.Application",
       //docMarginBox.add(btnMenuButton);
       //docMarginBox.add(comboBox);
       docMarginBox.add(PopupTestingGroupbox);
-      docMarginBox.add(windowBtn);
+      //docMarginBox.add(windowBtn);
+      var tblTable = this._getTable();
+      tblTable.getContentElement().setStyle("position","relative");
+      docMarginBox.add(tblTable);
+
       doc.add(docMarginBox);
 
       /*
@@ -323,7 +327,56 @@ qx.Class.define("mantineapp.Application",
       win.getChildControl("title").set({padding: [10,0,0,10]});
 
       return win;
-    }
+    },
+
+    _getTable() {
+            // Add traditional Table widget
+            /*** Table island test */
+            const tableConfig = {
+                columnNames    : ["ID", "Name", "Phone"],
+                columnIds      : ["id", "name", "phone"],
+                columnWidths   : ["20%", "40%", "40%"]
+            };
+
+            var model = new qx.ui.table.model.Simple();
+            model.setColumns(tableConfig.columnNames, tableConfig.columnIds);
+            model.setEditable(false);
+            for (let s = 0; s < model.getColumnCount(); s++) {
+                model.setColumnSortable(s, false);
+            }
+            var rowData = [
+                [1, "John Doe", "555-1234"],
+                [2, "Jane Smith", "555-5678"],
+                [3, "Bob Johnson", "555-8765"],
+                [4, "Alice Williams", "555-4321"]
+            ];
+            model.setData(rowData);
+
+            // Customize the table column model.  We want one that automatically resizes columns.
+            var custom = {
+                tableColumnModel() {return new qx.ui.table.columnmodel.Resize()}
+            };
+
+            var table = new qx.ui.table.Table(model, custom);
+
+            // Obtain the behavior object to manipulate
+            var colrb = table.getTableColumnModel().getBehavior();
+            for (let i = 0; i < tableConfig.columnWidths.length; i++) {
+                colrb.set(i, { width: tableConfig.columnWidths[i] });
+            }
+
+            table.set({
+                height: 140,
+                width: 300,
+                showCellFocusIndicator: false,
+                focusCellOnPointerMove: true
+            });
+
+            table.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.NO_SELECTION);
+
+            return table;
+
+        }
 
   }
 });

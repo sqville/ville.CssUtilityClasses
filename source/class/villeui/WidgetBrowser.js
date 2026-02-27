@@ -187,31 +187,14 @@ qx.Class.define("villeui.WidgetBrowser", {
       var lblComboBox = new ville.ui.form.Label("ComboBox").set({size : "lg"});
       lblComboBox.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       vstackTextWidgets.add(lblComboBox);
-      var comboBox = new ville.ui.form.ComboBox();
+      var comboBox = new ville.ui.form.ComboBox().set({size : "sm", radius : "sm"});
       for (var i = 1; i < 31; i++) {
         var tempItem = new qx.ui.form.ListItem(
           "2^ " + i + " = " + Math.pow(2, i)
         );
-        //tempItem.setCssUtilityClass("m_92253aa5 mantine-Combobox-option");
-        //tempItem.setAttribute("data-combobox-option", true);
-        //tempItem.set({width: 200, height: 30});
         comboBox.add(tempItem);
       }
-      //var cmbobtn = comboBox.getChildControl("button");
-      //cmbobtn.setExcludeBoundsFromDom(true);
-      //cmbobtn.setClearAllInlineStyles(true);
-      //cmbobtn.setWidth(20);
-      //cmbobtn.setHeight(20);
-      //cmbobtn.setBackgroundColor("#30a133");
-      //cmbobtn.getContentElement().setStyles({"width": "20px", "height": "20px"});
-      //var cmbopopup = comboBox.getChildControl("popup");
-      //cmbopopup.setDomMove(true);
-      //cmbopopup.setPlacementModeX("best-fit");
-      //cmbopopup.setPlacementModeY("direct");
       vstackTextWidgets.add(comboBox);
-      var comingsoonComboBox = new ville.ui.basic.Element("span");
-      comingsoonComboBox.setAttribute("html", "<em>ComboBox Widget - Coming soon</em>");
-      //vstackTextWidgets.add(comingsoonComboBox);
 
       // Button widget vstack
       var vstackButtonWidgets = new ville.ui.layout.VStack();
@@ -271,11 +254,11 @@ qx.Class.define("villeui.WidgetBrowser", {
       });
       vstackButtonWidgets.add(btnBasicButtonOutline);
 
+      // Button Row
+      var altButtonGroup = new ville.ui.layout.HGroup();
+
       // Menu Button
       var btnMenu = new ville.ui.menu.Menu();
-      //btnMenu.setPlacementModeX("best-fit");
-      //btnMenu.setPlacementModeY("direct");
-      //btnMenu.setDomMove(true);
       var menuitem01 = new ville.ui.menu.Button("Menu item 01");
       var menuitem02 = new ville.ui.menu.Button("Menu item 02");
       var menuitem03 = new ville.ui.menu.Button("Menu item 03");
@@ -286,9 +269,25 @@ qx.Class.define("villeui.WidgetBrowser", {
       btnMenu.add(menuitem04);
       var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
       btnMenuButton.setMenu(btnMenu );
-      btnMenuButton.setStyle("width","140px");
-      vstackButtonWidgets.add(btnMenuButton);
-      
+      btnMenuButton.setStyle("width","130px");
+      altButtonGroup.add(btnMenuButton);
+
+      // SplitButton
+      var spbMenu = new ville.ui.menu.Menu();
+      var spbmenuitem01 = new ville.ui.menu.Button("Menu item 01");
+      var spbmenuitem02 = new ville.ui.menu.Button("Menu item 02");
+      var spbmenuitem03 = new ville.ui.menu.Button("Menu item 03");
+      var spbmenuitem04 = new ville.ui.menu.Button("Menu item 04");
+      spbMenu.add(spbmenuitem01);
+      spbMenu.add(spbmenuitem02);
+      spbMenu.add(spbmenuitem03);
+      spbMenu.add(spbmenuitem04);
+      var btnSplitButton = new ville.ui.form.MenuButton("Split Button");
+      btnSplitButton.setMenu(btnMenu );
+      btnSplitButton.setStyle("width","140px");
+      altButtonGroup.add(btnSplitButton);
+
+      vstackButtonWidgets.add(altButtonGroup);
 
       // Boolean
       var vstackBooleanWidgets = new ville.ui.layout.VStack();
@@ -319,7 +318,7 @@ qx.Class.define("villeui.WidgetBrowser", {
       var vstackSelectionWidgets = new ville.ui.layout.VStack();
       stackFrompage.add(vstackSelectionWidgets);
       vstackSelectionWidgets.add(lblSelectionWidgets);
-      /*var selectBox = new qx.ui.form.SelectBox();
+      var selectBox = new qx.ui.form.SelectBox();
       for (var i = 0; i < 30; i++) {
         var tempItem = new qx.ui.form.ListItem("Item " + (i + 1));
         selectBox.add(tempItem);
@@ -328,10 +327,10 @@ qx.Class.define("villeui.WidgetBrowser", {
           selectBox.setSelection([tempItem]);
         }
       }
-      vstackSelectionWidgets.add(selectBox);*/
-      var comingsoonSelectBox = new ville.ui.basic.Element("span");
-      comingsoonSelectBox.setAttribute("html", "<em>SelectBox Widget - Coming soon</em>");
-      vstackSelectionWidgets.add(comingsoonSelectBox);
+      vstackSelectionWidgets.add(selectBox);
+      //var comingsoonSelectBox = new ville.ui.basic.Element("span");
+      //comingsoonSelectBox.setAttribute("html", "<em>SelectBox Widget - Coming soon</em>");
+      //vstackSelectionWidgets.add(comingsoonSelectBox);
       
 
       // Tree widget page
@@ -351,6 +350,9 @@ qx.Class.define("villeui.WidgetBrowser", {
       var comingsoonTable = new ville.ui.basic.Element("span");
       comingsoonTable.setAttribute("html", "<em>Table Widget - Coming soon</em>");
       stackTablepage.add(comingsoonTable);
+      var tblTable = this._getTable();
+      tblTable.getContentElement().setStyle("position","relative");
+      stackTablepage.add(tblTable);
 
       // Menu widgets page
       var stackMenupage = new ville.ui.layout.SimpleGrid();
@@ -501,8 +503,8 @@ qx.Class.define("villeui.WidgetBrowser", {
             }
 
             table.set({
-                maxHeight: 140,
-                width: 400,
+                height: 140,
+                width: 300,
                 showCellFocusIndicator: false,
                 focusCellOnPointerMove: true
             });
