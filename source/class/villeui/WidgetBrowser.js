@@ -200,7 +200,7 @@ qx.Class.define("villeui.WidgetBrowser", {
       var lblDateField = new ville.ui.form.Label("DateField").set({size : "lg"});
       lblDateField.setCssUtilityClass("m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label");
       vstackTextWidgets.add(lblDateField);
-      var txtDatefield = new ville.ui.form.DateField();
+      var txtDatefield = new ville.ui.form.DateField().set({size : "sm", radius : "sm"});
       txtDatefield.setValue(new Date());
       //txtDatefield.getContentElement().setStyle("position","relative");
       vstackTextWidgets.add(txtDatefield);
@@ -400,11 +400,9 @@ qx.Class.define("villeui.WidgetBrowser", {
       btnOpenwin.setToolTip(tooltip);
 
       var winDrawer = this._createDetailWindow();
-      winDrawer.set({height: 300, width: 250});
-      //winDrawer.setLayout(new qx.ui.layout.Canvas());
-      var btnClosewin = new ville.ui.form.Button("Close window");
-      btnClosewin.setStyle("max-width", "150px");
-      winDrawer.add(btnClosewin);
+      var loginForm = this._getForm();
+      winDrawer.add(loginForm);
+      winDrawer.set({height: 380, width: 340});
 
       btnOpenwin.addListener("execute", () => {
         //winDrawer.fadeIn(200);
@@ -412,9 +410,9 @@ qx.Class.define("villeui.WidgetBrowser", {
         winDrawer.center();
       });
 
-      btnClosewin.addListener("execute", () => {
+      /*btnClosewin.addListener("execute", () => {
         winDrawer.close();
-      });
+      });*/
 
 
       var comingsoonWindow = new ville.ui.basic.Element("span");
@@ -632,6 +630,47 @@ qx.Class.define("villeui.WidgetBrowser", {
             tabView.add(page3);
 
             return tabView;
+        },
+
+        _getForm() {
+          // Form
+          var form = new qx.ui.form.Form();
+
+          // Email
+          var txtemail = new ville.ui.form.TextField();//.set({ required : true });
+          txtemail.setAttribute("id", "villetxtemail123");
+          txtemail.setPlaceholder("youremail@email.com");
+          form.add(txtemail, "Email", qx.util.Validate.email(), null, null, {complexity : "email"});
+
+          // Password
+          var txtpassword = new ville.ui.form.PasswordField();//.set({ required : true });
+          txtpassword.setAttribute("id", "villetxtpassword123", true);
+          txtpassword.setPlaceholder("Your password");
+          form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
+
+          // Remember Me - CheckBox
+          var chkrememberme = new ville.ui.form.CheckBox("Remember me").set({ id : "villechkrme123" });
+          form.add(chkrememberme, "rememberme", null, null, null, {complexity : "checkbox"});
+
+          // Form Bottom Buttons
+          var registerbutton = new ville.ui.form.Anchor("Don't have an account? Register", "button");
+          registerbutton.setStyles({
+            color: "var(--mantine-color-dimmed)",
+            "--text-fz": "var(--mantine-font-size-xs)",
+            "--text-lh": "var(--mantine-line-height-xs)"
+          });
+
+          var loginbutton = new ville.ui.form.Button("Login", "filled");
+          loginbutton.addClass("mantine-focus-auto mantine-active");
+
+          form.addButton(registerbutton);
+          form.addButton(loginbutton);
+
+          // Form Renderer
+          var loginForm = new villeui.LoginForm(form);
+
+          return loginForm;
+
         }
     }
 });
