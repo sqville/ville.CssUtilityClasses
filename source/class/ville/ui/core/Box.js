@@ -14,7 +14,10 @@ qx.Class.define("ville.ui.core.Box", {
         }
         super();
 
-        
+        /*this.addListener("appear", () => {
+            var elemDims = qx.bom.element.Dimension.getSize(this.getContentElement().getDomElement());
+            this.setUserBounds(this.getBounds().left, this.getBounds().top, this.getBounds().width, elemDims.height);
+        });*/
     },
 
     members: {

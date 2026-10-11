@@ -13,6 +13,7 @@
 
    Authors:
    * Martin Wittemann (martinwittemann)
+   * Chris Eskew (sqville)
 
 ************************************************************************* */
 
@@ -22,7 +23,13 @@
 ************************************************************************* */
 
 /**
- * The simple qooxdoo appearance theme.
+ * The middleman qooxdoo appearance theme.
+ * 
+ * What is removed:
+ * All backgroundColor and textColor entries (now driven by CSS variables).
+ * All decorator entries.
+ * All font entries.
+ * All states logic.
  *
  * @asset(qx/icon/${qx.icontheme}/16/apps/office-calendar.png)
  * @asset(qx/icon/${qx.icontheme}/16/places/folder-open.png)
@@ -45,14 +52,6 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
 
     widget: {},
 
-    /* SQUpdate
-    label: {
-      style(states) {
-        return {
-          textColor: states.disabled ? "text-disabled" : undefined
-        };
-      }
-    },*/
     label: {},
 
     image: {
@@ -67,34 +66,22 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     "atom/label": "label",
     "atom/icon": "image",
 
-    /*root: {
-      style(states) {
-        return {
-          backgroundColor: "background",
-          textColor: "text",
-          font: "default"
-        };
-      }
-    },*/
-    root: {},
-
-    /* SQUpdate
-    popup: {
-      style(states) {
-        return {
-          decorator: "popup",
-          backgroundColor: "background-pane"
-        };
-      }
-    },*/
-    popup: {
+    //root: {},
+    root: {
       style() {
         return {
-          decorator: "popup"
+          font: "default"
         };
       }
     },
 
+    popup: {
+      style() {
+        return {
+          //decorator: "popup"
+        };
+      }
+    },
 
     tooltip: {
       include: "popup",
@@ -210,12 +197,20 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     ---------------------------------------------------------------------------
     */
 
-    table: "widget",
+    table: {
+      include: "widget",
+
+      style() {
+        return {
+          cssUtilityClass: "m_b23fa0ef mantine-Table-table"
+        };
+      }
+    },
 
     "table/statusbar": {
       style(states) {
         return {
-          decorator: "statusbar",
+          //decorator: "statusbar",
           padding: [2, 5]
         };
       }
@@ -224,11 +219,24 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     "table/column-button": {
       alias: "button",
 
-      style(states) {
+      style() {
         return {
-          decorator: "table-header-column-button",
-          padding: 3,
-          icon: ville.cssuc.theme.middleman.Image.URLS["select-column-order"]
+          //padding: 3,
+          center: true,
+          variant: "subtle",
+          cssUtilityClass: "mantine-active mantine-focus-auto m_87cf2631 mantine-UnstyledButton-root"
+        };
+      }
+    },
+
+    "table/column-button/inlineicon": {
+      include: "image",
+
+      style() {
+        return {
+          width: 16,
+          height: 16,
+          alignY: "middle"
         };
       }
     },
@@ -247,17 +255,31 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     "table-scroller/scrollbar-x": "scrollbar",
     "table-scroller/scrollbar-y": "scrollbar",
 
-    "table-scroller": "widget",
+    "table-scroller": {
+      include: "widget",
 
-    "table-scroller/header": {
       style() {
         return {
-          decorator: "table-header"
+          cssUtilityClass: "m_d57069b5 mantine-ScrollArea-root"
         };
       }
     },
 
-    "table-scroller/pane": {},
+    "table-scroller/header": {
+      style() {
+        return {
+          cssUtilityClass:  "m_b242d975 mantine-Table-thead m_4e7aa4fd mantine-Table-tr"
+        };
+      }
+    },
+
+    "table-scroller/pane": {
+      style() {
+        return {
+          cssUtilityClass: "m_b1336c6 mantine-ScrollArea-content"
+        };
+      }
+    },
 
     "table-scroller/focus-indicator": {
       style(states) {
@@ -284,8 +306,9 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
           decorator: states.first
             ? "table-header-cell-first"
             : "table-header-cell",
+          cssUtilityClass:"m_4e7aa4f3 mantine-Table-th",
           minWidth: 13,
-          font: "bold",
+          //font: "bold",
           paddingTop: 3,
           paddingLeft: 5,
           cursor: states.disabled ? undefined : "pointer",
@@ -583,13 +606,13 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     menu: {
       style(states) {
         var result = {
-          //backgroundColor: "background",
-          //decorator: "main",
-          spacingX: 6,
-          spacingY: 1,
+          cssUtilityClass: "m_38a85659 mantine-Menu-dropdown m_dc9b7c9f",
+          spacingX: 16,
+          spacingY: 1 ,
           iconColumnWidth: 16,
-          arrowColumnWidth: 4,
-          padding: 1,
+          arrowColumnWidth: 6,
+          padding: 6,
+          offset: [8,0],
           placementModeY:
             states.submenu || states.contextmenu ? "best-fit" : "keep-align"
         };
@@ -661,11 +684,23 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     "menu-button": {
       alias: "atom",
 
-      style(states) {
+      style() {
         return {
-          //backgroundColor: states.selected ? "background-selected" : undefined,
-          //textColor: states.selected ? "text-selected" : undefined,
-          padding: [2, 6]
+          cssUtilityClass: "mantine-focus-auto m_99ac2aa1 mantine-Menu-item m_87cf2631 mantine-UnstyledButton-root",
+          padding: [6, 6]
+        };
+      }
+    },
+
+    "menu-button/inlineicon": {
+      include: "image",
+
+      style() {
+        return {
+          cssUtilityClass: "m_8b75e504 mantine-Menu-itemSection",
+          width: 16,
+          height: 16,
+          alignY: "middle"
         };
       }
     },
@@ -685,8 +720,9 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
 
       style(states) {
         return {
+          cssUtilityClass: "m_5476e0d3 mantine-Menu-itemLabel",
           alignY: "middle",
-          padding: 1
+          font: "default-sm"
         };
       }
     },
@@ -984,50 +1020,55 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     "scrollarea/scrollbar-x": "scrollbar",
     "scrollarea/scrollbar-y": "scrollbar",
 
-    /* SQUpdate
+    /*
     ---------------------------------------------------------------------------
       TEXT FIELD
     ---------------------------------------------------------------------------
-    
+    */
 
     textfield: {
-      style(states) {
-        var textColor;
-        if (states.disabled) {
-          textColor = "text-disabled";
-        } else if (states.showingPlaceholder) {
-          textColor = "text-placeholder";
-        } else {
-          textColor = undefined;
-        }
-
-        var decorator;
-        var padding;
-        if (states.disabled) {
-          decorator = "inset";
-          padding = [2, 3];
-        } else if (states.invalid) {
-          decorator = "border-invalid";
-          padding = [1, 2];
-        } else if (states.focused) {
-          decorator = "focused-inset";
-          padding = [1, 2];
-        } else {
-          padding = [2, 3];
-          decorator = "inset";
-        }
+      style() {
 
         return {
-          decorator: decorator,
-          padding: padding,
-          textColor: textColor,
-          backgroundColor: states.disabled ? "background-disabled" : "white"
+          cssUtilityClass: "m_8fb7ebe7 mantine-Input-input mantine-TextInput-input",
+          font: "textfield-input",
+          height: 36,
+          minWidth: 300
         };
       }
-    },*/
-    textfield: {},
+    },
 
     textarea: "textfield",
+
+    "textfield-wrapper": {
+      style() {
+        return {
+          cssUtilityClass: "m_6c018570 mantine-Input-wrapper"
+        };
+      }
+    },
+
+    "textfield-wrapper/inputsectionleft": {
+      style() {
+        return {
+          cssUtilityClass: "m_82577fc2 mantine-Input-section",
+          marginLeft: 10,
+          alignY: "middle",
+          zIndex: 11
+        };
+      }
+    },
+
+    "textfield-wrapper/inputsectionright": {
+      style() {
+        return {
+          cssUtilityClass: "m_82577fc2 mantine-Input-section",
+          marginRight: 10,
+          alignY: "middle",
+          zIndex: 11
+        };
+      }
+    },
 
     /*
     ---------------------------------------------------------------------------
@@ -1089,12 +1130,13 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
       }
     },
 
-    /* SQUpdate
+    /*
     ---------------------------------------------------------------------------
       CHECK BOX
     ---------------------------------------------------------------------------
+    */
     
-    checkbox: {
+    /*checkbox: {
       alias: "atom",
 
       style(states) {
@@ -1152,9 +1194,60 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
         };
       }
     },*/
-    checkbox: "atom",
 
-    "checkbox/icon": {},
+    checkbox: {
+      include: "atom",
+      alias: "atom",
+
+      style() {
+        return {
+          cssUtilityClass: "m_bf2d988c mantine-Checkbox-root m_5f75b09e",
+          gap: 2,
+          iconPosition: "right"
+        };
+      }
+    },
+
+    "checkbox/label": {
+      alias: "atom/label",
+
+      style() {
+        return {
+          cssUtilityClass: "m_d3ea56bb m_8ee546b8 mantine-Checkbox-label",
+          font: "checkbox-label"
+        };
+      }
+    },
+
+    "checkbox/input": {
+      style() {
+        return {
+          width: 20,
+          height: 20,
+          cssUtilityClass: "mantine-focus-auto m_26063560 mantine-Checkbox-input"
+        };
+      }
+    },
+
+    "checkbox/icon": {
+      style() {
+        return {
+          width: 20*.6,
+          height: 20*.6,
+          cssUtilityClass: "mantine-focus-auto m_26063560 mantine-Checkbox-input"
+        };
+      }
+    },
+
+    "checkbox/indeterminateicon": {
+      style() {
+        return {
+          width: 20*.6,
+          height: 20*.6,
+          cssUtilityClass: "mantine-focus-auto m_26063560 mantine-Checkbox-input"
+        };
+      }
+    },
 
     /*
     ---------------------------------------------------------------------------
@@ -1445,32 +1538,15 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     ---------------------------------------------------------------------------
       BUTTON
     ---------------------------------------------------------------------------
-    
+    */
     "button-frame": {
       alias: "atom",
 
       style(states) {
-        var decorator = "button-box";
-
-        if (!states.disabled) {
-          if (states.hovered && !states.pressed && !states.checked) {
-            decorator = "button-box-hovered";
-          } else if (states.hovered && (states.pressed || states.checked)) {
-            decorator = "button-box-pressed-hovered";
-          } else if (states.pressed || states.checked) {
-            decorator = "button-box-pressed";
-          }
-        }
-
-        if (states.invalid && !states.disabled) {
-          decorator += "-invalid";
-        } else if (states.focused) {
-          decorator += "-focused";
-        }
 
         return {
-          decorator: decorator,
-          padding: [3, 8],
+          cssUtilityClass: "mantine-active mantine-focus-auto m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root",
+          padding: [6, 18, 8, 18],
           cursor: states.disabled ? undefined : "pointer",
           minWidth: 5,
           minHeight: 5
@@ -1483,7 +1559,8 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
 
       style(states) {
         return {
-          textColor: states.disabled ? "text-disabled" : undefined
+          cssUtilityClass: "m_811560b9 mantine-Button-label",
+          font: "button-label"
         };
       }
     },
@@ -1518,18 +1595,43 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
 
       style(states) {
         return {
-          icon: ville.cssuc.theme.middleman.Image.URLS["arrow-down"],
-          iconPosition: "right"
+          //icon: ville.cssuc.theme.middleman.Image.URLS["arrow-down"],
+          //iconPosition: "right"
         };
       }
-    },*/
+    },
 
-    "button-frame": "atom",
-    "button-frame/label": "atom/label",
-    button: "button-frame",
-    "toggle-button": "button",
-    "hover-button": "button",
-    "menubutton": "button",
+    navlink: {
+      style() {
+        return {
+          cursor: "pointer"
+        };
+      }
+    },
+
+    "navlink/label": {
+      style() {
+        return {
+          cursor: "pointer"
+        };
+      }
+    },
+
+    anchor: {
+      style() {
+        return {
+          cursor: "pointer"
+        };
+      }
+    },
+
+    "anchor/label": {
+      style() {
+        return {
+          cursor: "pointer"
+        };
+      }
+    },
 
     /*
     ---------------------------------------------------------------------------
@@ -2209,7 +2311,13 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     ---------------------------------------------------------------------------
     */
 
-    tabview: {},
+    tabview: {
+      style() {
+        return {
+          cssUtilityClass: "m_89d60db1 mantine-Tabs-root"
+        };
+      }
+    },
 
     "tabview/bar": {
       alias: "slidebar",
@@ -2231,6 +2339,7 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
         }
 
         return {
+          cssUtilityClass: "m_576c9d4 m_89d33d6d mantine-Tabs-list",
           marginBottom: marginBottom,
           marginTop: marginTop,
           marginLeft: marginLeft,
@@ -2246,26 +2355,26 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
       style(states) {
         if (states.barTop) {
           return {
-            marginTop: 4,
-            marginBottom: 2,
+            //marginTop: 4,
+            //marginBottom: 2,
             decorator: null
           };
         } else if (states.barBottom) {
           return {
-            marginTop: 2,
-            marginBottom: 4,
+            //marginTop: 2,
+            //marginBottom: 4,
             decorator: null
           };
         } else if (states.barLeft) {
           return {
-            marginLeft: 4,
-            marginRight: 2,
+            //marginLeft: 4,
+            //marginRight: 2,
             decorator: null
           };
         } else {
           return {
-            marginLeft: 2,
-            marginRight: 4,
+            //marginLeft: 2,
+            //marginRight: 4,
             decorator: null
           };
         }
@@ -2279,26 +2388,26 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
       style(states) {
         if (states.barTop) {
           return {
-            marginTop: 4,
-            marginBottom: 2,
+            //marginTop: 4,
+            //marginBottom: 2,
             decorator: null
           };
         } else if (states.barBottom) {
           return {
-            marginTop: 2,
-            marginBottom: 4,
+            //marginTop: 2,
+            //marginBottom: 4,
             decorator: null
           };
         } else if (states.barLeft) {
           return {
-            marginLeft: 4,
-            marginRight: 2,
+            //marginLeft: 4,
+            //marginRight: 2,
             decorator: null
           };
         } else {
           return {
-            marginLeft: 2,
-            marginRight: 4,
+            //marginLeft: 2,
+            //marginRight: 4,
             decorator: null
           };
         }
@@ -2307,62 +2416,40 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
 
     "tabview/pane": {
       style(states) {
+   
+        if (states.barTop || states.barBottom) {
+          var padding = [4, 4];
+        } else {
+          var padding = [4, 8];
+        }
+
         return {
-          backgroundColor: "background",
-          decorator: "main",
-          padding: 10
+          padding: padding
         };
       }
     },
 
-    "tabview-page": "widget",
+    "tabview-page": {
+      style() {
+        return {
+          cssUtilityClass: "m_b0c91715 mantine-Tabs-panel"
+        };
+      }
+    },
 
     "tabview-page/button": {
       style(states) {
-        var decorator;
 
         // default padding
         if (states.barTop || states.barBottom) {
           var padding = [8, 16, 8, 13];
         } else {
-          var padding = [8, 4, 8, 4];
-        }
-
-        // decorator
-        if (states.checked) {
-          if (states.barTop) {
-            decorator = "tabview-page-button-top";
-          } else if (states.barBottom) {
-            decorator = "tabview-page-button-bottom";
-          } else if (states.barRight) {
-            decorator = "tabview-page-button-right";
-          } else if (states.barLeft) {
-            decorator = "tabview-page-button-left";
-          }
-        } else {
-          for (var i = 0; i < padding.length; i++) {
-            padding[i] += 1;
-          }
-          // reduce the size by 1 because we have different decorator border width
-          if (states.barTop) {
-            padding[2] -= 1;
-          } else if (states.barBottom) {
-            padding[0] -= 1;
-          } else if (states.barRight) {
-            padding[3] -= 1;
-          } else if (states.barLeft) {
-            padding[1] -= 1;
-          }
+          var padding = [8, 8, 8, 8];
         }
 
         return {
           zIndex: states.checked ? 10 : 5,
-          decorator: decorator,
-          textColor: states.disabled
-            ? "text-disabled"
-            : states.checked
-            ? null
-            : "link",
+          cssUtilityClass: "mantine-focus-auto m_539e827b m_4ec4dce6 mantine-Tabs-tab m_87cf2631 mantine-UnstyledButton-root",
           padding: padding,
           cursor: "pointer"
         };
@@ -2374,7 +2461,8 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
 
       style(states) {
         return {
-          padding: [0, 1, 0, 1]
+          cssUtilityClass: "m_42bbd1ae mantine-Tabs-tabLabel",
+          font: "default-sm"
         };
       }
     },

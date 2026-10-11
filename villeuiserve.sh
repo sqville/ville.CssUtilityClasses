@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # Install dependencies
-# npx @tailwindcss/cli -i ./app.css -o ./villeui.css -m --cwd './source/resource/villeui/css'
-# npx lightningcss ./source/resource/villeui/css/app.css -m --bundle -o ./source/resource/villeui/css/villeui.css
-npx lightningcss ./source/resource/villeui/css/app-priority.css -m --bundle -o ./source/resource/villeui/css/villeui-priority.css
+npx lightningcss ./source/resource/villeui/css/app-priority.css --bundle -o ./source/resource/villeui/css/villeui-priority.css -m
 
 # Build the project
 echo "Cleaning..."

@@ -8,6 +8,7 @@ qx.Class.define("ville.ui.form.UnstyledToggleButton", {
     include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
 
     construct(label) {
+        
         super();
 
         //this._setLayout(new qx.ui.layout.Basic());

@@ -10,7 +10,7 @@
       "outputPath": "compiled/build"
     }
   ],
-  "defaultTarget": "build",
+  "defaultTarget": "source",
   "locales": ["en"],
   "environment": {
       "ville.cssuc": true,
@@ -25,28 +25,10 @@
   "applications": [
     {
       "class": "villeui.Application",
-      "theme": "ville.cssuc.theme.MiddleMan",
+      "theme": "villeui.theme.Theme",
       "name": "villeui",
       "bootPath": "source/boot/villeui",
-      "include": ["ville.cssuc.*"],
-      "parts": {
-        "boot": {
-            "include": [
-                "villeui.Application",
-                "ville.cssuc.*"
-            ]
-        },
-        "WidgetBrowser": {
-            "include": [
-                "villeui.WidgetBrowser"
-            ]
-        },
-        "NativeCss": {
-            "include": [
-                "villeui.NativeCss"
-            ]
-        }
-      }
+      "include": ["ville.cssuc.*"]
     }
   ]
 }

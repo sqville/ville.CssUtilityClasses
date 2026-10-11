@@ -1,3 +1,18 @@
+@import "../../../../node_modules/@mantine/core/styles/baseline.css";
+@import "../../../../node_modules/@mantine/core/styles/default-css-variables.css";
+@import "../../../../node_modules/@mantine/core/styles/global.css";
+@import "../../../../node_modules/@mantine/core/styles/AppShell.css";
+@import "../../../../node_modules/@mantine/core/styles/Group.css";
+@import "../../../../node_modules/@mantine/core/styles/SimpleGrid.css";
+@import "../../../../node_modules/@mantine/core/styles/Image.css";
+@import "../../../../node_modules/@mantine/core/styles/UnstyledButton.css";
+@import "../../../../node_modules/@mantine/core/styles/ActionIcon.css";
+@import "../../../../node_modules/@mantine/core/styles/Button.css";
+@import "../../../../node_modules/@mantine/core/styles/Container.css";
+@import "../../../../node_modules/@mantine/core/styles/Text.css";
+@import "../../../../node_modules/@mantine/core/styles/Stack.css";
+@import "../../../../node_modules/@mantine/core/styles/Title.css";
+
 :root {
 
     --mantine-primary-color-filled: var(--villeui-color-filled);
@@ -390,16 +405,13 @@
 }
 
 @media (hover: hover) {
-    .HomePageTabs_control__Oee_u:hover {
-        background-color:var(--mantine-color-gray-0)
-    }
-
-    [data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u:hover {
-        background-color: var(--mantine-color-dark-6)
-    }
 
     .HomePageTabs_control__Oee_u:hover:not([data-active]) {
         color: var(--mantine-color-black)
+    }
+
+    [data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u:hover:not([data-active]) {
+        background-color: var(--mantine-color-dark-6)
     }
 
     [data-mantine-color-scheme=dark] .HomePageTabs_control__Oee_u:hover:not([data-active]) {

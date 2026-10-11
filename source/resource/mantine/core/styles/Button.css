@@ -28,7 +28,7 @@
   --button-color: var(--mantine-color-white);
 
   user-select: none;
-  font-weight: 600;
+  font-weight: var(--mantine-font-weight-medium);
   position: relative;
   line-height: 1;
   text-align: center;
@@ -105,6 +105,7 @@
       transform: translateY(100%);
     }
 
+
   @media (hover: hover) {
     .m_77c9d27d:hover:where(:not([data-loading], :disabled, [data-disabled])) {
       background-color: var(--button-hover, var(--mantine-primary-color-filled-hover));
@@ -137,6 +138,8 @@
   display: flex;
   align-items: center;
   opacity: 1;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
 }
 
 .m_811560b9:where([data-loading]) {
@@ -244,7 +247,7 @@
   --section-padding-x: var(--section-padding-x-sm);
   --section-color: var(--mantine-color-white);
 
-  font-weight: 600;
+  font-weight: var(--mantine-font-weight-medium);
   width: auto;
   border-radius: var(--section-radius, var(--mantine-radius-default));
   font-size: var(--section-fz, var(--mantine-font-size-sm));

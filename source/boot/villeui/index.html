@@ -1,43 +1,421 @@
 <!DOCTYPE html>
 <html data-mantine-color-scheme="dark">
+
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-  <!-- Setup the viewport for mobile and desktop environments -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <!-- Configure linking of this application to the home screen of mobile devices -->
-  <meta name="apple-mobile-web-app-title" content="villeui"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-  <meta name="msapplication-tap-highlight" content="no"/>
-  <link rel="apple-touch-icon" href="${resourcePath}villeui/app.png"/>
-  <link rel="icon" sizes="192x192" href="${resourcePath}villeui/app.png">
+    <!-- Setup the viewport for mobile and desktop environments -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 
-  <!-- Disable chrome translation requests and automatic phone number linking -->
-  <meta name="google" value="notranslate"/>
-  <meta name="format-detection" content="telephone=no"/>
+    <!-- Configure linking of this application to the home screen of mobile devices -->
+    <meta name="apple-mobile-web-app-title" content="villeui">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="msapplication-tap-highlight" content="no">
 
-  <!-- Shortcut icon setup -->
-  <link rel="shortcut icon" type="image/png" href="${resourcePath}villeui/favicon.png"/>
-  <link rel="mask-icon" href="${resourcePath}villeui/favicon.png"/>
-  <link rel="preload" as="image" href="${resourcePath}villeui/images/villeui_logo.svg"/>
+    <!-- Disable chrome translation requests and automatic phone number linking -->
+    <meta name="google" value="notranslate">
+    <meta name="format-detection" content="telephone=no">
 
-  <title>Ville UI</title>
+    <link rel="preload" as="image" href="./resource/villeui/images/villeui_logo.svg">
 
-  <!-- Hero svg styles -->
-   <style>
-    [data-mantine-color-scheme=dark] .HeroText_dots__XvXkZ { color: var(--mantine-color-dark-4); } .HeroText_dots__XvXkZ { position: absolute; color: var(--mantine-color-gray-3); } @media (max-width: 48em) { .HeroText_dots__XvXkZ { display: none; } }
-   </style>
+    <title>Ville UI</title>
 
-  <noscript>
-    <meta http-equiv="refresh" content="0; url=${appPath}nojs.html"/>
-  </noscript>
-  ${preBootJs}
-  <script type="text/javascript" src="${appPath}index.js"></script>
- </head>
+    <!-- Hero svg styles -->
+    <style>
+        [data-mantine-color-scheme=dark] .HeroText_dots__XvXkZ {
+            color: var(--mantine-color-dark-4);
+        }
+
+        .HeroText_dots__XvXkZ {
+            position: absolute;
+            color: var(--mantine-color-gray-3);
+        }
+
+        @media (max-width: 48em) {
+            .HeroText_dots__XvXkZ {
+                display: none;
+            }
+        }
+    </style>
+
+
+
+    ${preBootJs}
+    <script type="text/javascript" src="${appPath}index.js"></script>
+</head>
+
 <body>
+    <div tabindex="1" class="m_89ab340 mantine-AppShell-root">
+        <header class="m_3b16f56b mantine-AppShell-header right-scroll-bar-position"
+            data-with-border="true" style="--app-shell-header-z-index:100;">
+            <div
+                style="--container-size:var(--container-size-xl);padding-inline:var(--mantine-spacing-md);display:flex;justify-content:space-between;align-items:center;height:100%;">
+                <div class="m_4081bf90 mantine-Group-root"
+                    style="--group-justify:flex-start;--group-gap:var(--mantine-spacing-md);--group-align:center;--group-wrap:wrap;">
+                    <img class="m_9e117634 mantine-Image-root" src="./resource/villeui/images/villeui_logo.svg"
+                        alt="Ville UI Logo" style="width:32px;height:32px;"><span
+                        style="font-weight:bold;font-style:normal;color:inherit;font-size:20px;">Ville UI</span></div>
+                <div class="m_4081bf90 mantine-Group-root"
+                    style="--group-justify:flex-start;--group-gap:var(--mantine-spacing-md);--group-align:center;--group-wrap:wrap;">
+                    <div class="m_4081bf90 mantine-Group-root"
+                        style="--group-justify:flex-start;--group-gap:calc(0.3125rem * var(--mantine-scale));--group-align:center;--group-wrap:wrap;margin-left:calc(3.125rem * var(--mantine-scale));">
+                        <a tabindex="1" role="button"
+                            class="m_87cf2631 mantine-UnstyledButton-root maintine-focus-auto m_18a11a80"
+                            style="width:34px;height:34px;"><svg class="villeuilinkicon" viewBox="0 0 16 16"
+                                xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                                </path>
+                            </svg></a><button tabindex="1" role="button" aria-pressed="false"
+                            type="button"
+                            class="mantine-focus-auto mantine-active m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root"
+                            style="--ai-size:var(--ai-size-lg);--ai-radius:var(--mantine-radius-md);--ai-bg:var(--mantine-color-default);--ai-hover:var(--mantine-color-default-hover);--ai-color:var(--mantine-color-default-color);--ai-bd:calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border);"><span
+                                class="m_8d3afb97 mantine-ActionIcon-icon"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" style="display: none;" class="tabler-icon tabler-icon-moon"
+                                   >
+                                    <path
+                                        d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z">
+                                    </path>
+                                </svg><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    stroke-width="1.5" stroke="currentColor" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    style="width: 24px; height: 24px; display: block;">
+                                    <path fill="none" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0m-5 0h1m8-9v1m8 8h1m-9 8v1M5.6 5.6l.7.7m12.1-.7l-.7.7m0 11.4l.7.7m-12.1-.7l-.7.7">
+                                    </path>
+                                </svg></span></button></div>
+                </div>
+            </div>
+        </header>
+        <div class="m_8983817 mantine-AppShell-main">
+            <div class="Shell_main__g9BIV">
+                <div class="Banner_wrapper__g6dkO"><svg aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 185 185" width="185"
+                        height="185" class="HeroText_dots__XvXkZ" style="position:absolute;left:0;top:0"
+                       >
+                        <circle cx="10" cy="10" r="5"></circle>
+                        <rect x="35" y="5" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,5 75,15 65,15"></polygon>
+                        <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)"></rect>
+                        <circle cx="130" cy="10" r="5"></circle>
+                        <rect x="155" y="5" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,35 45,45 35,45"></polygon>
+                        <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)"></rect>
+                        <circle cx="100" cy="40" r="5"></circle>
+                        <rect x="125" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,35 165,45 155,45"></polygon>
+                        <polygon points="10,65 15,75 5,75"></polygon>
+                        <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)"></rect>
+                        <circle cx="70" cy="70" r="5"></circle>
+                        <rect x="95" y="65" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,65 135,75 125,75"></polygon>
+                        <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)"></rect>
+                        <circle cx="10" cy="100" r="5"></circle>
+                        <rect x="35" y="95" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,95 75,105 65,105"></polygon>
+                        <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)"></rect>
+                        <circle cx="130" cy="100" r="5"></circle>
+                        <rect x="155" y="95" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,125 45,135 35,135"></polygon>
+                        <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)"></rect>
+                        <circle cx="100" cy="130" r="5"></circle>
+                        <rect x="125" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,125 165,135 155,135"></polygon>
+                        <polygon points="10,155 15,165 5,165"></polygon>
+                        <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)"></rect>
+                        <circle cx="70" cy="160" r="5"></circle>
+                        <rect x="95" y="155" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,155 135,165 125,165"></polygon>
+                        <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)"></rect>
+                    </svg><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ"
+                        style="position:absolute;left:180;top:0">
+                        <circle cx="10" cy="10" r="5"></circle>
+                        <rect x="35" y="5" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,5 75,15 65,15"></polygon>
+                        <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)"></rect>
+                        <circle cx="130" cy="10" r="5"></circle>
+                        <rect x="155" y="5" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,35 45,45 35,45"></polygon>
+                        <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)"></rect>
+                        <circle cx="100" cy="40" r="5"></circle>
+                        <rect x="125" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,35 165,45 155,45"></polygon>
+                        <polygon points="10,65 15,75 5,75"></polygon>
+                        <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)"></rect>
+                        <circle cx="70" cy="70" r="5"></circle>
+                        <rect x="95" y="65" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,65 135,75 125,75"></polygon>
+                        <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)"></rect>
+                        <circle cx="10" cy="100" r="5"></circle>
+                        <rect x="35" y="95" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,95 75,105 65,105"></polygon>
+                        <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)"></rect>
+                        <circle cx="130" cy="100" r="5"></circle>
+                        <rect x="155" y="95" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,125 45,135 35,135"></polygon>
+                        <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)"></rect>
+                        <circle cx="100" cy="130" r="5"></circle>
+                        <rect x="125" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,125 165,135 155,135"></polygon>
+                        <polygon points="10,155 15,165 5,165"></polygon>
+                        <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)"></rect>
+                        <circle cx="70" cy="160" r="5"></circle>
+                        <rect x="95" y="155" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,155 135,165 125,165"></polygon>
+                        <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)"></rect>
+                    </svg><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ"
+                        style="position:absolute;left:0;top:180">
+                        <circle cx="10" cy="10" r="5"></circle>
+                        <rect x="35" y="5" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,5 75,15 65,15"></polygon>
+                        <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)"></rect>
+                        <circle cx="130" cy="10" r="5"></circle>
+                        <rect x="155" y="5" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,35 45,45 35,45"></polygon>
+                        <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)"></rect>
+                        <circle cx="100" cy="40" r="5"></circle>
+                        <rect x="125" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,35 165,45 155,45"></polygon>
+                        <polygon points="10,65 15,75 5,75"></polygon>
+                        <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)"></rect>
+                        <circle cx="70" cy="70" r="5"></circle>
+                        <rect x="95" y="65" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,65 135,75 125,75"></polygon>
+                        <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)"></rect>
+                        <circle cx="10" cy="100" r="5"></circle>
+                        <rect x="35" y="95" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,95 75,105 65,105"></polygon>
+                        <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)"></rect>
+                        <circle cx="130" cy="100" r="5"></circle>
+                        <rect x="155" y="95" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,125 45,135 35,135"></polygon>
+                        <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)"></rect>
+                        <circle cx="100" cy="130" r="5"></circle>
+                        <rect x="125" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,125 165,135 155,135"></polygon>
+                        <polygon points="10,155 15,165 5,165"></polygon>
+                        <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)"></rect>
+                        <circle cx="70" cy="160" r="5"></circle>
+                        <rect x="95" y="155" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,155 135,165 125,165"></polygon>
+                        <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)"></rect>
+                    </svg><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ"
+                        style="position:absolute;right:0;top:60">
+                        <circle cx="10" cy="10" r="5"></circle>
+                        <rect x="35" y="5" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,5 75,15 65,15"></polygon>
+                        <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)"></rect>
+                        <circle cx="130" cy="10" r="5"></circle>
+                        <rect x="155" y="5" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,35 45,45 35,45"></polygon>
+                        <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)"></rect>
+                        <circle cx="100" cy="40" r="5"></circle>
+                        <rect x="125" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,35 165,45 155,45"></polygon>
+                        <polygon points="10,65 15,75 5,75"></polygon>
+                        <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)"></rect>
+                        <circle cx="70" cy="70" r="5"></circle>
+                        <rect x="95" y="65" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,65 135,75 125,75"></polygon>
+                        <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)"></rect>
+                        <circle cx="10" cy="100" r="5"></circle>
+                        <rect x="35" y="95" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,95 75,105 65,105"></polygon>
+                        <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)"></rect>
+                        <circle cx="130" cy="100" r="5"></circle>
+                        <rect x="155" y="95" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,125 45,135 35,135"></polygon>
+                        <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)"></rect>
+                        <circle cx="100" cy="130" r="5"></circle>
+                        <rect x="125" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,125 165,135 155,135"></polygon>
+                        <polygon points="10,155 15,165 5,165"></polygon>
+                        <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)"></rect>
+                        <circle cx="70" cy="160" r="5"></circle>
+                        <rect x="95" y="155" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,155 135,165 125,165"></polygon>
+                        <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)"></rect>
+                    </svg><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 185 185" width="185" height="185" class="HeroText_dots__XvXkZ"
+                        style="position:absolute;right:0;top:480">
+                        <circle cx="10" cy="10" r="5"></circle>
+                        <rect x="35" y="5" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,5 75,15 65,15"></polygon>
+                        <rect x="95" y="5" width="8" height="8" transform="rotate(45 99 9)"></rect>
+                        <circle cx="130" cy="10" r="5"></circle>
+                        <rect x="155" y="5" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,35 45,45 35,45"></polygon>
+                        <rect x="66" y="36" width="8" height="8" transform="rotate(45 70 40)"></rect>
+                        <circle cx="100" cy="40" r="5"></circle>
+                        <rect x="125" y="35" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,35 165,45 155,45"></polygon>
+                        <polygon points="10,65 15,75 5,75"></polygon>
+                        <rect x="36" y="66" width="8" height="8" transform="rotate(45 40 70)"></rect>
+                        <circle cx="70" cy="70" r="5"></circle>
+                        <rect x="95" y="65" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,65 135,75 125,75"></polygon>
+                        <rect x="156" y="66" width="8" height="8" transform="rotate(45 160 70)"></rect>
+                        <circle cx="10" cy="100" r="5"></circle>
+                        <rect x="35" y="95" width="10" height="10" rx="2"></rect>
+                        <polygon points="70,95 75,105 65,105"></polygon>
+                        <rect x="95" y="95" width="8" height="8" transform="rotate(45 99 99)"></rect>
+                        <circle cx="130" cy="100" r="5"></circle>
+                        <rect x="155" y="95" width="10" height="10" rx="2"></rect>
+                        <rect x="5" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="40,125 45,135 35,135"></polygon>
+                        <rect x="66" y="126" width="8" height="8" transform="rotate(45 70 130)"></rect>
+                        <circle cx="100" cy="130" r="5"></circle>
+                        <rect x="125" y="125" width="10" height="10" rx="2"></rect>
+                        <polygon points="160,125 165,135 155,135"></polygon>
+                        <polygon points="10,155 15,165 5,165"></polygon>
+                        <rect x="36" y="156" width="8" height="8" transform="rotate(45 40 160)"></rect>
+                        <circle cx="70" cy="160" r="5"></circle>
+                        <rect x="95" y="155" width="10" height="10" rx="2"></rect>
+                        <polygon points="130,155 135,165 125,165"></polygon>
+                        <rect x="156" y="156" width="8" height="8" transform="rotate(45 160 160)"></rect>
+                    </svg>
+                    <div class="m_7485cace mantine-Container-root" data-size="xl"
+                        data-strategy="block"
+                        style="--container-size:calc(43.75rem * var(--mantine-scale));;padding-inline:var(--mantine-spacing-md);">
+                        <div class="Banner_body__K_Xm0">
+                            <h1 class="m_8a5d1357 mantine-Title-root Banner_title__PG16e"
+                                style="--title-fw:var(--mantine-h1-font-weight);--title-lh:var(--mantine-h1-line-height);--title-fz:var(--mantine-h1-font-size);text-align:center;">
+                                <span class="m_b6d8b162 mantine-Text-root" data-variant="gradient"
+                                    data-inherit="true"
+                                    style="font-weight:bold;--text-gradient:linear-gradient(45deg, #25962b 0%, #25ef34 100%);">Ville
+                                    UI<br></span><span class="m_b6d8b162 mantine-Text-root"
+                                    data-inherit="true">Qooxdoo Components Library &amp; Patterns</span></h1>
+                            <p
+                                class="m_b6d8b162 mantine-Text-root mantine-focus-auto Banner_description__asVMP"
+                               ><span class="m_b6d8b162 mantine-Text-root"
+                                    data-inherit="true" style="color:#25962b;font-weight:bold;">Ville UI </span><span
+                                    class="m_b6d8b162 mantine-Text-root" data-inherit="true"
+                                   >is a </span><span class="m_b6d8b162 mantine-Text-root"
+                                    data-inherit="true"
+                                    style="color:var(--mantine-color-bright);font-weight:bold;text-decoration:underline;text-decoration-thickness:2px;text-decoration-color:currentColor;text-decoration-style:double;text-underline-offset:calc(0.325rem * var(--mantine-scale));">Qooxdoo</span><span
+                                    class="m_b6d8b162 mantine-Text-root" data-inherit="true"
+                                   > component library for building modern, high-performance web
+                                    apps.<br>Crafted with </span><span
+                                    class="m_b6d8b162 mantine-Text-root" data-variant="gradient" data-inherit="true"
+                                    style="font-weight:bold;--text-gradient:linear-gradient(45deg, var(--mantine-color-blue-filled) 0%, var(--mantine-color-cyan-filled) 100%);">Mantine
+                                    CSS </span><span class="m_b6d8b162 mantine-Text-root"
+                                    data-inherit="true">(and ❤️ love)</span></p>
+                            <div class="m_4081bf90 mantine-Group-root"
+                                style="--group-justify:center;--group-gap:var(--mantine-spacing-md);--group-align:center;--group-wrap:wrap;margin-top:calc(var(--mantine-spacing-xl) * 2);margin-bottom:var(--mantine-spacing-md);">
+                                <button tabindex="1" role="button"
+                                    class="m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root"
+                                    data-variant="default"
+                                    style="--button-height:var(--button-height-xl);--button-padding-x:var(--button-padding-x-xl);--button-fz:var(--mantine-font-size-xl);--button-bg:linear-gradient(45deg, #25962b 0%, #25ef34 100%);--button-hover:linear-gradient(45deg, #25962b 0%, #25ef34 100%);--button-color:var(--mantine-color-white);--button-bd:none;"><span
+                                        class="m_80f1301b mantine-Button-inner"><span
+                                            qxanonymous="true"
+                                            class="m_811560b9 mantine-Button-label">Get
+                                            Started</span></span></button><a tabindex="1"
+                                    role="button"
+                                    class="m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root"
+                                    data-variant="default" data-with-left-section="true" data-size="xl"
+                                    href="https://github.com/sqville/ville"
+                                    style="--button-height:var(--button-height-xl);--button-padding-x:var(--button-padding-x-xl);--button-fz:var(--mantine-font-size-xl);--button-bg:var(--mantine-color-default);--button-hover:var(--mantine-color-default-hover);--button-color:var(--mantine-color-default-color);--button-bd:calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border);"><span
+                                        class="m_80f1301b mantine-Button-inner"><span
+                                            qxanonymous="true"
+                                            class="m_a74036a mantine-Button-section" data-position="left"><svg
+                                                class="villeuilinkicon" viewBox="0 0 16 16"
+                                                xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                               >
+                                                <path fill-rule="evenodd"
+                                                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                                                </path>
+                                            </svg></span><span qxanonymous="true"
+                                            class="m_811560b9 mantine-Button-label">GitHub</span></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="m_7485cace mantine-Container-root" data-strategy="block"
+                    style="--container-size:calc(90rem * var(--mantine-scale));text-align:center;padding-bottom:calc(5rem * var(--mantine-scale));">
+                    <p class="m_b6d8b162 mantine-Text-root mantine-focus-auto"
+                        style="font-size:var(--mantine-font-size-lg);margin-top:var(--mantine-spacing-md);margin-bottom:var(--mantine-spacing-md);">
+                        Brought to you by</p>
+                    <div class="HomePageSponsors_sponsors__3YyzB"><a
+                            class="HomePageSponsors_sponsor__c9Sun" href="https://github.com/Ville-Software"
+                            target="_blank"><img
+                                class="m_9e117634 mantine-Image-root HomePageSponsors_image__DWa8c"
+                                src="./resource/villeui/images/ville_logo.png" alt="Ville Software Logo" width="80px"
+                                height="80px"><span class="HomePageSponsors_name__MEYj1"
+                                style="font-weight:bold;">Ville Software</span></a></div>
+                </div>
+                <section class="HomePageComponents_root__uexW5">
+                    <h2 data-order="2" class="HomePageTitle_title__Vmv_b"
+                        style="--title-fw:var(--mantine-h2-font-weight);--title-lh:var(--mantine-h2-line-height);--title-fz:var(--mantine-h2-font-size);padding-inline:var(--mantine-spacing-md);">
+                        Widget Browser</h2>
+                    <p
+                        class="mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY"
+                        style="padding-inline:var(--mantine-spacing-md);">Yup, that widget browser. Some familiar with
+                        the new. The best way to get aquainted with your new <span
+                            data-inherit="true" style="color:var(--mantine-color-bright);font-weight:bold;">modern CSS
+                            super powers. 💪</span></p>
+                    <div id="isleWidgetBrowser" style="margin-inline: 10px 10px;writing-mode: horizontal-tb;"></div>
+                </section>
+                <section class="HomePageComponents_root__uexW5" style="margin-top:150px;">
+                    <h2 data-order="2" class="HomePageTitle_title__Vmv_b"
+                        style="--title-fw:var(--mantine-h2-font-weight);--title-lh:var(--mantine-h2-line-height);--title-fz:var(--mantine-h2-font-size);padding-inline:var(--mantine-spacing-md);">
+                        Qooxdoo + Native CSS = 🔥</h2>
+                    <p
+                        class="mantine-focus-auto HomePageDescription_root__VdcJm HomePageComponents_description__JLMyY"
+                        style="padding-inline:var(--mantine-spacing-md);">Flexible styling using native CSS.</p>
+                    <div class="m_7485cace mantine-Container-root" data-strategy="block"
+                        style="--container-size:calc(90rem * var(--mantine-scale));">
+                        <div class="m_2415a157 mantine-SimpleGrid-root __m__-r14h">
+                            <div class="m_6d731127 mantine-Stack-root"
+                                style="--stack-align:stretch;--stack-justify:flex-start;--stack-gap:var(--mantine-spacing-md);">
+                                <h3 class="m_8a5d1357 mantine-Title-root"
+                                    style="--title-fw:var(--mantine-h3-font-weight);--title-lh:var(--mantine-h3-line-height);--title-fz:var(--mantine-h3-font-size);">
+                                    ⚒ Built with CSS</h3>
+                                <p class="m_b6d8b162 mantine-Text-root">Styles are exposed
+                                    as .css files – styles are performant and do not have any runtime overhead.</p>
+                                <h3 class="m_8a5d1357 mantine-Title-root"
+                                    style="--title-fw:var(--mantine-h3-font-weight);--title-lh:var(--mantine-h3-line-height);--title-fz:var(--mantine-h3-font-size);">
+                                    ☯ Extends only core widgets</h3>
+                                <p class="m_b6d8b162 mantine-Text-root">All Ville UI widgets
+                                    either directly extend complex widgets (i.e. qx.ui.form.Button) or Qooxdoo's core
+                                    widget (qx.ui.core.Widget). Everything is a Qooxdoo widget.</p>
+                                <h3 class="m_8a5d1357 mantine-Title-root"
+                                    style="--title-fw:var(--mantine-h3-font-weight);--title-lh:var(--mantine-h3-line-height);--title-fz:var(--mantine-h3-font-size);">
+                                    ✺ Override anything</h3>
+                                <p class="m_b6d8b162 mantine-Text-root">All component styles
+                                    can be overriden with inline styles. All Ville UI widgets expose Content Element
+                                    functions such as setStyles and addClass (among others) for simple and direct
+                                    changes as needed.</p>
+                            </div>
+                            <div class="HomePageSponsors_sponsor__c9Sun"><img
+                                    class="m_9e117634 mantine-Image-root"
+                                    src="./resource/villeui/images/QxCSS_example_01.png" alt="Ville UI code example 01">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

@@ -3,10 +3,10 @@
   text-decoration: none;
   font-size: var(--text-fz, var(--mantine-font-size-md));
   line-height: var(--text-lh, var(--mantine-line-height-md));
-  font-weight: normal;
+  font-weight: var(--mantine-font-weight-regular);
+  text-wrap: var(--text-text-wrap, var(--mantine-text-wrap));
   margin: 0;
   padding: 0;
-  color: var(--text-color);
 }
 
   .m_b6d8b162:where([data-truncate]) {
@@ -17,12 +17,12 @@
 
   .m_b6d8b162:where([data-truncate='start']) {
     direction: rtl;
-    text-align: right;
+    text-align: end;
   }
 
   :where([dir="rtl"]) .m_b6d8b162:where([data-truncate='start']) {
       direction: ltr;
-      text-align: left;
+      text-align: start;
 }
 
   .m_b6d8b162:where([data-variant='gradient']) {

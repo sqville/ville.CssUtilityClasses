@@ -19,34 +19,82 @@
 /**
  * The simple qooxdoo font theme.
  *
- * @usefont(qx.theme.monospace)
+ * // Get the exact pixel value of 1rem
+        const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        console.log(rootFontSize);
  */
 qx.Theme.define("ville.cssuc.theme.middleman.Font", {
   fonts: {
+       
+    "default-family": {
+      family: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji"]
+    },
+
+    "default-xs": {
+      include: "default-family",
+      size: Math.round(parseFloat(getComputedStyle(document.documentElement).fontSize)*.75),
+      lineHeight: 1.4
+    },
+    
+    "default-sm": {
+      include: "default-family",
+      size: Math.round(parseFloat(getComputedStyle(document.documentElement).fontSize)*.875),
+      lineHeight: 1.45
+    },
+
+    "default-md": {
+      include: "default-family",
+      size: parseFloat(getComputedStyle(document.documentElement).fontSize),
+      lineHeight: 1.55
+    },
+
+    "default-lg": {
+      include: "default-family",
+      size: Math.round(parseFloat(getComputedStyle(document.documentElement).fontSize)*1.125),
+      lineHeight: 1.6
+    },
+
+    "default-xl": {
+      include: "default-family",
+      size: Math.round(parseFloat(getComputedStyle(document.documentElement).fontSize)*1.25),
+      lineHeight: 1.65
+    },
+    
     default: {
-      size: 13,
-      family: ["arial", "sans-serif"]
+      include: "default-md"
+    },
+
+    "button-label": {
+      include: "default-sm",
+      weight: "600"
+    },
+
+    "checkbox-label": {
+      include: "default-sm"
+    },
+
+    "textfield-input": {
+      include: "default-sm"
     },
 
     bold: {
-      size: 13,
-      family: ["arial", "sans-serif"],
+      include: "default",
       bold: true
     },
 
     headline: {
-      size: 24,
-      family: ["sans-serif", "arial"]
+      include: "default",
+      size: 24
     },
 
     small: {
-      size: 11,
-      family: ["arial", "sans-serif"]
+      include: "default",
+      size: 11
     },
 
     monospace: {
-      size: 11,
-      fontName: "qx.theme.monospace"
+      family: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
+      size: 11
     }
   }
 });

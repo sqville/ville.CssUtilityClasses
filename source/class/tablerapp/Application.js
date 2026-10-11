@@ -36,6 +36,18 @@ qx.Class.define("tablerapp.Application",
      */
     main()
     {
+
+      if (qx.core.Environment.get("ville.cssuc")) {
+        qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
+        qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
+        qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
+        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
+
+        // clear out all styling of html and body tags
+        document.documentElement.style = "";
+        document.body.style = "";
+      } 
+      
       // Call super class
       super.main();
 
@@ -53,20 +65,6 @@ qx.Class.define("tablerapp.Application",
         Below is your actual application code...
       -------------------------------------------------------------------------
       */
-
-      if (qx.core.Environment.get("ville.cssuc")) {
-        //qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-        //qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
-
-        qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
-        qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
-        qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
-        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
-
-        // clear out all styling of html and body tags
-        document.documentElement.style = "";
-        document.body.style = "";
-      } 
 
       // Document is the application root
       const doc = this.getRoot();

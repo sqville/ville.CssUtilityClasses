@@ -10,6 +10,7 @@
 
 /**
  * This is the main application class of "mantineapp"
+ * https://carbondesignsystem.com/developing/web-components-tutorial/step-5/
  *
  * @asset(mantineapp/*)
  * @external(mantineapp/css/mantineapp.css)
@@ -140,6 +141,8 @@ qx.Class.define("mantineapp.Application",
       //cmbobtn.setBackgroundColor("yellow");
       //PopupTestingGroupbox.add(comboBox);
 
+      var expButton = new ville.ui.experimental.Button("Qx Button");
+
       // Separator
       var divider = new ville.ui.core.Divider();
       divider.setLabel("Or continue with email");
@@ -238,7 +241,8 @@ qx.Class.define("mantineapp.Application",
 
       var PopupTestingGroupbox = new ville.ui.layout.HGroup("flex-start");
       PopupTestingGroupbox.add(btnMenuButton);
-      PopupTestingGroupbox.add(comboBox);
+      //PopupTestingGroupbox.add(comboBox);
+      PopupTestingGroupbox.add(expButton);
       PopupTestingGroupbox.setGap("xl");
       PopupTestingGroupbox.setStyle("margin-bottom","40px");
 
