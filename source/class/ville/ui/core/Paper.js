@@ -1,30 +1,29 @@
 /**
  * 
- * @external(mantine/core/styles/Paper.css)
+ * external(mantine/core/styles/Paper.css)
  */
 qx.Class.define("ville.ui.core.Paper", {
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 
     construct(component) {
-        if (component) {
-            this.__componenttag = component;
-        }
+
+        if (component != null)
+            this._contentElementTag = component;
         
         super();
 
-        this.setCssUtilityClass("m_1b7284a3 mantine-Paper-root");
     },
 
-    members: {
-
-        __componenttag: "div",
+    properties: {
 
         // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+        appearance: {
+            refine: true,
+            init: "paper"
         }
 
     }
+
   });

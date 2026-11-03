@@ -13,9 +13,7 @@
   "defaultTarget": "source",
   "locales": ["en"],
   "environment": {
-      "qx.icontheme": "Tango",
-      "qx.nativeScrollBars": true,
-      "ville.cssuc": false
+      "qx.icontheme": "Tango"
   },
   "babel" : {
     "options" : {
@@ -29,7 +27,11 @@
       "class": "qxapp.Application",
       "theme": "qxapp.theme.Theme",
       "name": "qxapp",
-      "bootPath": "source/boot/qxapp"
+      "bootPath": "source/boot/qxapp",
+      "environment": {
+        "qx.nativeScrollBars": true,
+        "ville.cssEngine.mantine" : true
+      }
     }
   ]
 }

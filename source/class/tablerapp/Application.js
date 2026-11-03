@@ -18,8 +18,6 @@ qx.Class.define("tablerapp.Application",
 {
   extend : qx.application.Standalone,
 
-
-
   /*
   *****************************************************************************
      MEMBERS

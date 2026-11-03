@@ -1,10 +1,10 @@
 /**
  * Base Container
- * @external(mantine/core/styles/Container.css)
+ * external(mantine/core/styles/Container.css)
  */
 qx.Class.define("ville.ui.layout.Container", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 

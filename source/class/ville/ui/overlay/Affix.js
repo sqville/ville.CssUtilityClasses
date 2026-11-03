@@ -1,31 +1,29 @@
 /**
- * @external(mantine/core/styles/Affix.css)
+ * external(mantine/core/styles/Affix.css)
  */
 qx.Class.define("ville.ui.overlay.Affix", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 
     construct(component) {
         
-        if (component) {
-            this.__componenttag = component;
-        }
-        super();
+        if (component != null)
+            this._contentElementTag = component;
 
-        this.setCssUtilityClass("m_7f854edf mantine-Affix-root");
+        super();
 
     },
 
-    members: {
-
-        __componenttag: "div",
+    properties: {
 
         // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+        appearance: {
+            refine: true,
+            init: "affix"
         }
 
     }
+
   });

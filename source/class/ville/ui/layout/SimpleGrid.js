@@ -1,10 +1,10 @@
 /**
  * Base Container
- * @external(mantine/core/styles/SimpleGrid.css)
+ * external(mantine/core/styles/SimpleGrid.css)
  */
 qx.Class.define("ville.ui.layout.SimpleGrid", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 

@@ -12,22 +12,7 @@
  * This is the main application class of "qxapp"
  *
  * @asset(qxapp/*)
- * @external(mantine/core/styles/baseline.css)
- * @external(mantine/core/styles/default-css-variables.css)
- * @external(mantine/core/styles/global.css)
- * 
- * @external(mantine/core/styles/ScrollArea.css)
- * @external(mantine/core/styles/UnstyledButton.css)
- * @external(mantine/core/styles/Popover.css)
- * @external(mantine/core/styles/Input.css)
- * @external(mantine/core/styles/ActionIcon.css)
- * 
- * @external(mantine/core/styles/Button.css)
- * 
- * @external(mantine/core/styles/Menu.css)
- * @external(mantine/core/styles/Text.css)
- * @external(mantine/core/styles/Table.css)
- * @external(mantine/core/styles/Tabs.css)
+ * @external(mantine/core/styles/styles.css)
  * 
  * @require(qxapp.MCssUtilityClass)
  */
@@ -48,23 +33,18 @@ qx.Class.define("qxapp.Application",
     main()
     {
 
-      //qx.Class.include(qx.ui.core.Widget, ville.cssuc.MCssUtilityClass);
-      //qx.Class.include(qx.ui.core.Widget, ville.ui.core.MWidget);
-      //qx.Class.include(qx.ui.core.LayoutItem, ville.cssuc.MControl);
-
       //last
-      qx.Class.include(qx.ui.core.Widget, qxapp.MCssUtilityClass);
-      //qx.Class.include(qx.ui.basic.Image, qxapp.MImage);
-      //qx.Class.include(qx.ui.basic.Atom, qxapp.MEmbed);
+      qx.Class.include(qx.ui.core.Widget, ville.cssuc.MWidget);
+      qx.Class.patch(qx.ui.tabview.Page, ville.cssuc.patch.tabview.MPage);
 
-      //qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
-      //qx.Class.patch(qx.ui.core.Widget, qxapp.patch.MWidget);
-      //qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
-      //qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
+      // might remove
+      qx.Class.include(qx.ui.basic.Image, qxapp.MImage);
+      qx.Class.include(qx.ui.basic.Atom, qxapp.MEmbed);
 
-      // clear out all styling of html and body tags
-      //document.documentElement.style = "";
-      //document.body.style = "";
+      if (qx.core.Environment.get("ville.cssEngine") == "mantine")
+      {
+        qx.Class.include(ville.ui.form.Button, ville.cssuc.MButton);
+      }
 
       // Call super class
       super.main();
@@ -140,7 +120,7 @@ qx.Class.define("qxapp.Application",
 
       var iconAirplane = new qxapp.theme.icon.fluent.Airplane(30);
 
-      var villebutton = new qxapp.ui.form.Button("Ville Button", iconAirplane);
+      var villebutton = new ville.ui.form.Button("Ville Button", iconAirplane);
       //villebutton.setEnabled(false);
 
       //var textfield = new qxapp.ui.form.TextField("Ville TextField");
@@ -157,7 +137,7 @@ qx.Class.define("qxapp.Application",
       //villecheckbox.setValue(true);
 
       // Menu Button
-      var btnMenu = new qx.ui.menu.Menu();
+      var btnMenu = new ville.ui.menu.Menu();
       /* See Decoration's approach to transitioning popups */
       btnMenu.getContentElement().setStyles({
         "transition-property": "opacity",
@@ -167,13 +147,13 @@ qx.Class.define("qxapp.Application",
       });
 
       var iconGearSixMenu = new qxapp.theme.icon.phosphor.GearSix(16);
-      var miSettings = new qxapp.ui.menu.Button("Settings", iconGearSixMenu);
+      var miSettings = new ville.ui.menu.Button("Settings", iconGearSixMenu);
       var iconChats = new qxapp.theme.icon.phosphor.Chats(16);
-      var miMessages = new qxapp.ui.menu.Button("Messages", iconChats);
+      var miMessages = new ville.ui.menu.Button("Messages", iconChats);
       var iconImagesSquare = new qxapp.theme.icon.phosphor.ImagesSquare(16);
-      var miGallery = new qxapp.ui.menu.Button("Gallery", iconImagesSquare);
+      var miGallery = new ville.ui.menu.Button("Gallery", iconImagesSquare);
       var iconMagnifyingGlass = new qxapp.theme.icon.phosphor.MagnifyingGlass(16);
-      var miSearch = new qxapp.ui.menu.Button("Search", iconMagnifyingGlass);
+      var miSearch = new ville.ui.menu.Button("Search", iconMagnifyingGlass);
       btnMenu.add(miSettings);
       btnMenu.add(miMessages);
       btnMenu.add(miGallery);

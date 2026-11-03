@@ -1,7 +1,7 @@
 /**
  * NavLink
- * @external(mantine/core/styles/UnstyledButton.css)
- * @external(mantine/core/styles/NavLink.css)
+ * external(mantine/core/styles/UnstyledButton.css)
+ * external(mantine/core/styles/NavLink.css)
  */
 qx.Class.define("ville.ui.form.NavLink", {
     extend: ville.ui.form.UnstyledToggleButton,

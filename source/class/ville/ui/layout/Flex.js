@@ -5,19 +5,13 @@
  */
 qx.Class.define("ville.ui.layout.Flex", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 
     construct() {
 
         super();
-
-        var sheet = qx.ui.style.Stylesheet.getInstance();
-        
-        if (!sheet.hasRule("m_8bffd616")) {
-            sheet.addRule("m_8bffd616", "display: flex;");
-        }
 
         this.setCssUtilityClass("m_8bffd616 mantine-Flex-root");
 

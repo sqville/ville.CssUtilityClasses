@@ -1,10 +1,95 @@
-qx.Mixin.define("ville.cssuc.patch.MWidgetOld", {
+qx.Mixin.define("ville.cssuc.patch.MWidgetNewold", {
+
+  properties :
+  {
+    cssUtilityClass: {
+      check: "String",
+      nullable: true,
+      init: null,
+      apply: "_applyCssUtilityClass",
+      themeable: true
+    },
+
+    excludeInlineStyles: {
+      check: "Array",
+      nullable: true,
+      init: null,
+      apply: "_applyExcludeInlineStyles",
+      themeable: true
+    },
+
+    clearAllInlineStyles: {
+      check: "Boolean",
+      init: false,
+      apply: "_applyClearAllInlineStyles",
+      themeable: true
+    },
+
+    removeCssClasses: {
+      check: "Array",
+      nullable: true,
+      init: null,
+      apply: "_applyRemoveCssClasses",
+      themeable: true
+    }
+  },
 
   members: {
 
+    // property apply
+    _applyCssUtilityClass(value, old) {
+      var content = this.getContentElement();
+      if (old) {
+        content.removeClass(old);
+      }
+      if (value) {
+        content.addClass(value);
+      }
+    },
+
+    // property apply
+    _applyExcludeInlineStyles(value, old) {
+      var elem = this.getContentElement();
+      for (const style of value) {
+        elem.removeStyle(style, true);
+      }
+    },
+
+    // property apply
+    _applyClearAllInlineStyles(value, old) {
+      if (value) {
+        var elem = this.getContentElement();
+        var elemstyles = elem.getAllStyles();
+        for (const style in elemstyles) {
+          elem.removeStyle(style, true);
+        }
+      }
+    },
+    
+    // property apply
+    _applyRemoveCssClasses(value, old) {
+      var elem = this.getContentElement();
+      for (const qxcssclass of value) {
+        elem.removeClass(qxcssclass, true);
+      }
+    },
+
     // overridden
-    renderLayout(left, top, width, height) {
-      var changes = super.renderLayout(left, top, width, height);
+    /*renderLayout(left, top, width, height) {
+
+      if (qx.core.Environment.get("ville.cssuc")) {
+        var incchanges = true;
+        if (qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom")) {
+          if (this.getExcludeBoundsFromDom())
+            incchanges = false;
+        }
+        if (incchanges)
+          var changes = super.renderLayout(left, top, width, height);
+        else
+          var changes = undefined;
+      } else {
+        var changes = super.renderLayout(left, top, width, height);
+      }
 
       // Directly return if superclass has detected that no
       // changes needs to be applied
@@ -32,36 +117,10 @@ qx.Mixin.define("ville.cssuc.patch.MWidgetOld", {
         contentStyles.height = height + pixel;
       }
 
-      if (qx.core.Environment.get("ville.cssuc")) {
-        var incstyles = true;
-        if (qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom")) {
-          if (this.getExcludeBoundsFromDom()) {
-            incstyles = false;
-          }
-        }
-        if (incstyles) {
-          if (Object.keys(contentStyles).length > 0) {
-            content.setStyles(contentStyles);
-          }
-        } else {
-          if (qx.Class.hasProperty(this.constructor, "excludeBoundsFromDomMods")) {
-            if (this.getExcludeBoundsFromDomMods()) {
-              if (Object.keys(contentStyles).length > 0) {
-                for (const bound of this.getExcludeBoundsFromDomMods()) {
-                  delete contentStyles[bound];
-                }
-                content.setStyles(contentStyles);
-              }
-            }
-          }
-        }
-      } else {
-        if (Object.keys(contentStyles).length > 0) {
-          content.setStyles(contentStyles);
-        }
+      if (Object.keys(contentStyles).length > 0) {
+        content.setStyles(contentStyles);
       }
-
-
+      
       if (inner || changes.local || changes.margin) {
         if (this.__layoutManager && this.hasLayoutChildren()) {
           var inset = this.getInsets();
@@ -85,7 +144,6 @@ qx.Mixin.define("ville.cssuc.patch.MWidgetOld", {
 
           this.__layoutManager.renderLayout(innerWidth, innerHeight, padding);
         } else if (this.hasLayoutChildren()) {
-          //console.log(incstyles);
           throw new Error(
             "At least one child in control " +
               this._findTopControl() +
@@ -107,7 +165,7 @@ qx.Mixin.define("ville.cssuc.patch.MWidgetOld", {
       delete this._updateInsets;
 
       return changes;
-    },
+    },*/
 
     // property apply
     _applyFocusable(value, old) {
@@ -141,7 +199,34 @@ qx.Mixin.define("ville.cssuc.patch.MWidgetOld", {
           target.setAttribute("tabIndex", null);
         }
       }
-    }
-}
+    },
 
+    // overridden
+    _applyCursor(value, old) {
+      if (value == null && !this.isSelectable()) {
+        value = "default";
+      }
+
+      if (qx.core.Environment.get("ville.cssuc")) {
+        if (qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom")) {
+          if (!this.getExcludeBoundsFromDom()) {
+            this.getContentElement().setStyle(
+              "cursor",
+              value,
+              qx.core.Environment.get("engine.name") == "opera"
+            );
+          }
+        }
+      } else {
+        // In Opera the cursor must be set directly.
+        // http://bugzilla.qooxdoo.org/show_bug.cgi?id=1729
+        this.getContentElement().setStyle(
+          "cursor",
+          value,
+          qx.core.Environment.get("engine.name") == "opera"
+        );
+      }
+      
+    }
+  }
 });

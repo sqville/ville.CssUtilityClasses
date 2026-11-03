@@ -27,6 +27,23 @@
 qx.Theme.define("ville.cssuc.theme.blankslate.Appearance", {
 
   appearances: {
+
+    /*
+    ---------------------------------------------------------------------------
+      MANTINE CONTROLS ###  MOVE TO THEME MIXIN #####
+    ---------------------------------------------------------------------------
+    */
+
+    overlay: {},
+
+    affix: {},
+
+    floatingindicator: {},
+
+    divider: {},
+
+    paper: {},
+
     /*
     ---------------------------------------------------------------------------
       CORE

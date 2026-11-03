@@ -4,22 +4,10 @@
  */
 qx.Class.define("ville.ui.basic.Element", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     construct(component) {
-        if (component) {
-            this.__componenttag = component;
-        }
+        this._contentElementTag = component ?? "div";
         super();
-    },
-
-    members: {
-
-        __componenttag: "div",
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
-        }
     }
   });

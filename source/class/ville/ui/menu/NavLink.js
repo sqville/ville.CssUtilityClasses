@@ -1,8 +1,8 @@
 /**
  * Menu Button
- * @external(mantine/core/styles/UnstyledButton.css)
- * @external(mantine/core/styles/NavLink.css)
- * @external(mantine/core/styles/Menu.css)
+ * external(mantine/core/styles/UnstyledButton.css)
+ * external(mantine/core/styles/NavLink.css)
+ * external(mantine/core/styles/Menu.css)
  */
 qx.Class.define("ville.ui.menu.NavLink", {
     

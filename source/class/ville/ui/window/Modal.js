@@ -1,6 +1,6 @@
 /**
  * Modal Window
- * @external(mantine/core/styles/Modal.css)
+ * external(mantine/core/styles/Modal.css)
  */
 qx.Class.define("ville.ui.window.Modal", {
     

@@ -1,30 +1,27 @@
 /**
  * Overlay
- * @external(mantine/core/styles/Overlay.css)
  */
 qx.Class.define("ville.ui.overlay.Overlay", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     construct(component) {
         
-        if (component) {
-            this.__componenttag = component;
-        }
+        if (component != null)
+            this._contentElementTag = component;
+        
         super();
-
-        this.setCssUtilityClass("m_9814e45f mantine-Overlay-root");
 
     },
 
-    members: {
-
-        __componenttag: "div",
+    properties: {
 
         // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+        appearance: {
+            refine: true,
+            init: "affix"
         }
 
     }
+
   });

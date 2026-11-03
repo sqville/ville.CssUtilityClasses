@@ -1,14 +1,15 @@
 /**
  * Button
- * @external(mantine/core/styles/ActionIcon.css)
+ * external(mantine/core/styles/ActionIcon.css)
  */
 qx.Class.define("ville.ui.form.ToggleActionIcon", {
     extend: ville.ui.form.UnstyledToggleButton,
 
     construct(trueicon, falseicon, variant, component) {
-        if (component) {
-            this.__componenttag = component;
-        }
+
+        if (component != null)
+            this._contentElementTag = component;
+
         super(); 
 
         this.setCssUtilityClass("mantine-focus-auto mantine-active m_8d3f4000 mantine-ActionIcon-root " + this.getCssUtilityClass());
@@ -113,16 +114,16 @@ qx.Class.define("ville.ui.form.ToggleActionIcon", {
 
     members: {
 
-        __componenttag: "button",
+        //__componenttag: "button",
 
         __trueiconpathd: null,
 
         __falseiconpathd: null,
 
         // overridden
-        _createContentElement() {
+        /*_createContentElement() {
             return new qx.html.Element(this.__componenttag);
-        },
+        },*/
 
         // overridden
         _createChildControlImpl(id, hash) {

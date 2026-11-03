@@ -1,0 +1,38 @@
+{
+  "$schema": "https://qooxdoo.org/schema/compile-1-0-0.json",
+  "targets": [
+    {
+      "type": "source",
+      "outputPath": "compiled/source"
+    },
+    {
+      "type": "build",
+      "outputPath": "compiled/build"
+    }
+  ],
+  "defaultTarget": "source",
+  "locales": ["en"],
+  "environment": {
+      "qx.icontheme": "Tango",
+      "qx.nativeScrollBars": true
+  },
+  "babel" : {
+    "options" : {
+      "targets" : {
+        "chrome" : "150"
+      }
+    } 
+  },
+  "applications": [
+    {
+      "class": "shadcnapp.Application",
+      "theme": "ville.cssuc.theme.blankslate.Theme",
+      "name": "shadcnapp",
+      "bootPath": "source/boot/shadcnapp",
+      "include": ["ville.cssuc.patch.MLayoutItem", "ville.cssuc.patch.MWidget"],
+      "environment": {
+        "ville.cssEngine" : "tailwindcss"
+      }
+    }
+  ]
+}

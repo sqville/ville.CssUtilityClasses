@@ -5,8 +5,8 @@ SQ Notes:
 ************************************************************************ */
 
 /**
- * @external(mantine/core/styles/Input.css)
- * @external(mantine/core/styles/NumberInput.css)
+ * external(mantine/core/styles/Input.css)
+ * external(mantine/core/styles/NumberInput.css)
  * @require(ville.ui.icon.ChevronDown)
  */
 qx.Class.define("ville.ui.form.Spinner", {

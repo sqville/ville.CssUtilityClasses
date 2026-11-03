@@ -1,14 +1,14 @@
 /**
  * Button
- * @external(mantine/core/styles/Burger.css)
+ * external(mantine/core/styles/Burger.css)
  */
 qx.Class.define("ville.ui.core.Burger", {
     extend: ville.ui.form.UnstyledToggleButton,
 
     construct(component) {
-        if (component) {
-            this.__componenttag = component;
-        }
+
+        this._contentElementTag = component ?? "button";
+        
         super(); 
 
         this.setCssUtilityClass("mantine-focus-auto m_fea6bf1a mantine-Burger-root " + this.getCssUtilityClass());
@@ -34,6 +34,16 @@ qx.Class.define("ville.ui.core.Burger", {
         });
 
         
+    },
+
+    properties: {
+
+        // overridden
+        appearance: {
+            refine: true,
+            init: "burger"
+        }
+
     },
 
     members: {

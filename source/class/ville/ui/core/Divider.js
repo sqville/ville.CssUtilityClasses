@@ -1,9 +1,9 @@
 /**
  * This is the most basic ui component
- * @external(mantine/core/styles/Divider.css)
+ * external(mantine/core/styles/Divider.css)
  */
 qx.Class.define("ville.ui.core.Divider", {
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     construct() {
         super();
@@ -14,12 +14,16 @@ qx.Class.define("ville.ui.core.Divider", {
         this.initSpacing();
         this.initLabelPosition();
 
-        this.setCssUtilityClass("m_3eebeb36 mantine-Divider-root");
-
         this.setAttribute('role', 'separator');
     },
 
     properties: {
+
+        // overridden
+        appearance: {
+            refine: true,
+            init: "divider"
+        },
 
         label: {
             check: "String",
@@ -75,12 +79,7 @@ qx.Class.define("ville.ui.core.Divider", {
     },
 
     members: {
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element("div");
-        },
-
+        
         // overridden
         _createChildControlImpl(id, hash) {
             var control;
@@ -89,7 +88,6 @@ qx.Class.define("ville.ui.core.Divider", {
                 case "label":
                     control = new ville.ui.basic.Label();
                     control.setAnonymous(true);
-                    control.setCssUtilityClass("m_9e365f20 mantine-Divider-label");
                     this._add(control);
                     break;
             }

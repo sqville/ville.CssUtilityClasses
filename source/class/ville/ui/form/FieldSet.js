@@ -1,6 +1,6 @@
 /**
  * Fieldset
- * @external(mantine/core/styles/FieldSet.css)
+ * external(mantine/core/styles/FieldSet.css)
  */
 qx.Class.define("ville.ui.form.FieldSet", {
     

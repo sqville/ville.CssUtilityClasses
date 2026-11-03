@@ -13,24 +13,26 @@
   "defaultTarget": "source",
   "locales": ["en"],
   "environment": {
-      "qx.icontheme": "Tango",
-      "qx.nativeScrollBars": true,
-      "ville.cssuc": true
+      "qx.icontheme": "Tango"
   },
   "babel" : {
     "options" : {
       "targets" : {
-        "chrome" : "132"
+        "chrome" : "150"
       }
     } 
   },
   "applications": [
     {
       "class": "mantineapp.Application",
-      "theme": "mantineapp.theme.Theme",
+      "theme": "ville.cssuc.theme.mantine.Theme",
       "name": "mantineapp",
       "bootPath": "source/boot/mantineapp",
-      "group": "mantine"
+      "include": ["ville.cssuc.patch.MLayoutItem", "ville.cssuc.patch.MWidget"],
+      "environment": {
+        "qx.nativeScrollBars": true,
+        "ville.cssEngine" : "mantine"
+      }
     }
   ]
 }

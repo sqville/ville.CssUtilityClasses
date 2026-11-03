@@ -1,7 +1,7 @@
 /**
  * ComboBox
- * @external(mantine/core/styles/Input.css)
- * @external(mantine/core/styles/Combobox.css)
+ * external(mantine/core/styles/Input.css)
+ * external(mantine/core/styles/Combobox.css)
  * @require(ville.ui.icon.ComboBoxChevron)
  */
 qx.Class.define("ville.ui.form.DateField", {

@@ -1,6 +1,6 @@
 /**
  * 
- * @external(mantine/core/styles/Anchor.css)
+ * external(mantine/core/styles/Anchor.css)
  */
 qx.Class.define("ville.ui.form.Anchor", {
     extend: qx.ui.form.Button,
@@ -16,9 +16,9 @@ qx.Class.define("ville.ui.form.Anchor", {
 
         //this._setLayout(new qx.ui.layout.Basic());
         this.setExcludeBoundsFromDom(true);
+        //this.setClearAllInlineStyles(true);
         this.setExcludeInlineStyles(["position"]);
         this.setCssUtilityClass("m_849cf0da m_b6d8b162 mantine-Text-root mantine-Anchor-root");
-        //this.setSelectable(null);
         
         if (component)
             if (component = "button")

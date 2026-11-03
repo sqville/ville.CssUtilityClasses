@@ -4,7 +4,7 @@
  * @childControl inputwrapper {ville.ui.core.InnerWrapper}
  * @childControl sectionleft {ville.ui.form.InputSection}
  * @childControl sectionright {ville.ui.form.InputSection}
- * @external(mantine/core/styles/PasswordInput.css)
+ * external(mantine/core/styles/PasswordInput.css)
  */
 qx.Class.define("ville.ui.form.PasswordWrapper", {
     extend: ville.ui.form.TextFieldWrapper,

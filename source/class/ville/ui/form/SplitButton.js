@@ -1,6 +1,6 @@
 /**
  * Menu Button
- * @external(mantine/core/styles/Group.css)
+ * external(mantine/core/styles/Group.css)
  */
 qx.Class.define("ville.ui.form.SplitButton", {
     

@@ -15,22 +15,111 @@
   "environment": {
       "qx.icontheme": "Tango",
       "qx.nativeScrollBars": true,
-      "ville.cssuc": true
+      "qx.dyntheme": false,
+      "ville.ssg": false
   },
   "babel" : {
     "options" : {
       "targets" : {
-        "chrome" : "132"
+        "chrome" : "150"
       }
     } 
   },
   "applications": [
     {
+      "class": "mantineapp.Application",
+      "theme": "ville.cssuc.theme.mantine.Theme",
+      "name": "mantineapp",
+      "bootPath": "source/boot/mantineapp",
+      "include": ["ville.cssuc.patch.MLayoutItem", "ville.cssuc.patch.MWidget"],
+      "group": ["main", "mantine"],
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "mantine"
+      }
+    },
+    {
+      "class": "qxapp.Application",
+      "theme": "qxapp.theme.Theme",
+      "name": "qxapp",
+      "bootPath": "source/boot/qxapp",
+      "group": "mantine",
+      "environment": {
+        "ville.cssLayout": false,
+        "ville.cssEngine" : "mantine"
+      }
+    },
+    {
+      "class": "shadcnapp.Application",
+      "theme": "ville.cssuc.theme.blankslate.Theme",
+      "name": "shadcnapp",
+      "bootPath": "source/boot/shadcnapp",
+      "include": ["ville.cssuc.patch.MLayoutItem", "ville.cssuc.patch.MWidget"],
+      "group": "tailwindcss",
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "tailwindcss"
+      }
+    },
+    {
+      "class": "villewebsite.Application",
+      "theme": "ville.cssuc.theme.BlankSlate",
+      "name": "villewebsite",
+      "bootPath": "source/boot/villewebsite",
+      "include": ["villewebsite.pages.*"],
+      "group": "mantine",
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "mantine",
+        "ville.ssg": true
+      }
+    },
+    {
+      "class": "tablerapp.Application",
+      "theme": "tablerapp.theme.Theme",
+      "name": "tablerapp",
+      "bootPath": "source/boot/tablerapp",
+      "include": ["ville.cssuc.patch.MLayoutItem", "ville.cssuc.patch.MWidget"],
+      "group": "scss",
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "scss"
+      }
+    },
+    {
       "class": "twindapp.Application",
       "theme": "twindapp.theme.Theme",
       "name": "twindapp",
       "bootPath": "source/boot/twindapp",
-      "group": "tailwind3"
+      "include": ["ville.cssuc.patch.MLayoutItem", "ville.cssuc.patch.MWidget"],
+      "group": "tailwindcss",
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "tailwindcss"
+      }
+    },
+    {
+      "class": "villeui.Application",
+      "theme": "villeui.theme.Theme",
+      "name": "villeui",
+      "bootPath": "source/boot/villeui",
+      "include": ["ville.cssuc.*"],
+      "group": "mantine",
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "mantine"
+      }
+    },
+    {
+      "class": "carbonapp.Application",
+      "theme": "carbonapp.theme.Theme",
+      "name": "carbonapp",
+      "bootPath": "source/boot/carbonapp",
+      "group": "scss",
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "scss"
+      }
     }
   ]
 }

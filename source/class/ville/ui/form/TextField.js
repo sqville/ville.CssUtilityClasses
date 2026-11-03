@@ -1,6 +1,6 @@
 /**
  * TextField
- * @external(mantine/core/styles/Input.css)
+ * external(mantine/core/styles/Input.css)
  */
 qx.Class.define("ville.ui.form.TextField", {
     extend: qx.ui.form.TextField,

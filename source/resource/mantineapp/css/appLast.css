@@ -1,0 +1,15 @@
+@import "../../../../node_modules/@mantine/core/styles.css";
+
+.ville-mantineapp-Application {
+    padding:calc(0.75rem * var(--mantine-scale));
+
+    div.ville-mantineapp-InnerAppContainer {
+        margin-left:auto;
+        margin-right:auto;
+        padding-top:calc(2.5rem * var(--mantine-scale));
+        max-width:calc(26.25rem * var(--mantine-scale));
+    }
+}
+
+
+

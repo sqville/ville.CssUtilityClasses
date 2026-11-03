@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f8fafc;
+      padding: 40px;
+    }
+
+    /* Base node setup */
+    .tree-node, .sub-branches {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .node-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Hidden inputs */
+    .toggle-input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    /* The interactive card button */
+    .trigger-card {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #334155;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: all 0.2s ease;
+      user-select: none;
+      z-index: 2; /* Ensures cards sit on top of the lines */
+    }
+
+    .trigger-card:hover {
+      border-color: #3b82f6;
+      color: #3b82f6;
+      background: #f0fdf4;
+    }
+
+    .toggle-input:checked + .trigger-card {
+      background: #3b82f6;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+
+    /* --- CONNECTOR MAGIC STARTS HERE --- */
+
+    /* The Sub-Branch Container Layout */
+    .sub-branches {
+      max-width: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      flex-direction: column; 
+      align-items: flex-start;
+      position: relative;
+    }
+
+    /* When expanded, open the gap and show lines */
+    .toggle-input:checked ~ .sub-branches {
+      max-width: 1500px;
+      opacity: 1;
+      padding-left: 40px; /* Space reserved specifically for the vector lines */
+    }
+
+    /* 1. The main horizontal trunk line leaving the parent node */
+    .node-item::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 0;
+      height: 2px;
+      background: #cbd5e1;
+      transform: translateY(-50%);
+      transition: width 0.4s ease;
+      z-index: 1;
+    }
+    .node-item:has(.toggle-input:checked)::after {
+      width: 40px; /* Extends trunk to meet the children when opened */
+    }
+
+    /* 2. The vertical spine that connects multi-branch options */
+    .sub-branches::before {
+      content: "";
+      position: absolute;
+      left: 40px; /* Aligns with the end of the parent trunk */
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #cbd5e1;
+      z-index: 1;
+    }
+
+    /* Trim the excess vertical lines on the top and bottom edge nodes */
+    .sub-branches > .tree-node:first-child {
+      position: relative;
+    }
+    /* Cover the top-most line overshoot */
+    .sub-branches::before {
+      top: calc(50px / 2); /* Centers perfectly to the height of your first node card */
+      bottom: calc(50px / 2); /* Centers perfectly to the height of your last node card */
+    }
+
+    /* 3. The horizontal branch lines entering each child node */
+    .sub-branches .tree-node::before {
+      content: "";
+      position: absolute;
+      left: 40px;
+      width: 20px;
+      height: 2px;
+      background: #cbd5e1;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Root Elements -->
+  <div class="tree-node">
+    <div class="node-item">
+      <input type="checkbox" id="step-root" class="toggle-input" checked>
+      <label for="step-root" class="trigger-card">1. Start Project ➔</label>
+
+      <!-- Level 2 Sub-Branches -->
+      <div class="sub-branches">
+        
+        <!-- Top Branch -->
+        <div class="tree-node">
+          <div class="node-item">
+            <input type="checkbox" id="step-2a" class="toggle-input">
+            <label for="step-2a" class="trigger-card">2A. Design Phase ➔</label>
+            
+            <!-- Level 3 -->
+            <div class="sub-branches">
+              <div class="tree-node"><div class="node-item"><span class="trigger-card" style="cursor:default;">3A. Wireframes</span></div></div>
+              <div class="tree-node"><div class="node-item"><span class="trigger-card" style="cursor:default;">3B. Prototypes</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Branch -->
+        <div class="tree-node">
+          <div class="node-item">
+            <input type="checkbox" id="step-2b" class="toggle-input">
+            <label for="step-2b" class="trigger-card">2B. Engine Build ➔</label>
+            
+            <!-- Level 3 -->
+            <div class="sub-branches">
+              <div class="tree-node"><div class="node-item"><span class="trigger-card" style="cursor:default;">3C. Database Setup</span></div></div>
+              <div class="tree-node"><div class="node-item"><span class="trigger-card" style="cursor:default;">3D. API Architecture</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Branch -->
+        <div class="tree-node">
+          <div class="node-item">
+            <span class="trigger-card" style="cursor:default;">2C. Legal Review</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

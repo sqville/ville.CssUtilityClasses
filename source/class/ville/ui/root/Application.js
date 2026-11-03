@@ -33,9 +33,6 @@ qx.Class.define("ville.ui.root.Application", {
     // Base call
     super();
 
-    this.setExcludeBoundsFromDom(true);
-    this.setClearAllInlineStyles(true);
-
     // Resize handling
     qx.event.Registration.addListener(
       this.__window,
@@ -53,11 +50,11 @@ qx.Class.define("ville.ui.root.Application", {
     );*/
 
     // Use a hard-coded canvas layout
-    this._setLayout(new qx.ui.layout.Canvas());
+    //this._setLayout(new qx.ui.layout.Canvas());
     //this._setLayout(new qx.ui.layout.Grow());
 
     // Directly schedule layout for root element
-    qx.ui.core.queue.Layout.add(this);
+    //qx.ui.core.queue.Layout.add(this);
 
     // Register as root
     qx.ui.core.FocusHandler.getInstance().connectTo(this);
@@ -135,7 +132,7 @@ qx.Class.define("ville.ui.root.Application", {
      * @param e {qx.event.type.Event} Event object
      */
     _onResize(e) {
-      qx.ui.core.queue.Layout.add(this);
+      //qx.ui.core.queue.Layout.add(this);
 
       // close all popups
       if (qx.ui.popup && qx.ui.popup.Manager) {
@@ -150,12 +147,6 @@ qx.Class.define("ville.ui.root.Application", {
       var elemDims = qx.bom.element.Dimension.getSize(this.getContentElement().getDomElement());
       this.setUserBounds(0, 0, elemDims.width, elemDims.height);
     },
-
-    /*_onResizeDoc(e) {
-      //qx.ui.core.queue.Layout.add(this);
-      var elemDims = qx.bom.element.Dimension.getSize(this.getContentElement().getDomElement());
-      this.setUserBounds(0, 0, elemDims.width, elemDims.height);
-    },*/
 
     // overridden
     _computeSizeHint() {

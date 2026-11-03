@@ -1,5 +1,17 @@
 qx.Mixin.define("ville.cssuc.patch.MWidget", {
 
+   construct() {
+
+    // Private variable patching workaround
+    // Remove inline styles
+    //console.log(this.getContentElement().getAllStyles());
+    this.setClearAllInlineStyles(true);
+    //this.setAttribute("style", "", true);
+    //if (this.getContentElement().getTextSelectionLength() != null)
+    //console.log(this.getContentElement());
+
+  },
+
   properties :
   {
     cssUtilityClass: {
@@ -10,17 +22,17 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       themeable: true
     },
 
-    excludeInlineStyles: {
-      check: "Array",
+    cssInlineStyles: {
+      check: "Map",
       nullable: true,
       init: null,
-      apply: "_applyExcludeInlineStyles",
+      apply: "_applyCssInlineStyles",
       themeable: true
     },
 
     clearAllInlineStyles: {
       check: "Boolean",
-      init: false,
+      init: true,
       apply: "_applyClearAllInlineStyles",
       themeable: true
     },
@@ -31,109 +43,87 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       init: null,
       apply: "_applyRemoveCssClasses",
       themeable: true
+    },
+
+    excludeInlineStyles: {
+      check: "Array",
+      nullable: true,
+      init: null,
+      apply: "_applyExcludeInlineStyles",
+      themeable: true
     }
+
   },
 
   members: {
 
-    // overridden
-    renderLayout(left, top, width, height) {
-      var changes = super.renderLayout(left, top, width, height);
+    __createContentElement() {
+      var el = this._createContentElement();
+      el.connectObject(this);
 
-      // Directly return if superclass has detected that no
-      // changes needs to be applied
-      if (!changes) {
-        return null;
+      // make sure to allow all pointer events
+      // el.setStyles({ "touch-action": "none", "-ms-touch-action": "none" });
+
+      if (qx.core.Environment.get("qx.debug")) {
+        el.setAttribute("qxClass", this.classname);
       }
 
-      if (qx.lang.Object.isEmpty(changes) && !this._updateInsets) {
-        return null;
+      var styles = {
+        zIndex: 10,
+        boxSizing: "border-box"
+      };
+
+      if (!qx.ui.root.Inline || !(this instanceof qx.ui.root.Inline)) {
+        // styles.position = "absolute";
       }
 
-      var content = this.getContentElement();
-      var inner = changes.size || this._updateInsets;
-      var pixel = "px";
+      // el.setStyles(styles);
 
-      var contentStyles = {};
-      // Move content to new position
-      if (changes.position) {
-        contentStyles.left = left + pixel;
-        contentStyles.top = top + pixel;
-      }
+      return el;
+    },
 
-      if (inner || changes.margin) {
-        contentStyles.width = width + pixel;
-        contentStyles.height = height + pixel;
-      }
+    _contentElementTag: "div",
 
-      var incstyles = true;
-      if (qx.core.Environment.get("qx.debug"))
-          this.assert(qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom"), "Missing ExcludeBoundsFromDom property.");
-      if (this.getExcludeBoundsFromDom()) {
-        incstyles = false;
-      }
-      
-      if (incstyles) {
-        if (Object.keys(contentStyles).length > 0) {
-          content.setStyles(contentStyles);
-        }
-      } else {
-        if (this.getExcludeBoundsFromDomMods()) {
-          if (Object.keys(contentStyles).length > 0) {
-            for (const bound of this.getExcludeBoundsFromDomMods()) {
-              delete contentStyles[bound];
-            }
-            content.setStyles(contentStyles);
+    _createContentElement() {
+      return new qx.html.Element(this._contentElementTag);
+    },
+
+    _getLayout() {
+      return {
+          connectToWidget: function() {},
+          disconnectFromWidget: function() {},
+          invalidateLayoutCache: function() {},
+          invalidateChildrenCache: function() {},
+          verifyLayoutProperty: function(propName, value) {
+            return true;
+          },
+          hasHeightForWidth: function() {
+            return false;
+          },
+          getSizeHint: function() {
+            return { width: 0, height: 0, minWidth: 0, minHeight: 0, maxWidth: Infinity, maxHeight: Infinity };
           }
-        }
+        };
+    },
+
+    _setLayout() {
+      return;
+    },
+
+    _afterAddChild(child) {
+      if (this.hasListener("addChildWidget")) {
+          this.fireDataEvent("addChildWidget", child);
       }
+      // Short-circuit: Do NOT call layoutManager.addChild()
+      return;
+    },
 
-
-
-      if (inner || changes.local || changes.margin) {
-        if (this.__layoutManager && this.hasLayoutChildren()) {
-          var inset = this.getInsets();
-          var innerWidth = width - inset.left - inset.right;
-          var innerHeight = height - inset.top - inset.bottom;
-
-          var decorator = this.getDecorator();
-          var decoratorPadding = { left: 0, right: 0, top: 0, bottom: 0 };
-          if (decorator) {
-            decorator =
-              qx.theme.manager.Decoration.getInstance().resolve(decorator);
-            decoratorPadding = decorator.getPadding();
-          }
-
-          var padding = {
-            top: this.getPaddingTop() + decoratorPadding.top,
-            right: this.getPaddingRight() + decoratorPadding.right,
-            bottom: this.getPaddingBottom() + decoratorPadding.bottom,
-            left: this.getPaddingLeft() + decoratorPadding.left
-          };
-
-          this.__layoutManager.renderLayout(innerWidth, innerHeight, padding);
-        } else if (this.hasLayoutChildren()) {
-          throw new Error(
-            "At least one child in control " +
-              this._findTopControl() +
-              " requires a layout, but no one was defined!"
-          );
-        }
+    _afterRemoveChild(child) {
+      if (this.hasListener("removeChildWidget")) {
+          this.fireDataEvent("removeChildWidget", child);
       }
-
-      // Fire events
-      if (changes.position && this.hasListener("move")) {
-        this.fireDataEvent("move", this.getBounds());
-      }
-
-      if (changes.size && this.hasListener("resize")) {
-        this.fireDataEvent("resize", this.getBounds());
-      }
-
-      // Cleanup flags
-      delete this._updateInsets;
-
-      return changes;
+      // Short-circuit: Do NOT call layoutManager.removeChild()
+      return;
     },
 
     // property apply
@@ -144,6 +134,13 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       }
       if (value) {
         content.addClass(value);
+      }
+    },
+
+    // property apply
+    _applyCssInlineStyles(value, old) {
+      if (value) {
+        this.getContentElement().setStyles(value, true);
       }
     },
 
@@ -163,6 +160,7 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
         for (const style in elemstyles) {
           elem.removeStyle(style, true);
         }
+        elem.removeAttribute('style', true);
       }
     },
     
@@ -186,14 +184,7 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
         }
 
         target.setAttribute("tabIndex", tabIndex);
-
-        // Omit native dotted outline border
-        if (qx.core.Environment.get("qx.debug"))
-          this.assert(qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom"), "Missing ExcludeBoundsFromDom property.");
-        if (this.getExcludeBoundsFromDom())
-          target.removeStyle("outline");
-        else
-          target.setStyle("outline", "none");
+        target.removeStyle("outline");
         
       } else {
         if (target.isNativelyFocusable()) {
@@ -205,21 +196,51 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
     },
 
     // overridden
-    _applyCursor(value, old) {
-      if (value == null && !this.isSelectable()) {
-        value = "default";
-      }
+    _applyCursor(value, old) {},
 
-      if (qx.core.Environment.get("qx.debug"))
-        this.assert(qx.Class.hasProperty(this.constructor, "excludeBoundsFromDom"), "Missing ExcludeBoundsFromDom property.");
-      if (!this.getExcludeBoundsFromDom()) {
-        this.getContentElement().setStyle(
-          "cursor",
-          value,
-          qx.core.Environment.get("engine.name") == "opera"
-        );
-      }
-      
+    // overridden
+    _applyZIndex(value, old) {},
+
+    addClass(classname) {
+      this.getContentElement().addClass(classname);
+    },
+
+    removeClass(classname) {
+      this.getContentElement().removeClass(classname);
+    },
+
+    // API - bubble up Style/Attributes
+    setStyle(style, value, direct) {
+      this.getContentElement().setStyle(style, value, direct);
+    },
+
+    getStyle(style, value) {
+      this.getContentElement().getStyle(style, value);
+    },
+
+    setStyles(styles, direct) {
+      this.getContentElement().setStyles(styles, direct);
+    },
+
+    removeStyle(style) {
+      this.getContentElement().removeStyle(style);
+    },
+
+    setAttribute(attribute, value, direct) {
+      this.getContentElement().setAttribute(attribute, value, direct);
+    },
+
+    getAttribute(attribute, value) {
+      this.getContentElement().getAttribute(attribute, value);
+    },
+
+    setAttributes(attributes, direct) {
+      this.getContentElement().setAttributes(attributes, direct);
+    },
+
+    removeAttribute(attribute, direct) {
+      this.getContentElement().removeAttribute(attribute, direct);
     }
+
   }
 });

@@ -1,41 +1,30 @@
 /**
  * Menu Button
- * @external(mantine/core/styles/UnstyledButton.css)
- * @external(mantine/core/styles/Menu.css)
  */
 qx.Class.define("ville.ui.menu.Button", {
     
     extend: qx.ui.menu.Button,
 
-    include: ville.ui.core.MWidget,
-
-    construct(label, variant, sectionLeft, sectionRight, component) {
+    construct(label, icon, command, menu, variant) {
         
-        if (component != null)
-            this.__componenttag = component;
+        this._contentElementTag = "button";
 
-        super();
+        if (icon != null) {
+            if (qx.lang.Type.isString(icon)) {
+                super(label, icon, command, menu);
+            } else {
+                super(label, null, command, menu);
+                this.setInlineIcon(icon);
+                this._createChildControl("inlineicon");
+            }
+        } else {
+            super(label, null, command, menu);
+        }
 
-        //this.setExcludeBoundsFromDom(true);
-        //this.setClearAllInlineStyles(true);
-        this.setCssUtilityClass("mantine-focus-auto m_99ac2aa1 mantine-Menu-item m_87cf2631 mantine-UnstyledButton-root");
-
-        if (variant) {
+        if (variant != null) {
             this.setVariant(variant);
         } else {
             this.initVariant();
-        }
-
-        if (sectionLeft != null) {
-            this.setSectionLeft(sectionLeft);
-        }
-
-        if (label != null) {
-            this.setLabel(label);
-        }
-
-        if (sectionRight != null) {
-            this.setSectionRight(sectionRight);
         }
 
     },
@@ -50,31 +39,17 @@ qx.Class.define("ville.ui.menu.Button", {
             event: "changeVariant"
         },
 
-        sectionLeft: {
+        inlineIcon: {
             check: "qx.ui.core.Widget",
-            apply: "_applySectionLeft",
+            apply: "_applyInlineIcon",
             nullable: true,
             themeable: true,
-            event: "changeSectionLeft"
-        },
-
-        sectionRight: {
-            check: "qx.ui.core.Widget",
-            apply: "_applySectionRight",
-            nullable: true,
-            themeable: true,
-            event: "changeSectionRight"
+            event: "changeInlineIcon"
         }
+
     },
 
     members: {
-
-        __componenttag: "button",
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
-        },
 
         // overridden
         _createChildControlImpl(id, hash) {
@@ -82,29 +57,19 @@ qx.Class.define("ville.ui.menu.Button", {
 
             switch (id) {
                 
-                case "label":
+                /*case "label":
                     //control = new ville.ui.basic.Label(null, "div");
                     control = new qx.ui.basic.Label();
                     control.setAnonymous(true);
-                    control.setCssUtilityClass("m_5476e0d3 mantine-Menu-itemLabel");
-                    this._add(control);
+                    this._add(control, { column: 1 });
+                    break;*/
+
+                case "inlineicon":
+                    control = this.getInlineIcon();
+                    control.setAnonymous(true);
+                    this._add(control, { column: 0 });
                     break;
 
-                case "sectionleft":
-                    control = new ville.ui.basic.Label(null, "div");
-                    control.setAnonymous(true);
-                    control.setCssUtilityClass("m_8b75e504 mantine-Menu-itemSection");
-                    control.setAttribute("data-position", "left");
-                    this._add(control);
-                    break;
-
-                case "sectionright":
-                    control = new ville.ui.basic.Label();
-                    control.setAnonymous(true);
-                    control.setCssUtilityClass("m_8b75e504 mantine-Menu-itemSection");
-                    control.getContentElement().setAttribute("data-position", "right");
-                    this._add(control);
-                    break;
             }
 
             return control || super._createChildControlImpl(id);
@@ -112,54 +77,22 @@ qx.Class.define("ville.ui.menu.Button", {
 
         // property apply
         _applyVariant(value, old) {
-            if (value) {
+            if (value)
                 this.setAttribute("data-variant", value);
-            }
         },
 
-        // overridden
-        // Replaced by Section Left and Right
-        _applyIcon(value, old) {},
+        // property apply
+        _applyInlineIcon (value, old) 
+        {
+            if (this.getIcon() != null) {
+                value.exclude();
+            } else {
+                if (old)
+                    this._removeAt(0);
+                    
+                if (value)
+                    this.getChildControl("inlineicon", true);
 
-        // overridden
-        _applyShow(value, old) {},
-
-        // overridden
-        _applyLabel(value, old) {
-            var label = this.getChildControl("label");
-            if (label) {
-                label.setValue(value);
-            }
-        },
-
-        _applySectionLeft(value, old) {
-            var section = this.getChildControl("sectionleft");
-            if (section) {
-                if (old) {
-                    section.removeAll();
-                }
-                if (value) {
-                    section.add(value);
-                    this.setAttribute("data-with-left-section", "true");
-                } else {
-                    this.removeAttribute("data-with-left-section");
-                }
-            }
-        },
-
-        _applySectionRight(value, old) {
-            var section = this.getChildControl("sectionright");
-            if (section) {
-                if (old) {
-                    section.removeAll();
-                }
-
-                if (value) {
-                    section.add(value);
-                    this.setAttribute("data-with-right-section", "true");
-                } else {
-                    this.removeAttribute("data-with-right-section");
-                }
             }
         }
     }

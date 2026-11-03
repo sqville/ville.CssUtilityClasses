@@ -1,10 +1,10 @@
 /**
  * Horizontal flex layout
- * @external(mantine/core/styles/Group.css)
+ * external(mantine/core/styles/Group.css)
  */
 qx.Class.define("ville.ui.layout.HGroup", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 
@@ -17,8 +17,6 @@ qx.Class.define("ville.ui.layout.HGroup", {
         } else {
             this.initJustify();
         }
-
-        this._setLayout(new qx.ui.layout.HBox());
 
         this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
 

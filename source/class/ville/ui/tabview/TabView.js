@@ -13,13 +13,12 @@
  * focus to that tab; this is undesirable (and inconsistent with other parts
  * of the framework) and is no longer done automatically.
  *
- * @external(mantine/core/styles/Tabs.css)
  * @childControl bar {ville.ui.core.Box} slidebar for all tab buttons
  * @childControl pane {qx.ui.container.Stack} stack container to show one tab page
  */
 qx.Class.define("ville.ui.tabview.TabView", {
   
-  extend: ville.ui.core.Widget,
+  extend: qx.ui.core.Widget,
   implement: qx.ui.core.ISingleSelection,
   include: qx.ui.core.MContentPadding,
 

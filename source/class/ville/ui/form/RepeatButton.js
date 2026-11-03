@@ -1,6 +1,6 @@
 /**
  * RepeatButton
- * @external(mantine/core/styles/UnstyledButton.css)
+ * external(mantine/core/styles/UnstyledButton.css)
  */
 qx.Class.define("ville.ui.form.RepeatButton", {
     

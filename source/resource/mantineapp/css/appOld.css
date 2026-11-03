@@ -1,0 +1,49 @@
+@import "../../../../node_modules/@mantine/core/styles/baseline.css";
+@import "../../../../node_modules/@mantine/core/styles/default-css-variables.css";
+@import "../../../../node_modules/@mantine/core/styles/global.css";
+@import "../../../../node_modules/@mantine/core/styles/ScrollArea.css";
+@import "../../../../node_modules/@mantine/core/styles/UnstyledButton.css";
+@import "../../../../node_modules/@mantine/core/styles/Paper.css";
+@import "../../../../node_modules/@mantine/core/styles/Popover.css";
+
+.ville-mantineapp-Application {
+    padding:calc(0.75rem * var(--mantine-scale));
+
+    div.ville-mantineapp-InnerAppContainer {
+        margin-left:auto;
+        margin-right:auto;
+        padding-top:calc(2.5rem * var(--mantine-scale));
+        max-width:calc(26.25rem * var(--mantine-scale));
+    }
+}
+
+.ville-mantineapp-AuthButtonGroup {
+    margin-top:var(--mantine-spacing-md);
+    margin-bottom:var(--mantine-spacing-md);
+
+    button {
+        --button-radius:var(--mantine-radius-xl);
+        --button-bg:var(--mantine-color-default);
+        --button-hover:var(--mantine-color-default-hover);
+        --button-color:var(--mantine-color-default-color);
+        --button-bd:calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border);
+    }
+}
+
+.ville-mantineapp-LoginFormStack {
+    label {
+        width:100%;
+    }
+}
+
+.ville-mantineapp-LoginFormButtonGroup {
+    margin-top:var(--mantine-spacing-xl);
+
+    button:last-child {
+        --button-radius:var(--mantine-radius-xl);
+        --button-color:var(--mantine-color-white);
+    }
+}
+
+
+

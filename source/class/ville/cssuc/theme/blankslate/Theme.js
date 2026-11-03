@@ -6,7 +6,7 @@
 
 ************************************************************************ */
 
-qx.Theme.define("ville.cssuc.theme.BlankSlate",
+qx.Theme.define("ville.cssuc.theme.blankslate.Theme",
 {  
   meta :
   {

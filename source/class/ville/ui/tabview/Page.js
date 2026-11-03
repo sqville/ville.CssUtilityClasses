@@ -87,7 +87,7 @@ qx.Class.define("ville.ui.tabview.Page", {
 
     /** Any URI String supported by qx.ui.basic.Image to display an icon in Page's button. */
     icon: {
-      check: "ville.ui.core.Widget",
+      check: "qx.ui.core.Widget",
       init: null,
       apply: "_applyIcon",
       nullable: true

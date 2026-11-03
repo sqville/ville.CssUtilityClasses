@@ -1,30 +1,27 @@
 /**
  * Base Container
- * @external(mantine/core/styles/FloatingIndicator.css)
  */
 qx.Class.define("ville.ui.overlay.FloatingIndicator", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     construct(component) {
         
-        if (component) {
-            this.__componenttag = component;
-        }
-        super();
+        if (component != null)
+            this._contentElementTag = component;
 
-        this.setCssUtilityClass("m_f9a45e7b m_96b553a6 mantine-FloatingIndicator-root");
+        super();
 
     },
 
-    members: {
-
-        __componenttag: "div",
+    properties: {
 
         // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+        appearance: {
+            refine: true,
+            init: "floatingindicator"
         }
 
     }
+
   });

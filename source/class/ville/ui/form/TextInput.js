@@ -3,10 +3,10 @@
  * @childControl textfield {qx.ui.form.TextField} holds the current value
  * @childControl sectionleft {qx.ui.core.Widget}
  * @childControl sectionright {qx.ui.core.Widget}
- * @external(mantine/core/styles/Input.css)
+ * external(mantine/core/styles/Input.css)
  */
 qx.Class.define("ville.ui.form.TextInput", {
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     construct(variant, size, radius, sectionleft, sectionright) {
         super(); 

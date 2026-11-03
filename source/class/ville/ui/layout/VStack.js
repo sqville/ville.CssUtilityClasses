@@ -1,18 +1,16 @@
 /**
  * Vertical flex layout
- * @external(mantine/core/styles/Stack.css)
+ * external(mantine/core/styles/Stack.css)
  */
 qx.Class.define("ville.ui.layout.VStack", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 
     construct(align, justify, gap) {
         
         super();
-
-        this._setLayout(new qx.ui.layout.VBox());
 
         this.setCssUtilityClass("m_6d731127 mantine-Stack-root");
 

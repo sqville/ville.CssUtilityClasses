@@ -10,10 +10,9 @@
 
 /**
  * This is the main application class of "mantineapp"
- * https://carbondesignsystem.com/developing/web-components-tutorial/step-5/
  *
- * @asset(mantineapp/*)
- * @external(mantineapp/css/mantineapp.css)
+ * @external(mantineapp/css/bundle.min.css)
+ * Making an edited
  */
 qx.Class.define("mantineapp.Application",
 {
@@ -35,6 +34,7 @@ qx.Class.define("mantineapp.Application",
      */
     main()
     {
+
       // Call super class
       super.main();
 
@@ -53,18 +53,12 @@ qx.Class.define("mantineapp.Application",
       -------------------------------------------------------------------------
       */
 
-      if (qx.core.Environment.get("ville.cssuc")) {
-
-        qx.Class.patch(qx.ui.form.AbstractField, ville.cssuc.patch.MAbstractField);
-
-      }
-
       // Document is the application root
       const doc = this.getRoot();
       doc.setCssUtilityClass("ville-mantineapp-Application");
 
       // Application Margin Box
-      var docMarginBox = new ville.ui.container.Composite(new qx.ui.layout.VBox());
+      var docMarginBox = new ville.ui.container.Composite();
       docMarginBox.setCssUtilityClass("ville-mantineapp-InnerAppContainer");
 
       // Login Center Box Container
@@ -77,6 +71,7 @@ qx.Class.define("mantineapp.Application",
         "margin-bottom": "40px"
       });
 
+      /*
       // Login Center Box Header Welcome Message
       var welcomeMsg = new ville.ui.typography.Text("Welcome to Ville UI (Qooxdoo + Mantine)");
       welcomeMsg.set({ size : "lg", fontWeight : 500 });
@@ -143,6 +138,7 @@ qx.Class.define("mantineapp.Application",
 
       var expButton = new ville.ui.experimental.Button("Qx Button");
 
+
       // Separator
       var divider = new ville.ui.core.Divider();
       divider.setLabel("Or continue with email");
@@ -196,41 +192,8 @@ qx.Class.define("mantineapp.Application",
       centerbox.add(LoginAuthGroupbox);
       centerbox.add(divider);
       centerbox.add(loginForm);
-
-      // Separator
-      var dividerPopups = new ville.ui.core.Divider().set({size: "xl"});
-      dividerPopups.setLabel("Dropdown, Popup testing");
-
-      // Menu Button
-      var btnMenu = new ville.ui.menu.Menu();
-      /* See Decoration's approach to transitioning popups */
-      btnMenu.setStyles({
-        "transition-property": "opacity",
-        "backface-visibility": "hidden",
-        "transition-duration": "150ms",
-        "transition-timing-function": "ease"
-      });
-      //btnMenu.setAttribute("data-position","bottom");
-      //btnMenu.addClass("ville-menu-popup");
-      var menuitem01 = new ville.ui.menu.Button("Menu item 01");
-      var menuitem02 = new ville.ui.menu.Button("Menu item 02");
-      btnMenu.add(menuitem01);
-      btnMenu.add(menuitem02);
-      //btnMenu.setDomMove(true);
-      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
-      btnMenuButton.setMenu(btnMenu);
-
-      /*btnMenu.addListener("appear", () => {
-        var menubounds = btnMenu.getBounds(); 
-        var ptopstart = menubounds.top;
-        //var plftstart = menubounds.left;
-        if (ptopstart > btnMenu.getOpener().getContentLocation().top) {
-          btnMenu.setAttribute("data-position","bottom");
-        } else {
-          btnMenu.setAttribute("data-position","top");
-        }
-      });*/
-
+      */
+          /*
       // Window - popup testing
       var windowPopup = new qx.ui.window.Window("Test Window Popup");
       windowPopup.add(centerbox);
@@ -238,11 +201,43 @@ qx.Class.define("mantineapp.Application",
       windowBtn.addListener("click", () => {
         windowPopup.show();
       });
+      */
+
+      // Separator
+      var dividerPopups = new ville.ui.core.Divider().set({size: "xl"});
+      dividerPopups.setLabel("Dropdown, Popup testing");
+
+      // Menu Button
+      var btnMenu = new ville.ui.menu.Menu();
+      btnMenu.setStyles({
+        "transition-property": "opacity",
+        "backface-visibility": "hidden",
+        "transition-duration": "150ms",
+        "transition-timing-function": "ease"
+      });
+
+      var menuitem01 = new ville.ui.menu.Button("Menu item 01");
+      var menuitem02 = new ville.ui.menu.Button("Menu item 02");
+      btnMenu.add(menuitem01);
+      btnMenu.add(menuitem02);
+
+      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
+      btnMenuButton.setMenu(btnMenu);
+
+      var iconPhoto = new ville.ui.icon.Photo(24);
+      var pButton = new ville.ui.form.Button("Button");
+      //pButton.setAttribute("data-with-left-section", true);
+
+      // Button label change test
+      menuitem01.addListener("click", () => {
+        pButton.setLabel("Works!");
+      });
 
       var PopupTestingGroupbox = new ville.ui.layout.HGroup("flex-start");
       PopupTestingGroupbox.add(btnMenuButton);
+      PopupTestingGroupbox.add(pButton);
       //PopupTestingGroupbox.add(comboBox);
-      PopupTestingGroupbox.add(expButton);
+      //PopupTestingGroupbox.add(expButton);
       PopupTestingGroupbox.setGap("xl");
       PopupTestingGroupbox.setStyle("margin-bottom","40px");
 
@@ -284,9 +279,9 @@ qx.Class.define("mantineapp.Application",
       //docMarginBox.add(comboBox);
       docMarginBox.add(PopupTestingGroupbox);
       //docMarginBox.add(windowBtn);
-      var tblTable = this._getTable();
+      /*var tblTable = this._getTable();
       tblTable.getContentElement().setStyle("position","relative");
-      docMarginBox.add(tblTable);
+      docMarginBox.add(tblTable);*/
 
       doc.add(docMarginBox);
 

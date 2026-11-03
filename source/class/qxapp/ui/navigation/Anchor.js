@@ -1,6 +1,5 @@
 /**
  *
- * external(mantine/core/styles/Text.css)
  * @external(mantine/core/styles/Anchor.css)
  */
 qx.Class.define("qxapp.ui.navigation.Anchor", {

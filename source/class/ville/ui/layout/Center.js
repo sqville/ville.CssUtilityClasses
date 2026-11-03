@@ -1,6 +1,6 @@
 /**
  * Center
- * @external(mantine/core/styles/Center.css)
+ * external(mantine/core/styles/Center.css)
  */
 qx.Class.define("ville.ui.layout.Center", {
     

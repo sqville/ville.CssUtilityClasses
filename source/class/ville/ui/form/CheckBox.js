@@ -5,14 +5,14 @@
  *  data-label-position="right"
  *  data-size="sm"
  * 
- * @external(mantine/core/styles/Checkbox.css)
+ * external(mantine/core/styles/Checkbox.css)
  * @require(ville.ui.icon.IconCheck)
  * @require(ville.ui.icon.IconIndeterminate)
  */
 qx.Class.define("ville.ui.form.CheckBox", {
     extend: qx.ui.form.CheckBox,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    include: qx.ui.core.MChildrenHandling,
 
     construct(label, alticon, altindeterminateicon) {
         super();
@@ -94,13 +94,13 @@ qx.Class.define("ville.ui.form.CheckBox", {
         },
 
         inlineIcon: {
-            check: "qx.ui.core.Widget",
+            check: "qx.ui.core.LayoutItem",
             nullable: true,
             themeable: true
         },
 
         indeterminateIcon: {
-            check: "qx.ui.core.Widget",
+            check: "qx.ui.core.LayoutItem",
             nullable: true,
             themeable: true
         },

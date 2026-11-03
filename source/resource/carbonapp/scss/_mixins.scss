@@ -1,0 +1,7 @@
+@use '@carbon/styles/scss/spacing' as *;
+@use '@carbon/styles/scss/theme' as *;
+
+@mixin landing-page-background() {
+  background-color: $layer-01;
+  position: relative;
+}

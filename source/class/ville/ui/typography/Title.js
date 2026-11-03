@@ -1,10 +1,9 @@
 /**
  * default node is <p>
- * @external(mantine/core/styles/Title.css)
  */
 qx.Class.define("ville.ui.typography.Title", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 

@@ -1557,7 +1557,7 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
     "button-frame/label": {
       alias: "atom/label",
 
-      style(states) {
+      style() {
         return {
           cssUtilityClass: "m_811560b9 mantine-Button-label",
           font: "button-label"
@@ -1569,7 +1569,7 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
       alias: "button-frame",
       include: "button-frame",
 
-      style(states) {
+      style() {
         return {
           center: true
         };

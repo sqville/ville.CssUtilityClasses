@@ -1,19 +1,14 @@
 qx.Class.define("ville.ui.form.Label", {
     extend: qx.ui.basic.Label,
 
-    include: [qx.ui.core.MChildrenHandling, ville.ui.core.MWidget],
+    include: qx.ui.core.MChildrenHandling,
 
     construct(text) {
         super();
 
-        //this._setLayout(new qx.ui.layout.Basic());
-
         if (text) {
             this.setValue(text);
         }
-
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
 
     },
 
@@ -54,20 +49,20 @@ qx.Class.define("ville.ui.form.Label", {
                 }
 
                 // Mark text size cache as invalid
-                this.__invalidContentSize = true;
+                //this.__invalidContentSize = true;
 
                 // Update layout
-                qx.ui.core.queue.Layout.add(this);
+                //qx.ui.core.queue.Layout.add(this);
             },
 
             false(value, old) {
                 this.getContentElement().setAttribute("html", value);
 
                 // Mark text size cache as invalid
-                this.__invalidContentSize = true;
+                //this.__invalidContentSize = true;
 
                 // Update layout
-                qx.ui.core.queue.Layout.add(this);
+                //qx.ui.core.queue.Layout.add(this);
             }
             })
     }

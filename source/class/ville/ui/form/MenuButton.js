@@ -1,52 +1,35 @@
 /**
  * Menu Button
- * @external(mantine/core/styles/UnstyledButton.css)
- * @external(mantine/core/styles/Button.css)
  */
 qx.Class.define("ville.ui.form.MenuButton", {
     
     extend: qx.ui.form.MenuButton,
 
-    include: ville.ui.core.MWidget,
+    construct(label, icon, menu, variant) {
 
-    construct(label, variant, sectionLeft, sectionRight, menu, component) {
-        
-        if (component != null)
-            this.__componenttag = component;
+        this._contentElementTag = "button";
 
         super();
 
-        this.setExcludeBoundsFromDom(true);
-        this.setClearAllInlineStyles(true);
-        //this.setExcludeInlineStyles(["touch-action","cursor","userSelect","boxSizing"]);
-        //this.setStyle("position", "relative", true);
-        //this.setExcludeBoundsFromDomMods(["left", "top", "height"]);
-        this.setCssUtilityClass("mantine-focus-auto mantine-active m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
-
-        if (this.__componenttag !== "button")
-            this.getContentElement().removeAttribute('type');
-
-        if (variant) {
-            this.setVariant(variant);
-        } else {
-            this.initVariant();
-        }
-
-        if (sectionLeft != null) {
-            this.setSectionLeft(sectionLeft);
-        }
-
-        if (label != null) {
+        if (label != null)
             this.setLabel(label);
+
+        if (icon != null) {
+            if (qx.lang.Type.isString(icon)) {
+                this.setIcon(icon);
+            } else {
+                this.setInlineIcon(icon);
+                this._createChildControl("inlineicon");
+            }
         }
 
-        if (sectionRight != null) {
-            this.setSectionRight(sectionRight);
-        }
-
-        if (menu != null) {
+        if (menu != null)
             this.setMenu(menu);
-        }
+
+        if (variant != null)
+            this.setVariant(variant);
+        else 
+            this.initVariant();
 
     },
 
@@ -60,39 +43,47 @@ qx.Class.define("ville.ui.form.MenuButton", {
             event: "changeVariant"
         },
 
-        sectionLeft: {
+        inlineIcon: {
             check: "qx.ui.core.Widget",
-            apply: "_applySectionLeft",
+            apply: "_applyInlineIcon",
             nullable: true,
             themeable: true,
-            event: "changeSectionLeft"
-        },
-
-        sectionRight: {
-            check: "qx.ui.core.Widget",
-            apply: "_applySectionRight",
-            nullable: true,
-            themeable: true,
-            event: "changeSectionRight"
+            event: "changeInlineIcon"
         }
+        
     },
 
     members: {
 
-        __componenttag: "button",
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
-        },
+        __textNode : null,
 
         // overridden
         _createChildControlImpl(id, hash) {
             var control;
-            var innerwrapper;
+            //var innerwrapper;
 
             switch (id) {
-                case "innerwrapper":
+
+                case "label":
+                    control = new qx.ui.basic.Label(this.getLabel()); //new ville.ui.basic.LabelFlat(this.getLabel());
+                    control.setAnonymous(true);
+                    this.__textNode = new qx.html.Text(this.getLabel());
+                    this.getContentElement().add(this.__textNode);
+                    control.addListener("changeValue", function(e) {
+                        this.__textNode.setText(e.getData(), true);
+                    }, this);
+                    break;
+                
+                case "inlineicon":
+                    control = this.getInlineIcon();
+                    control.setAnonymous(true);
+                    this._addAt(control, 0);
+                    if (control == null || this.getShow() === "label")
+                        control.exclude();
+                    
+                    break;
+
+                /*case "innerwrapper":
                     control = new ville.ui.core.InnerWrapper();
                     control.setCssUtilityClass("m_80f1301b mantine-Button-inner");
                     this._add(control);
@@ -105,25 +96,8 @@ qx.Class.define("ville.ui.form.MenuButton", {
                     control.setCssUtilityClass("m_811560b9 mantine-Button-label");
                     innerwrapper = this.getChildControl("innerwrapper");
                     innerwrapper.add(control);
-                    break;
+                    break;*/
 
-                case "sectionleft":
-                    control = new ville.ui.basic.Label();
-                    control.setAnonymous(true);
-                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
-                    control.getContentElement().setAttribute("data-position", "left");
-                    innerwrapper = this.getChildControl("innerwrapper");
-                    innerwrapper.add(control);
-                    break;
-
-                case "sectionright":
-                    control = new ville.ui.basic.Label();
-                    control.setAnonymous(true);
-                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
-                    control.getContentElement().setAttribute("data-position", "right");
-                    innerwrapper = this.getChildControl("innerwrapper");
-                    innerwrapper.add(control);
-                    break;
             }
 
             return control || super._createChildControlImpl(id);
@@ -131,20 +105,42 @@ qx.Class.define("ville.ui.form.MenuButton", {
 
         // property apply
         _applyVariant(value, old) {
-            if (value) {
-                this.getContentElement().setAttribute("data-variant", value);
+            if (value)
+                this.setAttribute("data-variant", value);
+        },
+
+        // property apply
+        _applyInlineIcon (value, old) 
+        {
+            if (this.getIcon() != null) {
+                value.exclude();
+            } else {
+                if (old)
+                    this._removeAt(0);
+                    
+                if (value)
+                    this.getChildControl("inlineicon", true);
+
             }
         },
 
         // overridden
-        // Replaced by Section Left and Right
-        _applyIcon(value, old) {},
+        _handleIcon() {
+            if (this.getIcon() == null || this.getShow() === "label")
+                this._excludeChildControl("icon");
+            else
+                this._showChildControl("icon");
+
+            if (this.getInlineIcon() == null || this.getShow() === "label") {
+                this._excludeChildControl("inlineicon");
+            } else {
+                if (this.getIcon() == null)
+                    this._showChildControl("inlineicon");
+            }
+        },
 
         // overridden
-        _applyShow(value, old) {},
-
-        // overridden
-        _applyLabel(value, old) {
+        /*_applyLabel(value, old) {
             var innerwrapper = this.getChildControl("innerwrapper");
             if (innerwrapper) {
                 var label = this.getChildControl("label");
@@ -152,42 +148,53 @@ qx.Class.define("ville.ui.form.MenuButton", {
                     label.setValue(value);
                 }
             }
-        },
+        },*/
 
-        _applySectionLeft(value, old) {
-            var innerwrapper = this.getChildControl("innerwrapper");
-            if (innerwrapper) {
-                var section = this.getChildControl("sectionleft");
-                if (section) {
-                    if (old) {
-                        section.removeAll();
-                    }
-
-                    if (value) {
-                        section.add(value);
-                        this.getContentElement().setAttribute("data-with-left-section", "true");
-                    } else {
-                        this.getContentElement().removeAttribute("data-with-left-section");
-                    }
-                }
+        // overridden
+        _applyMenu(value, old) {
+            if (old) {
+                old.removeListener("changeVisibility", this._onMenuChange, this);
+                old.resetOpener();
             }
-        },
 
-        _applySectionRight(value, old) {
-            var innerwrapper = this.getChildControl("innerwrapper");
-            if (innerwrapper) {
-                var section = this.getChildControl("sectionright");
-                if (section) {
-                    if (old) {
-                        section.removeAll();
-                    }
+            if (value) {
+                value.addListener("changeVisibility", this._onMenuChange, this);
+                value.setOpener(this);
 
-                    if (value) {
-                        section.add(value);
-                        this.getContentElement().setAttribute("data-with-right-section", "true");
-                    } else {
-                        this.getContentElement().removeAttribute("data-with-right-section");
-                    }
+                value.removeState("submenu");
+                value.removeState("contextmenu");
+            }
+
+            // ARIA attrs
+            const contentEl = this.getContentElement();
+            if (!contentEl) {
+                return;
+            }
+            if (value) {
+                contentEl.setAttribute("aria-haspopup", "menu");
+                contentEl.setAttribute("aria-expanded", value.isVisible());
+                contentEl.setAttribute(
+                "aria-controls",
+                value.getContentElement().getAttribute("id")
+                );
+
+                if (qx.core.Environment.get("ville.cssLayout")) {
+                    /**
+                     * Supports Popover API
+                     */
+                    contentEl.setAttribute("popovertarget", value.getContentElement().getAttribute("id"), true);
+                    contentEl.setAttribute("popovertargetaction", "show", true);
+                    value.getContentElement().setAttribute("popover", "auto", true);
+                }
+
+            } else {
+                contentEl.removeAttribute("aria-haspopup");
+                contentEl.removeAttribute("aria-expanded");
+                contentEl.removeAttribute("aria-controls");
+
+                if (qx.core.Environment.get("ville.cssLayout")) {
+                    contentEl.removeAttribute("popovertarget");
+                    contentEl.removeAttribute("popovertargetaction");
                 }
             }
         }

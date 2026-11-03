@@ -1,9 +1,9 @@
 .m_3eebeb36 {
-  --divider-size-xs: 1px;
-  --divider-size-sm: 2px;
-  --divider-size-md: 3px;
-  --divider-size-lg: 4px;
-  --divider-size-xl: 5px;
+  --divider-size-xs: calc(0.0625rem * var(--mantine-scale));
+  --divider-size-sm: calc(0.125rem * var(--mantine-scale));
+  --divider-size-md: calc(0.1875rem * var(--mantine-scale));
+  --divider-size-lg: calc(0.25rem * var(--mantine-scale));
+  --divider-size-xl: calc(0.3125rem * var(--mantine-scale));
   --divider-size: var(--divider-size-xs);
 }
 
@@ -48,7 +48,7 @@
 .m_9e365f20::before {
     content: '';
     flex: 1;
-    height: 1px;
+    height: calc(0.0625rem * var(--mantine-scale));
     border-top: var(--divider-size) var(--divider-border-style, solid) var(--divider-color);
     margin-inline-end: var(--mantine-spacing-xs);
   }
@@ -56,7 +56,7 @@
 .m_9e365f20::after {
     content: '';
     flex: 1;
-    height: 1px;
+    height: calc(0.0625rem * var(--mantine-scale));
     border-top: var(--divider-size) var(--divider-border-style, solid) var(--divider-color);
     margin-inline-start: var(--mantine-spacing-xs);
   }

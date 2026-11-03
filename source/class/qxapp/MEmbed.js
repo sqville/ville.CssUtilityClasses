@@ -39,5 +39,6 @@ qx.Mixin.define("qxapp.MEmbed",
     {
       this.getChildControl("icon").set(value);
     }
+    
   }
 });

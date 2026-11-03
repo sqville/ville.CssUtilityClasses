@@ -4,10 +4,10 @@
  * @childControl inputwrapper {ville.ui.core.InnerWrapper}
  * @childControl sectionleft {ville.ui.form.InputSection}
  * @childControl sectionright {ville.ui.form.InputSection}
- * @external(mantine/core/styles/Input.css)
+ * external(mantine/core/styles/Input.css)
  */
 qx.Class.define("ville.ui.form.TextFieldWrapper", {
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     construct(textfield, variant, sectionleft, sectionright) {
         super(); 

@@ -1,7 +1,7 @@
 /**
  * RadioButton
  * 
- * @external(mantine/core/styles/Radio.css)
+ * external(mantine/core/styles/Radio.css)
  * @require(ville.ui.icon.IconRadio)
  */
 qx.Class.define("ville.ui.form.RadioButton", {

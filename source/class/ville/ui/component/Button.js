@@ -1,6 +1,9 @@
 /**
  * Button
  * 
+ * Required CSS files:
+ * EXTERNAL - mantine/core/styles/UnstyledButton.css
+ * EXTERNAL - mantine/core/styles/Button.css
  * 
  * Data attributes:
  * data-variant
@@ -11,31 +14,43 @@
  * @childControl inlineicon {qx.ui.core.Widget}
  * 
  */
-qx.Class.define("qxapp.ui.menu.Button", {
+qx.Class.define("ville.ui.component.Button", {
     
-    extend: qx.ui.menu.Button,
+    extend: qx.ui.form.Button,
 
-    construct(label, icon, command, menu, component) {
+    construct(label, icon, command, variant, component) {
         
-        if (component != null) {
-            this.__componenttag = component;
-        }
+        this._contentElementTag = component ?? "button";
 
         if (icon != null) {
             if (qx.lang.Type.isString(icon)) {
-                super(label, icon, command, menu);
+                super(label, icon, command);
             } else {
-                super(label, null, command, menu);
+                super(label, null, command);
                 this.setInlineIcon(icon);
                 this._createChildControl("inlineicon");
             }
         } else {
-            super(label, null, command, menu);
-        }            
+            super(label, null, command);
+        }
+
+        if (variant != null) {
+            this.setVariant(variant);
+        } else {
+            this.initVariant();
+        }
         
     },
 
     properties: {
+
+        variant: {
+            init: "default",
+            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
+            apply: "_applyVariant",
+            themeable: true,
+            event: "changeVariant"
+        },
 
         inlineIcon: {
             check: "qx.ui.core.Widget",
@@ -48,26 +63,21 @@ qx.Class.define("qxapp.ui.menu.Button", {
 
     members: {
 
-        __componenttag: "button",
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
-        },
-
         // overridden
         _createChildControlImpl(id, hash) {
             var control;
 
             switch (id) {
 
+                case "label":
+                    this.setAttribute("html", this.getLabel());
+                    break;
+
                 case "inlineicon":
                     control = this.getInlineIcon();
                     control.setAnonymous(true);
-                    control.getContentElement().setAttribute("data-position", "left");
-                    this.getContentElement().setAttribute("data-with-left-section", true);
-                    this._add(control, { column: 0 });
-                    if (control == null) {
+                    this._addAt(control, 0);
+                    if (control == null || this.getShow() === "label") {
                         control.exclude();
                     }
                     break;
@@ -81,13 +91,9 @@ qx.Class.define("qxapp.ui.menu.Button", {
         _applyEnabled(value, old) {
             super._applyEnabled(value, old);
             if (value === false) {
-                // villeui-mantine attriubute setting
                 this.getContentElement().setAttribute("data-disabled", true);
-                //this.getContentElement().removeClass("mantine-active");
             } else {
-                // villeui-mantine attriubute setting
                 this.getContentElement().removeAttribute("data-disabled");
-                //this.getContentElement().addClass("mantine-active");
             }
         },
 
@@ -106,15 +112,26 @@ qx.Class.define("qxapp.ui.menu.Button", {
             }
         },
 
+        // property apply
+        _applyLabel(value, old) {
+            
+            if (value) {
+                this.setAttribute("html", value);
+            }
+
+            //this._handleLabel();
+            
+        },
+
         // overridden
         _handleIcon() {
-            if (this.getIcon() == null) {
+            if (this.getIcon() == null || this.getShow() === "label") {
                 this._excludeChildControl("icon");
             } else {
                 this._showChildControl("icon");
             }
 
-            if (this.getInlineIcon() == null) {
+            if (this.getInlineIcon() == null || this.getShow() === "label") {
                 this._excludeChildControl("inlineicon");
             } else {
                 if (this.getIcon() == null)
@@ -125,7 +142,7 @@ qx.Class.define("qxapp.ui.menu.Button", {
         // property apply
         _applyVariant(value, old) {
             if (value) {
-                this.getContentElement().setAttribute("data-variant", value);
+                this.setAttribute("data-variant", value);
             }
         }
 

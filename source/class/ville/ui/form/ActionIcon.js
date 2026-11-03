@@ -1,6 +1,6 @@
 /**
  * Button
- * @external(mantine/core/styles/ActionIcon.css)
+ * external(mantine/core/styles/ActionIcon.css)
  */
 qx.Class.define("ville.ui.form.ActionIcon", {
     extend: ville.ui.form.UnstyledButton,

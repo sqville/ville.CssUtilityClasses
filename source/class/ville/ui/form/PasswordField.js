@@ -1,6 +1,6 @@
 /**
  * TextField
- * @external(mantine/core/styles/PasswordInput.css)
+ * external(mantine/core/styles/PasswordInput.css)
  */
 qx.Class.define("ville.ui.form.PasswordField", {
     extend: qx.ui.form.PasswordField,

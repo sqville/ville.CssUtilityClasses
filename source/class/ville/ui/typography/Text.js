@@ -1,9 +1,9 @@
 /**
  * default node is <p>
- * @external(mantine/core/styles/Text.css)
+ * external(mantine/core/styles/Text.css)
  */
 qx.Class.define("ville.ui.typography.Text", {
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     include: qx.ui.core.MChildrenHandling,
 

@@ -1,6 +1,6 @@
 qx.Class.define("ville.ui.icon.Abstract", {
     
-    extend: ville.ui.core.Widget,
+    extend: qx.ui.core.Widget,
 
     type: "abstract",
 
