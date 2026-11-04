@@ -2,13 +2,12 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
 
    construct() {
 
-    // Private variable patching workaround
-    // Remove inline styles
-    //console.log(this.getContentElement().getAllStyles());
-    this.setClearAllInlineStyles(true);
-    //this.setAttribute("style", "", true);
-    //if (this.getContentElement().getTextSelectionLength() != null)
-    //console.log(this.getContentElement());
+    // Private variable patching workaround for qx.debug builds
+    // Remove inline styles - leaves empty style attribute (i.e. style="")
+    if (qx.core.Environment.get("qx.debug"))
+    {
+      this.setClearAllInlineStyles(true);
+    }
 
   },
 
@@ -27,6 +26,14 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       nullable: true,
       init: null,
       apply: "_applyCssInlineStyles",
+      themeable: true
+    },
+
+    cssStates: {
+      check: "Map",
+      nullable: true,
+      init: null,
+      apply: "_applyCssStates",
       themeable: true
     },
 
@@ -57,27 +64,18 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
 
   members: {
 
+    /**
+     * Removes widget's content HTML element styles
+     * Only applies to builds with qx.debud = "off" per Qooxdoo's patching feature
+     * 
+     */
     __createContentElement() {
       var el = this._createContentElement();
       el.connectObject(this);
 
-      // make sure to allow all pointer events
-      // el.setStyles({ "touch-action": "none", "-ms-touch-action": "none" });
-
       if (qx.core.Environment.get("qx.debug")) {
         el.setAttribute("qxClass", this.classname);
       }
-
-      var styles = {
-        zIndex: 10,
-        boxSizing: "border-box"
-      };
-
-      if (!qx.ui.root.Inline || !(this instanceof qx.ui.root.Inline)) {
-        // styles.position = "absolute";
-      }
-
-      // el.setStyles(styles);
 
       return el;
     },
@@ -110,6 +108,9 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       return;
     },
 
+    /**
+     * Removes call to layoutManager.addChild()
+     */
     _afterAddChild(child) {
       if (this.hasListener("addChildWidget")) {
           this.fireDataEvent("addChildWidget", child);
@@ -118,6 +119,9 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       return;
     },
 
+    /**
+     * Removes call to layoutManager.addChild()
+     */
     _afterRemoveChild(child) {
       if (this.hasListener("removeChildWidget")) {
           this.fireDataEvent("removeChildWidget", child);
@@ -144,6 +148,70 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       }
     },
 
+    /**
+     * "set-attributes" - Map of strings
+     * "remove-attributes" - Array of strings
+     * "set-classes" - Array of strings
+     * "remove-classes" - Array of strings
+     * "set-styles" - Map of strings
+     * "remove-styles" - Array of strings
+     * 
+     */
+    _applyCssStates(value, old) {
+      if (!value || qx.lang.Object.equals(value, old)) {
+        return;
+      }
+
+      // 1. Set attributes
+      const setAttrs = value["set-attributes"];
+      if (setAttrs) {
+        for (const key in setAttrs) {
+          this.setAttribute(key, setAttrs[key], true);
+        }
+      }
+
+      // 2. Remove attributes
+      const removeAttrs = value["remove-attributes"];
+      if (qx.lang.Type.isArray(removeAttrs)) {
+        for (const attname of removeAttrs) {
+          this.removeAttribute(attname, true);
+        }
+      }
+
+      // 3. Set / Add classes
+      const setClasses = value["set-classes"];
+      if (qx.lang.Type.isArray(setClasses)) {
+        for (const classname of setClasses) {
+          this.addClass(classname);
+        }
+      }
+
+      // 4. Remove classes
+      const removeClasses = value["remove-classes"];
+      if (qx.lang.Type.isArray(removeClasses)) {
+        for (const classname of removeClasses) {
+          this.removeClass(classname);
+        }
+      }
+
+      // 5. Set / Add inline styles
+      const setStyles = value["set-styles"];
+      if (qx.lang.Type.isArray(setClasses)) {
+        for (const classname of setClasses) {
+          this.addClass(classname);
+        }
+      }
+
+      // 6. Remove inline styles
+      const removeStyles = value["remove-styles"];
+      if (qx.lang.Type.isArray(removeStyles)) {
+        for (const classname of removeClasses) {
+          this.removeClass(classname);
+        }
+      }
+
+    },
+
     // property apply
     _applyExcludeInlineStyles(value, old) {
       var elem = this.getContentElement();
@@ -160,7 +228,7 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
         for (const style in elemstyles) {
           elem.removeStyle(style, true);
         }
-        elem.removeAttribute('style', true);
+        elem.setAttribute("style", "");
       }
     },
     

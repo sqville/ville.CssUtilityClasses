@@ -10,6 +10,22 @@ qx.Mixin.define("ville.cssuc.MWidget",
       themeable: true
     },
 
+    cssInlineStyles: {
+      check: "Map",
+      nullable: true,
+      init: null,
+      apply: "_applyCssInlineStyles",
+      themeable: true
+    },
+
+    cssDataAttributes: {
+      check: "Map",
+      nullable: true,
+      init: null,
+      apply: "_applyDataAttributes",
+      themeable: true
+    },
+
     excludeInlineStyles: {
       check: "Array",
       nullable: true,
@@ -44,6 +60,20 @@ qx.Mixin.define("ville.cssuc.MWidget",
       }
       if (value) {
         content.addClass(value);
+      }
+    },
+
+    // property apply
+    _applyCssInlineStyles(value, old) {
+      if (value) {
+        this.getContentElement().setStyles(value, true);
+      }
+    },
+
+    // property apply
+    _applyCssDataAttributes(value, old) {
+      if (value) {
+        this.getContentElement().setAttributes(value, true);
       }
     },
 

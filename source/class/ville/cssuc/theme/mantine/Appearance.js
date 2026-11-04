@@ -501,7 +501,8 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
       style() {
 
-        /*var btnstyles = {
+        /* Appearance driven Styles
+        var btnstyles = {
           "--button-height" : "var(--button-height-sm)",
           "--button-padding-x" : "var(--button-padding-x-sm)",
           "--button-fz": "var(--mantine-font-size-sm)",
@@ -516,7 +517,7 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
         return {
           //cssInlineStyles: btnstyles,
-          cssUtilityClass: "mantine-active mantine-focus-auto m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root"
+          cssUtilityClass: "mantine-focus-auto m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root"
         };
       }
     },
@@ -531,7 +532,55 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       }
     },
 
-    button: "button-frame",
+    button: {
+      include: "button-frame",
+
+      style(states) {
+
+        /* 
+        Qooxdoo Button STATES
+        disabled $\rightarrow$ data-disabled="true" and aria-disabled="true"
+        pressed $\rightarrow$ data-active="true" (matches Mantine's active button state)
+        hovered $\rightarrow$ :hover or data-hovered="true"
+        focused $\rightarrow$ :focus-visible or data-focus-visible="true"
+
+        Simple THEME logic
+        if (!states.disabled) {
+          if (states.hovered && !states.pressed && !states.checked) {
+            decorator = "button-box-hovered";
+          } else if (states.hovered && (states.pressed || states.checked)) {
+            decorator = "button-box-pressed-hovered";
+          } else if (states.pressed || states.checked) {
+            decorator = "button-box-pressed";
+          }
+        }
+
+        if (states.invalid && !states.disabled) {
+          decorator += "-invalid";
+        } else if (states.focused) {
+          decorator += "-focused";
+        }
+        */
+
+        var changes;
+
+        if (states.disabled) {
+          changes = {
+            "set-attributes" : {"data-disabled" : true},
+            "remove-classes" : ["mantine-active"]
+          }
+        } else {
+          changes = {
+            "remove-attributes" : ["data-disabled"],
+            "set-classes" : ["mantine-active"]
+          }
+        }
+
+        return {
+          cssStates: changes
+        };
+      }
+    },
 
     "toggle-button": "button",
 

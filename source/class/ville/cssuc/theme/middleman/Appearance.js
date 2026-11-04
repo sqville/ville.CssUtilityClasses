@@ -221,7 +221,6 @@ qx.Theme.define("ville.cssuc.theme.middleman.Appearance", {
 
       style() {
         return {
-          //padding: 3,
           center: true,
           variant: "subtle",
           cssUtilityClass: "mantine-active mantine-focus-auto m_87cf2631 mantine-UnstyledButton-root"

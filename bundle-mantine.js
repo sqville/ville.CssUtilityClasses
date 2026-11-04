@@ -104,6 +104,13 @@ try {
     stdio: 'inherit'
   });
 
+  // Sync directly into compiled target directory if running in build mode
+  if (args[1] === 'build') {
+    const compiledCssDir = path.join('compiled', 'build', 'resource', CONFIG.appName, 'css');
+    fs.mkdirSync(compiledCssDir, { recursive: true });
+    fs.copyFileSync(outputBundle, path.join(compiledCssDir, 'bundle.min.css'));
+  }
+
   console.log(`✅ Success! Minified bundle saved to: ${outputBundle}`);
 } catch (err) {
   console.error('❌ Error executing lightningcss:', err.message);

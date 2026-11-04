@@ -37,6 +37,8 @@ When `ville.cssLayout` is active, the framework layout engine is neutralized usi
    * **Implication:** Stops layout invalidation tasks from ever processing in the background, minimizing CPU layout cycles.
 
 3. **`ville.cssuc.patch.MWidget` (applied to `qx.ui.core.Widget`)**
+   * Overrides `_setLayout()` to a no-op: `return;`.
+   * **Implication:** Prevents real layout manager instances from being assigned to widgets, ensuring that internal layout property validation and rendering logic are completely skipped.
    * Replaces `_getLayout()` with a decoupled virtual layout mock containing zero dependencies on real layout classes:
 
      ```javascript
@@ -87,7 +89,7 @@ Every component in the `ville.ui.*` namespace that utilizes Mantine styles **mus
   * *Example:* `"ville.ui.form.Button": ["UnstyledButton.css", "Button.css"]`
 
 * **The `order` Array:** Defines the master sequence for the CSS cascade. Any new Mantine CSS file dependency introduced **must** be added here.
-  * *Constraint:* Fundamental/Reset styles (e.g., `core.css`) must always reside at the top of this array.
+  * *Constraint:* Fundamental/Reset styles (e.g., `baseline.css`, `default-css-variables.css`, `global.css`) must always reside at the top of this array.
     * *Constraint:* Component dependencies must precede the component style (e.g., `UnstyledButton.css` before `Button.css`).
 
 ### 2. Class Creation Workflow
@@ -100,7 +102,7 @@ When developing a new `ville.ui` component:
 
 ### 3. Application Integration via `@external`
 
-To ensure the bundled CSS is injected into the application's DOM, the main application class (e.g., `source/class/ville/Application.js`) **must** include the following JSDoc hint:
+To ensure the bundled CSS is injected into the application's DOM, the main application class (e.g., `source/class/<app_name>/Application.js`) **must** include the following JSDoc hint:
 
 * **Format:** `@external(<app_name>/css/bundle.min.css)`
 * **Purpose:** This tells the Qooxdoo compiler to automatically add the `<link>` tag to the generated `index.html`.

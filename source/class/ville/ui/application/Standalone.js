@@ -22,8 +22,8 @@ qx.Class.define("ville.ui.application.Standalone", {
     main () {
         
         qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
-        qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
         qx.Class.patch(qx.ui.core.queue.Layout, ville.cssuc.patch.MLayoutQueue);
+        qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
         qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
 
         if (qx.core.Environment.get("ville.cssEngine") == "mantine")
@@ -32,7 +32,7 @@ qx.Class.define("ville.ui.application.Standalone", {
            * include/patch base classes with cssEngine specific attributes
            * */
 
-          qx.Class.include(ville.ui.form.Button, ville.cssuc.MButton);
+          // qx.Class.include(ville.ui.form.Button, ville.cssuc.MButton);
           qx.Class.include(ville.ui.form.MenuButton, ville.cssuc.MButton);
           /*qx.Class.include(ville.ui.form.ToggleActionIcon, ville.cssuc.theme.mantine.include.MToggleActionIcon);
           qx.Class.include(ville.ui.form.Button, ville.cssuc.theme.mantine.include.MButton);

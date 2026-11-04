@@ -65,10 +65,12 @@ qx.Class.define("villewebsite.Application",
       appShell.setAttribute("data-mode", "fixed");
 
       /* Inline Styles */
-      var inlineStyles = new ville.ui.basic.Element("style");
+      var inlineStyles = new ville.ui.basic.Style(true);
+
       var ilstyles = ":root{--app-shell-navbar-width:calc(18.75rem * var(--mantine-scale));--app-shell-navbar-offset:calc(18.75rem * var(--mantine-scale));--app-shell-header-height:calc(3.75rem * var(--mantine-scale));--app-shell-header-offset:calc(3.75rem * var(--mantine-scale));--app-shell-padding:var(--mantine-spacing-md);}@media(min-width: 48em){:root{--app-shell-navbar-transform:translateX(calc(var(--app-shell-navbar-width) * -1));--app-shell-navbar-transform-rtl:translateX(var(--app-shell-navbar-width));--app-shell-navbar-offset:0px !important;}}@media(max-width: 47.99375em){:root{--app-shell-navbar-width:100%;--app-shell-navbar-offset:0px;--app-shell-navbar-transform:translateX(calc(var(--app-shell-navbar-width) * -1));--app-shell-navbar-transform-rtl:translateX(var(--app-shell-navbar-width));}}";
       inlineStyles.setAttributes({
         "html": ilstyles,
+        "blocking": "render",
         "data-mantine-styles": "inline"
       });
       appShell.add(inlineStyles);

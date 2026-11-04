@@ -1,0 +1,13 @@
+{
+  "order": [
+    "scss/reset",
+    "scss/theme",
+    "scss/components/button",
+    "scss/components/text-input"
+  ],
+  "map": {
+    "ville.ui.form.Button": [
+      "scss/components/button"
+    ]
+  }
+}

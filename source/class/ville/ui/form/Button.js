@@ -22,18 +22,6 @@ qx.Class.define("ville.ui.form.Button", {
         
         this._contentElementTag = component ?? "button";
 
-        /*if (icon != null) {
-            if (qx.lang.Type.isString(icon)) {
-                super(label, icon, command);
-            } else {
-                super(label, null, command);
-                this.setInlineIcon(icon);
-                this._createChildControl("inlineicon");
-            }
-        } else {
-            super(label, null, command);
-        }*/
-
         super();
 
         if (label != null)

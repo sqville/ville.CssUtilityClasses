@@ -216,8 +216,8 @@ qx.Class.define("mantineapp.Application",
         "transition-timing-function": "ease"
       });
 
-      var menuitem01 = new ville.ui.menu.Button("Menu item 01");
-      var menuitem02 = new ville.ui.menu.Button("Menu item 02");
+      var menuitem01 = new ville.ui.menu.Button("Update Works");
+      var menuitem02 = new ville.ui.menu.Button("Toggle Enabled");
       btnMenu.add(menuitem01);
       btnMenu.add(menuitem02);
 
@@ -231,6 +231,10 @@ qx.Class.define("mantineapp.Application",
       // Button label change test
       menuitem01.addListener("click", () => {
         pButton.setLabel("Works!");
+      });
+
+      menuitem02.addListener("click", () => {
+        pButton.toggleEnabled();
       });
 
       var PopupTestingGroupbox = new ville.ui.layout.HGroup("flex-start");

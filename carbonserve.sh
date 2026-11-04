@@ -1,14 +1,17 @@
-#!/bin/bash
+#!/bin/zsh
+set -e
 
-# Install dependencies
-npx sass ./source/resource/carbonapp/scss/carbonapp.scss ./source/resource/carbonapp/css/carbonapp.css \
- --load-path=node_modules \
- --style compressed
+APP_NAME="carbonapp"
+TARGET="source"
 
-# Build the project
-echo "Cleaning..."
+echo "🧹 Cleaning..."
 npx qx clean
-echo "Cleaning done."
 
-# Start the application
-npx qx serve
+echo "⚙️  Generating transpiled files..."
+npx qx compile -c compile-carbon.json --target="$TARGET"
+
+echo "📦 Bundling Carbon SCSS..."
+node bundle-carbon.js "$APP_NAME" "$TARGET"
+
+echo "🌐 Starting development server..."
+npx qx serve -c compile-carbon.json --target="$TARGET"
