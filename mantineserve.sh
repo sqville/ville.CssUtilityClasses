@@ -1,6 +1,4 @@
 #!/bin/zsh
-
-# Exit immediately if any command fails
 set -e
 
 # Define variables for easy maintenance
@@ -8,20 +6,29 @@ APP_NAME="mantineapp"
 TARGET="source"
 
 echo "🧹 Cleaning..."
-npx qx clean 
-echo "✅ Cleaning done."
+npx qx clean
 
-# 1. We must compile once so the 'compiled/source/transpiled' folders 
-# are created for the bundler to analyze.
 echo "⚙️  Generating transpiled files..."
 npx qx compile --app-name="$APP_NAME" --target="$TARGET"
 
-# 2. Run the Mantine CSS Bundler
-# Now that the files exist in 'compiled/', the bundler can see what was used.
 echo "📦 Bundling Mantine CSS..."
-node bundle-mantine.js "$APP_NAME"
+# -----------------------------------------------------------------------------
+# bundle-mantine.js Configuration Options:
+# -----------------------------------------------------------------------------
+# The bundler script supports dynamic named arguments (in any order):
+#
+# --app-name   : The namespace/name of your qooxdoo app (default: myapp)
+# --target     : The compilation target, 'source' or 'build' (default: source)
+# --styles-dir : [Optional] Path to the directory containing Mantine CSS files.
+#                If omitted, defaults to: node_modules/@mantine/core/styles
+# --map-path   : [Optional] Path to the directory containing mantine-map.json,
+#                or the direct path to the file itself.
+#                If omitted, defaults to: source/resource/ville
+#
+# Example with all flags:
+# node bundle-mantine.js --app-name="$APP_NAME" --target="$TARGET" --styles-dir="custom/path" --map-path="custom/path"
+# -----------------------------------------------------------------------------
+node bundle-mantine.js --app-name="$APP_NAME" --target="$TARGET"
 
-# 3. Start the application and watch for changes
-# This is the final step because it stays open.
 echo "🌐 Starting development server..."
 npx qx serve --app-name="$APP_NAME" --target="$TARGET"

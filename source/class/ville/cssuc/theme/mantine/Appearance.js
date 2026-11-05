@@ -501,22 +501,9 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
       style() {
 
-        /* Appearance driven Styles
-        var btnstyles = {
-          "--button-height" : "var(--button-height-sm)",
-          "--button-padding-x" : "var(--button-padding-x-sm)",
-          "--button-fz": "var(--mantine-font-size-sm)",
-          "--button-radius": "var(--mantine-radius-md)",
-          "--button-bg": "var(--mantine-color-blue-filled)",
-          "--button-hover": "var(--mantine-color-blue-filled-hover)",
-          "--button-color": "var(--mantine-color-white)",
-          "--button-bd": "calc(0.0625rem * var(--mantine-scale)) solid transparent"
-        }*/
-
         // m_80f1301b mantine-Button-inner
 
         return {
-          //cssInlineStyles: btnstyles,
           cssUtilityClass: "mantine-focus-auto m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root"
         };
       }
@@ -536,44 +523,90 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       include: "button-frame",
 
       style(states) {
+        let changes = {
+          "set-attributes": {},     
+          "remove-attributes": [],  
+          "set-classes": [],        
+          "remove-classes": [],     
+          "set-styles": {},         
+          "remove-styles": []       
+        };
 
-        /* 
-        Qooxdoo Button STATES
-        disabled $\rightarrow$ data-disabled="true" and aria-disabled="true"
-        pressed $\rightarrow$ data-active="true" (matches Mantine's active button state)
-        hovered $\rightarrow$ :hover or data-hovered="true"
-        focused $\rightarrow$ :focus-visible or data-focus-visible="true"
-
-        Simple THEME logic
-        if (!states.disabled) {
-          if (states.hovered && !states.pressed && !states.checked) {
-            decorator = "button-box-hovered";
-          } else if (states.hovered && (states.pressed || states.checked)) {
-            decorator = "button-box-pressed-hovered";
-          } else if (states.pressed || states.checked) {
-            decorator = "button-box-pressed";
-          }
-        }
-
-        if (states.invalid && !states.disabled) {
-          decorator += "-invalid";
-        } else if (states.focused) {
-          decorator += "-focused";
-        }
-        */
-
-        var changes;
-
+        // 1. Base Interaction States
         if (states.disabled) {
-          changes = {
-            "set-attributes" : {"data-disabled" : true},
-            "remove-classes" : ["mantine-active"]
-          }
+          changes["set-attributes"]["data-disabled"] = true;
+          changes["remove-classes"].push("mantine-active");
         } else {
-          changes = {
-            "remove-attributes" : ["data-disabled"],
-            "set-classes" : ["mantine-active"]
-          }
+          changes["remove-attributes"].push("data-disabled");
+          changes["set-classes"].push("mantine-active");
+        }
+
+        // 2. Size Modifiers (Driven entirely by CSS Variables, no data-attribute)
+        if (states["size-xs"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-xs)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-xs)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-xs)";
+        } else if (states["size-md"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-md)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-md)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-md)";
+        } else if (states["size-lg"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-lg)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-lg)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-lg)";
+        } else if (states["size-xl"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-xl)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-xl)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-xl)";
+        } else {
+          // Default Size (sm)
+          changes["set-styles"]["--button-height"] = "var(--button-height-sm)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-sm)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-sm)";
+        }
+
+        // 3. Radius Modifiers (Driven entirely by CSS Variables, no data-attribute)
+        if (states["radius-xs"]) {
+          changes["set-styles"]["--button-radius"] = "var(--mantine-radius-xs)";
+        } else if (states["radius-sm"]) {
+          changes["set-styles"]["--button-radius"] = "var(--mantine-radius-sm)";
+        } else if (states["radius-lg"]) {
+          changes["set-styles"]["--button-radius"] = "var(--mantine-radius-lg)";
+        } else if (states["radius-xl"]) {
+          changes["set-styles"]["--button-radius"] = "var(--mantine-radius-xl)";
+        } else {
+          // Default Radius (md)
+          changes["set-styles"]["--button-radius"] = "var(--mantine-radius-md)";
+        }
+
+        // 4. Variant Modifiers & CSS Variable Assignments
+        if (states["variant-filled"]) {
+          changes["set-attributes"]["data-variant"] = "filled";
+          changes["set-styles"]["--button-bg"] = "var(--mantine-color-blue-filled)";
+          changes["set-styles"]["--button-color"] = "var(--mantine-color-white)";
+          changes["remove-styles"].push("--button-hover", "--button-bd");
+        } else if (states["variant-outline"]) {
+          changes["set-attributes"]["data-variant"] = "outline";
+          changes["set-styles"]["--button-bg"] = "transparent";
+          changes["set-styles"]["--button-hover"] = "var(--mantine-color-blue-outline-hover)";
+          changes["set-styles"]["--button-color"] = "var(--mantine-color-blue-outline)";
+          changes["set-styles"]["--button-bd"] = "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-blue-outline)";
+          console.log("ouline");
+        } else if (states["variant-subtle"]) {
+          changes["set-attributes"]["data-variant"] = "subtle";
+          changes["set-styles"]["--button-bg"] = "transparent";
+          changes["set-styles"]["--button-color"] = "var(--mantine-color-blue-filled)";
+          changes["remove-styles"].push("--button-hover", "--button-bd");
+        } else {
+          // Default Variant
+          changes["set-attributes"]["data-variant"] = "default";
+          // Clean up inline styles so the base `m_77c9d27d` class can take over
+          changes["remove-styles"].push(
+            "--button-bg", 
+            "--button-hover", 
+            "--button-color", 
+            "--button-bd"
+          );
         }
 
         return {

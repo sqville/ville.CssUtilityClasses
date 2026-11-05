@@ -2,118 +2,126 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-/**
- * CONFIGURATION
- * Edit these if your folder structure differs
- */
+// 1. Parse Named Arguments
+const args = {};
+for (let i = 2; i < process.argv.length; i++) {
+  const arg = process.argv[i];
+  if (arg.startsWith('--')) {
+    const [key, value] = arg.split('=');
+    if (value !== undefined) {
+      args[key] = value;
+    } else if (i + 1 < process.argv.length && !process.argv[i + 1].startsWith('--')) {
+      args[key] = process.argv[++i];
+    } else {
+      args[key] = true;
+    }
+  }
+}
+
+// 2. Process Configuration Configuration
 const CONFIG = {
-  appName: 'qx_app', // Default app name, can be overridden via CLI
-  transpiledPath: 'compiled/source/transpiled', // Default to source target
-  mapPath: 'source/resource/ville/mantine-map.json',
-  mantineStylesDir: path.join('node_modules', '@mantine', 'core', 'styles')
+  appName: args['--app-name'] || 'myapp',
+  mode: args['--target'] || 'source',
+  mantineRoot: args['--styles-dir']
+    ? path.resolve(args['--styles-dir'])
+    : path.join('node_modules', '@mantine', 'core', 'styles')
 };
 
-// --- CLI Argument Handling ---
-const args = process.argv.slice(2);
-if (args[0]) CONFIG.appName = args[0];
-if (args[1] === 'build') CONFIG.transpiledPath = 'compiled/build/transpiled';
+// Handle map-path (can be a direct file or a directory containing mantine-map.json)
+let rawMapPath = args['--map-path'] || path.join('source', 'resource', 'ville');
+rawMapPath = path.resolve(rawMapPath);
+if (fs.existsSync(rawMapPath) && fs.statSync(rawMapPath).isDirectory()) {
+  CONFIG.mapPath = path.join(rawMapPath, 'mantine-map.json');
+} else if (!rawMapPath.endsWith('.json')) {
+  CONFIG.mapPath = path.join(rawMapPath, 'mantine-map.json');
+} else {
+  CONFIG.mapPath = rawMapPath;
+}
 
-console.log(`🚀 Starting Mantine Bundler for [${CONFIG.appName}] (${args[1] || 'source'} mode)...`);
+CONFIG.transpiledPath = CONFIG.mode === 'build' 
+  ? 'compiled/build/transpiled' 
+  : 'compiled/source/transpiled';
 
-// --- 1. Load mantine-map.json ---
 if (!fs.existsSync(CONFIG.mapPath)) {
   console.error(`❌ Error: Map file not found at ${CONFIG.mapPath}`);
   process.exit(1);
 }
+
 const mantineMap = JSON.parse(fs.readFileSync(CONFIG.mapPath, 'utf8'));
 
-// --- 2. Determine which ville.ui classes were compiled ---
+// 3. Identify compiled ville.ui classes
 const includedClasses = [];
 Object.keys(mantineMap.map).forEach(className => {
-  // Convert "ville.ui.form.Button" to "ville/ui/form/Button.js"
   const classFilePath = className.replace(/\./g, '/') + '.js';
   const fullPath = path.join(CONFIG.transpiledPath, classFilePath);
-  
   if (fs.existsSync(fullPath)) {
     includedClasses.push(className);
   }
 });
 
 if (includedClasses.length === 0) {
-  console.log('⚠️ No ville.ui classes found in the transpiled output. Skipping bundle.');
+  console.log('⚠️ No ville.ui classes found in transpiled output. Skipping bundle.');
   process.exit(0);
 }
 
-// --- 3. Deduplication: Collect unique CSS files ---
-const requiredStyles = new Set();
+// 4. Deduplicate and collect CSS files
+const requiredFiles = new Set();
+
 includedClasses.forEach(cls => {
-  const styles = mantineMap.map[cls];
-  if (Array.isArray(styles)) {
-    styles.forEach(s => requiredStyles.add(s));
+  const files = mantineMap.map[cls];
+  if (Array.isArray(files)) {
+    files.forEach(f => requiredFiles.add(f));
   } else {
-    requiredStyles.add(styles);
+    requiredFiles.add(files);
   }
 });
 
-// --- 4. Explicit Cascade Control: Sort styles ---
-const sortedStyles = Array.from(requiredStyles).sort((a, b) => {
-  const indexA = mantineMap.order.indexOf(a);
-  const indexB = mantineMap.order.indexOf(b);
-  
-  const finalA = indexA === -1 ? 999 : indexA;
-  const finalB = indexB === -1 ? 999 : indexB;
-  
+// 5. Sort according to cascade order
+const sortedFiles = Array.from(requiredFiles).sort((a, b) => {
+  const idxA = mantineMap.order.indexOf(a);
+  const idxB = mantineMap.order.indexOf(b);
+  const finalA = idxA === -1 ? 999 : idxA;
+  const finalB = idxB === -1 ? 999 : idxB;
   return finalA - finalB;
 });
 
-// --- 5. Generate @import statements ---
-const importLines = sortedStyles.map(cssFile => {
-  const absoluteMantinePath = path.resolve(CONFIG.mantineStylesDir, cssFile);
-  if (!fs.existsSync(absoluteMantinePath)) {
-    console.warn(`🚨 Warning: Mantine style not found in node_modules: ${cssFile}`);
-    return null;
-  }
-  // We use absolute paths to ensure lightningcss finds them regardless of entry file location
-  return `@import "${absoluteMantinePath}";`;
-}).filter(Boolean);
+// 6. Generate @import statements pointing to the resolved mantineRoot
+const importLines = sortedFiles.map(file => {
+  const filePath = path.join(CONFIG.mantineRoot, file);
+  // LightningCSS expects forward slashes for imports
+  return `@import "${filePath.replace(/\\/g, '/')}";`;
+});
 
-// --- 6. Read existing app.css ---
+// 7. Read optional app.css
 const appCssDir = path.join('source', 'resource', CONFIG.appName, 'css');
 const appCssFile = path.join(appCssDir, 'app.css');
-let appCssContent = '';
+const appCssContent = fs.existsSync(appCssFile) ? fs.readFileSync(appCssFile, 'utf8') : '';
 
-if (fs.existsSync(appCssFile)) {
-  appCssContent = fs.readFileSync(appCssFile, 'utf8');
-} else {
-  console.warn(`🚨 Warning: app.css not found at ${appCssFile}. Creating bundle from scratch.`);
-}
-
-// --- 7. Create Temporary Entry and Bundle ---
-const tempEntry = path.join(process.cwd(), '.temp-bundle-entry.css');
+// 8. Write temporary CSS entry
+const tempCssEntry = path.join(process.cwd(), '.temp-mantine-entry.css');
 const outputBundle = path.join(appCssDir, 'bundle.min.css');
 
-const finalContent = `${importLines.join('\n')}\n\n/* Application Styles */\n${appCssContent}`;
-fs.writeFileSync(tempEntry, finalContent);
+fs.writeFileSync(tempCssEntry, `${importLines.join('\n')}\n\n${appCssContent}`);
 
 try {
-  console.log(`📦 Bundling ${importLines.length} Mantine styles + app.css...`);
-  
-  // Execute lightningcss
-  // Note: ensure lightningcss is installed (npm install -g lightningcss or in project)
-  execSync(`npx lightningcss --bundle --minify --targets ">= 0.25%" "${tempEntry}" -o "${outputBundle}"`, {
+  // 9. Bundle & Minify with LightningCSS
+  execSync(`npx lightningcss --bundle --minify --targets ">= 0.25%" "${tempCssEntry}" -o "${outputBundle}"`, {
     stdio: 'inherit'
   });
 
-  // Sync directly into compiled target directory if running in build mode
-  if (args[1] === 'build') {
-    const compiledCssDir = path.join('compiled', 'build', 'resource', CONFIG.appName, 'css');
-    fs.mkdirSync(compiledCssDir, { recursive: true });
-    fs.copyFileSync(outputBundle, path.join(compiledCssDir, 'bundle.min.css'));
+  // 10. Build Target Sync (for production builds)
+  if (CONFIG.mode === 'build') {
+    const targetDir = path.join('compiled', 'build', 'resource', CONFIG.appName, 'css');
+    fs.mkdirSync(targetDir, { recursive: true });
+    fs.copyFileSync(outputBundle, path.join(targetDir, 'bundle.min.css'));
   }
 
-  console.log(`✅ Success! Minified bundle saved to: ${outputBundle}`);
+  console.log(`✅ Success! Mantine bundle saved to: ${outputBundle}`);
+  console.log(`📂 Sourced Mantine styles from: ${CONFIG.mantineRoot}`);
+  console.log(`🗺️  Used map file from: ${CONFIG.mapPath}`);
 } catch (err) {
-  console.error('❌ Error executing lightningcss:', err.message);
+  console.error('❌ CSS Bundling failed:', err.message);
+  process.exit(1);
 } finally {
-  if (fs.existsSync(tempEntry)) fs.unlinkSync(tempEntry);
+  if (fs.existsSync(tempCssEntry)) fs.unlinkSync(tempCssEntry);
 }

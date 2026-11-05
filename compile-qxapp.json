@@ -30,7 +30,7 @@
       "bootPath": "source/boot/qxapp",
       "environment": {
         "qx.nativeScrollBars": true,
-        "ville.cssEngine.mantine" : true
+        "ville.cssEngine" : "mantine"
       }
     }
   ]

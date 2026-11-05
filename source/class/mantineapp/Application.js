@@ -226,11 +226,14 @@ qx.Class.define("mantineapp.Application",
 
       var iconPhoto = new ville.ui.icon.Photo(24);
       var pButton = new ville.ui.form.Button("Button");
-      //pButton.setAttribute("data-with-left-section", true);
+      // Agnostic, native Qooxdoo state management 
+      pButton.setUiModifier("size", "xl");
+      pButton.setUiModifier("radius", "sm");
 
       // Button label change test
       menuitem01.addListener("click", () => {
         pButton.setLabel("Works!");
+        pButton.setUiModifier("size", "md");
       });
 
       menuitem02.addListener("click", () => {

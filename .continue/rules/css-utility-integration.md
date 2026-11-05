@@ -57,6 +57,225 @@ When `ville.cssLayout` is active, the framework layout engine is neutralized usi
 
    * **Implication:** Satisfies native base constructors calling layout verification and size inquiries without crashing, while completely avoiding real layout manager instances.
 
+## Universal State Management & DOM Patching (Active in All Modes)
+
+The `ville.cssuc.patch.MWidget` mixin is utilized by `ville.ui.application.Standalone` across all engines to decouple base UI components from specific CSS framework APIs.
+
+### 1. Agnostic State Assignment (`setUiModifier`)
+
+Base `ville.ui` widgets must remain framework-agnostic. Modifiers (e.g., variant, size, radius) are stored in the widget's internal `__states` map using a namespaced prefix approach.
+
+```javascript
+/**
+ * Sets a mutually exclusive namespaced state (e.g., category: "variant", value: "filled")
+ * Results in the state "variant-filled" being added, and any other "variant-*" being removed.
+ */
+setUiModifier(category, value) {
+  const prefix = category + "-";
+  const states = this.__states;
+  
+  // 1. Remove any existing state with this prefix
+  if (states) {
+    for (const stateName in states) {
+      if (stateName.startsWith(prefix)) {
+        this.removeState(stateName);
+      }
+    }
+  }
+  
+  // 2. Add the new state if a value is provided
+  if (value) {
+    this.addState(prefix + value);
+  }
+  
+  return this;
+}
+```
+
+**Implementation Example on an Application Widget:**
+
+```javascript
+var pButton = new ville.ui.form.Button("Button");
+// Agnostic, native Qooxdoo state management
+pButton.setUiModifier("variant", "outline"); 
+pButton.setUiModifier("size", "xl");
+pButton.setUiModifier("radius", "sm");
+```
+
+### 2. State-to-DOM Resolution (`_applyCssStates`)
+
+The `MWidget` mixin provides a unified method to handle the CSS framework-specific payload dispatched by the current Appearance theme. It natively supports bulk assignment maps and iterative array removals.
+
+```javascript
+/**
+ * "set-attributes" - Map of strings
+ * "remove-attributes" - Array of strings
+ * "set-classes" - Array of strings
+ * "remove-classes" - Array of strings
+ * "set-styles" - Map of strings
+ * "remove-styles" - Array of strings
+ */
+_applyCssStates(value, old) {
+  if (!value || qx.lang.Object.equals(value, old)) {
+    return;
+  }
+
+  // 1. Set attributes (Map / Plain Object)
+  const setAttrs = value["set-attributes"];
+  if (setAttrs) {
+    this.setAttributes(setAttrs);
+  }
+
+  // 2. Remove attributes (Array of strings)
+  const removeAttrs = value["remove-attributes"];
+  if (qx.lang.Type.isArray(removeAttrs)) {
+    for (const attname of removeAttrs) {
+      this.removeAttribute(attname);
+    }
+  }
+
+  // 3. Set / Add classes (Array of strings)
+  const setClasses = value["set-classes"];
+  if (qx.lang.Type.isArray(setClasses)) {
+    for (const classname of setClasses) {
+      this.addClass(classname);
+    }
+  }
+
+  // 4. Remove classes (Array of strings)
+  const removeClasses = value["remove-classes"];
+  if (qx.lang.Type.isArray(removeClasses)) {
+    for (const classname of removeClasses) {
+      this.removeClass(classname);
+    }
+  }
+
+  // 5. Set / Add inline styles (Map / Plain Object)
+  const setStyles = value["set-styles"];
+  if (setStyles) {
+    this.setStyles(setStyles);
+  }
+
+  // 6. Remove inline styles (Array of strings)
+  const removeStyles = value["remove-styles"];
+  if (qx.lang.Type.isArray(removeStyles)) {
+    for (const stylename of removeStyles) {
+      this.removeStyle(stylename);
+    }
+  }
+}
+```
+
+## CSS Framework Appearance Theming (The Accumulator Pattern)
+
+Appearance themes (e.g., `ville.cssuc.theme.mantine.Appearance`) must use the accumulator pattern. Instead of mapping Qooxdoo decorators, the `style(states)` method evaluates the flat `states` hashmap and builds a structured DOM manipulation object targeting `cssStates`.
+
+**Implementation Structure Example:**
+
+```javascript
+button: {
+  include: "button-frame",
+
+  style(states) {
+    let changes = {
+      "set-attributes": {},     
+      "remove-attributes": [],  
+      "set-classes": [],        
+      "remove-classes": [],     
+      "set-styles": {},         
+      "remove-styles": []       
+    };
+
+    // 1. Base Interaction States
+    if (states.disabled) {
+      changes["set-attributes"]["data-disabled"] = true;
+      changes["remove-classes"].push("mantine-active");
+    } else {
+      changes["remove-attributes"].push("data-disabled");
+      changes["set-classes"].push("mantine-active");
+    }
+
+    // 2. Size Modifiers (Driven entirely by CSS Variables, no data-attribute)
+    if (states["size-xs"]) {
+      changes["set-styles"]["--button-height"] = "var(--button-height-xs)";
+      changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-xs)";
+      changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-xs)";
+    } else if (states["size-md"]) {
+      changes["set-styles"]["--button-height"] = "var(--button-height-md)";
+      changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-md)";
+      changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-md)";
+    } else if (states["size-lg"]) {
+      changes["set-styles"]["--button-height"] = "var(--button-height-lg)";
+      changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-lg)";
+      changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-lg)";
+    } else if (states["size-xl"]) {
+      changes["set-styles"]["--button-height"] = "var(--button-height-xl)";
+      changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-xl)";
+      changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-xl)";
+    } else {
+      // Default Size (sm)
+      changes["set-styles"]["--button-height"] = "var(--button-height-sm)";
+      changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-sm)";
+      changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-sm)";
+    }
+
+    // 3. Radius Modifiers (Driven entirely by CSS Variables, no data-attribute)
+    if (states["radius-xs"]) {
+      changes["set-styles"]["--button-radius"] = "var(--mantine-radius-xs)";
+    } else if (states["radius-sm"]) {
+      changes["set-styles"]["--button-radius"] = "var(--mantine-radius-sm)";
+    } else if (states["radius-lg"]) {
+      changes["set-styles"]["--button-radius"] = "var(--mantine-radius-lg)";
+    } else if (states["radius-xl"]) {
+      changes["set-styles"]["--button-radius"] = "var(--mantine-radius-xl)";
+    } else {
+      // Default Radius (md)
+      changes["set-styles"]["--button-radius"] = "var(--mantine-radius-md)";
+    }
+
+    // 4. Variant Modifiers & CSS Variable Assignments
+    if (states["variant-filled"]) {
+      changes["set-attributes"]["data-variant"] = "filled";
+      
+      changes["set-styles"]["--button-bg"] = "var(--mantine-color-blue-filled)";
+      changes["set-styles"]["--button-color"] = "var(--mantine-color-white)";
+      changes["remove-styles"].push("--button-hover", "--button-bd");
+      
+    } else if (states["variant-outline"]) {
+      changes["set-attributes"]["data-variant"] = "outline";
+      
+      changes["set-styles"]["--button-bg"] = "transparent";
+      changes["set-styles"]["--button-hover"] = "var(--mantine-color-blue-outline-hover)";
+      changes["set-styles"]["--button-color"] = "var(--mantine-color-blue-outline)";
+      changes["set-styles"]["--button-bd"] = "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-blue-outline)";
+      
+    } else if (states["variant-subtle"]) {
+      changes["set-attributes"]["data-variant"] = "subtle";
+      
+      changes["set-styles"]["--button-bg"] = "transparent";
+      changes["set-styles"]["--button-color"] = "var(--mantine-color-blue-filled)";
+      changes["remove-styles"].push("--button-hover", "--button-bd");
+      
+    } else {
+      // Default Variant
+      changes["set-attributes"]["data-variant"] = "default";
+      
+      // Clean up inline styles so the base class can take over
+      changes["remove-styles"].push(
+        "--button-bg", 
+        "--button-hover", 
+        "--button-color", 
+        "--button-bd"
+      );
+    }
+
+    return {
+      cssStates: changes
+    };
+  }
+}
+```
+
 ## Floating Components, HTML Popover, & CSS Anchor Position APIs
 
 * **Stylesheet Injection Rules:** `ville.ui.application.Standalone` injects CSS Anchor positioning directly to `.ville-popover` elements using `addRules()`:
@@ -74,8 +293,6 @@ When `ville.cssLayout` is active, the framework layout engine is neutralized usi
 * **Trigger Requirements:** Any opening widget element (e.g., button, anchor, input) must be set as a valid popover trigger in the DOM, carrying `popovertarget` and `popovertargetaction` attributes.
 * **Target Widget Requirements:** Target widgets (`qx.ui.menu.Menu`, `qx.ui.popup.Popup`, and soon `qx.ui.window.Window`) must be injected with the `popover="auto"` DOM attribute.
 * **Future Window Refactoring Rule:** When working with windows or modal overlays, prioritize migrating their underlying content container elements to either use the `popover` attribute or transform the structural DOM node to an native HTML `<dialog>` element.
-
-// ... existing code ...
 
 ## Mantine CSS Pipeline & Mapping
 
@@ -121,6 +338,11 @@ The CSS bundling is a post-transpilation step.
 
 * **Dependency:** The `bundle-mantine.js` script must be run **after** `qx compile` or `qx clean` to ensure it can analyze the `compiled/<target>/transpiled` directory.
 * **Tooling:** `lightningcss` is the required compiler to ensure proper `@import` resolution from `node_modules`.
+* **Execution Arguments:** The script supports named arguments to customize pipeline resolution:
+  * `--app-name` (default: `myapp`): The namespace/name of the Qooxdoo application.
+  * `--target` (default: `source`): The build phase (`source` or `build`).
+  * `--styles-dir` (optional): Custom path to resolve Mantine CSS files (defaults to `node_modules/@mantine/core/styles`).
+  * `--map-path` (optional): Custom path to the directory containing `mantine-map.json` or the direct path to the JSON file (defaults to `source/resource/ville`).
 
 ### 6. Environment Configuration
 
@@ -132,3 +354,5 @@ The pipeline logic is only active when:
 
 * **Mode-Aware Generation:** Always determine if the current task is targeting Mode 1 or Mode 2 based on user prompt parameters or file scope.
 * **In Mode 2:** Completely ignore layout hints like `alignX`, `allowGrowY`, `flex`, or `spacing` properties on layouts. All structural choices must be applied via CSS classes using DOM element accessors (`widget.getContentElement().addClass()`, `widget.setCssUtilityClass()`, `widget.getContentElement().setStyle()`).
+* **State Operations:** Never assign CSS framework-specific layout attributes directly to a base widget instance. Instead, use `widget.setUiModifier()` with a namespaced category.
+* **Appearance Modifications:** Always utilize the `cssStates` accumulator pattern in `style(states)` theme definitions to manage bulk attributes, classes, and styles efficiently.

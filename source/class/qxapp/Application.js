@@ -115,11 +115,8 @@ qx.Class.define("qxapp.Application",
       header.add(anchor);
 
       var qxbutton = new qx.ui.form.Button("First Button", "qxapp/icon/test.png").set({enabled: true});
-
       var iconGearSix = new qxapp.theme.icon.phosphor.GearSix(16);
-
       var iconAirplane = new qxapp.theme.icon.fluent.Airplane(30);
-
       var villebutton = new ville.ui.form.Button("Ville Button", iconAirplane);
       //villebutton.setEnabled(false);
 

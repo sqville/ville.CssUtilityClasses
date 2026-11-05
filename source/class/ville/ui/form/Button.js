@@ -18,7 +18,7 @@ qx.Class.define("ville.ui.form.Button", {
     
     extend: qx.ui.form.Button,
 
-    construct(label, icon, command, variant, component) {
+    construct(label, icon, command, component) {
         
         this._contentElementTag = component ?? "button";
 
@@ -40,23 +40,23 @@ qx.Class.define("ville.ui.form.Button", {
             this.setCommand(command);
         
 
-        if (variant != null) {
+        /*if (variant != null) {
             this.setVariant(variant);
         } else {
             this.initVariant();
-        }
+        }*/
         
     },
 
     properties: {
 
-        variant: {
+        /*variant: {
             init: "default",
             check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
             apply: "_applyVariant",
             themeable: true,
             event: "changeVariant"
-        },
+        },*/
 
         inlineIcon: {
             check: "qx.ui.core.Widget",
@@ -145,14 +145,14 @@ qx.Class.define("ville.ui.form.Button", {
                 if (this.getIcon() == null)
                     this._showChildControl("inlineicon");
             }
-        },
+        }
 
         // property apply
-        _applyVariant(value, old) {
+        /*_applyVariant(value, old) {
             if (value) {
                 this.getContentElement().setAttribute("data-variant", value);
             }
-        }
+        }*/
 
     }
   });

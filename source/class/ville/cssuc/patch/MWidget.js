@@ -30,7 +30,7 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
     },
 
     cssStates: {
-      check: "Map",
+      check: "Object",
       nullable: true,
       init: null,
       apply: "_applyCssStates",
@@ -63,6 +63,31 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
   },
 
   members: {
+
+    /**
+     * Sets a mutually exclusive namespaced state (e.g., category: "variant", value: "filled")
+     * Results in the state "variant-filled" being added, and any other "variant-*" being removed.
+     */
+    setUiModifier(category, value) {
+      const prefix = category + "-";
+      const states = this.__states;
+      
+      // 1. Remove any existing state with this prefix
+      if (states) {
+        for (const stateName in states) {
+          if (stateName.startsWith(prefix)) {
+            this.removeState(stateName);
+          }
+        }
+      }
+      
+      // 2. Add the new state if a value is provided
+      if (value) {
+        this.addState(prefix + value);
+      }
+      
+      return this;
+    },
 
     /**
      * Removes widget's content HTML element styles
@@ -155,30 +180,27 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
      * "remove-classes" - Array of strings
      * "set-styles" - Map of strings
      * "remove-styles" - Array of strings
-     * 
      */
     _applyCssStates(value, old) {
-      if (!value || qx.lang.Object.equals(value, old)) {
+      if (!value) {
         return;
       }
 
-      // 1. Set attributes
+      // 1. Set attributes (Map / Plain Object)
       const setAttrs = value["set-attributes"];
       if (setAttrs) {
-        for (const key in setAttrs) {
-          this.setAttribute(key, setAttrs[key], true);
-        }
+        this.setAttributes(setAttrs);
       }
 
-      // 2. Remove attributes
+      // 2. Remove attributes (Array of strings)
       const removeAttrs = value["remove-attributes"];
       if (qx.lang.Type.isArray(removeAttrs)) {
         for (const attname of removeAttrs) {
-          this.removeAttribute(attname, true);
+          this.removeAttribute(attname);
         }
       }
 
-      // 3. Set / Add classes
+      // 3. Set / Add classes (Array of strings)
       const setClasses = value["set-classes"];
       if (qx.lang.Type.isArray(setClasses)) {
         for (const classname of setClasses) {
@@ -186,7 +208,7 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
         }
       }
 
-      // 4. Remove classes
+      // 4. Remove classes (Array of strings)
       const removeClasses = value["remove-classes"];
       if (qx.lang.Type.isArray(removeClasses)) {
         for (const classname of removeClasses) {
@@ -194,22 +216,19 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
         }
       }
 
-      // 5. Set / Add inline styles
+      // 5. Set / Add inline styles (Map / Plain Object)
       const setStyles = value["set-styles"];
-      if (qx.lang.Type.isArray(setClasses)) {
-        for (const classname of setClasses) {
-          this.addClass(classname);
-        }
+      if (setStyles) {
+        this.setStyles(setStyles);
       }
 
-      // 6. Remove inline styles
+      // 6. Remove inline styles (Array of strings)
       const removeStyles = value["remove-styles"];
       if (qx.lang.Type.isArray(removeStyles)) {
-        for (const classname of removeClasses) {
-          this.removeClass(classname);
+        for (const stylename of removeStyles) {
+          this.removeStyle(stylename);
         }
       }
-
     },
 
     // property apply
