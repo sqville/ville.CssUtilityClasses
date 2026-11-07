@@ -1,6 +1,5 @@
 /**
  * Horizontal flex layout
- * external(mantine/core/styles/Group.css)
  */
 qx.Class.define("ville.ui.layout.HGroup", {
     
@@ -18,19 +17,22 @@ qx.Class.define("ville.ui.layout.HGroup", {
             this.initJustify();
         }
 
-        this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
-
     },
 
     properties: {
+
+        // overridden
+        appearance: {
+            refine: true,
+            init: "hgroup"
+        },
 
         justify: {
             init: "flex-start",
             check: ["center", "flex-start", "flex-end", "space-between", "space-around"],
             apply: "_applyJustify",
             nullable: true,
-            themeable: true,
-            event: "changeJustify"
+            themeable: true
         },
 
         gap: {
@@ -38,8 +40,7 @@ qx.Class.define("ville.ui.layout.HGroup", {
             check: ["xs", "sm", "md", "lg", "xl"],
             apply: "_applyGap",
             themeable: true,
-            nullable: true,
-            event: "changeGap"
+            nullable: true
         },
         
         grow: {
@@ -47,8 +48,7 @@ qx.Class.define("ville.ui.layout.HGroup", {
             check: "Boolean",
             apply: "_applyGrow",
             nullable: true,
-            themeable: true,
-            event: "changeGrow"
+            themeable: true
         }
 
     },
@@ -57,9 +57,9 @@ qx.Class.define("ville.ui.layout.HGroup", {
 
         _applyJustify(value, old) {
             if (value) {
-                this.getContentElement().setStyle("--group-justify", value);
+                this.setStyle("--group-justify", value);
             } else if (old && value == null) {
-                this.getContentElement().removeStyle("--group-justify");
+                this.removeStyle("--group-justify");
             }
         },
 
@@ -72,20 +72,19 @@ qx.Class.define("ville.ui.layout.HGroup", {
         },
         
         _applyGrow(value, old) {
-            var elem = this.getContentElement();
             if (value) {
-                elem.setAttribute("data-grow", "true");
+                this.setAttribute("data-grow", "true");
                 if (this.hasChildren()) {
                     const childcount = this.getChildren().length;
                     const percent = 100/childcount;
                     const gap = this.getGap();
                     const newstr = `calc(${percent}% - (var(--mantine-spacing-${gap}) - var(--mantine-spacing-${gap}) / ${childcount}))`;
-                    elem.setStyle("--group-child-width", newstr);
+                    this.setStyle("--group-child-width", newstr);
                 }
                 
             } else {
-                elem.removeAttribute("data-grow");
-                elem.removeStyles("--group-child-width");
+                this.removeAttribute("data-grow");
+                this.removeStyles("--group-child-width");
             }
         }
 

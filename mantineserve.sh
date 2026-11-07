@@ -28,7 +28,7 @@ echo "📦 Bundling Mantine CSS..."
 # Example with all flags:
 # node bundle-mantine.js --app-name="$APP_NAME" --target="$TARGET" --styles-dir="custom/path" --map-path="custom/path"
 # -----------------------------------------------------------------------------
-node bundle-mantine.js --app-name="$APP_NAME" --target="$TARGET"
+node bundle-mantine.js --app-name="$APP_NAME" --target="$TARGET" --styles-dir="source/resource/mantine/core/styles"
 
 echo "🌐 Starting development server..."
 npx qx serve --app-name="$APP_NAME" --target="$TARGET"

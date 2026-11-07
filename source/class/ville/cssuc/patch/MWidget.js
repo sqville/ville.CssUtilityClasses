@@ -64,29 +64,73 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
 
   members: {
 
+    /** @type {Map} List of all available ville ui widget states. */
+    _villeuiStates: {
+      "size-xs": true,
+      "size-sm": true,
+      "size-md": true,
+      "size-lg": true,
+      "size-xl": true,
+      "compact-xs": true,
+      "compact-sm": true,
+      "compact-md": true,
+      "compact-lg": true,
+      "compact-xl": true,
+      "radius-xs" : true,
+      "radius-sm" : true,
+      "radius-md" : true,
+      "radius-lg" : true,
+      "radius-xl" : true,
+      "variant-default" : true,
+      "variant-filled" : true,
+      "variant-outline" : true,
+      "variant-subtle" : true,
+      "data-loading" : true
+    },
+
     /**
      * Sets a mutually exclusive namespaced state (e.g., category: "variant", value: "filled")
      * Results in the state "variant-filled" being added, and any other "variant-*" being removed.
      */
-    setUiModifier(category, value) {
+    setVuiModifier(category, value) {
       const prefix = category + "-";
-      const states = this.__states;
-      
-      // 1. Remove any existing state with this prefix
-      if (states) {
-        for (const stateName in states) {
-          if (stateName.startsWith(prefix)) {
-            this.removeState(stateName);
+      const modState = prefix + value;
+      const villeuistates = this._villeuiStates;
+
+      if (value == null || value === "" || !(modState in this._villeuiStates)) {
+        return;
+      }
+
+      if (qx.core.Environment.get("qx.debug")) {
+        this.assertKeyInMap(
+          modState,
+          villeuistates,
+          modState + " is not a valid ville ui state. Check for correct spelling or add it to the widget's _villeuiStates object - ville.cssuc.patch.MWidget"
+        );
+      }
+
+      let replaced = false;
+      let locatedsame = false;
+
+      for (const stateName in villeuistates) {
+        if (this.hasState(stateName) && stateName.startsWith(prefix)){
+          if (modState != stateName) {
+            this.replaceState(stateName, modState);
+            replaced = true;
+            break;
+          }
+          else {
+            locatedsame = true;
           }
         }
       }
       
-      // 2. Add the new state if a value is provided
-      if (value) {
-        this.addState(prefix + value);
+      // 2. Add the new state if a new value was provided
+      if (!replaced && !locatedsame)  {
+        this.addState(modState);
       }
       
-      return this;
+      return;
     },
 
     /**
@@ -182,21 +226,24 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
      * "remove-styles" - Array of strings
      */
     _applyCssStates(value, old) {
-      if (!value) {
+      if (!value || qx.lang.Object.equals(value, old)) {
         return;
       }
+
+      /*if (this.getUserData("typename"))
+        console.log(value);*/
 
       // 1. Set attributes (Map / Plain Object)
       const setAttrs = value["set-attributes"];
       if (setAttrs) {
-        this.setAttributes(setAttrs);
+        this.setAttributes(setAttrs, true);
       }
 
       // 2. Remove attributes (Array of strings)
       const removeAttrs = value["remove-attributes"];
       if (qx.lang.Type.isArray(removeAttrs)) {
         for (const attname of removeAttrs) {
-          this.removeAttribute(attname);
+          this.removeAttribute(attname, true);
         }
       }
 
@@ -219,14 +266,14 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       // 5. Set / Add inline styles (Map / Plain Object)
       const setStyles = value["set-styles"];
       if (setStyles) {
-        this.setStyles(setStyles);
+        this.setStyles(setStyles, true);
       }
 
       // 6. Remove inline styles (Array of strings)
       const removeStyles = value["remove-styles"];
       if (qx.lang.Type.isArray(removeStyles)) {
         for (const stylename of removeStyles) {
-          this.removeStyle(stylename);
+          this.removeStyle(stylename, true);
         }
       }
     },
@@ -309,8 +356,8 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
       this.getContentElement().setStyles(styles, direct);
     },
 
-    removeStyle(style) {
-      this.getContentElement().removeStyle(style);
+    removeStyle(style, direct) {
+      this.getContentElement().removeStyle(style, direct);
     },
 
     setAttribute(attribute, value, direct) {

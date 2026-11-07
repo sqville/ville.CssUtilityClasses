@@ -74,6 +74,14 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       }
     },
 
+    hgroup: {
+      style() {
+        return {
+          cssUtilityClass: `m_4081bf90${qx.core.Environment.get("qx.debug") ? ' mantine-Group-root' : ''}`
+        };
+      }
+    },
+
 
     /*
     ---------------------------------------------------------------------------
@@ -404,10 +412,16 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
     /*
     ---------------------------------------------------------------------------
-      CHECK BOX
+      CHECK BOX. 
     ---------------------------------------------------------------------------
     */
-    checkbox: "atom",
+    checkbox: {
+      style() {
+        return {
+          cssUtilityClass: "m_bf2d988c mantine-Checkbox-root m_5f75b09e mantine-Checkbox-root"
+        };
+      }
+    },
 
     "checkbox/icon": {},
 
@@ -540,8 +554,173 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
           changes["remove-attributes"].push("data-disabled");
           changes["set-classes"].push("mantine-active");
         }
+        if (states["data-loading"]) {
+          changes["set-attributes"]["data-loading"] = true;
+        } else {
+          changes["remove-attributes"].push("data-loading");
+        }
 
-        // 2. Size Modifiers (Driven entirely by CSS Variables, no data-attribute)
+        // --- Configuration Mappings ---
+
+        const interpolations = {
+          size: { 
+            height: 'button-height', 
+            'padding-x': 'button-padding-x', 
+            fz: 'mantine-font-size' 
+          },
+          compact: {
+            height: 'button-height-compact',
+            'padding-x': 'button-padding-x-compact',
+            fz: 'mantine-font-size'
+          },
+          radius: { 
+            radius: 'mantine-radius' 
+          }
+        };
+
+        const variants = {
+          filled: {
+            bg: 'var(--mantine-primary-color-filled)',
+            hover: 'var(--mantine-primary-color-filled-hover)',
+            color: 'var(--mantine-color-white)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid transparent'
+          },
+          outline: {
+            bg: 'transparent',
+            hover: 'var(--mantine-primary-color-outline-hover)',
+            color: 'var(--mantine-primary-color-outline)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-primary-color-outline)'
+          },
+          subtle: {
+            bg: 'transparent',
+            hover: 'var(--mantine-primary-color-light-hover)',
+            color: 'var(--mantine-primary-color-light-color)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid transparent'
+          },
+          default: {
+            bg: 'var(--mantine-color-default)',
+            hover: 'var(--mantine-color-default-hover)',
+            color: 'var(--mantine-color-default-color)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)'
+          },
+          light: {
+            bg: 'var(--mantine-primary-color-light)',
+            hover: 'var(--mantine-primary-color-light-hover)',
+            color: 'var(--mantine-primary-color-light-color)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid transparent'
+          },
+          transparent: {
+            bg: 'transparent',
+            hover: 'transparent',
+            color: 'var(--mantine-primary-color-light-color)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid transparent'
+          },
+          white: {
+            bg: 'var(--mantine-color-white)',
+            hover: 'rgba(252, 252, 252, 1)',
+            color: 'var(--mantine-primary-color-filled)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid transparent'
+          }
+        };
+
+        const scales = ['xs', 'sm', 'md', 'lg', 'xl'];
+
+        // --- State Resolution ---
+
+        // 1. Process size, compact, and radius (Interpolated mapping)
+        for (const group of Object.keys(interpolations)) {
+          for (const scale of scales) {
+            if (states[`${group}-${scale}`]) {
+              const properties = interpolations[group];
+              for (const prop of Object.keys(properties)) {
+                changes['set-styles'][`--button-${prop}`] = `var(--${properties[prop]}-${scale})`;
+              }
+              break; // Mutually exclusive within its group (e.g., size-xs overrides size-lg)
+            }
+          }
+        }
+
+        // 2. Process variants (Explicit value mapping)
+        for (const vKey of Object.keys(variants)) {
+          if (states[`variant-${vKey}`]) {
+            changes['set-attributes']['data-variant'] = vKey;
+            
+            const vStyles = variants[vKey];
+            for (const sKey of Object.keys(vStyles)) {
+              changes['set-styles'][`--button-${sKey}`] = vStyles[sKey];
+            }
+            break; // Mutually exclusive
+          }
+        }
+
+        return {
+          cssStates: changes
+        };
+      }
+    },
+
+    "toggle-button": {
+      style(states) {
+        //if (states.pressed || states.focused)
+          //return {};
+
+        //console.log(states);
+
+        let changes = {
+          "set-attributes": {},     
+          "remove-attributes": [],  
+          "set-classes": [],        
+          "remove-classes": [],     
+          "set-styles": {},         
+          "remove-styles": []       
+        };
+
+        // 1. Base Interaction States
+        if (states.disabled) {
+          changes["set-attributes"]["data-disabled"] = true;
+        } else {
+          changes["remove-attributes"].push("data-disabled");
+        }
+        if (states.checked) {
+          changes["set-attributes"]["data-active"] = true;
+        } else {
+          changes["remove-attributes"].push("data-active");
+        }
+
+        return {
+          cssStates: changes,
+          cssUtilityClass: `mantine-focus-auto m_ba2e839b${qx.core.Environment.get("qx.debug") ? ' mantine-Toggle-root' : ''}`
+        };
+      }
+    },
+
+    "hover-button": "button",
+
+    menubutton: "button",
+
+    /*menubutton: {
+    include: "button-frame",
+
+      style(states) {
+        let changes = {
+          "set-attributes": {},     
+          "remove-attributes": [],  
+          "set-classes": [],        
+          "remove-classes": [],     
+          "set-styles": {},         
+          "remove-styles": []       
+        };
+
+        // 1. Base Interaction States
+        if (states.disabled) {
+          changes["set-attributes"]["data-disabled"] = true;
+          changes["remove-classes"].push("mantine-active");
+        } else {
+          changes["remove-attributes"].push("data-disabled");
+          changes["set-classes"].push("mantine-active");
+        }
+      
+        // 2a. Size Modifiers (Driven entirely by CSS Variables, no data-attribute)
         if (states["size-xs"]) {
           changes["set-styles"]["--button-height"] = "var(--button-height-xs)";
           changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-xs)";
@@ -558,10 +737,32 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
           changes["set-styles"]["--button-height"] = "var(--button-height-xl)";
           changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-xl)";
           changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-xl)";
-        } else {
-          // Default Size (sm)
+        } else if (states["size-sm"]) {
           changes["set-styles"]["--button-height"] = "var(--button-height-sm)";
           changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-sm)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-sm)";
+        }
+
+        // 2b. Size Modifiers (Driven entirely by CSS Variables, no data-attribute)
+        if (states["compact-xs"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-compact-xs)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-compact-xs)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-xs)";
+        } else if (states["compact-md"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-compact-md)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-compact-md)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-md)";
+        } else if (states["compact-lg"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-compact-lg)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-compact-lg)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-lg)";
+        } else if (states["compact-xl"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-compact-xl)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-compact-xl)";
+          changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-xl)";
+        } else if (states["compact-sm"]) {
+          changes["set-styles"]["--button-height"] = "var(--button-height-compact-sm)";
+          changes["set-styles"]["--button-padding-x"] = "var(--button-padding-x-compact-sm)";
           changes["set-styles"]["--button-fz"] = "var(--mantine-font-size-sm)";
         }
 
@@ -570,13 +771,12 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
           changes["set-styles"]["--button-radius"] = "var(--mantine-radius-xs)";
         } else if (states["radius-sm"]) {
           changes["set-styles"]["--button-radius"] = "var(--mantine-radius-sm)";
+        } else if (states["radius-md"]){
+          changes["set-styles"]["--button-radius"] = "var(--mantine-radius-md)";
         } else if (states["radius-lg"]) {
           changes["set-styles"]["--button-radius"] = "var(--mantine-radius-lg)";
         } else if (states["radius-xl"]) {
           changes["set-styles"]["--button-radius"] = "var(--mantine-radius-xl)";
-        } else {
-          // Default Radius (md)
-          changes["set-styles"]["--button-radius"] = "var(--mantine-radius-md)";
         }
 
         // 4. Variant Modifiers & CSS Variable Assignments
@@ -584,42 +784,33 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
           changes["set-attributes"]["data-variant"] = "filled";
           changes["set-styles"]["--button-bg"] = "var(--mantine-color-blue-filled)";
           changes["set-styles"]["--button-color"] = "var(--mantine-color-white)";
-          changes["remove-styles"].push("--button-hover", "--button-bd");
+          changes["set-styles"]["--button-hover"] = "var(--mantine-color-blue-filled-hover)";
+          changes["set-styles"]["--button-bd"] = "calc(0.0625rem * var(--mantine-scale)) solid transparent";
         } else if (states["variant-outline"]) {
           changes["set-attributes"]["data-variant"] = "outline";
           changes["set-styles"]["--button-bg"] = "transparent";
           changes["set-styles"]["--button-hover"] = "var(--mantine-color-blue-outline-hover)";
           changes["set-styles"]["--button-color"] = "var(--mantine-color-blue-outline)";
           changes["set-styles"]["--button-bd"] = "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-blue-outline)";
-          console.log("ouline");
         } else if (states["variant-subtle"]) {
           changes["set-attributes"]["data-variant"] = "subtle";
           changes["set-styles"]["--button-bg"] = "transparent";
           changes["set-styles"]["--button-color"] = "var(--mantine-color-blue-filled)";
-          changes["remove-styles"].push("--button-hover", "--button-bd");
-        } else {
-          // Default Variant
+          changes["set-styles"]["--button-hover"] = "var(--mantine-color-blue-light-hover)";
+          changes["set-styles"]["--button-bd"] = "calc(0.0625rem * var(--mantine-scale)) solid transparent";
+        } else if (states["variant-default"]) {
           changes["set-attributes"]["data-variant"] = "default";
-          // Clean up inline styles so the base `m_77c9d27d` class can take over
-          changes["remove-styles"].push(
-            "--button-bg", 
-            "--button-hover", 
-            "--button-color", 
-            "--button-bd"
-          );
+          changes["set-styles"]["--button-bg"] = "var(--mantine-color-default)";
+          changes["set-styles"]["--button-color"] = "var(--mantine-color-default-color)";
+          changes["set-styles"]["--button-hover"] = "var(--mantine-color-default-hover)";
+          changes["set-styles"]["--button-bd"] = "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)";
         }
 
         return {
           cssStates: changes
         };
       }
-    },
-
-    "toggle-button": "button",
-
-    "hover-button": "button",
-
-    menubutton: "button",
+    },*/
     
 
     /*

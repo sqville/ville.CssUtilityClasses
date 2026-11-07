@@ -21,7 +21,8 @@
   ],
   "map": {
     "ville.ui.application.Standalone": ["baseline.css", "default-css-variables.css", "global.css"],
-    "ville.ui.form.Button": ["UnstyledButton.css", "Button.css"],
+    "ville.ui.form.Button": ["UnstyledButton.css", "ButtonVui.css"],
+    "ville.ui.form.ToggleButton": ["Toggle.css"],
     "ville.ui.layout.Stack": ["Stack.css"],
     "ville.ui.basic.Image": ["Image.css"],
     "ville.ui.menu.Button": ["Menu.css"],
@@ -54,6 +55,7 @@
     "ville.ui.layout.Container": ["Container.css"],
     "ville.ui.layout.Flex": ["Flex.css"],
     "ville.ui.layout.HGroup": ["Group.css"],
+    "ville.ui.core.Paper": ["Paper.css"],
     "ville.ui.layout.SimpleGrid": ["SimpleGrid.css"],
     "ville.ui.layout.VStack": ["Stack.css"],
     "ville.ui.overlay.Affix": ["Affix.css"],

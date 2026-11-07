@@ -1,9 +1,8 @@
 /**
  * Button
- * external(mantine/core/styles/ActionIcon.css)
  */
 qx.Class.define("ville.ui.form.ToggleActionIcon", {
-    extend: ville.ui.form.UnstyledToggleButton,
+    extend: qx.ui.form.ToggleButton,
 
     construct(trueicon, falseicon, variant, component) {
 
@@ -114,16 +113,9 @@ qx.Class.define("ville.ui.form.ToggleActionIcon", {
 
     members: {
 
-        //__componenttag: "button",
-
         __trueiconpathd: null,
 
         __falseiconpathd: null,
-
-        // overridden
-        /*_createContentElement() {
-            return new qx.html.Element(this.__componenttag);
-        },*/
 
         // overridden
         _createChildControlImpl(id, hash) {

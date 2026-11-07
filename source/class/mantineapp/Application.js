@@ -67,7 +67,7 @@ qx.Class.define("mantineapp.Application",
       centerbox.setStyles({
         "--paper-radius": "var(--mantine-radius-md)",
         "--paper-shadow": "var(--mantine-shadow-md)",
-        "padding": "var(--mantine-spacing-lg)",
+        "padding": "var(--mantine-spacing-md)",
         "margin-bottom": "40px"
       });
 
@@ -217,23 +217,47 @@ qx.Class.define("mantineapp.Application",
       });
 
       var menuitem01 = new ville.ui.menu.Button("Update Works");
+      menuitem01.setStyle("white-space", "nowrap");
       var menuitem02 = new ville.ui.menu.Button("Toggle Enabled");
+      menuitem02.setStyle("white-space", "nowrap");
       btnMenu.add(menuitem01);
       btnMenu.add(menuitem02);
 
       var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
       btnMenuButton.setMenu(btnMenu);
+      //btnMenuButton.setUserData("typename", "MenuButton");
+      btnMenuButton.setVuiModifier("size", "sm");
+      btnMenuButton.setVuiModifier("radius", "sm");
+      btnMenuButton.setVuiModifier("variant", "default");
+
 
       var iconPhoto = new ville.ui.icon.Photo(24);
-      var pButton = new ville.ui.form.Button("Button");
+      var pButton = new ville.ui.form.Button("Button", iconPhoto);
+      pButton.setUserData("typename", "Button");
       // Agnostic, native Qooxdoo state management 
-      pButton.setUiModifier("size", "xl");
-      pButton.setUiModifier("radius", "sm");
+      pButton.setVuiModifier("size", "md");
+      pButton.setVuiModifier("radius", "md");
+      pButton.setVuiModifier("variant", "default");
+
+      var changeCheckbox = new ville.ui.form.CheckBox("check box here");
+      /*changeCheckbox.addListener("click", (e) => {
+        if (changeCheckbox.getValue()) {
+          pButton.setVuiModifier("size", "xl");
+        }
+      });*/
+
+      var toggleBtn = new ville.ui.form.ToggleButton("Toggle Button");
+      toggleBtn.setAttribute("data-auto-width", true, true);
+      toggleBtn.setAttribute("data-variant", "filled", true);
+      toggleBtn.setStyles({
+        "--toggle-active-bg" : "var(--mantine-primary-color-filled)",
+        "--toggle-active-hover" : "var(--mantine-primary-color-filled-hover)",
+        "--toggle-active-color" : "var(--mantine-color-white)"
+      }, true);
 
       // Button label change test
       menuitem01.addListener("click", () => {
-        pButton.setLabel("Works!");
-        pButton.setUiModifier("size", "md");
+        pButton.setVuiModifier("size", "xl");
       });
 
       menuitem02.addListener("click", () => {
@@ -243,9 +267,10 @@ qx.Class.define("mantineapp.Application",
       var PopupTestingGroupbox = new ville.ui.layout.HGroup("flex-start");
       PopupTestingGroupbox.add(btnMenuButton);
       PopupTestingGroupbox.add(pButton);
-      //PopupTestingGroupbox.add(comboBox);
+      PopupTestingGroupbox.add(changeCheckbox);
+      PopupTestingGroupbox.add(toggleBtn);
       //PopupTestingGroupbox.add(expButton);
-      PopupTestingGroupbox.setGap("xl");
+      PopupTestingGroupbox.setGap("lg");
       PopupTestingGroupbox.setStyle("margin-bottom","40px");
 
       // Theme Affix
@@ -263,13 +288,15 @@ qx.Class.define("mantineapp.Application",
         "--ai-color": "var(--mantine-color-default-color)",
         "--ai-bd": "calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)"
       });
-      btnTheme.addListener("click", (e) => {
+      btnTheme.addListener("changeValue", (e) => {
         if (btnTheme.getValue()) {
           document.documentElement.setAttribute("data-mantine-color-scheme", "light");
         } else {
           document.documentElement.setAttribute("data-mantine-color-scheme", "dark");
         }
       });
+
+      //btnTheme.setUserData("typename", "ToggleActionIcon")
 
       var settingsAffix = new ville.ui.overlay.Affix();
       settingsAffix.setStyles({

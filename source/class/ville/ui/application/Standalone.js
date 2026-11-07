@@ -24,7 +24,10 @@ qx.Class.define("ville.ui.application.Standalone", {
         qx.Class.patch(qx.ui.core.LayoutItem, ville.cssuc.patch.MLayoutItem);
         qx.Class.patch(qx.ui.core.queue.Layout, ville.cssuc.patch.MLayoutQueue);
         qx.Class.patch(qx.ui.core.Widget, ville.cssuc.patch.MWidget);
+        qx.Class.patch(qx.ui.basic.Atom, ville.cssuc.patch.basic.MAtom);
         qx.Class.patch(qx.html.Label, ville.cssuc.patch.MLabel);
+        qx.Class.patch(qx.ui.form.Button, ville.cssuc.patch.form.MButton);
+        qx.Class.patch(qx.ui.form.ToggleButton, ville.cssuc.patch.form.MToggleButton);
 
         if (qx.core.Environment.get("ville.cssEngine") == "mantine")
         {

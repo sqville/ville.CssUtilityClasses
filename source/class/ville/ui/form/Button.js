@@ -1,16 +1,6 @@
 /**
  * Button
  * 
- * Required CSS files:
- * EXTERNAL - mantine/core/styles/UnstyledButton.css
- * EXTERNAL - mantine/core/styles/Button.css
- * 
- * Data attributes:
- * data-variant
- * data-disabled
- * data-loading
- * data-block
- * 
  * @childControl inlineicon {qx.ui.core.Widget}
  * 
  */
@@ -39,24 +29,9 @@ qx.Class.define("ville.ui.form.Button", {
         if (command != null)
             this.setCommand(command);
         
-
-        /*if (variant != null) {
-            this.setVariant(variant);
-        } else {
-            this.initVariant();
-        }*/
-        
     },
 
     properties: {
-
-        /*variant: {
-            init: "default",
-            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
-            apply: "_applyVariant",
-            themeable: true,
-            event: "changeVariant"
-        },*/
 
         inlineIcon: {
             check: "qx.ui.core.Widget",
@@ -78,7 +53,7 @@ qx.Class.define("ville.ui.form.Button", {
             switch (id) {
 
                 case "label":
-                    control = new qx.ui.basic.Label(this.getLabel()); //new ville.ui.basic.LabelFlat(this.getLabel());
+                    control = new qx.ui.basic.Label(this.getLabel());
                     control.setAnonymous(true);
                     this.__textNode = new qx.html.Text(this.getLabel());
                     this.getContentElement().add(this.__textNode);
@@ -116,20 +91,27 @@ qx.Class.define("ville.ui.form.Button", {
             }
         },
 
-        // property apply
-        /*_applyLabel(value, old) {
-            if (qx.core.Environment.get("ville.tagLabel.button")){
-                
-            } else {
-                var label = this.getChildControl("label", true);
-                if (label) {
-                    label.setValue(value);
-                }
+        // overridden
+        _applyIconPosition(value, old) {
+            const el = this.getContentElement();
+            const iconEl = this.getIconElement(); // Assuming you have a getter for your SVG element/node
 
-                this._handleLabel();
+            // 1. Set the data attribute to trigger the Mantine CSS margins
+            el.setAttribute("data-position", value);
+
+            // 2. Visually orient the flex children
+            if (value === "right") {
+                // Reverses the flow so the text is first, icon is second
+                el.setStyle("flex-direction", "row-reverse");
+            } else if (value === "top") {
+                el.setStyle("flex-direction", "column");
+            } else if (value === "bottom") {
+                el.setStyle("flex-direction", "column-reverse");
+            } else {
+                // Default "left"
+                el.setStyle("flex-direction", "row");
             }
-            
-        },*/
+        },
 
         // overridden
         _handleIcon() {
@@ -146,13 +128,6 @@ qx.Class.define("ville.ui.form.Button", {
                     this._showChildControl("inlineicon");
             }
         }
-
-        // property apply
-        /*_applyVariant(value, old) {
-            if (value) {
-                this.getContentElement().setAttribute("data-variant", value);
-            }
-        }*/
 
     }
   });
