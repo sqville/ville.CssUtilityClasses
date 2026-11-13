@@ -2,7 +2,7 @@
  * 
  * @asset(villeuiapp/images/*)
  *
- * @external(villeuiapp/css/villeuiapp.css)
+ * @external(villeuiapp/css/bundle.min.css)
  */
 qx.Class.define("villeuiapp.Application",
 {

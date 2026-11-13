@@ -9,11 +9,21 @@
 ************************************************************************ */
 
 /**
- * Registrar for commands to be able to group them.
+ * Keyed registry for grouping related `ville.ui.command.Command` instances so
+ * their `active` state can be toggled collectively[span_133](start_span)[span_133](end_span).
+ *
+ * @example
+ * const editGroup = new ville.ui.command.Group();
+ * editGroup.add("save", saveCommand);
+ * editGroup.add("undo", undoCommand);
+ * editGroup.setActive(false); // Deactivates all commands in the group
  */
 qx.Class.define("ville.ui.command.Group", {
   extend: qx.core.Object,
 
+  /**
+   * Creates a new empty command group[span_134](start_span)[span_134](end_span).
+   */
   construct() {
     super();
     this._cmds = {};
@@ -21,7 +31,7 @@ qx.Class.define("ville.ui.command.Group", {
 
   properties: {
     /**
-     * Activates or deactivates all commands in group.
+     * Activates or deactivates all `ville.ui.command.Command` instances registered in this group[span_135](start_span)[span_135](end_span).
      */
     active: {
       init: true,
@@ -31,9 +41,21 @@ qx.Class.define("ville.ui.command.Group", {
   },
 
   members: {
+    /**
+     * Map of command keys to `ville.ui.command.Command` instances[span_136](start_span)[span_136](end_span).
+     *
+     * @type {Object<string, ville.ui.command.Command>|null}
+     * @protected
+     */
     _cmds: null,
 
-    // property apply
+    /**
+     * Property apply handler for `active`. Propagates the active flag to every
+     * registered command in `_cmds`[span_137](start_span)[span_137](end_span).
+     *
+     * @param {boolean} value New active state[span_138](start_span)[span_138](end_span).
+     * @protected
+     */
     _applyActive(value) {
       for (var cmdkey in this._cmds) {
         this._cmds[cmdkey].setActive(value);
@@ -47,12 +69,12 @@ qx.Class.define("ville.ui.command.Group", {
     */
 
     /**
-     * Adds a command with a key to the group.
+     * Registers a command under a unique string key and synchronizes its `active`
+     * property with the group's current `active` state[span_139](start_span)[span_139](end_span).
      *
-     * @param key {String} Key to be able to addresses the command
-     * @param command {ville.ui.command.Command} Command
-     *
-     * @return {Boolean} <code>false</code> if key already added before
+     * @param {string} key Unique key identifying the command within the group[span_140](start_span)[span_140](end_span).
+     * @param {ville.ui.command.Command} command Command instance to register[span_141](start_span)[span_141](end_span).
+     * @returns {boolean} `true` if added; `false` if a command with `key` already exists[span_142](start_span)[span_142](end_span).
      */
     add(key, command) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -86,11 +108,10 @@ qx.Class.define("ville.ui.command.Group", {
     },
 
     /**
-     * Returns a command by key.
+     * Retrieves a registered command by its string key[span_143](start_span)[span_143](end_span).
      *
-     * @param key {String} Key which addresses the command
-     *
-     * @return {ville.ui.command.Command|null} Corresponding command instance or null
+     * @param {string} key Key identifying the command[span_144](start_span)[span_144](end_span).
+     * @returns {ville.ui.command.Command|null} Matching command instance, or `null` if not found[span_145](start_span)[span_145](end_span).
      */
     get(key) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -115,11 +136,10 @@ qx.Class.define("ville.ui.command.Group", {
     },
 
     /**
-     * Returns true if a command is registered by key.
+     * Checks whether a command is registered under the specified key[span_146](start_span)[span_146](end_span).
      *
-     * @param key {String} Key which addresses the command
-     *
-     * @return {Boolean} Returns <code>true</code> if a command is registered by a key
+     * @param {string} key Key identifying the command[span_147](start_span)[span_147](end_span).
+     * @returns {boolean} `true` if a command is registered for `key`[span_148](start_span)[span_148](end_span).
      */
     has(key) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -130,11 +150,10 @@ qx.Class.define("ville.ui.command.Group", {
     },
 
     /**
-     * Removes a command by key from group. Returns the command.
+     * Unregisters and returns a command by its string key[span_149](start_span)[span_149](end_span).
      *
-     * @param key {String} Key which addresses the command
-     *
-     * @return {ville.ui.command.Command|null} Corresponding command instance or null
+     * @param {string} key Key identifying the command to remove[span_150](start_span)[span_150](end_span).
+     * @returns {ville.ui.command.Command|null} Removed command instance, or `null` if not found[span_151](start_span)[span_151](end_span).
      */
     remove(key) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -161,6 +180,9 @@ qx.Class.define("ville.ui.command.Group", {
     }
   },
 
+  /**
+   * Releases the internal command map reference[span_152](start_span)[span_152](end_span).
+   */
   destruct() {
     this._cmds = null;
   }

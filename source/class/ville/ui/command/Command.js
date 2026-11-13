@@ -16,24 +16,30 @@
      * Mustafa Sak (msak)
 
 ************************************************************************ */
+
 /**
- * Commands can be used to globally define keyboard shortcuts. They could
- * also be used to assign an execution of a command sequence to multiple
- * widgets. It is possible to use the same Command in a MenuButton and
- * ToolBarButton for example.
+ * Decoupled UI command abstraction that binds global keyboard shortcuts
+ * (`qx.bom.Shortcut`) and shared action metadata (`label`, `icon`, `enabled`,
+ * `toolTipText`, `value`, `menu`) to one or more executable `ville.ui.*` widgets[span_154](start_span)[span_154](end_span).
  *
- * NOTE: Instances of this class must be disposed of after use
+ * NOTE: Instances of this class must be disposed of after use to unregister
+ * the underlying `qx.bom.Shortcut` listener[span_155](start_span)[span_155](end_span).
  *
+ * @example
+ * const saveCmd = new ville.ui.command.Command("Control+S");
+ * saveCmd.setLabel("Save");
+ * saveCmd.addListener("execute", (e) => saveDocument());
+ * const saveBtn = new ville.ui.form.Button(null, null, saveCmd);
  */
 qx.Class.define("ville.ui.command.Command", {
   extend: qx.core.Object,
 
   /**
-   * @param shortcut {String} Shortcuts can be composed of optional modifier
-   *    keys Control, Alt, Shift, Meta and a non modifier key.
-   *    If no non modifier key is specified, the second parameter is evaluated.
-   *    The key must be separated by a <code>+</code> or <code>-</code> character.
-   *    Examples: Alt+F1, Control+C, Control+Alt+Delete
+   * Creates a new Command with an optional keyboard shortcut[span_156](start_span)[span_156](end_span).
+   *
+   * @param {string} [shortcut] Key combination string composed of optional modifiers
+   *   (`Control`, `Alt`, `Shift`, `Meta`) and a key separated by `+` or `-`
+   *   (e.g., `"Alt+F1"`, `"Control+C"`, `"Control+Alt+Delete"`)[span_157](start_span)[span_157](end_span).
    */
   construct(shortcut) {
     super();
@@ -47,16 +53,18 @@ qx.Class.define("ville.ui.command.Command", {
 
   events: {
     /**
-     * Fired when the command is executed. Sets the "data" property of the
-     * event to the object that issued the command.
+     * Fired when the command is executed (either via keyboard shortcut or `execute()`).
+     * The event's `getData()` payload contains the originating widget or target object[span_158](start_span)[span_158](end_span).
      */
     execute: "qx.event.type.Data"
   },
 
   properties: {
-    /** Whether the command should be activated. If 'false' execute event
-     * wouldn't fire. This property will be used by command groups when
-     * activating/deactivating all commands of the group.*/
+    /**
+     * Whether the command is currently active (typically controlled by a
+     * `ville.ui.command.Group`). When `false`, `execute` will not fire even if
+     * `enabled` is `true`[span_159](start_span)[span_159](end_span).
+     */
     active: {
       init: true,
       check: "Boolean",
@@ -64,10 +72,10 @@ qx.Class.define("ville.ui.command.Command", {
       apply: "_applyActive"
     },
 
-    /** Whether the command should be respected/enabled. If 'false' execute event
-     * wouldn't fire. If value of property {@link ville.ui.command.Command#active}
-     * is 'false', enabled value can be set but has no effect until
-     * {@link ville.ui.command.Command#active} will be set to 'true'.*/
+    /**
+     * Whether the command and its bound widgets are enabled. When `false`,
+     * `execute` will not fire[span_160](start_span)[span_160](end_span).
+     */
     enabled: {
       init: true,
       check: "Boolean",
@@ -75,21 +83,27 @@ qx.Class.define("ville.ui.command.Command", {
       apply: "_applyEnabled"
     },
 
-    /** The command shortcut as a string */
+    /**
+     * Keyboard shortcut combination string delegated to `qx.bom.Shortcut`[span_161](start_span)[span_161](end_span).
+     */
     shortcut: {
       check: "String",
       apply: "_applyShortcut",
       nullable: true
     },
 
-    /** The label, which will be set in all connected widgets (if available) */
+    /**
+     * Shared text label synchronized to all connected widgets[span_162](start_span)[span_162](end_span).
+     */
     label: {
       check: "String",
       nullable: true,
       event: "changeLabel"
     },
 
-    /** The icon, which will be set in all connected widgets (if available) */
+    /**
+     * Shared icon URI or identifier synchronized to all connected widgets[span_163](start_span)[span_163](end_span).
+     */
     icon: {
       check: "String",
       nullable: true,
@@ -97,8 +111,7 @@ qx.Class.define("ville.ui.command.Command", {
     },
 
     /**
-     * The tooltip text, which will be set in all connected
-     * widgets (if available)
+     * Shared tooltip text synchronized to all connected widgets[span_164](start_span)[span_164](end_span).
      */
     toolTipText: {
       check: "String",
@@ -106,13 +119,17 @@ qx.Class.define("ville.ui.command.Command", {
       event: "changeToolTipText"
     },
 
-    /** The value of the connected widgets */
+    /**
+     * Shared value state (e.g., toggle/checked state) synchronized across connected widgets[span_165](start_span)[span_165](end_span).
+     */
     value: {
       nullable: true,
       event: "changeValue"
     },
 
-    /** The menu, which will be set in all connected widgets (if available) */
+    /**
+     * Shared `ville.ui.menu.Menu` instance synchronized to connected menu buttons[span_166](start_span)[span_166](end_span).
+     */
     menu: {
       check: "ville.ui.menu.Menu",
       nullable: true,
@@ -121,35 +138,55 @@ qx.Class.define("ville.ui.command.Command", {
   },
 
   members: {
+    /**
+     * Underlying BOM keyboard shortcut handler[span_167](start_span)[span_167](end_span).
+     *
+     * @type {qx.bom.Shortcut|null}
+     * @protected
+     */
     _shortcut: null,
 
-    // property apply
+    /**
+     * Property apply handler for `active`[span_168](start_span)[span_168](end_span).
+     *
+     * @param {boolean} value New active state[span_169](start_span)[span_169](end_span).
+     * @protected
+     */
     _applyActive(value) {
       if (value === false) {
         this._shortcut.setEnabled(false);
       } else {
-        // synchronize value with current "enabled" value of this command
+        // Synchronize shortcut with current "enabled" value of this command[span_170](start_span)[span_170](end_span)
         this._shortcut.setEnabled(this.getEnabled());
       }
     },
 
-    // property apply
+    /**
+     * Property apply handler for `enabled`[span_171](start_span)[span_171](end_span).
+     *
+     * @param {boolean} value New enabled state[span_172](start_span)[span_172](end_span).
+     * @protected
+     */
     _applyEnabled(value) {
       if (this.getActive()) {
         this._shortcut.setEnabled(value);
       }
     },
 
-    // property apply
+    /**
+     * Property apply handler for `shortcut`[span_173](start_span)[span_173](end_span).
+     *
+     * @param {string|null} value New keyboard shortcut combination[span_174](start_span)[span_174](end_span).
+     * @protected
+     */
     _applyShortcut(value) {
       this._shortcut.setShortcut(value);
     },
 
     /**
-     * Fire the "execute" event on this command. If property
-     * <code>active</code> and <code>enabled</code> set to
-     * <code>true</code>.
-     * @param target {Object?} Object which issued the execute event
+     * Fires the `"execute"` data event if both `active` and `enabled` are `true`[span_175](start_span)[span_175](end_span).
+     *
+     * @param {*} [target] Optional object or widget that triggered execution[span_176](start_span)[span_176](end_span).
      */
     execute(target) {
       if (this.getActive() && this.getEnabled()) {
@@ -158,9 +195,9 @@ qx.Class.define("ville.ui.command.Command", {
     },
 
     /**
-     * Returns the used shortcut as string using the currently selected locale.
+     * Returns the localized human-readable representation of the configured shortcut[span_177](start_span)[span_177](end_span).
      *
-     * @return {String} shortcut
+     * @returns {string} Formatted shortcut string[span_178](start_span)[span_178](end_span).
      */
     toString() {
       if (this._shortcut) {
@@ -170,6 +207,9 @@ qx.Class.define("ville.ui.command.Command", {
     }
   },
 
+  /**
+   * Detaches the shortcut execute listener and disposes the internal `qx.bom.Shortcut`[span_179](start_span)[span_179](end_span).
+   */
   destruct() {
     this._shortcut.removeListener("execute", this.execute, this);
     this._disposeObjects("_shortcut");

@@ -539,21 +539,28 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
     "button-frame": {
       style(states) {
-        //mantine-focus-auto m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root
-        const baseClasses = [
-          "mantine-focus-auto",
-          "m_77c9d27d",
-          "m_87cf2631"
-        ];
+        let baseClasses;
 
         if (qx.core.Environment.get("qx.debug")) {
-          baseClasses.push("mantine-Button-root", "mantine-UnstyledButton-root");
-        }
+            baseClasses = [
+              "mantine-focus-auto",
+              "m_77c9d27d",
+              "mantine-Button-root",
+              "m_87cf2631",
+              "mantine-UnstyledButton-root"
+            ];
+          } else {
+            baseClasses = [
+              "mantine-focus-auto",
+              "m_77c9d27d",
+              "m_87cf2631"
+            ];
+          }
 
-        return {
-          cssUtilityClass: baseClasses.join(" ")
-        };
-      }
+          return {
+            cssUtilityClass: baseClasses.join(" ")
+          };
+        }
     },
 
     "button": {
@@ -564,7 +571,7 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
         const classes = [];
         const styles = {};
 
-        // ID 1 & 6: disabled / loading -> data-disabled, data-loading, mantine-active
+        // 1. Disabled / Loading states
         if (states.loading) {
           attrs["data-loading"] = "true";
         }
@@ -574,12 +581,17 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
           classes.push("mantine-active");
         }
 
-        // ID 4: fullWidth -> data-block="true"
+        // 2. Full width layout state
         if (states.fullWidth) {
           attrs["data-block"] = "true";
         }
 
-        // ID 2, 3, 5: Active modifier states ("size-*", "radius-*", "variant-*")
+        // 3. Icon position
+        if (states.hasIcon) {
+          attrs["data-position"] = states["iconPosition-right"] ? "right" : "left";
+        }
+
+        // 4. Modifier states ("size-*", "variant-*", "radius-*")
         for (const stateName in states) {
           if (stateName.startsWith("size-")) {
             attrs["data-size"] = stateName.slice(5);
@@ -595,7 +607,13 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
             "set-attributes": attrs,
             "set-classes": classes,
             "set-styles": styles
-          }
+          },
+          variant: "default",
+          size: "md",
+          radius: "sm",
+          fullWidth: false,
+          iconPosition: "left",
+          show: "both"
         };
       }
     },
