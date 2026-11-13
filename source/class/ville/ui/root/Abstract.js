@@ -1,60 +1,19 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Fabian Jakobs (fjakobs)
-
-************************************************************************ */
-
 /**
  * Shared implementation for all root widgets.
  */
 qx.Class.define("ville.ui.root.Abstract", {
   type: "abstract",
-  extend: qx.ui.core.Widget,
+  extend: ville.ui.core.Widget,
 
-  include: [
-    qx.ui.core.MChildrenHandling,
-    qx.ui.core.MBlocker,
-    qx.ui.window.MDesktop
-  ],
-
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+  // REMOVED MChildrenHandling to prevent layout engine crashes
+  //include: [qx.ui.core.MBlocker],
 
   construct() {
     super();
 
-    // Register as root for the focus handler
-    qx.ui.core.FocusHandler.getInstance().addRoot(this);
-
-    // Directly add to visibility queue
-    qx.ui.core.queue.Visibility.add(this);
-
-    this.initNativeHelp();
-
-    this.addListener("keypress", this.__preventScrollWhenFocused, this);
+    // RESTORED: Required for keyboard accessibility (Space/Enter on Buttons)
+    //qx.ui.core.FocusHandler.getInstance().addRoot(this);
   },
-
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
 
   properties: {
     // overridden
@@ -67,13 +26,13 @@ qx.Class.define("ville.ui.root.Abstract", {
     enabled: {
       refine: true,
       init: true
-    },
+    }
 
     // overridden
-    focusable: {
+    /*focusable: {
       refine: true,
       init: true
-    },
+    },*/
 
     /**
      *  Sets the global cursor style
@@ -102,34 +61,34 @@ qx.Class.define("ville.ui.root.Abstract", {
      *
      * Please note that in the current implementation this has no effect in IE.
      */
-    globalCursor: {
+    /*globalCursor: {
       check: "String",
       nullable: true,
       themeable: true,
       apply: "_applyGlobalCursor",
       event: "changeGlobalCursor"
-    },
+    },*/
 
     /**
      * Whether the native context menu should be globally enabled. Setting this
      * property to <code>true</code> will allow native context menus in all
      * child widgets of this root.
      */
-    nativeContextMenu: {
+    /*nativeContextMenu: {
       refine: true,
       init: false
-    },
+    },*/
 
     /**
      * If the user presses F1 in IE by default the onhelp event is fired and
      * IE’s help window is opened. Setting this property to <code>false</code>
      * prevents this behavior.
      */
-    nativeHelp: {
+    /*nativeHelp: {
       check: "Boolean",
       init: false,
       apply: "_applyNativeHelp"
-    }
+    }*/
   },
 
   /*
@@ -147,12 +106,12 @@ qx.Class.define("ville.ui.root.Abstract", {
     },
 
     /**
-     * Get the widget's layout manager.
-     *
-     * @return {qx.ui.layout.Abstract} The widget's layout manager
+     * Public API to append ville.ui widgets directly to the pure root.
+     * @param childWidget {ville.ui.core.Widget} The widget to append
      */
-    getLayout() {
-      return; // this._getLayout();
+    add(childWidget) {
+      // Calls the pure DOM _add method we built in ville.ui.core.Widget
+      this._add(childWidget);
     },
 
     // property apply

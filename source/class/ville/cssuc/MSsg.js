@@ -1,7 +1,8 @@
 /**
- * 
+ * This is a qooxdoo mixin, added to ville.ui.application.Standalone
+ * Add this.markSsgPage() to the area of the application where the
+ * app.page.<your page class> should go.
  * @ignore(URLSearchParams)
- * 
  */
 qx.Mixin.define("ville.cssuc.MSsg",
 { 

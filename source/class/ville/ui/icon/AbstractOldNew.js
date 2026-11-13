@@ -1,4 +1,4 @@
-qx.Class.define("ville.ui.icon.AbstractNew", {
+qx.Class.define("ville.ui.icon.AbstractOldNew", {
   extend: qx.ui.core.Widget,
   type: "abstract",
 

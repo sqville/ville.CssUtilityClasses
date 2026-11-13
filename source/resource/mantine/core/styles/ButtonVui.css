@@ -36,11 +36,17 @@
 
   width: auto;
   cursor: pointer;
-  /* Changed from inline-block to inline-flex to natively handle flex children without inner wrapper span */
+
+  /* Flattened flex layout replacing nested Mantine inner/label/section spans */
   display: inline-flex;
-  /* Added to replace inner wrapper layout behavior */
   align-items: center;
   justify-content: var(--button-justify, center);
+  gap: var(--mantine-spacing-xs);
+
+  /* Native text trimming for direct text nodes */
+  white-space: nowrap;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
 
   border-radius: var(--button-radius, var(--mantine-radius-default));
   font-size: var(--button-fz, var(--mantine-font-size-sm));
@@ -52,6 +58,151 @@
   vertical-align: middle;
 }
 
+/* =========================================================================
+   LAYOUT & SECTION MODIFIERS
+   ========================================================================= */
+
+/* Full width block mode (flex instead of block to preserve child alignment) */
+.m_77c9d27d:where([data-block]) {
+  display: flex;
+  width: 100%;
+}
+
+/* Reverse flex direction when icon position is right (no DOM reordering required) */
+.m_77c9d27d:where([data-position='right']) {
+  flex-direction: row-reverse;
+}
+
+/* Tighten outer horizontal padding on the side containing an icon section */
+.m_77c9d27d:where([data-with-left-section], [data-position='left']) {
+  padding-inline-start: calc(var(--button-padding-x) / 1.5);
+}
+
+.m_77c9d27d:where([data-with-right-section], [data-position='right']) {
+  padding-inline-end: calc(var(--button-padding-x) / 1.5);
+}
+
+/* =========================================================================
+   SIZE ATTRIBUTES (Native CSS token resolution)
+   ========================================================================= */
+
+.m_77c9d27d:where([data-size='xs']) {
+  --button-height: var(--button-height-xs);
+  --button-padding-x: var(--button-padding-x-xs);
+  --button-fz: var(--mantine-font-size-xs);
+}
+
+.m_77c9d27d:where([data-size='sm']) {
+  --button-height: var(--button-height-sm);
+  --button-padding-x: var(--button-padding-x-sm);
+  --button-fz: var(--mantine-font-size-sm);
+}
+
+.m_77c9d27d:where([data-size='md']) {
+  --button-height: var(--button-height-md);
+  --button-padding-x: var(--button-padding-x-md);
+  --button-fz: var(--mantine-font-size-md);
+}
+
+.m_77c9d27d:where([data-size='lg']) {
+  --button-height: var(--button-height-lg);
+  --button-padding-x: var(--button-padding-x-lg);
+  --button-fz: var(--mantine-font-size-lg);
+}
+
+.m_77c9d27d:where([data-size='xl']) {
+  --button-height: var(--button-height-xl);
+  --button-padding-x: var(--button-padding-x-xl);
+  --button-fz: var(--mantine-font-size-xl);
+}
+
+.m_77c9d27d:where([data-size='compact-xs']) {
+  --button-height: var(--button-height-compact-xs);
+  --button-padding-x: var(--button-padding-x-compact-xs);
+  --button-fz: var(--mantine-font-size-xs);
+}
+
+.m_77c9d27d:where([data-size='compact-sm']) {
+  --button-height: var(--button-height-compact-sm);
+  --button-padding-x: var(--button-padding-x-compact-sm);
+  --button-fz: var(--mantine-font-size-sm);
+}
+
+.m_77c9d27d:where([data-size='compact-md']) {
+  --button-height: var(--button-height-compact-md);
+  --button-padding-x: var(--button-padding-x-compact-md);
+  --button-fz: var(--mantine-font-size-md);
+}
+
+.m_77c9d27d:where([data-size='compact-lg']) {
+  --button-height: var(--button-height-compact-lg);
+  --button-padding-x: var(--button-padding-x-compact-lg);
+  --button-fz: var(--mantine-font-size-lg);
+}
+
+.m_77c9d27d:where([data-size='compact-xl']) {
+  --button-height: var(--button-height-compact-xl);
+  --button-padding-x: var(--button-padding-x-compact-xl);
+  --button-fz: var(--mantine-font-size-xl);
+}
+
+/* =========================================================================
+   VARIANT ATTRIBUTES (Native CSS token resolution)
+   ========================================================================= */
+
+.m_77c9d27d:where([data-variant='filled']) {
+  --button-bg: var(--mantine-primary-color-filled);
+  --button-hover: var(--mantine-primary-color-filled-hover);
+  --button-color: var(--mantine-color-white);
+  --button-bd: calc(0.0625rem * var(--mantine-scale)) solid transparent;
+}
+
+.m_77c9d27d:where([data-variant='light']) {
+  --button-bg: var(--mantine-primary-color-light);
+  --button-hover: var(--mantine-primary-color-light-hover);
+  --button-color: var(--mantine-primary-color-light-color);
+  --button-bd: calc(0.0625rem * var(--mantine-scale)) solid transparent;
+}
+
+.m_77c9d27d:where([data-variant='outline']) {
+  --button-bg: transparent;
+  --button-hover: var(--mantine-primary-color-light-hover);
+  --button-color: var(--mantine-primary-color-filled);
+  --button-bd: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-primary-color-filled);
+}
+
+.m_77c9d27d:where([data-variant='subtle']) {
+  --button-bg: transparent;
+  --button-hover: var(--mantine-primary-color-light-hover);
+  --button-color: var(--mantine-primary-color-light-color);
+  --button-bd: calc(0.0625rem * var(--mantine-scale)) solid transparent;
+}
+
+.m_77c9d27d:where([data-variant='default']) {
+  --button-bg: var(--mantine-color-default);
+  --button-hover: var(--mantine-color-default-hover);
+  --button-color: var(--mantine-color-default-color);
+  --button-bd: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border);
+}
+
+.m_77c9d27d:where([data-variant='white']) {
+  --button-bg: var(--mantine-color-white);
+  --button-hover: rgba(255, 255, 255, 0.9);
+  --button-color: var(--mantine-primary-color-filled);
+  --button-bd: calc(0.0625rem * var(--mantine-scale)) solid transparent;
+}
+
+.m_77c9d27d:where([data-variant='transparent']) {
+  --button-bg: transparent;
+  --button-hover: transparent;
+  --button-color: var(--mantine-primary-color-light-color);
+  --button-bd: calc(0.0625rem * var(--mantine-scale)) solid transparent;
+}
+
+/* =========================================================================
+   DISABLED, HOVER & LOADING STATES
+   ========================================================================= */
+
 /* Base button disabled states */
 .m_77c9d27d:where(:disabled:not([data-loading]), [data-disabled]:not([data-loading])) {
   cursor: not-allowed;
@@ -61,7 +212,7 @@
   background: var(--mantine-color-disabled);
 }
 
-/* Button Focus/Ripple Before Pseudo */
+/* Loading overlay pseudo-element */
 .m_77c9d27d::before {
   content: '';
   pointer-events: none;
@@ -84,7 +235,35 @@
   background-color: rgba(0, 0, 0, 0.15);
 }
 
-/* Base Hover and Active States */
+/* Loading state: dim raw text node via color-mix while keeping button interactive lock */
+.m_77c9d27d:where([data-loading]) {
+  cursor: not-allowed;
+  transform: none;
+  color: color-mix(in srgb, var(--button-color, var(--mantine-color-white)) 20%, transparent);
+}
+
+.m_77c9d27d:where([data-loading])::before {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Fade child elements (icons) except the loading spinner itself */
+.m_77c9d27d:where([data-loading]) > :not(.m_a25b86ee) {
+  opacity: 0.2;
+}
+
+/* Loading spinner centering */
+.m_a25b86ee {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Base hover and active states */
 @media (hover: hover) {
   .m_77c9d27d:hover:where(:not([data-loading], :disabled, [data-disabled])) {
     background-color: var(--button-hover, var(--mantine-primary-color-filled-hover));
@@ -100,61 +279,9 @@
 }
 
 /* =========================================================================
-   VILLE.UI REFACTOR:
-   Mantine originally used nested spans (.m_80f1301b, .m_811560b9, .m_a74036a).
-   Because ville.ui directly assigns text to the primary element or utilizes 
-   native Qooxdoo basic.Label and basic.Image/SVG architecture, we shift the 
-   layout responsibilities of those wrappers up to the main button element 
-   (.m_77c9d27d) or to direct attribute targets.
+   BUTTON GROUP LOGIC (.m_80d6d844)
    ========================================================================= */
 
-/* Handle spacing between icon and text natively using flex gap */
-.m_77c9d27d {
-  gap: var(--mantine-spacing-xs);
-}
-
-/* Optional: Targeted spacing adjustments if an icon is positioned left/right */
-.m_77c9d27d:where([data-position='left']) svg {
-  margin-inline-end: var(--mantine-spacing-xs);
-}
-
-.m_77c9d27d:where([data-position='right']) svg {
-  margin-inline-start: var(--mantine-spacing-xs);
-}
-
-/* Native trim properties for the direct text content */
-.m_77c9d27d {
-  white-space: nowrap;
-  text-box-trim: trim-both;
-  text-box-edge: cap alphabetic;
-}
-
-/* Handle loading state natively on the button text/icons instead of wrapper */
-.m_77c9d27d:where([data-loading]) {
-  cursor: not-allowed;
-  transform: none;
-}
-
-.m_77c9d27d:where([data-loading])::before {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-/* Fade out children natively when loading */
-.m_77c9d27d:where([data-loading]) > * {
-  opacity: 0.2;
-}
-
-/* Loading Spinner positioning */
-.m_a25b86ee {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-}
-
-/* =========================================================================
-   BUTTON GROUP LOGIC (Unchanged - .m_80d6d844)
-   ========================================================================= */
 .m_80d6d844 {
   --button-border-width: calc(0.0625rem * var(--mantine-scale));
   display: flex;

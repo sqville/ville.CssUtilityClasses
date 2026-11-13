@@ -1,167 +1,139 @@
 /**
- * Button
- * @external(mantine/core/styles/UnstyledButton.css)
- * @external(mantine/core/styles/Button.css)
+ * A modern CSS-driven Button widget implementing Qooxdoo's IExecutable interface.
  */
 qx.Class.define("ville.ui.experimental.Button", {
-    
-    extend: qx.ui.form.Button,
+  extend: ville.ui.basic.Atom,
+  include: [qx.ui.core.MExecutable],
+  implement: [qx.ui.form.IExecutable],
 
-    construct(label, icon, command, variant, sectionLeft, sectionRight, component) {
-        
-        if (component) {
-            this.__componenttag = component;
-        }
-        
-        super();
+  /**
+   * @param label {String?null} Label of the button
+   * @param icon {String|ville.ui.core.Widget?null} Icon to use
+   * @param command {qx.ui.command.Command?null} Command instance to connect with
+   */
+  construct(label, icon, command) {
+    super(label, icon);
 
-        this.setCssUtilityClass("m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root");
+    // Safe constructor assignment after super()
+    this._contentElementTag = "button";
 
-        if (icon != null) {
-            this.setIcon(icon);
-        }
-
-        if (sectionLeft != null) {
-            this.setSectionLeft(sectionLeft);
-        }
-
-        if (label != null) {
-            this.setLabel(label);
-        }
-
-        if (command != null) {
-            this.setCommand(command);
-        }
-
-        if (variant) {
-            this.setVariant(variant);
-        } else {
-            this.initVariant();
-        }
-
-        if (sectionRight != null) {
-            this.setSectionRight(sectionRight);
-        }
-        
-    },
-
-    properties: {
-
-        variant: {
-            init: "default",
-            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
-            apply: "_applyVariant",
-            themeable: true,
-            event: "changeVariant"
-        },
-
-        sectionLeft: {
-            check: "qx.ui.core.Widget",
-            apply: "_applySectionLeft",
-            nullable: true,
-            themeable: true,
-            event: "changeSectionLeft"
-        },
-
-        sectionRight: {
-            check: "qx.ui.core.Widget",
-            apply: "_applySectionRight",
-            nullable: true,
-            themeable: true,
-            event: "changeSectionRight"
-        }
-    },
-
-    members: {
-
-        __componenttag: "button",
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
-        },
-
-        // overridden
-        _createChildControlImpl(id, hash) {
-            var control;
-            //var innerwrapper;
-
-            switch (id) {
-                /*case "innerwrapper":
-                    control = new ville.ui.core.InnerWrapper();
-                    control.setCssUtilityClass("m_80f1301b mantine-Button-inner");
-                    this._add(control);
-                    break;
-                
-                case "label":
-                    control = new ville.ui.basic.Label();
-                    control.setAnonymous(true);
-                    control.setSelectable(this.getSelectable());
-                    control.setCssUtilityClass("m_811560b9 mantine-Button-label");
-                    innerwrapper = this.getChildControl("innerwrapper");
-                    innerwrapper.add(control);
-                    break;*/
-
-                case "sectionleft":
-                    control = new ville.ui.basic.Label();
-                    control.setAnonymous(true);
-                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
-                    control.getContentElement().setAttribute("data-position", "left");
-                    //innerwrapper = this.getChildControl("innerwrapper");
-                    this._addAt(control, 0);
-                    break;
-
-                case "sectionright":
-                    control = new ville.ui.basic.Label();
-                    control.setAnonymous(true);
-                    control.setCssUtilityClass("m_a74036a mantine-Button-section");
-                    control.getContentElement().setAttribute("data-position", "right");
-                    //innerwrapper = this.getChildControl("innerwrapper");
-                    this._add(control);
-                    break;
-            }
-
-            return control || super._createChildControlImpl(id);
-        },
-
-        // property apply
-        _applyVariant(value, old) {
-            if (value) {
-                this.getContentElement().setAttribute("data-variant", value);
-            }
-        },
-
-        _applySectionLeft(value, old) {
-            var section = this.getChildControl("sectionleft");
-            if (section) {
-                if (old) {
-                    section.removeAll();
-                }
-
-                if (value) {
-                    section.add(value);
-                    this.getContentElement().setAttribute("data-with-left-section", "true");
-                } else {
-                    this.getContentElement().removeAttribute("data-with-left-section");
-                }
-            }
-        },
-
-        _applySectionRight(value, old) {
-            var section = this.getChildControl("sectionright");
-            if (section) {
-                if (old) {
-                    section.removeAll();
-                }
-
-                if (value) {
-                    section.add(value);
-                    this.getContentElement().setAttribute("data-with-right-section", "true");
-                } else {
-                    this.getContentElement().removeAttribute("data-with-right-section");
-                }
-            }
-        }
-
+    if (command != null) {
+      this.setCommand(command);
     }
-  });
+
+    // Set default accessible role
+    this.setAriaRole("button");
+
+    // Initialize Event Bridge
+    this._initEventBridge();
+  },
+
+  properties: {
+    appearance: {
+      refine: true,
+      init: "button"
+    }
+  },
+
+  members: {
+    /**
+     * @lint ignoreReferenceField(_forwardStates)
+     */
+    _forwardStates: {
+      focused: true,
+      hovered: true,
+      pressed: true,
+      disabled: true
+    },
+
+    _createContentElement() {
+      const el = new qx.html.Element(this._contentElementTag);
+      el.setAttribute("type", "button");
+      return el;
+    },
+
+    // --- Event Bridge Infrastructure ---
+
+    _initEventBridge() {
+      // Standard Qooxdoo DX: attach directly to `this`
+      this.addListener("tap", this._onTap, this);
+      this.addListener("pointerdown", this._onPointerDown, this);
+      this.addListener("pointerup", this._onPointerUp, this);
+      this.addListener("pointerout", this._onPointerOut, this);
+
+      // Keyboard interactions
+      this.addListener("keydown", this._onKeyDown, this);
+      this.addListener("keyup", this._onKeyUp, this);
+    },
+
+    _onTap(e) {
+      if (!this.getEnabled()) {
+        return;
+      }
+      this.execute();
+    },
+
+    _onPointerDown(e) {
+      if (!this.getEnabled()) {
+        return;
+      }
+      this.press();
+    },
+
+    _onPointerUp(e) {
+      this.release();
+    },
+
+    _onPointerOut(e) {
+      this.release();
+    },
+
+    _onKeyDown(e) {
+      if (!this.getEnabled()) {
+        return;
+      }
+
+      const key = e.getKeyIdentifier();
+      if (key === "Enter" || key === "Space") {
+        this.press();
+        e.stopPropagation();
+      }
+    },
+
+    _onKeyUp(e) {
+      const key = e.getKeyIdentifier();
+      if (key === "Enter" || key === "Space") {
+        if (this.hasState("pressed")) {
+          this.release();
+          this.execute();
+        }
+        e.stopPropagation();
+      }
+    },
+
+    /*
+    ---------------------------------------------------------------------------
+      USER API
+    ---------------------------------------------------------------------------
+    */
+
+    press() {
+      if (this.hasState("abandoned")) {
+        return;
+      }
+      this.addState("pressed");
+    },
+
+    release() {
+      if (this.hasState("pressed")) {
+        this.removeState("pressed");
+      }
+    },
+
+    reset() {
+      this.removeState("pressed");
+      this.removeState("abandoned");
+      this.removeState("hovered");
+    }
+  }
+});

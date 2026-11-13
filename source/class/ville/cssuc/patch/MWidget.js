@@ -30,7 +30,7 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
     },
 
     cssStates: {
-      check: "Object",
+      check: "Map",
       nullable: true,
       init: null,
       apply: "_applyCssStates",
@@ -226,54 +226,90 @@ qx.Mixin.define("ville.cssuc.patch.MWidget", {
      * "remove-styles" - Array of strings
      */
     _applyCssStates(value, old) {
-      if (!value || qx.lang.Object.equals(value, old)) {
+      // O(1) Reference Check (Bypasses heavy deep equality)
+      if (!value || value === old) {
         return;
       }
-
-      /*if (this.getUserData("typename"))
-        console.log(value);*/
 
       // 1. Set attributes (Map / Plain Object)
       const setAttrs = value["set-attributes"];
       if (setAttrs) {
-        this.setAttributes(setAttrs, true);
+        const oldAttrs = old ? old["set-attributes"] : null;
+        let deltaAttrs = null;
+        
+        for (const key in setAttrs) {
+          if (!oldAttrs || oldAttrs[key] !== setAttrs[key]) {
+            deltaAttrs = deltaAttrs || {};
+            deltaAttrs[key] = setAttrs[key];
+          }
+        }
+        if (deltaAttrs) this.setAttributes(deltaAttrs, true);
       }
 
       // 2. Remove attributes (Array of strings)
       const removeAttrs = value["remove-attributes"];
-      if (qx.lang.Type.isArray(removeAttrs)) {
-        for (const attname of removeAttrs) {
-          this.removeAttribute(attname, true);
+      if (removeAttrs && removeAttrs.length > 0) {
+        const oldRemAttrs = old ? old["remove-attributes"] : null;
+        
+        for (let i = 0, l = removeAttrs.length; i < l; i++) {
+          const attr = removeAttrs[i];
+          if (!oldRemAttrs || !oldRemAttrs.includes(attr)) {
+            this.removeAttribute(attr, true);
+          }
         }
       }
 
       // 3. Set / Add classes (Array of strings)
       const setClasses = value["set-classes"];
-      if (qx.lang.Type.isArray(setClasses)) {
-        for (const classname of setClasses) {
-          this.addClass(classname);
+      if (setClasses && setClasses.length > 0) {
+        const oldSetClasses = old ? old["set-classes"] : null;
+        
+        for (let i = 0, l = setClasses.length; i < l; i++) {
+          const cls = setClasses[i];
+          if (!oldSetClasses || !oldSetClasses.includes(cls)) {
+            this.addClass(cls);
+          }
         }
       }
 
       // 4. Remove classes (Array of strings)
       const removeClasses = value["remove-classes"];
-      if (qx.lang.Type.isArray(removeClasses)) {
-        for (const classname of removeClasses) {
-          this.removeClass(classname);
+      if (removeClasses && removeClasses.length > 0) {
+        const oldRemClasses = old ? old["remove-classes"] : null;
+        
+        for (let i = 0, l = removeClasses.length; i < l; i++) {
+          const cls = removeClasses[i];
+          if (!oldRemClasses || !oldRemClasses.includes(cls)) {
+            this.removeClass(cls);
+          }
         }
       }
 
       // 5. Set / Add inline styles (Map / Plain Object)
       const setStyles = value["set-styles"];
       if (setStyles) {
-        this.setStyles(setStyles, true);
+        const oldStyles = old ? old["set-styles"] : null;
+        let deltaStyles = null;
+        
+        for (const key in setStyles) {
+          if (!oldStyles || oldStyles[key] !== setStyles[key]) {
+            deltaStyles = deltaStyles || {};
+            deltaStyles[key] = setStyles[key];
+          }
+        }
+        if (deltaStyles) this.setStyles(deltaStyles, true);
       }
 
       // 6. Remove inline styles (Array of strings)
       const removeStyles = value["remove-styles"];
-      if (qx.lang.Type.isArray(removeStyles)) {
-        for (const stylename of removeStyles) {
-          this.removeStyle(stylename, true);
+      if (removeStyles && removeStyles.length > 0) {
+        const oldRemStyles = old ? old["remove-styles"] : null;
+        
+        for (let i = 0, l = removeStyles.length; i < l; i++) {
+          const style = removeStyles[i];
+          if (!oldRemStyles || !oldRemStyles.includes(style)) {
+            this.removeStyle(style, true);
+          }
         }
       }
     },

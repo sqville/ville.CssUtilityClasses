@@ -13,22 +13,25 @@
   "defaultTarget": "source",
   "locales": ["en"],
   "environment": {
-      "ville.cssuc": true,
-      "qx.dyntheme": false,
-      "qx.nativeScrollBars": true
+      "qx.icontheme": "Tango"
   },
   "babel" : {
     "options" : {
-      "targets" : "> 0.25%, not dead"
-    }
+      "targets" : {
+        "chrome" : "150"
+      }
+    } 
   },
   "applications": [
     {
-      "class": "villeui.Application",
-      "theme": "villeui.theme.Theme",
-      "name": "villeui",
-      "bootPath": "source/boot/villeui",
-      "include": ["ville.cssuc.*"]
+      "class": "villeuiapp.Application",
+      "theme": "ville.cssuc.theme.mantine.Theme",
+      "name": "villeuiapp",
+      "bootPath": "source/boot/villeuiapp",
+      "environment": {
+        "qx.nativeScrollBars": true,
+        "ville.cssEngine" : "mantine"
+      }
     }
   ]
 }

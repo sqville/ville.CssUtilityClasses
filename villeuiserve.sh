@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Install dependencies
-npx lightningcss ./source/resource/villeui/css/app-priority.css --bundle -o ./source/resource/villeui/css/villeui-priority.css -m
+# npx lightningcss ./source/resource/villeui/css/app-priority.css --bundle -o ./source/resource/villeui/css/villeui-priority.css -m
+# lightningcss --css-modules --bundle Button.module.css -o dist/Button.css
+
 
 # Build the project
 echo "Cleaning..."

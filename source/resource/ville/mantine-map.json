@@ -22,6 +22,7 @@
   "map": {
     "ville.ui.application.Standalone": ["baseline.css", "default-css-variables.css", "global.css"],
     "ville.ui.form.Button": ["UnstyledButton.css", "ButtonVui.css"],
+    "ville.ui.experimental.Button": ["UnstyledButton.css", "Button.css"],
     "ville.ui.form.ToggleButton": ["Toggle.css"],
     "ville.ui.layout.Stack": ["Stack.css"],
     "ville.ui.basic.Image": ["Image.css"],

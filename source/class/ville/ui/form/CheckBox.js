@@ -13,6 +13,9 @@ qx.Class.define("ville.ui.form.CheckBox", {
 
         var cbinput = this.getChildControl("input");
 
+        if (label)
+            this.setLabel(label);
+
         if (alticon)
             this.setInlineIcon(alticon);
 
@@ -89,30 +92,31 @@ qx.Class.define("ville.ui.form.CheckBox", {
    members: {
 
         // overridden
-        _forwardStates: {
-            invalid: true,
-            undetermined: true,
-            checked: true
-        },
-
-        // overridden
         _createChildControlImpl(id, hash) {
             var control;
             var cbbody;
 
             switch (id) {
-                case "body":
+                /*case "body":
                     control = new ville.ui.core.InnerWrapper("div");
                     control.setAnonymous(true);
                     control.setCssUtilityClass("m_5f6e695e mantine-Checkbox-body");
                     this._add(control);
+                    break;*/
+
+                case "label":
+                    control = new ville.ui.form.Label(this.getLabel());
+                    control.setAnonymous(true);
+                    this._add(control);
+                    if (this.getLabel() == null || this.getShow() === "icon") {
+                        control.exclude();
+                    }
                     break;
 
                 case "input":
                     control = new ville.ui.core.BaseWidget({ "basetag" : "input", "type" : "checkbox" });
                     control.setAnonymous(true);
-                    cbbody = this.getChildControl("body");
-                    cbbody.add(control);
+                    this._add(control);
                     break;
 
                 case "icon":
@@ -127,8 +131,6 @@ qx.Class.define("ville.ui.form.CheckBox", {
                     control.setCssUtilityClass("m_bf295423 mantine-Checkbox-icon");
                     control.getContentElement().setAttribute("aria-hidden", "true");
                     control.setAnonymous(true);
-                    cbbody = this.getChildControl("body");
-                    cbbody.add(control);
                     break;
 
                 case "indeterminateicon":

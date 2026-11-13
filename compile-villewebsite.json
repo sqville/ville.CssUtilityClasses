@@ -16,7 +16,8 @@
       "ville.cssuc": true,
       "ville.ssg": true,
       "qx.dyntheme": false,
-      "qx.nativeScrollBars": true
+      "qx.nativeScrollBars": true,
+      "ville.cssEngine" : "mantine"
   },
   "babel" : {
     "options" : {
@@ -26,7 +27,7 @@
   "applications": [
     {
       "class": "villewebsite.Application",
-      "theme": "ville.cssuc.theme.BlankSlate",
+      "theme": "ville.cssuc.theme.blankslate.Theme",
       "name": "villewebsite",
       "bootPath": "source/boot/villewebsite",
       "include": ["villewebsite.pages.*"]

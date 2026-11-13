@@ -45,13 +45,13 @@ qx.Class.define("villewebsite.Application",
       /*
       * Configure global CSS variables to support control styles
       */
-
-      // App Shell
-      this.addRules([
+      var rules = [
         "--app-shell-header-height : calc(3.75rem * var(--mantine-scale));",
         "--app-shell-header-offset : calc(3.75rem * var(--mantine-scale));",
         "--app-shell-padding : 0px;"
-      ]);
+      ];
+      var cssstr = rules.join(' ');
+      qx.ui.style.Stylesheet.getInstance().addRule(":root", cssstr);
 
       /*
       -------------------------------------------------------------------------
@@ -137,7 +137,7 @@ qx.Class.define("villewebsite.Application",
       headerLogoBox.setAttribute("html", "Ville.");
 
       // Links
-      var btnProjects = new ville.ui.form.Button("Projects", "default", null, null, "a");
+      var btnProjects = new ville.ui.form.Button("Projects", null, null, "a");
       btnProjects.setHref("?page=projects");
       btnProjects.setAttribute("data-size", "md");
       btnProjects.setStyles({

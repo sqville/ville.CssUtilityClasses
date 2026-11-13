@@ -10,13 +10,15 @@
 
 /**
  * This is the main application class of "mantineapp"
+ * 
+ * @asset(mantineapp/images/*)
  *
  * @external(mantineapp/css/bundle.min.css)
  * Making an edited
  */
 qx.Class.define("mantineapp.Application",
 {
-  extend : ville.ui.application.Standalone,
+  extend : ville.ui.application.Adapted,
 
   /*
   *****************************************************************************
@@ -239,7 +241,7 @@ qx.Class.define("mantineapp.Application",
       pButton.setVuiModifier("radius", "md");
       pButton.setVuiModifier("variant", "default");
 
-      var changeCheckbox = new ville.ui.form.CheckBox("check box here");
+      // var changeCheckbox = new ville.ui.form.CheckBox("check box here");
       /*changeCheckbox.addListener("click", (e) => {
         if (changeCheckbox.getValue()) {
           pButton.setVuiModifier("size", "xl");
@@ -267,7 +269,7 @@ qx.Class.define("mantineapp.Application",
       var PopupTestingGroupbox = new ville.ui.layout.HGroup("flex-start");
       PopupTestingGroupbox.add(btnMenuButton);
       PopupTestingGroupbox.add(pButton);
-      PopupTestingGroupbox.add(changeCheckbox);
+      //PopupTestingGroupbox.add(changeCheckbox);
       PopupTestingGroupbox.add(toggleBtn);
       //PopupTestingGroupbox.add(expButton);
       PopupTestingGroupbox.setGap("lg");
@@ -306,6 +308,28 @@ qx.Class.define("mantineapp.Application",
       });
       settingsAffix.add(btnTheme);
       doc.add(settingsAffix);
+
+      
+
+      // 1. Legacy boundary
+      const legacyContainer = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
+      this.getRoot().add(legacyContainer, { left: 50, top: 50 });
+
+
+      const btn = new ville.ui.experimental.Button("Click Me", "mantineapp/images/test.png");
+      btn.addListener("execute", () => {
+        btn.setLabel("Saved!");
+        btn.setEnabled(false);
+      });
+
+      //doc.add(btn);
+
+      // 3. Wrap and inject
+      const adapterBridge = new ville.ui.core.Adapter(btn);
+      legacyContainer.add(adapterBridge);
+      
+
+
 
       //docMarginBox.add(centerbox);
       docMarginBox.add(dividerPopups);

@@ -1,13 +1,24 @@
 qx.Class.define("ville.ui.form.Label", {
-    extend: qx.ui.basic.Label,
+    extend: ville.ui.core.Widget,
+    implement: [qx.ui.form.IStringForm],
 
-    include: qx.ui.core.MChildrenHandling,
-
+    /**
+     * @param text {String} Label to use
+     */
     construct(text) {
+        
         super();
 
         if (text) {
             this.setValue(text);
+        }
+
+        if (qx.core.Environment.get("qx.dynlocale")) {
+            this.__changeLocaleLabelListenerId = qx.locale.Manager.getInstance().addListener(
+                "changeLocale",
+                this._onChangeLocale,
+                this
+            );
         }
 
     },
@@ -21,14 +32,23 @@ qx.Class.define("ville.ui.form.Label", {
             nullable: true,
             themeable: true,
             event: "changeSize"
+        },
+
+        value: {
+            check: "String",
+            apply: "_applyValue",
+            event: "changeValue",
+            nullable: true
         }
     },
 
     members: {
 
+        __contentElementTag: "label",
+
         // overridden
         _createContentElement() {
-            return new qx.html.Element("label");
+            return new qx.html.Element(this.__contentElementTag);
         },
 
         _applySize(value, old) {
@@ -47,23 +67,24 @@ qx.Class.define("ville.ui.form.Label", {
                 } else {
                     this.setAttribute("html", value);
                 }
-
-                // Mark text size cache as invalid
-                //this.__invalidContentSize = true;
-
-                // Update layout
-                //qx.ui.core.queue.Layout.add(this);
             },
-
             false(value, old) {
                 this.getContentElement().setAttribute("html", value);
-
-                // Mark text size cache as invalid
-                //this.__invalidContentSize = true;
-
-                // Update layout
-                //qx.ui.core.queue.Layout.add(this);
             }
-            })
+        }),
+
+        /*
+        *****************************************************************************
+            DESTRUCTOR
+        *****************************************************************************
+        */
+
+        destruct() {
+            if (qx.core.Environment.get("qx.dynlocale") && this.__changeLocaleLabelListenerId) {
+                qx.locale.Manager.getInstance().removeListenerById(
+                    this.__changeLocaleLabelListenerId
+                );
+            }
+        }
     }
   });

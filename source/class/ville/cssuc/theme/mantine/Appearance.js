@@ -82,6 +82,8 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       }
     },
 
+    //"label-form": {},
+
 
     /*
     ---------------------------------------------------------------------------
@@ -425,6 +427,15 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
     "checkbox/icon": {},
 
+
+    "checkbox/label": {
+      style() {
+        return {
+          cssUtilityClass: `m_8ee546b8${qx.core.Environment.get("qx.debug") ? ' mantine-Checkbox-label' : ''}`
+        };
+      }
+    },
+
     /*
     ---------------------------------------------------------------------------
       SPINNER
@@ -510,32 +521,89 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
     ---------------------------------------------------------------------------
     */
 
-    "button-frame": {
-      alias: "atom",
-
+    /*"button-frame": {
       style() {
-
-        // m_80f1301b mantine-Button-inner
-
         return {
           cssUtilityClass: "mantine-focus-auto m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root"
         };
       }
-    },
+    },*/
 
-    "button-frame/label": {
-      alias: "atom/label",
-
+    /*"button-frame/label": {
       style() {
         return {
           cssUtilityClass: "m_811560b9 mantine-Button-label"
         };
       }
+    },*/
+
+    "button-frame": {
+      style(states) {
+        //mantine-focus-auto m_77c9d27d mantine-Button-root m_87cf2631 mantine-UnstyledButton-root
+        const baseClasses = [
+          "mantine-focus-auto",
+          "m_77c9d27d",
+          "m_87cf2631"
+        ];
+
+        if (qx.core.Environment.get("qx.debug")) {
+          baseClasses.push("mantine-Button-root", "mantine-UnstyledButton-root");
+        }
+
+        return {
+          cssUtilityClass: baseClasses.join(" ")
+        };
+      }
     },
 
-    button: {
+    "button": {
       include: "button-frame",
+      style(states) {
 
+        const attrs = {};
+        const classes = [];
+        const styles = {};
+
+        // ID 1 & 6: disabled / loading -> data-disabled, data-loading, mantine-active
+        if (states.loading) {
+          attrs["data-loading"] = "true";
+        }
+        if (states.disabled) {
+          attrs["data-disabled"] = "true";
+        } else {
+          classes.push("mantine-active");
+        }
+
+        // ID 4: fullWidth -> data-block="true"
+        if (states.fullWidth) {
+          attrs["data-block"] = "true";
+        }
+
+        // ID 2, 3, 5: Active modifier states ("size-*", "radius-*", "variant-*")
+        for (const stateName in states) {
+          if (stateName.startsWith("size-")) {
+            attrs["data-size"] = stateName.slice(5);
+          } else if (stateName.startsWith("variant-")) {
+            attrs["data-variant"] = stateName.slice(8);
+          } else if (stateName.startsWith("radius-")) {
+            styles["--button-radius"] = `var(--mantine-radius-${stateName.slice(7)})`;
+          }
+        }
+
+        return {
+          cssStates: {
+            "set-attributes": attrs,
+            "set-classes": classes,
+            "set-styles": styles
+          }
+        };
+      }
+    },
+
+
+
+    /*button: {
+      include: "button-frame",
       style(states) {
         let changes = {
           "set-attributes": {},     
@@ -579,6 +647,12 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
         };
 
         const variants = {
+          default: {
+            bg: 'var(--mantine-color-default)',
+            hover: 'var(--mantine-color-default-hover)',
+            color: 'var(--mantine-color-default-color)',
+            bd: 'calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)'
+          },
           filled: {
             bg: 'var(--mantine-primary-color-filled)',
             hover: 'var(--mantine-primary-color-filled-hover)',
@@ -596,12 +670,6 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
             hover: 'var(--mantine-primary-color-light-hover)',
             color: 'var(--mantine-primary-color-light-color)',
             bd: 'calc(0.0625rem * var(--mantine-scale)) solid transparent'
-          },
-          default: {
-            bg: 'var(--mantine-color-default)',
-            hover: 'var(--mantine-color-default-hover)',
-            color: 'var(--mantine-color-default-color)',
-            bd: 'calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)'
           },
           light: {
             bg: 'var(--mantine-primary-color-light)',
@@ -657,13 +725,10 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
           cssStates: changes
         };
       }
-    },
+    },*/
 
     "toggle-button": {
       style(states) {
-        //if (states.pressed || states.focused)
-          //return {};
-
         //console.log(states);
 
         let changes = {
