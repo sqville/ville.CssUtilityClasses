@@ -1,4 +1,4 @@
-qx.Mixin.define("ville.cssuc.patch.MLayoutItem",
+qx.Mixin.define("ville.cssuc.patch.MLayoutItemOld",
 {      
   properties :
   {

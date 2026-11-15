@@ -1,52 +1,136 @@
 /**
- * default node is <p>
+ * Mode 3 CSS-driven Title widget (`ville.ui.typography.Title`) that renders
+ * semantic `<h1>`–`<h6>` heading elements with safe `qx.html.Text` content
+ * and `"order-<1..6>"` modifier states for Appearance themes.
+ *
+ * @example
+ * const heading = new ville.ui.typography.Title(2, "Section Heading");
  */
 qx.Class.define("ville.ui.typography.Title", {
-    
-    extend: qx.ui.core.Widget,
+  extend: ville.ui.core.Widget,
 
-    include: qx.ui.core.MChildrenHandling,
+  /**
+   * Creates a new Title heading widget.
+   *
+   * @param {1|2|3|4|5|6} [order=1] Heading level (`1` through `6`, rendering `<h1>`–`<h6>`).
+   * @param {string|qx.locale.LocalizedString|null} [text] Heading text content.
+   */
+  construct(order, text) {
+    super();
 
-    construct(order, text) {
-        
-        if (order >= 1 && order <= 6) {
-            this.__componenttag = "h" + order;
-        }
-        
-        super();
-
-        this.setCssUtilityClass("m_8a5d1357 mantine-Title-root");
-        
-        if (text) 
-            this.setText(text);
-        
-    },
-
-    properties: {
-        
-        text: {
-            apply: "_applyText",
-            nullable: true,
-            check: "String"
-        }
-
-    },
-
-    members: {
-
-        __componenttag : "div",
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
-        },
-
-        // property apply
-        _applyText(value) {
-            if (value) {
-                this.getContentElement().setAttribute("html", value);
-            }
-        }
-
+    if (order !== undefined) {
+      this.setOrder(order);
+    } else {
+      this.initOrder();
     }
-  });
+
+    if (text != null) {
+      this.setText(text);
+    }
+  },
+
+  properties: {
+    /**
+     * Appearance selector ID resolved against the active theme (defaults to `"typography-title"`).
+     */
+    appearance: {
+      refine: true,
+      init: "typography-title"
+    },
+
+    /**
+     * Semantic heading level (`1`–`6`). Sets the initial `<h1–h6>` tag before
+     * DOM creation and synchronizes the `"order-<value>"` widget state.
+     *
+     * @type {1|2|3|4|5|6}
+     */
+    order: {
+      check: [1, 2, 3, 4, 5, 6],
+      init: 1,
+      apply: "_applyOrder",
+      event: "changeOrder",
+      themeable: true
+    },
+
+    /**
+     * Plain-text heading content rendered via `qx.html.Text`.
+     * Accepts standard strings or `qx.locale.LocalizedString` instances.
+     *
+     * @type {string|qx.locale.LocalizedString|null}
+     */
+    text: {
+      check(value) {
+        return qx.lang.Type.isString(value);
+      },
+      apply: "_applyText",
+      event: "changeText",
+      nullable: true
+    }
+  },
+
+  members: {
+    /** @type {"h1"|"h2"|"h3"|"h4"|"h5"|"h6"} @private */
+    __contentElementTag: "h1",
+
+    /** @type {qx.html.Text|null} @private */
+    __textNode: null,
+
+    /**
+     * Creates the semantic `<h1–h6>` `qx.html.Element`.
+     *
+     * @returns {qx.html.Element} Root heading element.
+     * @protected
+     */
+    _createContentElement() {
+      return new qx.html.Element(this.__contentElementTag);
+    },
+
+    /**
+     * Property apply handler for `order`. Updates the target heading tag prior
+     * to element instantiation and synchronizes the `"order-<value>"` state.
+     *
+     * @param {1|2|3|4|5|6} value New heading order.
+     * @param {1|2|3|4|5|6|undefined} old Previous heading order.
+     * @protected
+     */
+    _applyOrder(value, old) {
+      this.__contentElementTag = "h" + value;
+      this._syncModifierState(
+        "order",
+        value != null ? String(value) : null,
+        old != null ? String(old) : null
+      );
+    },
+
+    /**
+     * Property apply handler for `text`. Updates the heading's `qx.html.Text`
+     * node safely without `innerHTML` and flushes buffered DOM mutations.
+     *
+     * @param {string|qx.locale.LocalizedString|null} value New heading text.
+     * @protected
+     */
+    _applyText(value) {
+      const resolved = value && value.translate ? value.translate() : value;
+      const textContent = resolved != null ? String(resolved) : "";
+
+      if (!this.__textNode) {
+        this.__textNode = new qx.html.Text(textContent);
+        this.getContentElement().add(this.__textNode);
+      } else {
+        this.__textNode.setText(textContent);
+      }
+
+      qx.html.Element.flush();
+    }
+  },
+
+  /**
+   * Disposes the internal `qx.html.Text` node on widget destruction.
+   */
+  destruct() {
+    if (this.__textNode) {
+      this.__textNode.dispose();
+      this.__textNode = null;
+    }
+  }
+});

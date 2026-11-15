@@ -4,17 +4,32 @@
  */
 qx.Class.define("ville.ui.core.Box", {
     
-    extend: qx.ui.core.Widget,
-
-    include: qx.ui.core.MChildrenHandling,
+    extend: ville.ui.core.Widget,
+    include: [ville.ui.core.MChildrenHandling],
 
     construct(component) {
 
-        if (component != null)
-            this._contentElementTag = component;
+        if (component) {
+            this.__contentElementTag = component;
+        }
 
         super();
         
+    },
+
+    members: {
+        /**
+         * Root HTML tag name.
+         *
+         * @private
+         */
+        __contentElementTag: "div",
+
+        // overridden
+        _createContentElement() {
+            return new qx.html.Element(this.__contentElementTag);
+        }
+
     }
 
   });

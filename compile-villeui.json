@@ -17,9 +17,7 @@
   },
   "babel" : {
     "options" : {
-      "targets" : {
-        "chrome" : "150"
-      }
+      "targets" : "> 0.25%, not dead"
     } 
   },
   "applications": [

@@ -58,7 +58,7 @@ qx.Class.define("ville.ui.tree.TreeFolder", {
 
         switch (id) {
             case "label":
-            control = new ville.ui.layout.Group(this.getLabel(), "div").set({
+            control = new ville.ui.layout.HGroup(this.getLabel(), "div").set({
                 anonymous: true
             });
             control.setCssUtilityClass("m_dc283425 mantine-Tree-label");

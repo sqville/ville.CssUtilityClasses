@@ -781,6 +781,7 @@ qx.Class.define("ville.ui.core.Widget", {
       this._syncModifierState("variant", value, old);
     },
 
+    
     // --- 6. Hierarchy & Child Control System ---
 
     /**
@@ -802,19 +803,55 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
+     * Returns the internal children array.
+     *
+     * @returns {ville.ui.core.Widget[]} Ordered list of child widgets.
+     * @protected
+     */
+    _getChildren() {
+      return this.__children;
+    },
+
+    /**
+     * Checks whether this widget has any child widgets.
+     *
+     * @returns {boolean} `true` if `this.__children` is non-empty.
+     * @protected
+     */
+    _hasChildren() {
+      return this.__children.length > 0;
+    },
+
+    /**
+     * Returns the zero-based index of `childWidget` in `this.__children`, or `-1`.
+     *
+     * @param {ville.ui.core.Widget} childWidget Child widget to locate.
+     * @returns {number} Zero-based index or `-1`.
+     * @protected
+     */
+    _indexOf(childWidget) {
+      return this.__children.indexOf(childWidget);
+    },
+
+    /**
      * Appends a child widget and inserts its content element into this widget's DOM container.
+     * Detaches `childWidget` from any previous parent first.
      *
      * @param {ville.ui.core.Widget} childWidget Child widget to append.
      * @protected
      */
     _add(childWidget) {
+      if (childWidget.getParent()) {
+        childWidget.getParent()._remove(childWidget);
+      }
       this.__children.push(childWidget);
       childWidget.setParent(this);
       this.getContentElement().add(childWidget.getContentElement());
     },
 
     /**
-     * Inserts a child widget at the specified child index.
+     * Inserts a child widget at the specified zero-based index.
+     * Detaches `childWidget` from any previous parent first.
      *
      * @param {ville.ui.core.Widget} childWidget Child widget to insert.
      * @param {number} index Zero-based insertion index.
@@ -822,9 +859,42 @@ qx.Class.define("ville.ui.core.Widget", {
      */
     _addAt(childWidget, index) {
       qx.core.Assert.assertInteger(index);
+      if (childWidget.getParent()) {
+        childWidget.getParent()._remove(childWidget);
+      }
       this.__children.splice(index, 0, childWidget);
       childWidget.setParent(this);
       this.getContentElement().addAt(childWidget.getContentElement(), index);
+    },
+
+    /**
+     * Inserts `childWidget` immediately before `beforeWidget`.
+     *
+     * @param {ville.ui.core.Widget} childWidget Child widget to insert.
+     * @param {ville.ui.core.Widget} beforeWidget Existing child widget to insert before.
+     * @protected
+     */
+    _addBefore(childWidget, beforeWidget) {
+      const idx = this.__children.indexOf(beforeWidget);
+      if (idx === -1) {
+        throw new Error("The widget to insert before is not a child of this widget.");
+      }
+      this._addAt(childWidget, idx);
+    },
+
+    /**
+     * Inserts `childWidget` immediately after `afterWidget`.
+     *
+     * @param {ville.ui.core.Widget} childWidget Child widget to insert.
+     * @param {ville.ui.core.Widget} afterWidget Existing child widget to insert after.
+     * @protected
+     */
+    _addAfter(childWidget, afterWidget) {
+      const idx = this.__children.indexOf(afterWidget);
+      if (idx === -1) {
+        throw new Error("The widget to insert after is not a child of this widget.");
+      }
+      this._addAt(childWidget, idx + 1);
     },
 
     /**
@@ -840,6 +910,37 @@ qx.Class.define("ville.ui.core.Widget", {
         childWidget.setParent(null);
         this.getContentElement().remove(childWidget.getContentElement());
       }
+    },
+
+    /**
+     * Removes and returns the child widget at `index`.
+     *
+     * @param {number} index Zero-based index of the child widget to remove.
+     * @returns {ville.ui.core.Widget|null} Removed child widget, or `null` if index is invalid.
+     * @protected
+     */
+    _removeAt(index) {
+      qx.core.Assert.assertInteger(index);
+      const child = this.__children[index];
+      if (!child) {
+        return null;
+      }
+      this._remove(child);
+      return child;
+    },
+
+    /**
+     * Removes all child widgets from this container and returns them in an array.
+     *
+     * @returns {ville.ui.core.Widget[]} Array of removed child widgets.
+     * @protected
+     */
+    _removeAll() {
+      const removed = this.__children.slice();
+      for (let i = removed.length - 1; i >= 0; i--) {
+        this._remove(removed[i]);
+      }
+      return removed;
     },
 
     /**
@@ -895,10 +996,11 @@ qx.Class.define("ville.ui.core.Widget", {
      * Subclasses override this method to instantiate their internal subcontrols.
      *
      * @param {string} id Child control identifier.
+     * @param {*} [hash] Optional configuration map passed during creation.
      * @returns {ville.ui.core.Widget|null} Newly created child control, or `null` if unsupported.
      * @protected
      */
-    _createChildControlImpl(id) {
+    _createChildControlImpl(id, hash) {
       return null;
     },
 

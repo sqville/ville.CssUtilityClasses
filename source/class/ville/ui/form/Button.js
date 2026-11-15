@@ -1,13 +1,13 @@
 /**
- * Mode 3 CSS-driven Button widget (`ville.ui.form.Button`)[span_74](start_span)[span_74](end_span).
+ * Mode 3 CSS-driven Button widget (`ville.ui.form.Button`).
  *
  * Features a flattened DOM architecture (a single `<button>` or `<a>` root
  * element containing a direct `qx.html.Text` node and optional inline `<svg>` /
  * `<img>` icon sibling) styled via `ButtonVui.css` and Qooxdoo Appearance themes
- * without legacy Mantine wrapper `<span>` nodes or `QxLayout` calculations[span_75](start_span)[span_75](end_span).
+ * without legacy Mantine wrapper `<span>` nodes or `QxLayout` calculations.
  *
- * @childControl label {ville.ui.basic.Label} Anonymous label control synchronizing text to `qx.html.Text`[span_76](start_span)[span_76](end_span).
- * @childControl icon {ville.ui.basic.Image|ville.ui.core.Widget} Anonymous icon widget or image element[span_77](start_span)[span_77](end_span).
+ * @childControl label {ville.ui.basic.Label} Anonymous label control synchronizing text to `qx.html.Text`.
+ * @childControl icon {ville.ui.basic.Image|ville.ui.core.Widget} Anonymous icon widget or image element.
  *
  * @example
  * const btn = new ville.ui.form.Button("Save Changes", new ville.ui.icon.tabler.Check());
@@ -21,12 +21,12 @@ qx.Class.define("ville.ui.form.Button", {
   implement: [qx.ui.form.IExecutable],
 
   /**
-   * Creates a new Button instance[span_78](start_span)[span_78](end_span).
+   * Creates a new Button instance.
    *
-   * @param {string|null} [label] Button text caption[span_79](start_span)[span_79](end_span).
-   * @param {string|ville.ui.core.Widget|null} [icon] Image URI string or `ville.ui.core.Widget` icon instance (e.g., `ville.ui.icon.Abstract` subclass)[span_80](start_span)[span_80](end_span).
-   * @param {ville.ui.command.Command|null} [command] Command instance bound via `MExecutable`[span_81](start_span)[span_81](end_span).
-   * @param {"button"|"a"} [component="button"] Root HTML element tag to render (`"button"` or `"a"`)[span_82](start_span)[span_82](end_span).
+   * @param {string|null} [label] Button text caption.
+   * @param {string|ville.ui.core.Widget|null} [icon] Image URI string or `ville.ui.core.Widget` icon instance (e.g., `ville.ui.icon.Abstract` subclass).
+   * @param {ville.ui.command.Command|null} [command] Command instance bound via `MExecutable`.
+   * @param {"button"|"a"} [component="button"] Root HTML element tag to render (`"button"` or `"a"`).
    */
   construct(label, icon, command, component) {
     if (qx.core.Environment.get("qx.debug")) {
@@ -56,11 +56,17 @@ qx.Class.define("ville.ui.form.Button", {
     if (command != null) {
       this.setCommand(command);
     }
+
+    // Set default accessible role
+    this.setAriaRole("button");
+
+    // Initialize Event Bridge
+    this._initEventBridge();
   },
 
   properties: {
     /**
-     * Appearance selector ID resolved against the active theme (defaults to `"button"`)[span_83](start_span)[span_83](end_span).
+     * Appearance selector ID resolved against the active theme (defaults to `"button"`).
      */
     appearance: {
       refine: true,
@@ -68,7 +74,7 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Text caption displayed inside the button[span_84](start_span)[span_84](end_span).
+     * Text caption displayed inside the button.
      */
     label: {
       check: "String",
@@ -80,7 +86,7 @@ qx.Class.define("ville.ui.form.Button", {
     /**
      * Icon displayed alongside the button label. Accepts either an image URI string
      * (rendered via `ville.ui.basic.Image`) or a `ville.ui.core.Widget` instance
-     * (such as an inline SVG `ville.ui.icon.Abstract` subclass)[span_85](start_span)[span_85](end_span).
+     * (such as an inline SVG `ville.ui.icon.Abstract` subclass).
      *
      * @type {string|ville.ui.core.Widget|null}
      */
@@ -94,7 +100,7 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Controls which button parts are visible (`"both"`, `"label"`, or `"icon"`)[span_86](start_span)[span_86](end_span).
+     * Controls which button parts are visible (`"both"`, `"label"`, or `"icon"`).
      */
     show: {
       check: ["both", "label", "icon"],
@@ -106,7 +112,7 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Button size scale (`"xs"`–`"xl"` or `"compact-xs"`–`"compact-xl"`).
-     * Synchronizes the mutually exclusive `"size-<value>"` state[span_87](start_span)[span_87](end_span).
+     * Synchronizes the mutually exclusive `"size-<value>"` state.
      */
     size: {
       check: [
@@ -120,7 +126,7 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Border radius scale (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`).
-     * Synchronizes the mutually exclusive `"radius-<value>"` state[span_88](start_span)[span_88](end_span).
+     * Synchronizes the mutually exclusive `"radius-<value>"` state.
      */
     radius: {
       check: ["xs", "sm", "md", "lg", "xl"],
@@ -131,7 +137,7 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Whether the button expands to fill 100% of its container width (`data-block="true"`).
-     * Toggles the `"fullWidth"` widget state[span_89](start_span)[span_89](end_span).
+     * Toggles the `"fullWidth"` widget state.
      */
     fullWidth: {
       check: "Boolean",
@@ -142,13 +148,25 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Placement of the icon relative to the label (`"left"` or `"right"`).
-     * Synchronizes the mutually exclusive `"iconPosition-<value>"` state[span_90](start_span)[span_90](end_span).
+     * Synchronizes the mutually exclusive `"iconPosition-<value>"` state.
      */
     iconPosition: {
       check: ["left", "right"],
       init: "left",
       themeable: true,
       apply: "_applyIconPosition"
+    },
+
+    /**
+     * Whether the button is in an active loading state.
+     * Adds the `"loading"` state, resets active press states, and locks user interaction.
+     */
+    loading: {
+      check: "Boolean",
+      init: false,
+      themeable: true,
+      apply: "_applyLoading",
+      event: "changeLoading"
     }
   },
 
@@ -170,23 +188,60 @@ qx.Class.define("ville.ui.form.Button", {
     __textNode: null,
 
     /**
-     * States automatically forwarded from the button to its `label` and `icon` child controls[span_91](start_span)[span_91](end_span).
+     * States automatically forwarded from the button to its `label` and `icon` child controls.
      *
      * @type {Object<string, boolean>}
      * @protected
      * @lint ignoreReferenceField(_forwardStates)
      */
     _forwardStates: {
-      disabled: true,
-      hovered: true,
-      pressed: true,
-      focused: true
+      disabled: true
+    },
+
+    /*
+    ---------------------------------------------------------------------------
+      USER API
+    ---------------------------------------------------------------------------
+    */
+
+    /**
+     * Programmatically puts the button into its `"pressed"` visual state unless
+     * the current pointer interaction has been `"abandoned"`.
+     */
+    press() {
+      if (this.hasState("abandoned")) {
+        return;
+      }
+      this.addState("pressed");
     },
 
     /**
-     * Creates the root `qx.html.Element` using the configured tag (`"button"` or `"a"`)[span_92](start_span)[span_92](end_span).
+     * Programmatically releases the button's `"pressed"` visual state.
+     */
+    release() {
+      if (this.hasState("pressed")) {
+        this.removeState("pressed");
+      }
+    },
+
+    /**
+     * Clears transient interactive states (`"pressed"`, `"abandoned"`, and `"hovered"`).
+     */
+    reset() {
+      this.removeState("pressed");
+      this.removeState("abandoned");
+    },
+
+    /*
+    ---------------------------------------------------------------------------
+      ELEMENT & CHILD CONTROLS
+    ---------------------------------------------------------------------------
+    */
+
+    /**
+     * Creates the root `qx.html.Element` using the configured tag (`"button"` or `"a"`).
      *
-     * @returns {qx.html.Element} Root button or anchor element[span_93](start_span)[span_93](end_span).
+     * @returns {qx.html.Element} Root button or anchor element.
      * @protected
      */
     _createContentElement() {
@@ -194,16 +249,16 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Instantiates internal child controls (`"label"` and `"icon"`) on demand[span_94](start_span)[span_94](end_span).
+     * Instantiates internal child controls (`"label"` and `"icon"`) on demand.
      *
      * - `"label"`: Creates an anonymous `ville.ui.basic.Label` and binds its
-     *   `changeValue` event to a lightweight `qx.html.Text` node[span_95](start_span)[span_95](end_span).
+     *   `changeValue` event to a lightweight `qx.html.Text` node.
      * - `"icon"`: Uses the provided `ville.ui.core.Widget` or creates a
-     *   `ville.ui.basic.Image`, inserting it before or after `__textNode`[span_96](start_span)[span_96](end_span).
+     *   `ville.ui.basic.Image`, inserting it before or after `__textNode`.
      *
-     * @param {string} id Child control identifier (`"label"` or `"icon"`)[span_97](start_span)[span_97](end_span).
-     * @param {*} [hash] Optional configuration map[span_98](start_span)[span_98](end_span).
-     * @returns {ville.ui.core.Widget|null} Created child control instance[span_99](start_span)[span_99](end_span).
+     * @param {string} id Child control identifier (`"label"` or `"icon"`).
+     * @param {*} [hash] Optional configuration map.
+     * @returns {ville.ui.core.Widget|null} Created child control instance.
      * @protected
      */
     _createChildControlImpl(id, hash) {
@@ -215,10 +270,10 @@ qx.Class.define("ville.ui.form.Button", {
           control = new ville.ui.basic.Label(initialText);
           control.setAnonymous(true);
 
-          // 1. Create and cache the lightweight qx.html.Text node[span_100](start_span)[span_100](end_span)
+          // 1. Create and cache the lightweight qx.html.Text node
           this.__textNode = new qx.html.Text(initialText);
 
-          // 2. Sync qx.html.Text whenever the Label's value changes[span_101](start_span)[span_101](end_span)
+          // 2. Sync qx.html.Text whenever the Label's value changes
           control.addListener("changeValue", (e) => {
             if (this.__textNode) {
               const nextVal = e.getData();
@@ -249,7 +304,7 @@ qx.Class.define("ville.ui.form.Button", {
 
           // Deterministic insertion relative to __textNode:
           // Left icon -> index 0 (before __textNode)
-          // Right icon -> append at end (after __textNode)[span_102](start_span)[span_102](end_span)
+          // Right icon -> append at end (after __textNode)
           if (this.getIconPosition() === "right") {
             this._add(control);
           } else {
@@ -263,18 +318,37 @@ qx.Class.define("ville.ui.form.Button", {
       return control || super._createChildControlImpl(id, hash);
     },
 
-    // --- Label & Icon Property Appliers ---
+    /*
+    ---------------------------------------------------------------------------
+      PROPERTY APPLIERS
+    ---------------------------------------------------------------------------
+    */
 
     /**
-     * Property apply handler for `label`[span_103](start_span)[span_103](end_span).
+     * Property apply handler for `enabled`. Delegates to `__syncDisabledState()`
+     * so `enabled` and `loading` remain synchronized.
      *
-     * @param {string|null} value New label string[span_104](start_span)[span_104](end_span).
-     * @param {string|null} old Previous label string[span_105](start_span)[span_105](end_span).
+     * @param {boolean} value New enabled state.
+     * @param {boolean} old Previous enabled state.
+     * @protected
+     */
+    _applyEnabled(value, old) {
+      if (!value) {
+        this.reset();
+      }
+      this.__syncDisabledState();
+    },
+
+    /**
+     * Property apply handler for `label`.
+     *
+     * @param {string|null} value New label string.
+     * @param {string|null} old Previous label string.
      * @protected
      */
     _applyLabel(value, old) {
       if (value != null) {
-        // Force creation of the "label" child control if initial label was null[span_106](start_span)[span_106](end_span)
+        // Force creation of the "label" child control if initial label was null
         const label = this.getChildControl("label");
         label.setValue(value);
       } else {
@@ -288,17 +362,17 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Property apply handler for `icon`. Swaps existing widget icons in place
-     * or updates the image source URI[span_107](start_span)[span_107](end_span).
+     * or updates the image source URI.
      *
-     * @param {string|ville.ui.core.Widget|null} value New icon widget or URI string[span_108](start_span)[span_108](end_span).
-     * @param {string|ville.ui.core.Widget|null} old Previous icon widget or URI string[span_109](start_span)[span_109](end_span).
+     * @param {string|ville.ui.core.Widget|null} value New icon widget or URI string.
+     * @param {string|ville.ui.core.Widget|null} old Previous icon widget or URI string.
      * @protected
      */
     _applyIcon(value, old) {
       if (value != null) {
         const icon = this.getChildControl("icon");
         if (value instanceof ville.ui.core.Widget) {
-          // Handle swapping an existing icon widget if replaced at runtime[span_110](start_span)[span_110](end_span)
+          // Handle swapping an existing icon widget if replaced at runtime
           if (old && old !== value) {
             const contentEl = this.getContentElement();
             const children = contentEl.getChildren();
@@ -323,10 +397,10 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Property apply handler for `show`[span_111](start_span)[span_111](end_span).
+     * Property apply handler for `show`.
      *
-     * @param {"both"|"label"|"icon"} value New visibility mode[span_112](start_span)[span_112](end_span).
-     * @param {"both"|"label"|"icon"} old Previous visibility mode[span_113](start_span)[span_113](end_span).
+     * @param {"both"|"label"|"icon"} value New visibility mode.
+     * @param {"both"|"label"|"icon"} old Previous visibility mode.
      * @protected
      */
     _applyShow(value, old) {
@@ -335,7 +409,7 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Synchronizes visibility of the `"label"` and `"icon"` child controls based
-     * on the `show` property and whether non-null values are present[span_114](start_span)[span_114](end_span).
+     * on the `show` property and whether non-null values are present.
      *
      * @protected
      */
@@ -358,10 +432,10 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Property apply handler for `size`[span_115](start_span)[span_115](end_span).
+     * Property apply handler for `size`.
      *
-     * @param {string|null} value New size token[span_116](start_span)[span_116](end_span).
-     * @param {string|null} old Previous size token[span_117](start_span)[span_117](end_span).
+     * @param {string|null} value New size token.
+     * @param {string|null} old Previous size token.
      * @protected
      */
     _applySize(value, old) {
@@ -369,10 +443,10 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Property apply handler for `radius`[span_118](start_span)[span_118](end_span).
+     * Property apply handler for `radius`.
      *
-     * @param {string|null} value New radius token[span_119](start_span)[span_119](end_span).
-     * @param {string|null} old Previous radius token[span_120](start_span)[span_120](end_span).
+     * @param {string|null} value New radius token.
+     * @param {string|null} old Previous radius token.
      * @protected
      */
     _applyRadius(value, old) {
@@ -380,10 +454,10 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Property apply handler for `iconPosition`[span_121](start_span)[span_121](end_span).
+     * Property apply handler for `iconPosition`.
      *
-     * @param {"left"|"right"} value New icon position[span_122](start_span)[span_122](end_span).
-     * @param {"left"|"right"} old Previous icon position[span_123](start_span)[span_123](end_span).
+     * @param {"left"|"right"} value New icon position.
+     * @param {"left"|"right"} old Previous icon position.
      * @protected
      */
     _applyIconPosition(value, old) {
@@ -391,10 +465,10 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Property apply handler for `fullWidth`[span_124](start_span)[span_124](end_span).
+     * Property apply handler for `fullWidth`.
      *
-     * @param {boolean} value Whether full-width block mode is enabled[span_125](start_span)[span_125](end_span).
-     * @param {boolean} old Previous full-width state[span_126](start_span)[span_126](end_span).
+     * @param {boolean} value Whether full-width block mode is enabled.
+     * @param {boolean} old Previous full-width state.
      * @protected
      */
     _applyFullWidth(value, old) {
@@ -403,10 +477,10 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Property apply handler for `loading`. Resets active press states, toggles
-     * `"loading"`, and locks interactive disabled attributes[span_127](start_span)[span_127](end_span).
+     * `"loading"`, and locks interactive disabled attributes.
      *
-     * @param {boolean} value Whether loading state is active[span_128](start_span)[span_128](end_span).
-     * @param {boolean} old Previous loading state[span_129](start_span)[span_129](end_span).
+     * @param {boolean} value Whether loading state is active.
+     * @param {boolean} old Previous loading state.
      * @protected
      */
     _applyLoading(value, old) {
@@ -421,7 +495,7 @@ qx.Class.define("ville.ui.form.Button", {
 
     /**
      * Synchronizes the `"disabled"` state, `aria-disabled`, and native `disabled`
-     * attribute (when rendered as a `<button>`) from `enabled` and `loading`[span_130](start_span)[span_130](end_span).
+     * attribute (when rendered as a `<button>`) from `enabled` and `loading`.
      *
      * @private
      */
@@ -442,11 +516,160 @@ qx.Class.define("ville.ui.form.Button", {
           el.removeAttribute("disabled");
         }
       }
+    },
+
+    /*
+    ---------------------------------------------------------------------------
+      EVENT BRIDGE INFRASTRUCTURE
+    ---------------------------------------------------------------------------
+    */
+
+    /**
+     * Registers DOM pointer, focus, and keyboard listeners on the button via
+     * `Widget`'s transparent event delegation to synchronize interactive Qooxdoo
+     * states (`hovered`, `pressed`, `focused`) and trigger `execute()`.
+     *
+     * @protected
+     */
+    _initEventBridge() {
+      // Pointer & tap interactions
+      this.addListener("tap", this._onTap, this);
+      this.addListener("pointerout", this._onPointerOut, this);
+      this.addListener("pointerdown", this._onPointerDown, this);
+      this.addListener("pointerup", this._onPointerUp, this);
+
+      // Keyboard interactions
+      this.addListener("keydown", this._onKeyDown, this);
+      this.addListener("keyup", this._onKeyUp, this);
+    },
+
+    /**
+     * Handles `"tap"` events by invoking `execute()` when the button is interactive.
+     *
+     * @param {qx.event.type.Tap} e Tap event object.
+     * @protected
+     */
+    _onTap(e) {
+      if (this.hasState("disabled")) {
+        return;
+      }
+      this.execute();
+    },
+
+    /**
+     * Handles `"pointerover"` events by activating the `"hovered"` state.
+     *
+     * @param {qx.event.type.Pointer} e Pointer event object.
+     * @protected
+     */
+    _onPointerOver(e) {
+      if (this.hasState("disabled")) {
+        return;
+      }
+      this.addState("hovered");
+    },
+
+    /**
+     * Handles `"pointerout"` events by clearing `"hovered"` and releasing `"pressed"`.
+     *
+     * @param {qx.event.type.Pointer} e Pointer event object.
+     * @protected
+     */
+    _onPointerOut(e) {
+      this.release();
+    },
+
+    /**
+     * Handles `"pointerdown"` events by pressing the button when interactive.
+     *
+     * @param {qx.event.type.Pointer} e Pointer event object.
+     * @protected
+     */
+    _onPointerDown(e) {
+      if (this.hasState("disabled")) {
+        return;
+      }
+      this.press();
+    },
+
+    /**
+     * Handles `"pointerup"` events by releasing the `"pressed"` state.
+     *
+     * @param {qx.event.type.Pointer} e Pointer event object.
+     * @protected
+     */
+    _onPointerUp(e) {
+      this.release();
+    },
+
+    /**
+     * Handles `"focusin"` events by activating the `"focused"` state.
+     *
+     * @param {qx.event.type.Focus} e Focus event object.
+     * @protected
+     */
+    _onFocusIn(e) {
+      if (this.hasState("disabled")) {
+        return;
+      }
+      this.addState("focused");
+    },
+
+    /**
+     * Handles `"focusout"` events by clearing `"focused"` and releasing `"pressed"`.
+     *
+     * @param {qx.event.type.Focus} e Focus event object.
+     * @protected
+     */
+    _onFocusOut(e) {
+      this.removeState("focused");
+      this.release();
+    },
+
+    /**
+     * Handles `"keydown"` events for `Enter` and `Space`, pressing the button
+     * and stopping propagation when interactive.
+     *
+     * @param {qx.event.type.KeySequence} e Keyboard event object.
+     * @protected
+     */
+    _onKeyDown(e) {
+      if (this.hasState("disabled")) {
+        return;
+      }
+
+      const key = e.getKeyIdentifier();
+      if (key === "Enter" || key === "Space") {
+        this.press();
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+
+    /**
+     * Handles `"keyup"` events for `Enter` and `Space`, releasing `"pressed"` and
+     * firing `execute()` if the button was pressed.
+     *
+     * @param {qx.event.type.KeySequence} e Keyboard event object.
+     * @protected
+     */
+    _onKeyUp(e) {
+      const key = e.getKeyIdentifier();
+      if (key === "Enter" || key === "Space") {
+        if (this.hasState("pressed")) {
+          this.release();
+          if (!this.hasState("disabled")) {
+            this.execute();
+          }
+        }
+        e.preventDefault();
+        e.stopPropagation();
+      }
     }
   },
 
   /**
-   * Disposes the internal `qx.html.Text` node on widget destruction[span_131](start_span)[span_131](end_span).
+   * Disposes the internal `qx.html.Text` node on widget destruction.
    */
   destruct() {
     if (this.__textNode) {

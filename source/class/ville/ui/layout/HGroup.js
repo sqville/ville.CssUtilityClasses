@@ -3,13 +3,11 @@
  */
 qx.Class.define("ville.ui.layout.HGroup", {
     
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Box,
 
-    include: qx.ui.core.MChildrenHandling,
+    construct(justify, component) {
 
-    construct(justify) {
-
-        super();
+        super(component);
 
         if (justify != null) {
             this.setJustify(justify);

@@ -1,4 +1,4 @@
-qx.Mixin.define("ville.cssuc.patch.MWidgetNewold", {
+qx.Mixin.define("ville.cssuc.patch.MWidgetOld", {
 
   properties :
   {

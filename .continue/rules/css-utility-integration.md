@@ -1,3 +1,9 @@
+---
+name: CSS Utility Integration
+description: Guidelines for integrating modern CSS utility tokens and frameworks into ville.CssUtilityClasses on qooxdoo v7.9.3
+alwaysApply: true
+---
+
 # Project Goal & Active Patches: ville.CssUtilityClasses
 
 You are an expert AI assisting in the development of `ville.CssUtilityClasses` running on qooxdoo v7.9.3.
@@ -40,6 +46,22 @@ This project operates in three distinct modes controlled by environment variable
   2. **Use Native Qooxdoo States & `_syncModifierState` (No `setVuiModifier`):** Because `ville.ui.core.Widget` owns `this.__states` directly, do not use `setVuiModifier` or `_villeuiStates`. Define design modifiers (`variant`, `size`, `radius`, `iconPosition`, `fullWidth`) as `themeable: true` properties and translate them to states inside their `_apply*` methods using `this._syncModifierState(prefix, value, old)` or `addState` / `removeState` / `replaceState`.
   3. **Keep Widgets CSS-Engine Agnostic:** Widget classes (`ville.ui.form.Button`, etc.) must only manage behavior, child controls, accessibility (`aria-*`), and Qooxdoo states (`hovered`, `pressed`, `abandoned`, `focused`, `disabled`, `loading`, `variant-*`, `size-*`, `radius-*`). Never hardcode framework-specific `data-*` attributes or CSS class names inside widget classes.
   4. **Delegate Visual Tokens to CSS & Appearance Themes:** Appearance themes map widget states into `cssUtilityClass` and `cssStates` (`set-attributes`, `set-classes`, `set-styles`), while component stylesheets (e.g., `ButtonVui.css`) resolve visual tokens natively via `[data-variant]`, `[data-size]`, and CSS custom properties.
+
+#### Property Routing Rule: State-Driven Modifiers vs. Direct DOM Properties
+
+When adding properties to any `ville.ui.*` widget in Mode 3, classify the property into one of three categories:
+
+1. **Visual & Layout Modifiers $\rightarrow$ Route Through Widget States (`_syncModifierState`)**
+   - **Examples:** `variant`, `size`, `radius`, `color`, `orientation`, `iconPosition`, `fullWidth`, `loading`.
+   - **Why:** Different CSS engines represent these differently (Mantine uses `data-*` attributes and `--button-*` CSS variables; Tailwind uses utility classes; Carbon/Tabler use BEM classes). Converting these properties into framework-neutral states (`variant-outline`, `size-lg`, `radius-md`) via `this._syncModifierState(prefix, value, old)` keeps widget classes 100% engine-agnostic, enables cross-state rules inside `style(states)`, and coalesces multi-property updates into a single microtask `syncAppearance()` pass.
+
+2. **Appearance Output Properties $\rightarrow$ Direct DOM Delta-Diffing (`themeable: true`)**
+   - **Examples:** `cssUtilityClass`, `cssStates`.
+   - **Why:** These are the target transport properties that `syncAppearance()` writes *to* via `setThemedCssUtilityClass()` and `setThemedCssStates()`. Routing them through widget states would be circular.
+
+3. **Universal W3C / HTML Primitives $\rightarrow$ Direct DOM Mutation in `_apply*`**
+   - **Examples:** `ariaRole`, `enabled` (`disabled` / `aria-disabled`), `visibility`, `anonymous` (`pointer-events`), `href`, `type`.
+   - **Why:** Standard HTML attributes, WAI-ARIA roles/states, and browser layout primitives (`display: none`, `pointer-events: none`) behave identically across all CSS frameworks and require no Appearance theme translation.
 
 ---
 

@@ -60,7 +60,7 @@ qx.Class.define("ville.ui.application.Standalone", {
       var cssstr = rules.join(" ");
       qx.ui.style.Stylesheet.getInstance().addRule(".ville-popover", cssstr);
 
-      // Call super class[span_187](start_span)[span_187](end_span)
+      // Call super class
       super.main();
     },
 

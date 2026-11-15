@@ -82,7 +82,147 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       }
     },
 
-    //"label-form": {},
+    vstack: {
+      style() {
+        return {
+          cssUtilityClass: `m_6d731127${qx.core.Environment.get("qx.debug") ? ' mantine-Stack-root' : ''}`
+        };
+      }
+    },
+
+    "layout-center": {
+      style(states) {
+        const attrs = {};
+        const classes = [];
+        const styles = {};
+
+        // 1. Disabled / Loading states
+        if (states.inline) {
+          attrs["data-inline"] = "true";
+        }
+
+        return {
+          cssUtilityClass: `m_4451eb3a${qx.core.Environment.get("qx.debug") ? ' mantine-Center-root' : ''}`,
+          cssStates: {
+            "set-attributes": attrs,
+            "set-classes": classes,
+            "set-styles": styles
+          },
+          inline: states.inline ? true : false
+        };
+      }
+    },
+
+    "typography-title": {
+      style() {
+        return {
+          cssUtilityClass: `m_8a5d1357${qx.core.Environment.get("qx.debug") ? ' mantine-Title-root' : ''}`
+        };
+      }
+    },
+
+    "typography-text": {
+      style(states) {
+        const setAttrs = {};
+        const setStyles = {};
+
+        // Size -> --text-fz, --text-lh
+        for (const size of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["size-" + size]) {
+            setAttrs["data-size"] = size;
+            setStyles["--text-fz"] = `var(--mantine-font-size-${size})`;
+            setStyles["--text-lh"] = `var(--mantine-line-height-${size})`;
+            break;
+          }
+        }
+
+        // Truncate -> data-truncate
+        for (const mode of ["true", "start", "end"]) {
+          if (states["truncate-" + mode]) {
+            setAttrs["data-truncate"] = mode;
+            break;
+          }
+        }
+
+        // Text wrap -> --text-text-wrap
+        for (const wrap of ["wrap", "nowrap", "balance", "pretty", "stable"]) {
+          if (states["textWrap-" + wrap]) {
+            setStyles["--text-text-wrap"] = wrap;
+            break;
+          }
+        }
+
+        // Boolean flags -> data-line-clamp, data-inline, data-inherit
+        if (states.lineClamp) {
+          setAttrs["data-line-clamp"] = true;
+        }
+        if (states.inline) {
+          setAttrs["data-inline"] = true;
+        }
+        if (states.inherit) {
+          setAttrs["data-inherit"] = true;
+        }
+        if (states["variant-gradient"]) {
+          setAttrs["data-variant"] = "gradient";
+        }
+
+        return {
+          cssUtilityClass: "m_b6d8b162 mantine-Text-root",
+          cssStates: {
+            "set-attributes": setAttrs,
+            "set-styles": setStyles
+          }
+        };
+      }
+    },
+
+
+    "anchor": {
+      style(states) {
+        let underline = "hover";
+        if (states["underline-always"]) {
+          underline = "always";
+        } else if (states["underline-not-hover"]) {
+          underline = "not-hover";
+        } else if (states["underline-never"]) {
+          underline = "never";
+        }
+        // m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label
+        return {
+          cssUtilityClass: `m_8fdc1311${qx.core.Environment.get("qx.debug") ? ' mantine-InputWrapper-label mantine-TextInput-label' : ''}`,
+          cssStates: {
+            "set-attributes": {
+              "data-underline": underline
+            }
+          }
+        };
+      }
+    },
+
+    "form-label": {
+      style(states) {
+        let size = "xs";
+        for (const token of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["size-" + token]) {
+            size = token;
+            break;
+          }
+        }
+
+        return {
+          cssUtilityClass: "m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label",
+          cssStates: {
+            "set-attributes": {
+              "data-size": size
+            },
+            "set-styles": {
+              "--input-label-size": `var(--mantine-font-size-${size})`
+            }
+          }
+        };
+      }
+    },
+
 
 
     /*

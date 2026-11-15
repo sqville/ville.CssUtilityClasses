@@ -1,5 +1,6 @@
 /**
- * Abstract base class for GUI applications using qooxdoo widgets.
+ * Mode 3 abstract base class for GUI applications (`ville.ui.application.AbstractGui`),
+ * decoupled from `qx.ui.core.queue.Manager` and legacy Qooxdoo layout engines.
  *
  * @require(qx.core.Init)
  */
@@ -7,7 +8,7 @@ qx.Class.define("ville.ui.application.AbstractGui", {
   type: "abstract",
   extend: qx.core.Object,
   implement: [qx.application.IApplication],
-  include: qx.locale.MTranslation,
+  include: [qx.locale.MTranslation],
 
   /*
   *****************************************************************************
@@ -16,14 +17,15 @@ qx.Class.define("ville.ui.application.AbstractGui", {
   */
 
   members: {
-    /** @type {ville.ui.core.Widget} The root widget */
+    /** @type {ville.ui.core.Widget|null} The root widget */
     __root: null,
 
     /**
      * Create the root widget. This method is abstract and must be overridden
-     * by sub classes.
+     * by subclasses.
      *
-     * @return {ville.ui.core.Widget} The root widget.
+     * @returns {ville.ui.core.Widget} The root widget.
+     * @protected
      */
     _createRootWidget() {
       throw new Error("Abstract method call");
@@ -32,7 +34,7 @@ qx.Class.define("ville.ui.application.AbstractGui", {
     /**
      * Returns the application's root widget.
      *
-     * @return {ville.ui.core.Widget} The application's root widget.
+     * @returns {ville.ui.core.Widget|null} The application's root widget.
      */
     getRoot() {
       return this.__root;
@@ -40,17 +42,12 @@ qx.Class.define("ville.ui.application.AbstractGui", {
 
     // interface method
     main() {
-      // Initialize themes
+      // Initialize configured Meta/Appearance themes
       qx.theme.manager.Meta.getInstance().initialize();
-
-      // Initialize tooltip manager
-      
-      // @ai-todo Consider removing since ville.ui uses Popover API
-      //qx.ui.tooltip.Manager.getInstance();
 
       this.__root = this._createRootWidget();
 
-      // make sure we start with a good scroll position
+      // Ensure initial viewport starts at top-left
       window.scrollTo(0, 0);
     },
 
@@ -60,21 +57,35 @@ qx.Class.define("ville.ui.application.AbstractGui", {
     },
 
     /**
-     * Updates the GUI rendering
-     * @ai-todo Look into the need to have qx.ui.core.queue.Manager.flush();
+     * Flushes buffered `qx.html.Element` virtual DOM mutations to the live DOM.
      */
     render() {
-      qx.ui.core.queue.Manager.flush();
+      qx.html.Element.flush();
     },
 
-    // interface method
+    /**
+     * Called before the application closes.
+     *
+     * @param {string} [val] Optional unload value.
+     * @returns {string|undefined} Optional browser confirmation prompt text.
+     */
     close(val) {
-      // empty
+      return undefined;
     },
 
     // interface method
     terminate() {
       // empty
     }
+  },
+
+  /*
+  *****************************************************************************
+     DESTRUCTOR
+  *****************************************************************************
+  */
+
+  destruct() {
+    this._disposeObjects("__root");
   }
 });
