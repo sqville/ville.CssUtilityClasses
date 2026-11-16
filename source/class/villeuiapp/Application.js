@@ -167,6 +167,7 @@ qx.Class.define("villeuiapp.Application",
       const mainArea = new ville.ui.core.Box("main")
       mainArea.setCssUtilityClass("m_8983817 mantine-AppShell-main");
       
+      // ---- ville.ui.form.Button -----
       const icon = new ville.ui.icon.fluent.Airplane(26);
       const btn = new ville.ui.form.Button("Execute Me", icon);
       // Application listening directly to framework custom event
@@ -174,6 +175,35 @@ qx.Class.define("villeuiapp.Application",
         btn.setLabel("Executed!");
         btn.setEnabled(false);
       });
+
+      
+      // ---- ville.ui.core.Divider -----
+
+      var dividerPopups = new ville.ui.core.Divider("Dropdown, Popup testing").set({size: "xl"});
+
+      // ---- ville.ui.form.MenuButton & ville.ui.menu.Menu -----
+
+      // Menu
+      var btnMenu = new ville.ui.menu.Menu();
+      btnMenu.setStyles({
+        "transition-property": "opacity",
+        "backface-visibility": "hidden",
+        "transition-duration": "150ms",
+        "transition-timing-function": "ease"
+      });
+
+      var menuitem01 = new ville.ui.menu.Button("Update Works");
+      menuitem01.setStyle("white-space", "nowrap");
+      var menuitem02 = new ville.ui.menu.Button("Toggle Enabled");
+      menuitem02.setStyle("white-space", "nowrap");
+      btnMenu.add(menuitem01);
+      btnMenu.add(menuitem02);
+
+      // MenuButton
+      var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
+      btnMenuButton.setMenu(btnMenu);
+
+
 
       const centerArea = new ville.ui.layout.Center();
       const vstack = new ville.ui.layout.VStack("center");

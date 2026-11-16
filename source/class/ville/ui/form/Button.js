@@ -1,13 +1,4 @@
 /**
- * Mode 3 CSS-driven Button widget (`ville.ui.form.Button`).
- *
- * Features a flattened DOM architecture (a single `<button>` or `<a>` root
- * element containing a direct `qx.html.Text` node and optional inline `<svg>` /
- * `<img>` icon sibling) styled via `ButtonVui.css` and Qooxdoo Appearance themes
- * without legacy Mantine wrapper `<span>` nodes or `QxLayout` calculations.
- *
- * @childControl label {ville.ui.basic.Label} Anonymous label control synchronizing text to `qx.html.Text`.
- * @childControl icon {ville.ui.basic.Image|ville.ui.core.Widget} Anonymous icon widget or image element.
  *
  * @example
  * const btn = new ville.ui.form.Button("Save Changes", new ville.ui.icon.tabler.Check());
@@ -265,7 +256,7 @@ qx.Class.define("ville.ui.form.Button", {
       let control;
 
       switch (id) {
-        case "label": {
+        case "label":
           const initialText = this.getLabel();
           control = new ville.ui.basic.Label(initialText);
           control.setAnonymous(true);
@@ -291,9 +282,8 @@ qx.Class.define("ville.ui.form.Button", {
           }
 
           break;
-        }
 
-        case "icon": {
+        case "icon":
           const iconVal = this.getIcon();
           if (iconVal instanceof ville.ui.core.Widget) {
             control = iconVal;
@@ -312,7 +302,7 @@ qx.Class.define("ville.ui.form.Button", {
           }
 
           break;
-        }
+        
       }
 
       return control || super._createChildControlImpl(id, hash);
@@ -527,7 +517,7 @@ qx.Class.define("ville.ui.form.Button", {
     /**
      * Registers DOM pointer, focus, and keyboard listeners on the button via
      * `Widget`'s transparent event delegation to synchronize interactive Qooxdoo
-     * states (`hovered`, `pressed`, `focused`) and trigger `execute()`.
+     * states (`pressed`, `focused`) and trigger `execute()`.
      *
      * @protected
      */
@@ -554,19 +544,6 @@ qx.Class.define("ville.ui.form.Button", {
         return;
       }
       this.execute();
-    },
-
-    /**
-     * Handles `"pointerover"` events by activating the `"hovered"` state.
-     *
-     * @param {qx.event.type.Pointer} e Pointer event object.
-     * @protected
-     */
-    _onPointerOver(e) {
-      if (this.hasState("disabled")) {
-        return;
-      }
-      this.addState("hovered");
     },
 
     /**

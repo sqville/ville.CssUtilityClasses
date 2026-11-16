@@ -50,18 +50,64 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       }
     },
 
-    divider: {
-      style() {
+    "divider": {
+      style(states) {
+        const setAttrs = {
+          "data-orientation": states["orientation-vertical"] ? "vertical" : "horizontal"
+        };
+        const setStyles = {};
+
+        if (states.withLabel) {
+          setAttrs["data-with-label"] = "true";
+        }
+
+        if (states["variant-dashed"]) {
+          setAttrs["data-variant"] = "dashed";
+        } else if (states["variant-dotted"]) {
+          setAttrs["data-variant"] = "dotted";
+        }
+
+        for (const size of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["size-" + size]) {
+            setAttrs["data-size"] = size;
+            setStyles["--divider-size"] = `var(--divider-size-${size})`;
+            break;
+          }
+        }
+
+        for (const spacing of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["spacing-" + spacing]) {
+            setStyles["margin-block"] = `var(--mantine-spacing-${spacing})`;
+            break;
+          }
+        }
+
         return {
-          cssUtilityClass: `m_3eebeb36${qx.core.Environment.get("qx.debug") ? ' mantine-Divider-root' : ''}`
+          cssUtilityClass: "m_3eebeb36 mantine-Divider-root",
+          cssStates: {
+            "set-attributes": setAttrs,
+            "set-styles": setStyles
+          }
         };
       }
     },
 
     "divider/label": {
-      style() {
+      style(states) {
+        let position = "center";
+        if (states["position-left"]) {
+          position = "left";
+        } else if (states["position-right"]) {
+          position = "right";
+        }
+
         return {
-          cssUtilityClass: `m_9e365f20${qx.core.Environment.get("qx.debug") ? ' mantine-Divider-label' : ''}`
+          cssUtilityClass: "m_9e365f20 mantine-Divider-label",
+          cssStates: {
+            "set-attributes": {
+              "data-position": position
+            }
+          }
         };
       }
     },

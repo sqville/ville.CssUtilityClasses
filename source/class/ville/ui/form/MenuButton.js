@@ -3,152 +3,36 @@
  */
 qx.Class.define("ville.ui.form.MenuButton", {
     
-    extend: qx.ui.form.MenuButton,
+    extend: ville.ui.form.Button,
 
-    construct(label, icon, menu, variant) {
+    construct(label, icon, menu) {
 
-        this._contentElementTag = "button";
-
-        super();
-
-        if (label != null)
-            this.setLabel(label);
-
-        if (icon != null) {
-            if (qx.lang.Type.isString(icon)) {
-                this.setIcon(icon);
-            } else {
-                this.setInlineIcon(icon);
-                this._createChildControl("inlineicon");
-            }
-        }
+        super(label, icon, null, "button");
 
         if (menu != null)
             this.setMenu(menu);
-
-        if (variant != null)
-            this.setVariant(variant);
-        else 
-            this.initVariant();
 
     },
 
     properties: {
 
-        variant: {
-            init: "default",
-            check: ["default", "filled", "light", "outline", "subtle", "transparent", "white"],
-            apply: "_applyVariant",
-            themeable: true,
-            event: "changeVariant"
+        /** The menu instance to show when tapping on the button */
+        menu: {
+            check: "ville.ui.menu.Menu",
+            nullable: true,
+            apply: "_applyMenu",
+            event: "changeMenu"
         },
 
-        inlineIcon: {
-            check: "qx.ui.core.Widget",
-            apply: "_applyInlineIcon",
-            nullable: true,
-            themeable: true,
-            event: "changeInlineIcon"
+        // overridden
+        appearance: {
+            refine: true,
+            init: "menubutton"
         }
         
     },
 
     members: {
-
-        __textNode : null,
-
-        // overridden
-        _createChildControlImpl(id, hash) {
-            var control;
-            //var innerwrapper;
-
-            switch (id) {
-
-                case "label":
-                    control = new qx.ui.basic.Label(this.getLabel()); //new ville.ui.basic.LabelFlat(this.getLabel());
-                    control.setAnonymous(true);
-                    this.__textNode = new qx.html.Text(this.getLabel());
-                    this.getContentElement().add(this.__textNode);
-                    control.addListener("changeValue", function(e) {
-                        this.__textNode.setText(e.getData(), true);
-                    }, this);
-                    break;
-                
-                case "inlineicon":
-                    control = this.getInlineIcon();
-                    control.setAnonymous(true);
-                    this._addAt(control, 0);
-                    if (control == null || this.getShow() === "label")
-                        control.exclude();
-                    
-                    break;
-
-                /*case "innerwrapper":
-                    control = new ville.ui.core.InnerWrapper();
-                    control.setCssUtilityClass("m_80f1301b mantine-Button-inner");
-                    this._add(control);
-                    break;
-                
-                case "label":
-                    control = new ville.ui.basic.Label();
-                    control.setAnonymous(true);
-                    control.setSelectable(this.getSelectable());
-                    control.setCssUtilityClass("m_811560b9 mantine-Button-label");
-                    innerwrapper = this.getChildControl("innerwrapper");
-                    innerwrapper.add(control);
-                    break;*/
-
-            }
-
-            return control || super._createChildControlImpl(id);
-        },
-
-        // property apply
-        _applyVariant(value, old) {
-            if (value)
-                this.setAttribute("data-variant", value);
-        },
-
-        // property apply
-        _applyInlineIcon (value, old) 
-        {
-            if (this.getIcon() != null) {
-                value.exclude();
-            } else {
-                if (old)
-                    this._removeAt(0);
-                    
-                if (value)
-                    this.getChildControl("inlineicon", true);
-
-            }
-        },
-
-        // overridden
-        _handleIcon() {
-            if (this.getIcon() == null || this.getShow() === "label")
-                this._excludeChildControl("icon");
-            else
-                this._showChildControl("icon");
-
-            if (this.getInlineIcon() == null || this.getShow() === "label") {
-                this._excludeChildControl("inlineicon");
-            } else {
-                if (this.getIcon() == null)
-                    this._showChildControl("inlineicon");
-            }
-        },
-
-        // overridden
-        /*_applyLabel(value, old) {
-            var innerwrapper = this.getChildControl("innerwrapper");
-            if (innerwrapper) {
-                var label = this.getChildControl("label");
-                if (label) {
-                    label.setValue(value);
-                }
-            }
-        },*/
 
         // overridden
         _applyMenu(value, old) {
@@ -178,25 +62,137 @@ qx.Class.define("ville.ui.form.MenuButton", {
                 value.getContentElement().getAttribute("id")
                 );
 
-                if (qx.core.Environment.get("ville.cssLayout")) {
-                    /**
-                     * Supports Popover API
-                     */
-                    contentEl.setAttribute("popovertarget", value.getContentElement().getAttribute("id"), true);
-                    contentEl.setAttribute("popovertargetaction", "show", true);
-                    value.getContentElement().setAttribute("popover", "auto", true);
-                }
+                contentEl.setAttribute("popovertarget", value.getContentElement().getAttribute("id"), true);
+                contentEl.setAttribute("popovertargetaction", "show", true);
+                value.getContentElement().setAttribute("popover", "auto", true);
 
             } else {
                 contentEl.removeAttribute("aria-haspopup");
                 contentEl.removeAttribute("aria-expanded");
                 contentEl.removeAttribute("aria-controls");
 
-                if (qx.core.Environment.get("ville.cssLayout")) {
-                    contentEl.removeAttribute("popovertarget");
-                    contentEl.removeAttribute("popovertargetaction");
+                contentEl.removeAttribute("popovertarget");
+                contentEl.removeAttribute("popovertargetaction");
+            }
+        },
+
+        /**
+         * Positions and shows the attached menu widget.
+         *
+         * @param selectFirst {Boolean?false} Whether the first menu button should be selected
+         */
+        open(selectFirst) {
+            var menu = this.getMenu();
+
+            if (menu) {
+                // Focus this button when the menu opens
+                /*if (
+                this.isFocusable() &&
+                !qx.ui.core.FocusHandler.getInstance().isFocused(this)
+                ) {
+                    this.focus();
+                }
+                // Hide all menus first
+                qx.ui.menu.Manager.getInstance().hideAll();
+                */
+
+                // Open the attached menu
+                menu.setOpener(this);
+                menu.open();
+
+                // Select first item
+                if (selectFirst) {
+                    var first = menu.getSelectables()[0];
+                    if (first) {
+                        menu.setSelectedButton(first);
+                    }
                 }
             }
+        },
+
+        /*
+        ---------------------------------------------------------------------------
+        EVENT LISTENERS
+        ---------------------------------------------------------------------------
+        */
+
+        /**
+         * Listener for visibility property changes of the attached menu
+         *
+         * @param e {qx.event.type.Data} Property change event
+         */
+        _onMenuChange(e) {
+            var menu = this.getMenu();
+            const menuVisible = menu.isVisible();
+            if (menuVisible) {
+                this.addState("pressed");
+            } else {
+                this.removeState("pressed");
+            }
+
+            // ARIA attrs
+            this.getContentElement().setAttribute("aria-expanded", menuVisible);
+        },
+
+        // overridden
+        _onPointerDown(e) {
+            // call the base function to get into the capture phase [BUG #4340]
+            super._onPointerDown(e);
+
+            // only open on left clicks [BUG #5125]
+            if (e.getButton() != "left") {
+                return;
+            }
+
+            var menu = this.getMenu();
+            if (menu) {
+                // Toggle sub menu visibility
+                if (!menu.isVisible()) {
+                    this.open();
+                } else {
+                    menu.exclude();
+                }
+
+                // Event is processed, stop it for others
+                e.stopPropagation();
+            }
+        },
+
+        // overridden
+        _onPointerUp(e) {
+            // call base for firing the execute event
+            super._onPointerUp(e);
+
+            // Just stop propagation to stop menu manager
+            // from getting the event
+            e.stopPropagation();
+        },
+
+        // overridden
+        _onKeyDown(e) {
+        switch (e.getKeyIdentifier()) {
+            case "Space":
+            case "Enter":
+            this.removeState("abandoned");
+            this.addState("pressed");
+
+            var menu = this.getMenu();
+            if (menu) {
+                // Toggle sub menu visibility
+                if (!menu.isVisible()) {
+                this.open();
+                } else {
+                menu.exclude();
+                }
+            }
+
+            e.stopPropagation();
+        }
+        },
+
+        // overridden
+        _onKeyUp(e) {
+        // no action required here
         }
 
     }

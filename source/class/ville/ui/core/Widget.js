@@ -127,18 +127,8 @@ qx.Class.define("ville.ui.core.Widget", {
       init: null,
       themeable: true,
       apply: "_applyCssStates"
-    },
-
-    /**
-     * Visual variant modifier (e.g., `"filled"`, `"default"`, `"outline"`, `"subtle"`).
-     * Automatically synchronizes the mutually exclusive `"variant-<value>"` widget state.
-     */
-    variant: {
-      check: "String",
-      nullable: true,
-      themeable: true,
-      apply: "_applyVariant"
     }
+
   },
 
   members: {
