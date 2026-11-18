@@ -22,6 +22,16 @@ The primary mission of this project is to integrate external modern UI framework
 
 This project operates in three distinct modes controlled by environment variables set in `compile.json` and the target application base classes. Always check these flags and class hierarchies when generating or modifying code:
 
+## Semantic HTML First (Ville UI Mode 3 Only)
+
+> **Scope:** Apply this rule **exclusively** to **Ville UI Mode 3** (`ville.ui.*` and `villeuiapp.*`). **Do not** apply it to legacy Mode 1/2 applications (`mantineapp`, `qxapp`, `shadcnapp`, `tablerapp`, `twindapp`, `carbonapp`, `villewebsite`) or legacy `qx.ui.*` widget patches (`ville.cssuc.patch.*`).
+
+Treat **Semantic HTML** as a high-weight **go-to heuristic** (a primary decision variable, not a rigid ban on `<div>`/`<span>`) when designing or refactoring Mode 3 widgets and layouts:
+
+- **Semantic Root Elements:** Return the most specific native HTML tag directly from `_createContentElement()` (`<button>`, `<a>`, `<img>`, `<dialog>`, `<label>`, `<input>`, `<h1>`–`<h6>`, `<hr>`) instead of wrapping it inside a `<div>`.
+- **Avoid "Div Soup":** Flatten Mode 3 widget DOM trees to a single root element whenever possible. Expose a polymorphic `component` property on layout and text primitives (`Box`, `Stack`, `Group`, `Container`, `Text`) so callers can render `<nav>`, `<main>`, `<section>`, `<article>`, `<header>`, `<footer>`, or `<ul>`/`<li>` directly without extra wrapper `<div>`s.
+- **Native AOM & First Rule of ARIA:** Rely on native semantic elements to build the browser's Accessibility Object Model (AOM) and supply built-in keyboard/focus behavior (`Enter`/`Space` on `<button>`, `Escape` on `<dialog>`). Omit redundant `role` and `tabindex` attributes on native tags; fall back to `<div>`/`<span>` with explicit ARIA roles (`role="menu"`, `role="tablist"`) only when a composite widget or purely visual layout container has no semantic HTML equivalent.
+
 ### Mode 1: Hybrid Approach (Qooxdoo Layouts + CSS Styling)
 
 - **Trigger:** `qx.core.Environment.get("ville.cssEngine") == "mantine"` (or `"tailwindcss"` or `"scss"`) AND `ville.cssLayout` is `false`.

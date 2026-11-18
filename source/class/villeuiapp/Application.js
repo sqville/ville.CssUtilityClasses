@@ -211,6 +211,8 @@ qx.Class.define("villeuiapp.Application",
 
       vstack.add(titleh1);
       vstack.add(btn);
+      vstack.add(dividerPopups);
+      vstack.add(btnMenuButton);
       centerArea.add(vstack);
       mainArea.add(centerArea);
 

@@ -1,116 +1,96 @@
 /**
- * The menu is a popup like control which supports buttons. It comes
- * with full keyboard navigation and an improved timeout based pointer
- * control behavior.
+ * Mode 3 Menu widget (`ville.ui.menu.Menu`) backed by the native HTML Popover API
+ * (`popover="auto"`).
  *
+ * Eliminates `qx.ui.menu.Manager`, `MPlacement`, `Blocker`, and `MenuSlideBar` in favor
+ * of top-layer popover promotion, native light-dismiss, and CSS overflow scrolling.
+ * 
+ * @external(ville/ville-menu.css)
  */
 qx.Class.define("ville.ui.menu.Menu", {
   extend: ville.ui.core.Box,
 
   construct() {
+    // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
 
-    // Automatically add to application's root
-    var root = this.getApplicationRoot();
-    root.add(this);
+    qx.core.Init.getApplication().getRoot().add(this);
 
-    // ARIA attrs
+    /*const app = qx.core.Init.getApplication();
+    if (app && typeof app.getRoot === "function") {
+      app.getRoot().add(this);
+    }*/
+
     this.setAriaRole("menu");
 
-    // @ai-todo Should we have id as a property?
-    this.getContentElement().setAttribute("id", "menu-" + this.toHashCode());
+    const contentEl = this.getContentElement();
+    contentEl.setAttribute("id", "menu-" + this.toHashCode());
+    contentEl.setAttribute("popover", "auto");
 
-    // Register pointer listeners
-    this.addListener("pointerover", this._onPointerOver);
-    this.addListener("pointerout", this._onPointerOut);
+    contentEl.addListener("toggle", this._onPopoverToggle, this);
+    this.addListener("pointerover", this._onPointerOver, this);
+    this.addListener("pointerout", this._onPointerOut, this);
+  },
 
-    // add resize listener
-    //this.addListener("resize", this._onResize, this);
-    //root.addListener("resize", this._onResize, this);
-
-    //this._blocker = new qx.ui.core.Blocker(root);
-
-    // Initialize properties
-    this.initVisibility();
-   // this.initKeepFocus();
-   // this.initKeepActive();
+  events: {
+    /**
+     * Fired when the native popover `toggle` event transitions between `"open"` and `"closed"`.
+     * Data payload: `{ newState: "open"|"closed", oldState: "open"|"closed", open: boolean }`.
+     */
+    toggle: "qx.event.type.Data"
   },
 
   properties: {
-    /*
-    ---------------------------------------------------------------------------
-      WIDGET PROPERTIES
-    ---------------------------------------------------------------------------
-    */
-
-    // overridden
+    /**
+     * Appearance selector ID resolved against the active theme (defaults to `"menu"`).
+     */
     appearance: {
       refine: true,
       init: "menu"
     },
 
-    // overridden
-    visibility: {
-      refine: true,
-      init: "excluded"
+    /**
+     * Whether the menu popover is currently open in the browser's top layer.
+     */
+    open: {
+      check: "Boolean",
+      init: false,
+      apply: "_applyOpen",
+      event: "changeOpen"
     },
 
-    // overridden
-    /*keepFocus: {
-      refine: true,
-      init: true
-    },
-
-    // overridden
-    keepActive: {
-      refine: true,
-      init: true
-    },*/
-
-
-    /*
-    ---------------------------------------------------------------------------
-      FUNCTIONALITY PROPERTIES
-    ---------------------------------------------------------------------------
-    */
-
-    /** The currently selected button */
+    /**
+     * The currently highlighted/selected menu button.
+     */
     selectedButton: {
-      check: "ville.ui.core.Widget",
+      check: "ville.ui.core.AbstractButton",
       nullable: true,
-      apply: "_applySelectedButton"
+      apply: "_applySelectedButton",
+      event: "changeSelectedButton"
     },
 
-    /** The currently opened button (sub menu is visible) */
+    /**
+     * The menu button whose submenu is currently open.
+     */
     openedButton: {
-      check: "ville.ui.core.Widget",
+      check: "ville.ui.core.AbstractButton",
       nullable: true,
-      apply: "_applyOpenedButton"
+      apply: "_applyOpenedButton",
+      event: "changeOpenedButton"
     },
 
-    /** Widget that opened the menu */
+    /**
+     * Button widget that opened this menu (`ville.ui.form.MenuButton` or `ville.ui.menu.Button`).
+     */
     opener: {
-      check: "ville.ui.core.Widget",
+      check: "ville.ui.core.AbstractButton",
       nullable: true,
-      apply: "_applyOpener"
+      apply: "_applyOpener",
+      event: "changeOpener"
     }
-
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
-    __scheduledOpen: null,
-    __onAfterSlideBarAdd: null,
-    _placementTarget: null,
-
-    /** blocker for background blocking */
-    _blocker: null,
-
     /*
     ---------------------------------------------------------------------------
       PUBLIC API
@@ -118,145 +98,185 @@ qx.Class.define("ville.ui.menu.Menu", {
     */
 
     /**
-     * Opens the menu and configures the opener
+     * Opens the menu popover in the browser top layer.
+     *
+     * @this {ville.ui.menu.Menu}
      */
     open() {
-      if (this.getOpener() != null) {
-       // var isPlaced = this.placeToWidget(this.getOpener(), true);
-       // if (isPlaced) {
-
-       // @ai-todo Can we manage overflow via CSS? This is what __updateSlideBar does for qooxdoo
-       //   this.__updateSlideBar();
-        this.show();
-
-       //   this._placementTarget = this.getOpener();
-       // } else {
-       //   this.warn(
-       //     "Could not open menu instance because 'opener' widget is not visible"
-       //   );
-       // }
-      } else {
-        this.warn("The menu instance needs a configured 'opener' widget!");
-      }
+      this.setOpen(true);
     },
 
     /**
-     * Opens the menu at the pointer position
+     * Closes the menu popover.
      *
-     * @param e {qx.event.type.Pointer} Pointer event to align to
+     * @this {ville.ui.menu.Menu}
+     */
+    close() {
+      this.setOpen(false);
+    },
+
+    /**
+     * Opens the menu as a context menu at the pointer's viewport coordinates
+     * using CSS custom properties (`--menu-x`, `--menu-y`).
+     *
+     * @this {ville.ui.menu.Menu}
+     * @param {qx.event.type.Pointer|MouseEvent} e Pointer or native `contextmenu` event.
      */
     openAtPointer(e) {
-      //this.placeToPointer(e);
-      //this.__updateSlideBar();
-      this.show();
-
-      /*this._placementTarget = {
-        left: e.getDocumentLeft(),
-        top: e.getDocumentTop()
-      };*/
+      const x = typeof e.getDocumentLeft === "function" ? e.getDocumentLeft() : e.clientX;
+      const y = typeof e.getDocumentTop === "function" ? e.getDocumentTop() : e.clientY;
+      this.openAtPoint({ left: x, top: y });
     },
 
     /**
-     * Opens the menu in relation to the given point
+     * Opens the menu at explicit `{ left, top }` viewport coordinates.
      *
-     * @param point {Map} Coordinate of any point with the keys <code>left</code>
-     *   and <code>top</code>.
+     * @this {ville.ui.menu.Menu}
+     * @param {{ left: number, top: number }} point Viewport coordinates.
      */
     openAtPoint(point) {
-      //this.placeToPoint(point);
-      //this.__updateSlideBar();
-      this.show();
-
-      this._placementTarget = point;
+      const contentEl = this.getContentElement();
+      contentEl.setStyle("--menu-x", `${point.left}px`);
+      contentEl.setStyle("--menu-y", `${point.top}px`);
+      this.addState("contextmenu");
+      this.setOpen(true);
     },
 
     /**
-     * Convenience method to add a separator to the menu
+     * Appends a Mode 3 `ville.ui.core.Divider` separator to the menu.
+     *
+     * @this {ville.ui.menu.Menu}
+     * @returns {ville.ui.core.Divider} The added divider widget.
      */
     addSeparator() {
-      const separator = new ville.ui.core.Widget();
-      separator.setCssUtilityClass("m_efdf90cb mantine-Menu-divider");
+      const separator = new ville.ui.core.Divider();
+      separator.setAppearance("menu-separator");
       this.add(separator);
+      return separator;
     },
 
     /**
-     * Return all selectable menu items.
+     * Returns all enabled `AbstractButton` items inside this menu.
      *
-     * @return {ville.ui.core.Widget[]} selectable widgets
+     * @this {ville.ui.menu.Menu}
+     * @returns {ville.ui.core.AbstractButton[]} Selectable menu buttons.
      */
     getSelectables() {
-      var result = [];
-      var children = this.getChildren();
+      const result = [];
+      const children = this.getChildren();
 
-      for (var i = 0; i < children.length; i++) {
-        if (children[i].isEnabled()) {
-          result.push(children[i]);
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (child instanceof ville.ui.core.AbstractButton && child.isEnabled()) {
+          result.push(child);
         }
       }
 
       return result;
     },
 
-    /*
-    // overridden
-    _applyVisibility(value, old) {
-      super._applyVisibility(value, old);
-
-      //@ai-todo Can we track menu instances using Popover API?
-      //var mgr = qx.ui.menu.Manager.getInstance();
-
-      if (value === "visible") {
-        // Register to manager (zIndex handling etc.)
-        mgr.add(this);
-
-        // Mark opened in parent menu
-        var parentMenu = this.getParentMenu();
-        if (parentMenu) {
-          parentMenu.setOpenedButton(this.getOpener());
-        }
-      } else if (old === "visible") {
-        // Deregister from manager (zIndex handling etc.)
-        mgr.remove(this);
-
-        // Unmark opened in parent menu
-        var parentMenu = this.getParentMenu();
-        if (parentMenu && parentMenu.getOpenedButton() == this.getOpener()) {
-          parentMenu.resetOpenedButton();
-        }
-
-        // Clear properties
-        this.resetOpenedButton();
-        this.resetSelectedButton();
-      }
-
-      this.__updateBlockerVisibility();
-    },
-    */
-
     /**
-     * Get the parent menu. Returns <code>null</code> if the menu doesn't have a
-     * parent menu.
+     * Returns the enclosing parent `ville.ui.menu.Menu` if this menu is a submenu,
+     * or `null` if it is a root menu.
      *
-     * @return {ville.ui.core.Widget|null} The parent menu.
+     * @this {ville.ui.menu.Menu}
+     * @returns {ville.ui.menu.Menu|null} Enclosing parent menu or `null`.
      */
     getParentMenu() {
-      var widget = this.getOpener();
-      /*if (!widget || !(widget instanceof qx.ui.menu.AbstractButton)) {
-        return null;
-      }*/
-
-      // @ai-todo Need to figure out how to handle Context Menus / Popups for Mode 3
-      /*if (widget && widget.getContextMenu() === this) {
+      let widget = /** @type {ville.ui.core.Widget|null} */ (this.getOpener());
+      if (!widget) {
         return null;
       }
 
       while (widget && !(widget instanceof ville.ui.menu.Menu)) {
-        widget = widget.getLayoutParent();
-      }*/
-      return widget;
+        widget = widget.getParent();
+      }
+      return /** @type {ville.ui.menu.Menu|null} */ (widget);
     },
 
-    // property apply
+
+    /*
+    ---------------------------------------------------------------------------
+      POPOVER SYNCHRONIZATION & PROPERTY APPLIERS
+    ---------------------------------------------------------------------------
+    */
+
+    /**
+     * Synchronizes native `ToggleEvent` state changes (`newState === "open"`)
+     * back into the `open` property and parent menu state.
+     *
+     * @this {ville.ui.menu.Menu}
+     * @param {qx.event.type.Native} e Native `toggle` event wrapper.
+     * @protected
+     */
+    _onPopoverToggle(e) {
+      const nativeEvent = /** @type {ToggleEvent} */ (e.getNativeEvent());
+      const newState = nativeEvent.newState;
+      const oldState = nativeEvent.oldState;
+      const isOpen = newState === "open";
+
+      if (this.getOpen() !== isOpen) {
+        this.setOpen(isOpen);
+      }
+
+      const parentMenu = this.getParentMenu();
+      if (isOpen) {
+        if (parentMenu) {
+          parentMenu.setOpenedButton(this.getOpener());
+        }
+      } else {
+        if (parentMenu && parentMenu.getOpenedButton() === this.getOpener()) {
+          parentMenu.resetOpenedButton();
+        }
+        this.resetOpenedButton();
+        this.resetSelectedButton();
+      }
+
+      this.fireDataEvent("toggle", {
+        newState,
+        oldState,
+        open: isOpen
+      });
+    },
+
+    /**
+     * Property apply handler for `open`. Calls `showPopover()` / `hidePopover()`
+     * only when out of sync with `:popover-open`.
+     *
+     * @this {ville.ui.menu.Menu}
+     * @param {boolean} value Whether the menu should be open.
+     * @protected
+     */
+    _applyOpen(value) {
+      if (value) {
+        this.addState("open");
+      } else {
+        this.removeState("open");
+      }
+
+      const domEl = /** @type {HTMLElement|null} */ (
+        this.getContentElement().getDomElement()
+      );
+      if (!domEl || !domEl.isConnected) {
+        return;
+      }
+
+      const isCurrentlyOpen = domEl.matches(":popover-open");
+      if (value && !isCurrentlyOpen) {
+        domEl.showPopover();
+      } else if (!value && isCurrentlyOpen) {
+        domEl.hidePopover();
+      }
+    },
+
+    /**
+     * Property apply handler for `selectedButton`.
+     *
+     * @this {ville.ui.menu.Menu}
+     * @param {ville.ui.core.AbstractButton|null} value Newly selected item.
+     * @param {ville.ui.core.AbstractButton|null} old Previously selected item.
+     * @protected
+     */
     _applySelectedButton(value, old) {
       if (old) {
         old.removeState("selected");
@@ -265,8 +285,6 @@ qx.Class.define("ville.ui.menu.Menu", {
         value.addState("selected");
       }
 
-      // @ai-todo Should we move all ARIA into ville.ui.core.Widget properties?
-      // ARIA attrs
       const opener = this.__getRootOpener();
       const contentEl = opener
         ? opener.getContentElement()
@@ -274,38 +292,54 @@ qx.Class.define("ville.ui.menu.Menu", {
       if (!contentEl) {
         return;
       }
+
       const valueContentEl = value ? value.getContentElement() : null;
-      if (valueContentEl) {
-        contentEl.setAttribute(
-          "aria-activedescendant",
-          valueContentEl.getAttribute("id")
-        );
+      const itemId = valueContentEl ? valueContentEl.getAttribute("id") : null;
+      if (itemId) {
+        contentEl.setAttribute("aria-activedescendant", itemId);
       } else {
         contentEl.removeAttribute("aria-activedescendant");
       }
     },
 
-    // property apply
+    /**
+     * Property apply handler for `openedButton`.
+     *
+     * @this {ville.ui.menu.Menu}
+     * @param {ville.ui.core.AbstractButton|null} value Menu button whose submenu is opening.
+     * @param {ville.ui.core.AbstractButton|null} old Previous menu button whose submenu was open.
+     * @protected
+     */
     _applyOpenedButton(value, old) {
-      if (old && old.getMenu()) {
-        old.getMenu().exclude();
+      if (old && typeof old.getMenu === "function" && old.getMenu()) {
+        old.getMenu().close();
       }
-
-      if (value) {
+      if (value && typeof value.getMenu === "function" && value.getMenu()) {
         value.getMenu().open();
       }
     },
 
-    // property apply
-    _applyOpener(value, old) {
-      // ARIA attrs
+    /**
+     * Property apply handler for `opener`. Links `aria-labelledby` to the opener's `id`.
+     *
+     * @this {ville.ui.menu.Menu}
+     * @param {ville.ui.core.AbstractButton|null} value Opener button.
+     * @protected
+     */
+    _applyOpener(value) {
       const contentEl = this.getContentElement();
       if (!contentEl) {
         return;
       }
+
       if (value && value.getContentElement()) {
-        contentEl.setAttribute("aria-labelledby", "");
-        this.addAriaLabelledBy(value);
+        const openerEl = value.getContentElement();
+        let openerId = openerEl.getAttribute("id");
+        if (!openerId) {
+          openerId = "menu-opener-" + value.toHashCode();
+          openerEl.setAttribute("id", openerId);
+        }
+        contentEl.setAttribute("aria-labelledby", openerId);
       } else {
         contentEl.removeAttribute("aria-labelledby");
       }
@@ -313,255 +347,72 @@ qx.Class.define("ville.ui.menu.Menu", {
 
     /*
     ---------------------------------------------------------------------------
-    SCROLLING SUPPORT
-    ---------------------------------------------------------------------------
-    */
-
-    // overridden
-    // @ai-todo Can CSS handle all menu overflow? Commenting out for now.
-    /*getChildrenContainer() {
-      return this.getChildControl("slidebar", true) || this;
-    },*/
-
-    // overridden
-    _createChildControlImpl(id, hash) {
-      var control;
-
-      switch (id) {
-        // @ai-todo I don't want to include a child div just because Qooxdoo does it, and Mantine is very thin (follow's Mode 3). But not sure how to handle this. 
-        case "slidebar":
-          //var control = new qx.ui.menu.MenuSlideBar();
-          var control = this;
-
-          var children = qx.lang.Array.clone(this.getChildren());
-          for (var i = 0; i < children.length; i++) {
-            //control.add(children[i]);
-            control._add(children[i]);
-          }
-
-          //this._add(control);
-
-          break;
-      }
-
-      return control || super._createChildControlImpl(id);
-    },
-
-    /**
-     * Get the menu bounds
-     *
-     * @return {Map} The menu bounds
-     */
-    /*_getMenuBounds() {
-      if (this.hasChildControl("slidebar")) {
-        return this.getChildControl("slidebar")
-          .getChildrenContainer()
-          .getBounds();
-      } else {
-        return this.getBounds();
-      }
-    },*/
-
-    /**
-     * Computes the size of the menu. This method is used by the
-     * {@link qx.ui.core.MPlacement} mixin.
-     * @return {Map} The menu bounds
-     */
-    /*_computePlacementSize() {
-      return this._getMenuBounds();
-    },*/
-
-    /**
-     * Updates the visibility of the slidebar based on the menu's current size
-     * and position.
-     */
-    /*__updateSlideBar() {
-      var menuBounds = this._getMenuBounds();
-      if (!menuBounds) {
-        this.addListenerOnce("resize", this.__updateSlideBar, this);
-        return;
-      }
-
-      var rootHeight = this.getLayoutParent().getBounds().height;
-      var top = this.getLayoutProperties().top;
-      var left = this.getLayoutProperties().left;
-
-      // Adding the slidebar must be deferred because this call can happen
-      // during the layout flush, which make it impossible to move existing
-      // layout to the slidebar
-      if (top < 0) {
-        this._assertSlideBar(function () {
-          this.setHeight(menuBounds.height + top);
-          this.moveTo(left, 0);
-        });
-      } else if (top + menuBounds.height > rootHeight) {
-        this._assertSlideBar(function () {
-          this.setHeight(rootHeight - top);
-        });
-      } else {
-        this.setHeight(null);
-      }
-    },*/
-
-    /**
-     * Schedules the addition of the slidebar and calls the given callback
-     * after the slidebar has been added.
-     *
-     * @param callback {Function} the callback to call
-     * @return {var|undefined} The return value of the callback if the slidebar
-     * already exists, or <code>undefined</code> if it doesn't
-     */
-    /*_assertSlideBar(callback) {
-      if (this.hasChildControl("slidebar")) {
-        return callback.call(this);
-      }
-
-      this.__onAfterSlideBarAdd = callback;
-      qx.ui.core.queue.Widget.add(this);
-    },*/
-
-    // overridden
-    /*syncWidget(jobs) {
-      this.getChildControl("slidebar");
-      if (this.__onAfterSlideBarAdd) {
-        this.__onAfterSlideBarAdd.call(this);
-        delete this.__onAfterSlideBarAdd;
-      }
-    },*/
-
-    /*
-    ---------------------------------------------------------------------------
-      EVENT HANDLING
+      POINTER HOVER SELECTION & SUBMENU COORDINATION
     ---------------------------------------------------------------------------
     */
 
     /**
-     * Gets called when a child is added. Sets ARIA attrs
-     * @param {*} child
-     */
-    /*_afterAddChild(child) {
-      // Some childs, e.g. Seperators, are no meaningful menu items
-      if (child instanceof qx.ui.menu.AbstractButton) {
-        const contentEl = child.getContentElement();
-        contentEl.setAttribute("id", "menu-item-" + child.toHashCode());
-        contentEl.setAttribute("role", "menuitem");
-      }
-    },*/
-
-    /**
-     * Update position if the menu or the root is resized
-     */
-    /*_onResize() {
-      if (this.isVisible()) {
-        var target = this._placementTarget;
-        if (!target) {
-          return;
-        } else if (target instanceof qx.ui.core.Widget) {
-          this.placeToWidget(target, true);
-        } else if (target.top !== undefined) {
-          this.placeToPoint(target);
-        } else {
-          throw new Error("Unknown target: " + target);
-        }
-        this.__updateSlideBar();
-      }
-    },*/
-
-    /**
-     * Event listener for pointerover event.
+     * Highlights hovered menu buttons and opens/closes nested submenus directly.
      *
-     * @param e {qx.event.type.Pointer} pointerover event
+     * @this {ville.ui.menu.Menu}
+     * @param {qx.event.type.Pointer} e Pointerover event.
+     * @protected
      */
     _onPointerOver(e) {
-      // Cache manager
-      var mgr = qx.ui.menu.Manager.getInstance();
-
-      // Be sure this menu is kept
-      mgr.cancelClose(this);
-
-      // Change selection
-      var target = e.getTarget();
-      if (target.isEnabled() && target instanceof qx.ui.menu.AbstractButton) {
-        // Select button directly
+      const target = e.getTarget();
+      if (
+        target instanceof ville.ui.core.AbstractButton &&
+        target.isEnabled()
+      ) {
         this.setSelectedButton(target);
 
-        var subMenu = target.getMenu && target.getMenu();
+        const subMenu =
+          typeof target.getMenu === "function" ? target.getMenu() : null;
         if (subMenu) {
-          subMenu.setOpener(target);
-
-          // Finally schedule for opening
-          mgr.scheduleOpen(subMenu);
-
-          // Remember scheduled menu for opening
-          this.__scheduledOpen = subMenu;
-        } else {
-          var opened = this.getOpenedButton();
-          if (opened) {
-            mgr.scheduleClose(opened.getMenu());
-          }
-
-          if (this.__scheduledOpen) {
-            mgr.cancelOpen(this.__scheduledOpen);
-            this.__scheduledOpen = null;
-          }
+          this.setOpenedButton(target);
+        } else if (this.getOpenedButton()) {
+          this.resetOpenedButton();
         }
       } else if (!this.getOpenedButton()) {
-        // When no button is opened reset the selection
-        // Otherwise keep it
         this.resetSelectedButton();
       }
     },
 
     /**
-     * Event listener for pointerout event.
+     * Clears highlight selection when the pointer leaves the menu unless a
+     * submenu remains open.
      *
-     * @param e {qx.event.type.Pointer} pointerout event
+     * @this {ville.ui.menu.Menu}
+     * @param {qx.event.type.Pointer} e Pointerout event.
+     * @protected
      */
     _onPointerOut(e) {
-      // Cache manager
-      var mgr = qx.ui.menu.Manager.getInstance();
-
-      // Detect whether the related target is out of the menu
-      if (!qx.ui.core.Widget.contains(this, e.getRelatedTarget())) {
-        // Update selected property
-        // Force it to the open sub menu in cases where that is opened
-        // Otherwise reset it. Menus which are left by the cursor should
-        // not show any selection.
-        var opened = this.getOpenedButton();
-        opened ? this.setSelectedButton(opened) : this.resetSelectedButton();
-
-        // Cancel a pending close request for the currently
-        // opened sub menu
-        if (opened) {
-          mgr.cancelClose(opened.getMenu());
-        }
-
-        // When leaving this menu to the outside, stop
-        // all pending requests to open any other sub menu
-        if (this.__scheduledOpen) {
-          mgr.cancelOpen(this.__scheduledOpen);
-        }
+      const related = e.getRelatedTarget();
+      if (related instanceof ville.ui.core.Widget && related.getParent() === this) {
+        return;
+      }
+      const opened = this.getOpenedButton();
+      if (opened) {
+        this.setSelectedButton(opened);
+      } else {
+        this.resetSelectedButton();
       }
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      HELPER FUNCTIONS
-    ---------------------------------------------------------------------------
-    */
 
     /**
-     * Get the opener of the root/the first parent menu.
-     * parent menu.
+     * Walks up the parent menu chain to find the root opener button.
      *
-     * @return {ville.ui.core.Widget|null} The opener.
+     * @this {ville.ui.menu.Menu}
+     * @returns {ville.ui.core.AbstractButton|null} Root opener widget.
+     * @private
      */
     __getRootOpener() {
       let parentMenu = this.getParentMenu();
       if (!parentMenu) {
         return this.getOpener();
       }
-      let opener;
+      let opener = null;
       while (parentMenu) {
         opener = parentMenu.getOpener();
         parentMenu = parentMenu.getParentMenu();
@@ -570,19 +421,12 @@ qx.Class.define("ville.ui.menu.Menu", {
     }
   },
 
-  /*
-  *****************************************************************************
-     DESTRUCTOR
-  *****************************************************************************
-  */
-
   destruct() {
-    /*if (!qx.core.ObjectRegistry.inShutDown) {
-      qx.ui.menu.Manager.getInstance().remove(this);
-    }*/
-
-    //this.getApplicationRoot().removeListener("resize", this._onResize, this);
-    this._placementTarget = null;
-    //this._disposeObjects("_blocker");
+    const contentEl = this.getContentElement();
+    if (contentEl) {
+      contentEl.removeListener("toggle", this._onPopoverToggle, this);
+    }
+    this.removeListener("pointerover", this._onPointerOver, this);
+    this.removeListener("pointerout", this._onPointerOut, this);
   }
 });

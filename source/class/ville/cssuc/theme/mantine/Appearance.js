@@ -444,13 +444,29 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
     ---------------------------------------------------------------------------
     */
 
+    //m_38a85659 mantine-Menu-dropdown m_dc9b7c9f
     menu: {
+      style(states) {
+        return {
+          cssUtilityClass: `m_38a85659${qx.core.Environment.get("qx.debug") ? ' mantine-Menu-dropdown' : ''} m_dc9b7c9f ville-menu-dropdown`,
+          cssStates: {
+            "set-attributes": {
+              "data-open": states.open ? "true" : null,
+              "data-submenu": states.submenu ? "true" : null,
+              "data-contextmenu": states.contextmenu ? "true" : null
+            }
+          }
+        };
+      }
+    },
+
+    /*menu: {
       style() {
         return {
           cssUtilityClass: `m_38a85659 mantine-Menu-dropdown m_dc9b7c9f${qx.core.Environment.get("ville.cssLayout") ? ' ville-popover' : ''}`
         };
       }
-    },
+    },*/
 
     "menu/slidebar": "menu-slidebar",
 
@@ -464,10 +480,55 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
     "menu-separator": {},
 
-    "menu-button": {
+    /*"menu-button": {
       style() {
         return {
           cssUtilityClass: "mantine-focus-auto m_99ac2aa1 mantine-Menu-item m_87cf2631 mantine-UnstyledButton-root"
+        };
+      }
+    },*/
+
+    
+    "menu-button": {
+      style(states) {
+
+        // mantine-focus-auto m_99ac2aa1 mantine-Menu-item m_87cf2631 mantine-UnstyledButton-root
+        // ville-menu-item
+
+        const cssucs = `mantine-focus-auto m_99ac2aa1${qx.core.Environment.get("qx.debug") ? ' mantine-Menu-item' : ''} m_87cf2631${qx.core.Environment.get("qx.debug") ? ' mantine-UnstyledButton-root' : ''}`
+
+        return {
+          cssUtilityClass: cssucs,
+          cssStates: {
+            "set-attributes": {
+              "data-hovered": states.selected ? "true" : null,
+              "data-disabled": states.disabled ? "true" : null
+            }
+          }
+        };
+      }
+    },
+
+    "menu-button/shortcut": {
+      style() {
+        return {
+          cssUtilityClass: "m_599a2148 mantine-Menu-itemSection ville-menu-item-shortcut"
+        };
+      }
+    },
+
+    "menu-button/arrow": {
+      style() {
+        return {
+          cssUtilityClass: "m_599a2148 mantine-Menu-itemSection ville-menu-item-arrow"
+        };
+      }
+    },
+
+    "menu-separator": {
+      style() {
+        return {
+          cssUtilityClass: "m_efdf90cb mantine-Menu-divider"
         };
       }
     },
@@ -965,7 +1026,18 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
     "hover-button": "button",
 
-    menubutton: "button",
+    menubutton: {
+      include: "button",
+      style(states) {
+        return {
+          cssStates: {
+            "set-attributes": {
+              "data-expanded": states.pressed ? "true" : null
+            }
+          }
+        };
+      }
+    },
 
     /*menubutton: {
     include: "button-frame",

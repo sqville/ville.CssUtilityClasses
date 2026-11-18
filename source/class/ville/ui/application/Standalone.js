@@ -49,8 +49,11 @@ qx.Class.define("ville.ui.application.Standalone", {
         // Hook for optional Mantine-specific application initialization[span_185](start_span)[span_185](end_span)
       }
 
+      // Call super class
+      super.main();
+
       // Inject CSS Anchor Positioning rules for HTML Popover API overlays[span_186](start_span)[span_186](end_span)
-      var rules = [
+      /*var rules = [
         "margin: 0;",
         "inset: auto;",
         "position-area: var(--ville-popover-position-area, bottom center);",
@@ -58,10 +61,8 @@ qx.Class.define("ville.ui.application.Standalone", {
         "position-try-order: var(--ville-popover-position-try-order, most-height);"
       ];
       var cssstr = rules.join(" ");
-      qx.ui.style.Stylesheet.getInstance().addRule(".ville-popover", cssstr);
-
-      // Call super class
-      super.main();
+      qx.ui.style.Stylesheet.getInstance().addRule(".ville-popover", cssstr);*/
+      
     },
 
     /**

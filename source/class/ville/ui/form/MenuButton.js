@@ -1,199 +1,128 @@
+// @ts-check
+
 /**
- * Menu Button
+ * Mode 3 Menu Opener Button (`ville.ui.form.MenuButton`) that declaratively controls
+ * a `ville.ui.menu.Menu` popover via the native HTML `popovertarget` attribute.
  */
 qx.Class.define("ville.ui.form.MenuButton", {
-    
-    extend: ville.ui.form.Button,
+  extend: ville.ui.form.Button,
 
-    construct(label, icon, menu) {
+  /**
+   * Creates a new MenuButton opener.
+   *
+   * @param {string|null} [label] Button caption.
+   * @param {string|ville.ui.core.Widget|null} [icon] Button icon.
+   * @param {ville.ui.menu.Menu|null} [menu] Attached `ville.ui.menu.Menu` popover.
+   */
+  construct(label, icon, menu) {
+    // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
+    super(label, icon, null);
 
-        super(label, icon, null, "button");
-
-        if (menu != null)
-            this.setMenu(menu);
-
-    },
-
-    properties: {
-
-        /** The menu instance to show when tapping on the button */
-        menu: {
-            check: "ville.ui.menu.Menu",
-            nullable: true,
-            apply: "_applyMenu",
-            event: "changeMenu"
-        },
-
-        // overridden
-        appearance: {
-            refine: true,
-            init: "menubutton"
-        }
-        
-    },
-
-    members: {
-
-        // overridden
-        _applyMenu(value, old) {
-            if (old) {
-                old.removeListener("changeVisibility", this._onMenuChange, this);
-                old.resetOpener();
-            }
-
-            if (value) {
-                value.addListener("changeVisibility", this._onMenuChange, this);
-                value.setOpener(this);
-
-                value.removeState("submenu");
-                value.removeState("contextmenu");
-            }
-
-            // ARIA attrs
-            const contentEl = this.getContentElement();
-            if (!contentEl) {
-                return;
-            }
-            if (value) {
-                contentEl.setAttribute("aria-haspopup", "menu");
-                contentEl.setAttribute("aria-expanded", value.isVisible());
-                contentEl.setAttribute(
-                "aria-controls",
-                value.getContentElement().getAttribute("id")
-                );
-
-                contentEl.setAttribute("popovertarget", value.getContentElement().getAttribute("id"), true);
-                contentEl.setAttribute("popovertargetaction", "show", true);
-                value.getContentElement().setAttribute("popover", "auto", true);
-
-            } else {
-                contentEl.removeAttribute("aria-haspopup");
-                contentEl.removeAttribute("aria-expanded");
-                contentEl.removeAttribute("aria-controls");
-
-                contentEl.removeAttribute("popovertarget");
-                contentEl.removeAttribute("popovertargetaction");
-            }
-        },
-
-        /**
-         * Positions and shows the attached menu widget.
-         *
-         * @param selectFirst {Boolean?false} Whether the first menu button should be selected
-         */
-        open(selectFirst) {
-            var menu = this.getMenu();
-
-            if (menu) {
-                // Focus this button when the menu opens
-                /*if (
-                this.isFocusable() &&
-                !qx.ui.core.FocusHandler.getInstance().isFocused(this)
-                ) {
-                    this.focus();
-                }
-                // Hide all menus first
-                qx.ui.menu.Manager.getInstance().hideAll();
-                */
-
-                // Open the attached menu
-                menu.setOpener(this);
-                menu.open();
-
-                // Select first item
-                if (selectFirst) {
-                    var first = menu.getSelectables()[0];
-                    if (first) {
-                        menu.setSelectedButton(first);
-                    }
-                }
-            }
-        },
-
-        /*
-        ---------------------------------------------------------------------------
-        EVENT LISTENERS
-        ---------------------------------------------------------------------------
-        */
-
-        /**
-         * Listener for visibility property changes of the attached menu
-         *
-         * @param e {qx.event.type.Data} Property change event
-         */
-        _onMenuChange(e) {
-            var menu = this.getMenu();
-            const menuVisible = menu.isVisible();
-            if (menuVisible) {
-                this.addState("pressed");
-            } else {
-                this.removeState("pressed");
-            }
-
-            // ARIA attrs
-            this.getContentElement().setAttribute("aria-expanded", menuVisible);
-        },
-
-        // overridden
-        _onPointerDown(e) {
-            // call the base function to get into the capture phase [BUG #4340]
-            super._onPointerDown(e);
-
-            // only open on left clicks [BUG #5125]
-            if (e.getButton() != "left") {
-                return;
-            }
-
-            var menu = this.getMenu();
-            if (menu) {
-                // Toggle sub menu visibility
-                if (!menu.isVisible()) {
-                    this.open();
-                } else {
-                    menu.exclude();
-                }
-
-                // Event is processed, stop it for others
-                e.stopPropagation();
-            }
-        },
-
-        // overridden
-        _onPointerUp(e) {
-            // call base for firing the execute event
-            super._onPointerUp(e);
-
-            // Just stop propagation to stop menu manager
-            // from getting the event
-            e.stopPropagation();
-        },
-
-        // overridden
-        _onKeyDown(e) {
-        switch (e.getKeyIdentifier()) {
-            case "Space":
-            case "Enter":
-            this.removeState("abandoned");
-            this.addState("pressed");
-
-            var menu = this.getMenu();
-            if (menu) {
-                // Toggle sub menu visibility
-                if (!menu.isVisible()) {
-                this.open();
-                } else {
-                menu.exclude();
-                }
-            }
-
-            e.stopPropagation();
-        }
-        },
-
-        // overridden
-        _onKeyUp(e) {
-        // no action required here
-        }
-
+    if (menu != null) {
+      this.setMenu(menu);
     }
-  });
+  },
+
+  properties: {
+    /**
+     * Appearance selector ID resolved against the active theme (defaults to `"menubutton"`).
+     */
+    appearance: {
+      refine: true,
+      init: "menubutton"
+    },
+
+    /**
+     * The `ville.ui.menu.Menu` popover instance controlled by this button.
+     */
+    menu: {
+      check: "ville.ui.menu.Menu",
+      nullable: true,
+      apply: "_applyMenu",
+      event: "changeMenu"
+    }
+  },
+
+  members: {
+    /**
+     * Property apply handler for `menu`. Wires `popovertarget` and ARIA menu-button
+     * attributes (`aria-haspopup`, `aria-controls`, `aria-expanded`) to the menu's DOM `id`.
+     *
+     * @this {ville.ui.form.MenuButton}
+     * @param {ville.ui.menu.Menu|null} value New menu popover.
+     * @param {ville.ui.menu.Menu|null} old Previous menu popover.
+     * @protected
+     */
+    _applyMenu(value, old) {
+      if (old) {
+        old.removeListener("changeOpen", this._onMenuOpenChange, this);
+        old.resetOpener();
+      }
+
+      const contentEl = this.getContentElement();
+      if (!contentEl) {
+        return;
+      }
+
+      if (value) {
+        value.setOpener(this);
+        value.removeState("submenu");
+        value.removeState("contextmenu");
+        value.addListener("changeOpen", this._onMenuOpenChange, this);
+
+        const menuId = value.getContentElement().getAttribute("id");
+        contentEl.setAttribute("popovertarget", menuId);
+        contentEl.setAttribute("aria-haspopup", "menu");
+        contentEl.setAttribute("aria-controls", menuId);
+        contentEl.setAttribute("aria-expanded", String(value.getOpen()));
+      } else {
+        contentEl.removeAttribute("popovertarget");
+        contentEl.removeAttribute("aria-haspopup");
+        contentEl.removeAttribute("aria-controls");
+        contentEl.removeAttribute("aria-expanded");
+      }
+    },
+
+    /**
+     * Programmatically opens the attached menu popover and optionally selects
+     * the first enabled item.
+     *
+     * @this {ville.ui.form.MenuButton}
+     * @param {boolean} [selectFirst=false] Whether to select the first enabled item.
+     */
+    open(selectFirst = false) {
+      const menu = this.getMenu();
+      if (!menu) {
+        return;
+      }
+
+      menu.setOpener(this);
+      menu.open();
+
+      if (selectFirst) {
+        const first = menu.getSelectables()[0];
+        if (first) {
+          menu.setSelectedButton(first);
+        }
+      }
+    },
+
+    /**
+     * Synchronizes the button's `"pressed"` state and `aria-expanded` attribute
+     * whenever the attached `Menu` popover opens or closes.
+     *
+     * @this {ville.ui.form.MenuButton}
+     * @param {qx.event.type.Data} e `changeOpen` data event from `ville.ui.menu.Menu`.
+     * @protected
+     */
+    _onMenuOpenChange(e) {
+      const isOpen = Boolean(e.getData());
+      if (isOpen) {
+        this.addState("pressed");
+      } else {
+        this.removeState("pressed");
+      }
+      this.getContentElement().setAttribute("aria-expanded", String(isOpen));
+    }
+  }
+});

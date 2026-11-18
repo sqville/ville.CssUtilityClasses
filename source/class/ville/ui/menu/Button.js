@@ -1,60 +1,53 @@
 /**
- * Menu Button
- * @ai-instructions Since popovers are involved this must be a button. Do not include component logic
- * @ai-instructions Icon child control will always be to the left of the label. Do not include IconPosition
- * @ai-instructions This is the firt time I am extending an existing ville.ui widget. 
- * 
- * @childControl shortcut {ville.ui.basic.Label} shows if specified the shortcut
- * @childControl arrow {ville.ui.basic.Image|ville.ui.core.Widget|null} [icon] shows the arrow to show an additional widget (e.g. popup or submenu)
+ * Mode 3 Menu Item Button (`ville.ui.menu.Button`) rendered as `<button role="menuitem">`
+ * inside a `ville.ui.menu.Menu` popover.
+ *
+ * @childControl shortcut {ville.ui.basic.Label} Displays the bound command shortcut text.
+ * @childControl arrow {ville.ui.basic.Image|ville.ui.core.Widget} Submenu indicator icon on the right.
  */
 qx.Class.define("ville.ui.menu.Button", {
-  extend: ville.ui.form.Button,
+  extend: ville.ui.core.AbstractButton,
 
   /**
-   * Creates a new Button instance.
+   * Creates a new Menu Button instance.
    *
-   * @param {string|null} [label] Button text caption.
-   * @param {string|ville.ui.core.Widget|null} [icon] Image URI string or `ville.ui.core.Widget` icon instance (e.g., `ville.ui.icon.Abstract` subclass).
-   * @param {ville.ui.command.Command|null} [command] Command instance bound via `MExecutable`.
-   * @param {ville.ui.menu.Menu|null}.
-   * @param {string|ville.ui.core.Widget|null} [arrow] Image URI string or `ville.ui.core.Widget` icon instance (e.g., `ville.ui.icon.Abstract` subclass).
+   * @param {string|null} [label] Menu item text caption.
+   * @param {string|ville.ui.core.Widget|null} [icon] Left icon URI string or widget.
+   * @param {qx.ui.command.Command|null} [command] Command instance bound via `MExecutable`.
+   * @param {ville.ui.menu.Menu|null} [menu] Optional submenu popover.
+   * @param {string|ville.ui.core.Widget|null} [arrow] Optional right arrow icon for submenus.
    */
   construct(label, icon, command, menu, arrow) {
+    // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
+    super(label, icon, command);
 
-    super(label, icon, command, "button");
+    const contentEl = this.getContentElement();
+    contentEl.setAttribute("id", "menu-item-" + this.toHashCode());
+    this.setAriaRole("menuitem");
 
-    if (menu != null) {
-        this.setMenu(menu);
-    }
+    this.addListener("changeCommand", this._onChangeCommand, this);
 
     if (arrow !== undefined) {
       this.setArrow(arrow);
     }
 
-    // Set default accessible role
-    this.setAriaRole("button");
+    if (menu != null) {
+      this.setMenu(menu);
+    }
   },
 
   properties: {
-
     /**
      * Appearance selector ID resolved against the active theme (defaults to `"menu-button"`).
      */
     appearance: {
-        refine: true,
-        init: "menu-button"
+      refine: true,
+      init: "menu-button"
     },
 
     /**
-     * Whether the button expands to fill 100% of its container width (`data-block="true"`).
-     * Toggles the `"fullWidth"` widget state.
+     * Optional submenu popover (`ville.ui.menu.Menu`) controlled by this menu item.
      */
-    fullWidth: {
-      refine: true,
-      init: true
-    },
-
-    /** Whether a sub menu should be shown and which one */
     menu: {
       check: "ville.ui.menu.Menu",
       apply: "_applyMenu",
@@ -64,9 +57,7 @@ qx.Class.define("ville.ui.menu.Button", {
     },
 
     /**
-     * Arrow Icon displayed to the far right of the button label. Accepts either an image URI string
-     * (rendered via `ville.ui.basic.Image`) or a `ville.ui.core.Widget` instance
-     * (such as an inline SVG `ville.ui.icon.Abstract` subclass).
+     * Arrow icon displayed on the far right when a submenu is attached.
      *
      * @type {string|ville.ui.core.Widget|null}
      */
@@ -79,7 +70,9 @@ qx.Class.define("ville.ui.menu.Button", {
       themeable: true
     },
 
-    /** Indicates whether the label for the command (shortcut) should be visible or not. */
+    /**
+     * Whether the keyboard shortcut label from `command` is displayed.
+     */
     showCommandLabel: {
       check: "Boolean",
       apply: "_applyShowCommandLabel",
@@ -87,57 +80,38 @@ qx.Class.define("ville.ui.menu.Button", {
       init: true,
       event: "changeShowCommandLabel"
     }
-
   },
 
   members: {
-
-     /*
-    ---------------------------------------------------------------------------
-      USER API - overridden
-    ---------------------------------------------------------------------------
-    */
+    /** @type {any} @private */
+    __changeLocaleCommandListenerId: null,
 
     /**
-     * overridden
-     * Not used by Menu Buttons
-     */
-    press() {throw new Error("press is not supported in ville.ui.menu.Button.")},
-    release() {throw new Error("release is not supported in ville.ui.menu.Button.")},
-    reset() {throw new Error("reset is not supported in ville.ui.menu.Button.")},
-
-    /**
-     * ovrridden
-     * States automatically forwarded from the button to its `label` and `icon` child controls.
-     *
-     * @type {Object<string, boolean>}
+     * @override
+     * @type {Record<string, boolean>}
      * @protected
      * @lint ignoreReferenceField(_forwardStates)
      */
     _forwardStates: {
       disabled: true,
-      selected: 1
+      selected: true
     },
 
     /**
-     * Instantiates internal child controls (`"label"` and `"icon"`) on demand.
+     * Instantiates `"shortcut"` and `"arrow"` child controls in addition to
+     * `AbstractButton`'s `"label"` and `"icon"`.
      *
-     * - `"label"`: Creates an anonymous `ville.ui.basic.Label` and binds its
-     *   `changeValue` event to a lightweight `qx.html.Text` node.
-     * - `"icon"`: Uses the provided `ville.ui.core.Widget` or creates a
-     *   `ville.ui.basic.Image`, inserting it before or after `__textNode`.
-     *
-     * @param {string} id Child control identifier (`"label"` or `"icon"`).
-     * @param {*} [hash] Optional configuration map.
-     * @returns {ville.ui.core.Widget|null} Created child control instance.
+     * @this {ville.ui.menu.Button}
+     * @param {string} id Child control identifier.
+     * @param {Record<string, any>} [hash] Optional configuration map.
+     * @returns {ville.ui.core.Widget|null} Created child control.
      * @protected
      */
     _createChildControlImpl(id, hash) {
-      let control;
+      let control = null;
 
       switch (id) {
-
-      case "shortcut":
+        case "shortcut":
           control = new ville.ui.basic.Label();
           control.setAnonymous(true);
           if (!this.getShowCommandLabel()) {
@@ -146,18 +120,17 @@ qx.Class.define("ville.ui.menu.Button", {
           this._add(control);
           break;
 
-        case "arrow":
-          const arrowiconVal = this.getArrow();
-          if (arrowiconVal instanceof ville.ui.core.Widget) {
-            control = arrowiconVal;
+        case "arrow": {
+          const arrowVal = this.getArrow();
+          if (arrowVal instanceof ville.ui.core.Widget) {
+            control = arrowVal;
           } else {
-            control = new ville.ui.basic.Image(arrowiconVal);
+            control = new ville.ui.basic.Image(arrowVal);
           }
           control.setAnonymous(true);
           this._add(control);
           break;
-
-        
+        }
       }
 
       return control || super._createChildControlImpl(id, hash);
@@ -170,204 +143,189 @@ qx.Class.define("ville.ui.menu.Button", {
     */
 
     /**
-     * overridden
-     * Property apply handler for `iconPosition`.
+     * Property apply handler for `arrow`.
+     *
+     * @this {ville.ui.menu.Button}
+     * @param {string|ville.ui.core.Widget|null} value Arrow icon widget or URI.
+     * @param {string|ville.ui.core.Widget|null} old Previous arrow icon.
      * @protected
      */
-    _applyIconPosition(value, old) {
-        // @ai-todo Not sure how to best make sure that this says left for all menu button icons
-      this._syncModifierState("iconPosition", "left", old);
+    _applyArrow(value, old) {
+      if (value != null) {
+        const arrowCtrl = this.getChildControl("arrow");
+        if (value instanceof ville.ui.core.Widget) {
+          if (old instanceof ville.ui.core.Widget && old !== value) {
+            this._remove(old);
+            this._add(value);
+          }
+        } else if (typeof arrowCtrl.setSource === "function") {
+          arrowCtrl.setSource(value);
+        }
+      }
     },
 
     /**
-     * Property apply handler for `fullWidth`.
+     * Property apply handler for `menu`. Wires native `popovertarget` and ARIA
+     * attributes (`aria-haspopup`, `aria-expanded`, `aria-controls`) to the submenu.
+     *
+     * @this {ville.ui.menu.Button}
+     * @param {ville.ui.menu.Menu|null} value Submenu popover instance.
+     * @param {ville.ui.menu.Menu|null} old Previous submenu popover instance.
      * @protected
      */
-    _applyFullWidth(value, old) {
-        // @ai-todo I believe this should always stay at fullWidth within it's Menu
-      value ? this.addState("fullWidth") : this.removeState("fullWidth");
-    },
-
-    /**
-     * overridden
-     * Property apply handler for `loading`. Resets active press states, toggles
-     * `"loading"`, and locks interactive disabled attributes.
-     * @protected
-     */
-    _applyLoading(value, old) {
-        // @ai-todo Not sure how best to override since Menu buttons do not have a loading state.
-    },
-
-    // property apply
-    // @ai-todo Need to determine if Popover API fully covers this, besides adding/removing States
     _applyMenu(value, old) {
       if (old) {
-        old.removeListener("changeVisibility", this._onMenuChange, this);
-        
-        // @ai-todo Handled by Popover API?
+        old.removeListener("changeOpen", this._onMenuOpenChange, this);
         old.resetOpener();
-
         old.removeState("submenu");
       }
 
+      const contentEl = this.getContentElement();
+
       if (value) {
-        this._showChildControl("arrow");
-
-        value.addListener("changeVisibility", this._onMenuChange, this);
-
-        // @ai-todo Handled by Popover API?
-        value.setOpener(this);
-
+        if (this.getArrow() != null) {
+          this._showChildControl("arrow");
+        }
         value.addState("submenu");
+        value.setOpener(this);
+        value.addListener("changeOpen", this._onMenuOpenChange, this);
+
+        const menuId = value.getContentElement().getAttribute("id");
+        contentEl.setAttribute("popovertarget", menuId);
+        contentEl.setAttribute("aria-haspopup", "menu");
+        contentEl.setAttribute("aria-controls", menuId);
+        contentEl.setAttribute("aria-expanded", String(value.getOpen()));
       } else {
         this._excludeChildControl("arrow");
-      }
-
-      // ARIA attrs
-      // @ai-todo Need to determine if these aira values should be set via set remove Attribute since they get changed often (Property may be too heavy)
-      // @ai-todo Need to determin if id attribute should be Property or not.
-      const contentEl = this.getContentElement();
-      if (!contentEl) {
-        return;
-      }
-      if (value) {
-        contentEl.setAttribute("aria-haspopup", "menu");
-        contentEl.setAttribute("aria-expanded", value.isVisible());
-        contentEl.setAttribute(
-          "aria-controls",
-          value.getContentElement().getAttribute("id")
-        );
-      } else {
+        contentEl.removeAttribute("popovertarget");
         contentEl.removeAttribute("aria-haspopup");
-        contentEl.removeAttribute("aria-expanded");
         contentEl.removeAttribute("aria-controls");
+        contentEl.removeAttribute("aria-expanded");
       }
     },
 
     /**
-     * Listener for visibility property changes of the attached menu
+     * Synchronizes `aria-expanded` whenever the attached submenu's `open` state changes.
      *
-     * @param e {qx.event.type.Data} Property change event
-     * // @ai-todo Determine if this is needed at all since Popover API handles showing and hidding
+     * @this {ville.ui.menu.Button}
+     * @param {qx.event.type.Data} e `changeOpen` data event from `ville.ui.menu.Menu`.
+     * @protected
      */
-    _onMenuChange(e) {
-      // ARIA attrs
-      this.getContentElement().setAttribute(
-        "aria-expanded",
-        this.getMenu().isVisible()
-      );
+    _onMenuOpenChange(e) {
+      const isOpen = Boolean(e.getData());
+      this.getContentElement().setAttribute("aria-expanded", String(isOpen));
     },
 
-    // property apply
-    _applyShowCommandLabel(value, old) {
-      if (value) {
+    /**
+     * Property apply handler for `showCommandLabel`.
+     *
+     * @this {ville.ui.menu.Button}
+     * @param {boolean} value Whether the shortcut label is visible.
+     * @protected
+     */
+    _applyShowCommandLabel(value) {
+      if (value && this.getCommand() != null) {
         this._showChildControl("shortcut");
       } else {
         this._excludeChildControl("shortcut");
       }
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      EVENT BRIDGE INFRASTRUCTURE
-    ---------------------------------------------------------------------------
-    */
-
     /**
-     * overridden
-     * Registers DOM pointer, focus, and keyboard listeners on the button via
-     * `Widget`'s transparent event delegation to synchronize interactive Qooxdoo
-     * states (`hovered`, `pressed`, `focused`) and trigger `execute()`.
+     * Handles `"tap"` on a menu item. If this item is a leaf action (no submenu),
+     * fires `execute()` and closes the enclosing parent menu stack.
      *
+     * @override
+     * @this {ville.ui.menu.Button}
+     * @param {qx.event.type.Tap} e Tap event.
      * @protected
      */
-    _initEventBridge() {
-        // Add listeners
-        this.addListener("tap", this._onTap);
-        this.addListener("keypress", this._onKeyPress);
-
-        // Add command listener
-        this.addListener("changeCommand", this._onChangeCommand, this);
-    },
-
-    // overridden
     _onTap(e) {
-      if (e.isLeftPressed() && this.getMenu()) {
-        this.execute();
-        // don't close menus if the button is a sub menu button
-        this.getMenu().open();
+      if (this.hasState("disabled")) {
         return;
       }
 
-      super._onTap(e);
-    },
+      if (this.getMenu()) {
+        // Submenu trigger: native `popovertarget` handles toggling the submenu popover
+        return;
+      }
 
-    /**
-     * Event listener for keypress event
-     *
-     * @param e {qx.event.type.KeySequence} keypress event
-     */
-    _onKeyPress(e) {
       this.execute();
+
+      // Close enclosing root menu (which closes any nested submenus in the top layer)
+      let parent = this.getParent();
+      while (parent instanceof ville.ui.menu.Menu) {
+        const nextParent = parent.getParent();
+        parent.close();
+        parent = nextParent;
+      }
     },
 
     /**
-     * Event listener for command changes. Updates the text of the shortcut.
+     * Updates the `"shortcut"` child control whenever `command` changes.
      *
-     * @param e {qx.event.type.Data} Property change event
+     * @this {ville.ui.menu.Button}
+     * @param {qx.event.type.Data} e Property change event.
+     * @protected
      */
     _onChangeCommand(e) {
-      var command = e.getData();
-
-      // do nothing if no command is set
-      if (command == null) {
-        return;
-      }
+      const command = e.getData();
 
       if (qx.core.Environment.get("qx.dynlocale")) {
-        var oldCommand = e.getOldData();
-        if (!oldCommand) {
-          this.__changeLocaleCommandListenerId = qx.locale.Manager.getInstance().addListener(
-            "changeLocale",
-            this._onChangeLocale,
-            this
-          );
-        }
-        if (!command && this.__changeLocaleCommandListenerId) {
+        const oldCommand = e.getOldData();
+        if (command && !oldCommand) {
+          this.__changeLocaleCommandListenerId =
+            qx.locale.Manager.getInstance().addListener(
+              "changeLocale",
+              this._onChangeLocale,
+              this
+            );
+        } else if (!command && this.__changeLocaleCommandListenerId) {
           qx.locale.Manager.getInstance().removeListenerById(
             this.__changeLocaleCommandListenerId
           );
+          this.__changeLocaleCommandListenerId = null;
         }
       }
 
-      var cmdString = command != null ? command.toString() : "";
-      this.getChildControl("shortcut").setValue(cmdString);
+      if (command == null) {
+        this._excludeChildControl("shortcut");
+        return;
+      }
+
+      const cmdString = command.toString();
+      const shortcut = this.getChildControl("shortcut");
+      shortcut.setValue(cmdString);
+      if (this.getShowCommandLabel() && cmdString) {
+        shortcut.show();
+      } else {
+        shortcut.exclude();
+      }
     },
 
     /**
-     * Update command string on locale changes
+     * Updates the shortcut label on locale changes.
      */
     _onChangeLocale: qx.core.Environment.select("qx.dynlocale", {
-      true(e) {
-        var command = this.getCommand();
+      true() {
+        const command = this.getCommand();
         if (command != null) {
           this.getChildControl("shortcut").setValue(command.toString());
         }
       },
-
       false: null
     })
-
   },
 
-  /**
-   * Disposes the internal `qx.html.Text` node on widget destruction.
-   * @ai-todo Determine if a destruct is needed for this widget.
-   */
   destruct() {
-    if (this.__textNode) {
-      this.__textNode.dispose();
-      this.__textNode = null;
+    if (
+      qx.core.Environment.get("qx.dynlocale") &&
+      this.__changeLocaleCommandListenerId
+    ) {
+      qx.locale.Manager.getInstance().removeListenerById(
+        this.__changeLocaleCommandListenerId
+      );
+      this.__changeLocaleCommandListenerId = null;
     }
   }
 });

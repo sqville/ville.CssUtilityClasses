@@ -31,11 +31,9 @@ qx.Class.define("ville.ui.root.Application", {
 
     super();
 
-    // Eagerly materialize and bind the qx.html.Root element to document.body[span_8](start_span)[span_8](end_span)
+    // Eagerly materialize and bind the qx.html.Root element to document.body
     this.getContentElement();
 
-    // RESTORED: Activates the global focus manager for this root
-    // qx.ui.core.FocusHandler.getInstance().connectTo(this);
   },
 
   members: {
@@ -47,19 +45,19 @@ qx.Class.define("ville.ui.root.Application", {
 
     /**
      * Creates a `qx.html.Root` bound directly to `document.body` without
-     * inserting an intermediate container element[span_9](start_span)[span_9](end_span).
+     * inserting an intermediate container element.
      *
-     * @returns {qx.html.Root} Root virtual DOM element attached to `document.body`[span_10](start_span)[span_10](end_span).
+     * @returns {qx.html.Root} Root virtual DOM element attached to `document.body`.
      * @protected
      */
     _createContentElement() {
       var doc = this.__doc;
 
       // Hydration/Clean DOM approach: Bind directly to the document body
-      // instead of creating an arbitrary child div[span_11](start_span)[span_11](end_span).
+      // instead of creating an arbitrary child div.
       var root = new qx.html.Root(doc.body);
 
-      // Store reference to the widget in the DOM element[span_12](start_span)[span_12](end_span)
+      // Store reference to the widget in the DOM element
       root.connectObject(this);
 
       return root;

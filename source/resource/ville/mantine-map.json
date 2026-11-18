@@ -22,12 +22,11 @@
   "map": {
     "ville.ui.application.Standalone": ["baseline.css", "default-css-variables.css", "global.css", "AppShell.css"],
     "ville.ui.form.Button": ["UnstyledButton.css", "ButtonVui.css"],
-    "ville.ui.experimental.Button": ["UnstyledButton.css", "Button.css"],
+    "ville.ui.form.MenuButton": ["UnstyledButton.css", "ButtonVui.css"],
     "ville.ui.form.ToggleButton": ["Toggle.css"],
     "ville.ui.layout.Stack": ["Stack.css"],
     "ville.ui.basic.Image": ["Image.css"],
     "ville.ui.menu.Button": ["Menu.css"],
-    "ville.ui.menu.MenuButton": ["UnstyledButton.css", "Button.css"],
     "ville.ui.menu.Menu": ["Popover.css", "Menu.css"],
     "ville.ui.menu.NavLink": ["UnstyledButton.css", "NavLink.css", "Menu.css"],
     "ville.ui.core.Burger": ["Burger.css"],

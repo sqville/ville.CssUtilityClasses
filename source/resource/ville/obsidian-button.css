@@ -1,0 +1,127 @@
+button {
+    --text-color: var(--text-normal);
+    -webkit-app-region: no-drag;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    font-size: var(--font-ui-small);
+    border-radius: var(--button-radius);
+    corner-shape: var(--button-corner-shape);
+    border: 0;
+    padding: var(--size-4-1) var(--size-4-3);
+    height: var(--input-height);
+    font-weight: var(--input-font-weight);
+    cursor: var(--cursor);
+    font-family: inherit;
+    outline: none;
+    user-select: none;
+    white-space: nowrap;
+    transition: var(--button-transition)
+}
+
+button:not(.clickable-icon) {
+    color: var(--text-color);
+    background-color: var(--interactive-normal);
+    box-shadow: var(--input-shadow)
+}
+
+button:not(.clickable-icon).mobile-tap {
+    background-color: var(--interactive-hover);
+    box-shadow: var(--input-shadow-hover)
+}
+
+@media(hover:hover) {
+    button:hover {
+        background-color: var(--interactive-hover);
+        box-shadow: var(--input-shadow-hover)
+    }
+}
+
+button:focus-visible {
+    box-shadow: 0 0 0 3px var(--background-modifier-border-focus)
+}
+
+button[disabled],
+button[aria-disabled=true],
+button[disabled=true] {
+    cursor: not-allowed;
+    opacity: .7
+}
+
+button.mod-loading {
+    color: transparent;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none
+}
+
+button.mod-loading:after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    inset: 0;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: var(--text-color);
+    border-radius: 50%;
+    animation: spin 1s ease infinite
+}
+
+@media(forced-colors:active) {
+    button {
+        border: 1px ButtonBorder solid
+    }
+}
+
+button.mod-cta {
+    background-color: var(--interactive-accent);
+    --text-color: var(--text-on-accent)
+}
+
+button.mod-cta.mobile-tap {
+    background-color: var(--interactive-accent-hover)
+}
+
+@media(hover:hover) {
+    button.mod-cta:hover {
+        background-color: var(--interactive-accent-hover)
+    }
+}
+
+button.mod-cta:focus-visible {
+    box-shadow: 0 0 0 3px var(--background-modifier-border-focus)
+}
+
+button.mod-warning {
+    background-color: var(--background-modifier-error);
+    --text-color: var(--text-on-accent)
+}
+
+@media(hover:hover) {
+    button.mod-warning:hover {
+        background-color: var(--background-modifier-error-hover)
+    }
+}
+
+button.mod-destructive {
+    --text-color: var(--text-error);
+    background-color: color-mix(in oklch, var(--background-modifier-error) 10%, transparent)
+}
+
+button.mod-destructive.mod-cta {
+    background-color: var(--background-modifier-error);
+    --text-color: var(--text-on-accent)
+}
+
+button.mod-destructive.mod-cta.mobile-tap {
+    background-color: var(--background-modifier-error-hover)
+}
+
+@media(hover:hover) {
+    button.mod-destructive.mod-cta:hover {
+        background-color: var(--background-modifier-error-hover)
+    }
+}

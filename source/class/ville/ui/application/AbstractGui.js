@@ -69,9 +69,7 @@ qx.Class.define("ville.ui.application.AbstractGui", {
      * @param {string} [val] Optional unload value.
      * @returns {string|undefined} Optional browser confirmation prompt text.
      */
-    close(val) {
-      return undefined;
-    },
+    close() {},
 
     // interface method
     terminate() {

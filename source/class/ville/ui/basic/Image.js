@@ -1,312 +1,328 @@
 /**
- * Mode 3 CSS-driven Image widget (`ville.ui.basic.Image`) supporting managed
- * Qooxdoo resources (`ResourceManager`), path aliases (`AliasManager`),
- * asynchronous external URIs (`qx.io.ImageLoader`), and fallback sources.
- *
- * Renders a flat `<img>` element via `qx.html.Image("img")` with zero `QxLayout`
- * dependencies, delegating sizing and `object-fit` styling to CSS or Appearance themes.
- *
- * @example
- * const img = new ville.ui.basic.Image("myapp/hero.png");
- * img.setFallbackSource("myapp/placeholder.png");
- * img.setScale(true);
- */
+* Mode 3 CSS-driven Image widget (`ville.ui.basic.Image`) rendering a native
+* `<img>` element without `qx.io.ImageLoader` or `qx.util.AliasManager`.
+*
+* Supports both direct URLs (`/assets/hero.webp`, `https://...`, `data:...`)
+* and compiled Qooxdoo `source/resource/` asset IDs (`"villeuiapp/logo.svg"`).
+*
+* @example
+* const logo = new ville.ui.basic.Image("villeuiapp/logo.svg", "Application Logo");
+* logo.setFit("contain");
+* logo.setLoading("eager");
+*/
 qx.Class.define("ville.ui.basic.Image", {
   extend: ville.ui.core.Widget,
 
   /**
-   * Creates a new Image widget instance.
-   *
-   * @param {string|null} [source] URL or managed resource ID of the image to display.
-   */
-  construct(source) {
+  * Creates a new native Image widget.
+  *
+  * @param {string|null} [source] Image URL, data URI, or `source/resource/` asset ID.
+  * @param {string|null} [alt] Accessible alternative text (`alt` attribute).
+  */
+  construct(source, alt) {
+    // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
 
-    if (source) {
+    this.initLoading();
+    this.initDecoding();
+
+    const contentEl = this.getContentElement();
+    contentEl.addListener("load", this._onNativeLoad, this);
+    contentEl.addListener("error", this._onNativeError, this);
+
+    if (alt != null) {
+      this.setAlt(alt);
+    }
+
+    if (source != null) {
       this.setSource(source);
     }
+
+  },
+
+  events: {
+    /** Fired when the image has finished loading and decoding. */
+    loaded: "qx.event.type.Event",
+    /** Fired when the browser fails to load the image resource. */
+    loadingFailed: "qx.event.type.Event"
   },
 
   properties: {
+
     /**
-     * Appearance selector ID resolved against the active theme (defaults to `"image"`).
-     */
+    * Appearance selector ID resolved against the active theme (defaults to `"image"`).
+    */
     appearance: {
       refine: true,
       init: "image"
     },
 
     /**
-     * URL, alias, or managed Qooxdoo resource ID of the image.
-     */
+    * Image source URL, data URI, or compiled `source/resource/` asset ID.
+    * Marked `themeable: true` so Appearance themes can supply default or state-based images.
+    */
     source: {
       check: "String",
-      init: null,
       nullable: true,
-      event: "changeSource",
+      init: null,
       apply: "_applySource",
-      themeable: true
-    },
-
-    /**
-     * Whether the image scales proportionally to fit its container (`object-fit: contain`).
-     * When `false`, no inline `object-fit` style is forced so CSS rules remain in control.
-     */
-    scale: {
-      check: "Boolean",
-      init: false,
-      event: "changeScale",
       themeable: true,
-      apply: "_applyScale"
+      event: "changeSource"
     },
 
     /**
-     * Fallback URL or resource ID displayed if the primary `source` fails to load.
-     */
-    fallbackSource: {
+    * Accessible alternative text applied to the native `alt` attribute.
+    */
+    alt: {
       check: "String",
-      init: null,
       nullable: true,
-      event: "changeFallbackSource"
+      init: "",
+      apply: "_applyAlt",
+      event: "changeAlt"
+    },
+
+    /**
+    * Native browser lazy-loading hint (`"lazy"` or `"eager"`).
+    */
+    loading: {
+      check: ["lazy", "eager"],
+      init: "lazy",
+      apply: "_applyLoading",
+      themeable: true,
+      event: "changeLoading"
+    },
+
+    /**
+    * Native browser image decoding hint (`"async"`, `"sync"`, or `"auto"`).
+    */
+    decoding: {
+      check: ["async", "sync", "auto"],
+      init: "async",
+      apply: "_applyDecoding",
+      themeable: true,
+      event: "changeDecoding"
+    },
+
+    /**
+    * CSS `object-fit` behavior (`"contain"`, `"cover"`, `"fill"`, `"none"`, or `"scale-down"`).
+    * Synchronizes the `"fit-<value>"` widget state for the active Appearance theme.
+    */
+    fit: {
+      check: ["contain", "cover", "fill", "none", "scale-down"],
+      nullable: true,
+      init: null,
+      apply: "_applyFit",
+      themeable: true,
+      event: "changeFit"
+    },
+
+    /**
+    * Intrinsic HTML `width` attribute (in pixels) to reserve aspect ratio and prevent CLS.
+    */
+
+    intrinsicWidth: {
+      check: "Integer",
+      nullable: true,
+      init: null,
+      apply: "_applyIntrinsicWidth",
+      event: "changeIntrinsicWidth"
+    },
+
+    /**
+    * Intrinsic HTML `height` attribute (in pixels) to reserve aspect ratio and prevent CLS.
+    */
+    intrinsicHeight: {
+      check: "Integer",
+      nullable: true,
+      init: null,
+      apply: "_applyIntrinsicHeight",
+      event: "changeIntrinsicHeight"
     }
-  },
 
-  events: {
-    /** Fired when the image source fails to load. */
-    loadingFailed: "qx.event.type.Event",
-
-    /** Fired when the image has loaded successfully. */
-    loaded: "qx.event.type.Event",
-
-    /** Fired when an in-flight image loading request is aborted. */
-    aborted: "qx.event.type.Event"
   },
 
   members: {
-    /** @type {string|null} @private */
-    __sourceToDisplay: null,
-
-    /** @type {boolean} @private */
-    __failedToLoad: false,
-
-    /** @type {number} @private */
-    __requestId: 0,
-
     /**
-     * Creates a native `<img>` virtual DOM element via `qx.html.Image("img")`
-     * without injecting inline layout styles that would override CSS stylesheets.
-     *
-     * @returns {qx.html.Image} Root image element.
-     * @protected
-     */
+    * Creates the root `<img>` `qx.html.Element`.
+    *
+    * @returns {qx.html.Element} Root image element.
+    * @protected
+    */
     _createContentElement() {
-      const el = new qx.html.Image("img");
-      // el.setScale(this.getScale());
-      el.setScale(true);
-      return el;
+      return new qx.html.Element("img");
     },
 
-    // --- Property Appliers ---
+    /**
+    * Resolves a `source` identifier into a browser-ready URI.
+    * If `source` matches a registered `@asset(...)` entry in `qx.util.ResourceManager`,
+    * returns its compiled, cache-busted URI; otherwise passes direct URLs through unchanged.
+    *
+    * @param {string} source Raw source value or Qooxdoo resource ID.
+    * @returns {string} Resolved browser URI.
+    * @protected
+    */
+    _resolveUri(source) {
+      const rm = qx.util.ResourceManager.getInstance();
+      return rm.has(source) ? rm.toUri(source) : source;
+    },
 
     /**
-     * Property apply handler for `source`. Aborts any in-flight load for the
-     * resolved previous URI and initiates resolution/loading for `value`.
-     *
-     * @param {string|null} value New image URL or resource ID.
-     * @param {string|null} old Previous image URL or resource ID.
-     * @protected
-     */
-    _applySource(value, old) {
-      if (old) {
-        const resolvedOld = qx.util.AliasManager.getInstance().resolve(old);
-        if (resolvedOld && qx.io.ImageLoader.isLoading(resolvedOld)) {
-          qx.io.ImageLoader.abort(resolvedOld);
-        }
+    * Property apply handler for `source`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @param {string|null} value New image source.
+    * @protected
+    */
+    _applySource(value) {
+      if (!value) {
+        this.removeState("loading");
+        this.removeState("loaded");
+        this.removeState("failed");
+        this.removeAttribute("src");
+        return;
       }
 
-      this.__failedToLoad = false;
-      this.__sourceToDisplay = value;
-      this._styleSource();
+      this.removeState("loaded");
+      this.removeState("failed");
+      this.addState("loading");
+
+      this.setAttribute("src", this._resolveUri(value));
+
     },
 
     /**
-     * Property apply handler for `scale`.
-     *
-     * @param {boolean} value Whether proportional scaling is enabled.
-     * @protected
-     */
-    _applyScale(value) {
-      const el = this.getContentElement();
-      el.setScale(value);
-      if (value) {
-        el.setStyle("object-fit", "contain", true);
+    * Property apply handler for `alt`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @param {string|null} value Alternative text.
+    * @protected
+    */
+    _applyAlt(value) {
+      this.setAttribute("alt", value != null ? value : "");
+    },
+
+    /**
+    * Property apply handler for `loading`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @param {"lazy"|"eager"} value Loading strategy.
+    * @protected
+    */
+    _applyLoading(value) {
+      this.setAttribute("loading", value);
+    },
+
+    /**
+    * Property apply handler for `decoding`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @param {"async"|"sync"|"auto"} value Decoding hint.
+    * @protected
+    */
+    _applyDecoding(value) {
+      this.setAttribute("decoding", value);
+    },
+
+    /**
+    * Property apply handler for `fit`. Synchronizes `"fit-<value>"`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @param {"contain"|"cover"|"fill"|"none"|"scale-down"|null} value New fit mode.
+    * @param {"contain"|"cover"|"fill"|"none"|"scale-down"|null} old Previous fit mode.
+    * @protected
+    */
+    _applyFit(value, old) {
+      this._syncModifierState("fit", value, old);
+    },
+
+    /**
+    * Property apply handler for `intrinsicWidth`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @param {number|null} value Width in pixels.
+    * @protected
+    */
+    _applyIntrinsicWidth(value) {
+      if (value != null) {
+        this.setAttribute("width", String(value));
       } else {
-        el.removeStyle("object-fit", true);
-      }
-    },
-
-    // --- Image Resolution & Loading ---
-
-    /**
-     * Resolves `__sourceToDisplay` via `AliasManager` and `ResourceManager`,
-     * applying cached/managed URIs immediately or preloading external URLs via
-     * `qx.io.ImageLoader`.
-     *
-     * @protected
-     */
-    _styleSource() {
-      const aliasManager = qx.util.AliasManager.getInstance();
-      const resourceManager = qx.util.ResourceManager.getInstance();
-
-      const source = aliasManager.resolve(this.__sourceToDisplay);
-      const el = this.getContentElement();
-
-      if (!source) {
-        el.resetSource();
-        qx.html.Element.flush();
-        return;
+        this.removeAttribute("width");
       }
 
-      // 1. Managed Resource (compiled into app)
-      if (resourceManager.has(source)) {
-        el.setSource(resourceManager.toUri(source));
-        qx.html.Element.flush();
-        this.__fireLoadEvent();
-      }
-      // 2. Already loaded unmanaged image
-      else if (qx.io.ImageLoader.isLoaded(source)) {
-        el.setSource(source);
-        qx.html.Element.flush();
-        this.__fireLoadEvent();
-      }
-      // 3. Unmanaged external URL (requires asynchronous preloading)
-      else {
-        this.__loadUnmanagedImage(el, source);
-      }
     },
 
     /**
-     * Preloads an external image URL via `qx.io.ImageLoader` or switches to
-     * `fallbackSource` if the URL has already failed previously.
-     *
-     * @param {qx.html.Image} el Target image content element.
-     * @param {string} source Resolved external URI.
-     * @private
-     */
-    __loadUnmanagedImage(el, source) {
-      if (!qx.io.ImageLoader.isFailed(source)) {
-        qx.io.ImageLoader.load(source, this.__loaderCallback, this);
+    * Property apply handler for `intrinsicHeight`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @param {number|null} value Height in pixels.
+    * @protected
+    */
+    _applyIntrinsicHeight(value) {
+      if (value != null) {
+        this.setAttribute("height", String(value));
       } else {
-        el.resetSource();
-        qx.html.Element.flush();
-        if (!this.__failedToLoad && this.getFallbackSource()) {
-          this.__failedToLoad = true;
-          this.__sourceToDisplay = this.getFallbackSource();
-          this._styleSource();
-        }
+        this.removeAttribute("height");
       }
     },
 
     /**
-     * Callback invoked by `qx.io.ImageLoader` when an external image finishes
-     * loading, fails, or is aborted.
-     *
-     * @param {string} source Resolved URI that completed loading.
-     * @param {Object} imageInfo Status metadata returned by `qx.io.ImageLoader`.
-     * @private
-     */
-    __loaderCallback(source, imageInfo) {
-      if (this.isDisposed()) {
-        return;
-      }
-
-      const resolvedCurrent = qx.util.AliasManager.getInstance().resolve(this.__sourceToDisplay);
-      if (source !== resolvedCurrent) {
-        this.fireEvent("aborted");
-        return;
-      }
-
-      if (imageInfo.failed) {
-        this.fireEvent("loadingFailed");
-        if (!this.__failedToLoad && this.getFallbackSource()) {
-          this.__failedToLoad = true;
-          this.__sourceToDisplay = this.getFallbackSource();
-          this._styleSource();
-        }
-        return;
-      }
-
-      if (imageInfo.aborted) {
-        this.fireEvent("aborted");
-        return;
-      }
-
-      this.getContentElement().setSource(source);
-      qx.html.Element.flush();
-      this.fireEvent("loaded");
-    },
-
-    /**
-     * Schedules an asynchronous `"loaded"` (or `"aborted"` if superseded) event
-     * on the next animation frame for cached or managed resources.
-     *
-     * @private
-     */
-    __fireLoadEvent() {
-      this.__requestId++;
-      const currentRequestId = this.__requestId;
-
-      qx.bom.AnimationFrame.request(() => {
-        if (this.isDisposed()) {
-          return;
-        }
-
-        if (currentRequestId === this.__requestId) {
-          this.fireEvent("loaded");
-        } else {
-          this.fireEvent("aborted");
-        }
-      });
-    },
-
-    /**
-     * Retries loading the primary `source` after a previous failure.
-     */
-    tryReload() {
-      if (!this.__failedToLoad || !this.getSource()) {
-        return;
-      }
-
-      const resolvedSource = qx.util.AliasManager.getInstance().resolve(this.getSource());
-      this.__failedToLoad = false;
-      this.__sourceToDisplay = this.getSource();
-
-      qx.io.ImageLoader.load(
-        resolvedSource,
-        () => {
-          if (!this.isDisposed()) {
-            this._styleSource();
-          }
-        },
-        this,
-        { retryFailed: true }
+    * Handles native `<img>` `load` events, awaiting `img.decode()` before
+    * transitioning to `"loaded"` and firing `loaded`.
+    *
+    * @this {ville.ui.basic.Image}
+    * @protected
+    */
+    async _onNativeLoad() {
+      const domEl = /** @type {HTMLImageElement|null} */ (
+        this.getContentElement().getDomElement()
       );
+
+      if (domEl && typeof domEl.decode === "function") {
+        try {
+          await domEl.decode();
+        } catch (_) {
+          // Ignore decode rejections on empty or non-raster SVG sources
+        }
+      }
+
+      if (!this.isDisposed()) {
+        this.removeState("loading");
+        this.removeState("failed");
+        this.addState("loaded");
+        this.fireEvent("loaded");
+      }
+
     },
 
     /**
-     * Returns whether the primary image source failed to load.
-     *
-     * @returns {boolean} `true` if loading failed.
-     */
-    hasFailedToLoad() {
-      return this.__failedToLoad;
+    * Handles native `<img>` `error` events.
+    *
+    * @this {ville.ui.basic.Image}
+    * @protected
+    */
+    _onNativeError() {
+      if (!this.isDisposed()) {
+        this.removeState("loading");
+        this.removeState("loaded");
+        this.addState("failed");
+        this.fireEvent("loadingFailed");
+      }
     }
+
   },
 
+    
   /**
-   * Clears cached source string references on disposal.
-   */
+  * Detaches native `load` and `error` listeners on widget disposal.
+  */
+
   destruct() {
-    this.__sourceToDisplay = null;
+    const contentEl = this.getContentElement();
+    if (contentEl) {
+      contentEl.removeListener("load", this._onNativeLoad, this);
+      contentEl.removeListener("error", this._onNativeError, this);
+    }
+
   }
 });

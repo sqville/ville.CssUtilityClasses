@@ -43,7 +43,7 @@ qx.Class.define("qxapp.Application",
 
       if (qx.core.Environment.get("ville.cssEngine") == "mantine")
       {
-        qx.Class.include(ville.ui.form.Button, ville.cssuc.MButton);
+        //qx.Class.include(ville.ui.form.Button, ville.cssuc.MButton);
       }
 
       // Call super class
@@ -117,7 +117,7 @@ qx.Class.define("qxapp.Application",
       var qxbutton = new qx.ui.form.Button("First Button", "qxapp/icon/test.png").set({enabled: true});
       var iconGearSix = new qxapp.theme.icon.phosphor.GearSix(16);
       var iconAirplane = new qxapp.theme.icon.fluent.Airplane(30);
-      var villebutton = new ville.ui.form.Button("Ville Button", iconAirplane);
+      var villebutton = new qxapp.ui.form.Button("Ville Button", iconAirplane);
       //villebutton.setEnabled(false);
 
       //var textfield = new qxapp.ui.form.TextField("Ville TextField");
@@ -129,12 +129,9 @@ qx.Class.define("qxapp.Application",
       var villetextfieldwrapper = new qxapp.ui.form.TextFieldWrapper(qxtextfield, "default", iconGearSix, tfRightIcon);
       
       var villecheckbox = new qxapp.ui.form.CheckBox("Ville Checkbox New");
-      //villecheckbox.setId("villecheck123");
-      //villecheckbox.setTriState(true);
-      //villecheckbox.setValue(true);
 
       // Menu Button
-      var btnMenu = new ville.ui.menu.Menu();
+      var btnMenu = new qx.ui.menu.Menu();
       /* See Decoration's approach to transitioning popups */
       btnMenu.getContentElement().setStyles({
         "transition-property": "opacity",
@@ -144,13 +141,13 @@ qx.Class.define("qxapp.Application",
       });
 
       var iconGearSixMenu = new qxapp.theme.icon.phosphor.GearSix(16);
-      var miSettings = new ville.ui.menu.Button("Settings", iconGearSixMenu);
+      var miSettings = new qx.ui.menu.Button("Settings", iconGearSixMenu);
       var iconChats = new qxapp.theme.icon.phosphor.Chats(16);
-      var miMessages = new ville.ui.menu.Button("Messages", iconChats);
+      var miMessages = new qx.ui.menu.Button("Messages", iconChats);
       var iconImagesSquare = new qxapp.theme.icon.phosphor.ImagesSquare(16);
-      var miGallery = new ville.ui.menu.Button("Gallery", iconImagesSquare);
+      var miGallery = new qx.ui.menu.Button("Gallery", iconImagesSquare);
       var iconMagnifyingGlass = new qxapp.theme.icon.phosphor.MagnifyingGlass(16);
-      var miSearch = new ville.ui.menu.Button("Search", iconMagnifyingGlass);
+      var miSearch = new qx.ui.menu.Button("Search", iconMagnifyingGlass);
       btnMenu.add(miSettings);
       btnMenu.add(miMessages);
       btnMenu.add(miGallery);

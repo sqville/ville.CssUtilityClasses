@@ -61,6 +61,7 @@ qx.Class.define("ville.ui.core.Widget", {
     appearance: {
       check: "String",
       init: "widget",
+      themeable: true,
       apply: "_applyAppearance",
       event: "changeAppearance"
     },
@@ -71,6 +72,7 @@ qx.Class.define("ville.ui.core.Widget", {
     ariaRole: {
       check: "String",
       nullable: true,
+      themeable: true,
       apply: "_applyAriaRole"
     },
 

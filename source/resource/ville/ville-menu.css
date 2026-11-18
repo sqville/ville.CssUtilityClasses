@@ -1,0 +1,47 @@
+/* Root & Submenu Popover Base */
+.ville-menu-dropdown:popover-open {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  min-width: 12rem;
+  max-height: min(80dvh, 24rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  /* Default Root Menu Placement: below opener, left-aligned, 4px gap */
+  position-anchor: var(--menu-anchor);
+  position-area: block-end span-inline-end;
+  margin-block-start: 4px;
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+}
+
+/* Nested Submenu Placement: right of parent menu-button, top-aligned, 4px gap */
+.ville-menu-dropdown[data-submenu="true"]:popover-open {
+  position-area: inline-end span-block-end;
+  margin-block-start: 0;
+  margin-inline-start: 4px;
+  position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+}
+
+/* Context Menu Placement: pinned to pointer coordinates */
+.ville-menu-dropdown[data-contextmenu="true"]:popover-open {
+  position-anchor: none;
+  position-area: none;
+  left: clamp(8px, var(--menu-x, 0px), calc(100dvw - 100% - 8px));
+  top: clamp(8px, var(--menu-y, 0px), calc(100dvh - 100% - 8px));
+  margin: 0;
+}
+
+/* Menu Item Button Layout (Left Icon + Label + Right Shortcut/Arrow) */
+.ville-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs, 0.5rem);
+  width: 100%;
+  text-align: start;
+}
+
+.ville-menu-item-shortcut,
+.ville-menu-item-arrow {
+  margin-inline-start: auto;
+}

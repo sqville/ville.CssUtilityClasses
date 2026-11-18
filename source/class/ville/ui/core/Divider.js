@@ -128,7 +128,8 @@ qx.Class.define("ville.ui.core.Divider", {
 
       switch (id) {
         case "label": {
-          control = new ville.ui.basic.Label();
+          const initialText = this.getLabel();
+          control = new ville.ui.basic.Label(initialText);
           control.setAnonymous(true);
           const pos = this.getLabelPosition();
           if (pos) {
@@ -157,17 +158,11 @@ qx.Class.define("ville.ui.core.Divider", {
         const label = this.getChildControl("label", true);
         if (label) {
           label.setValue(null);
-          if (label.getLayoutParent() === this) {
-            this._remove(label);
-          }
         }
       } else {
         this.addState("withLabel");
         const label = this.getChildControl("label");
         if (label) {
-          if (label.getLayoutParent() !== this) {
-            this._add(label);
-          }
           label.setValue(value);
         }
       }

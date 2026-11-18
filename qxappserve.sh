@@ -9,4 +9,4 @@ npx qx clean
 echo "Cleaning done."
 
 # Start the application
-npx qx serve -c compile-qxapp.json
+npx qx serve --app-name=qxapp

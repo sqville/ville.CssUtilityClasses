@@ -2,7 +2,7 @@
  * Button
  * external(mantine/core/styles/Button.css)
  */
-qx.Class.define("ville.ui.form.ButtonOld", {
+qx.Class.define("ville.ui.form.ButtonOldold", {
     
     extend: ville.ui.form.UnstyledButton,
 

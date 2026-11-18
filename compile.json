@@ -32,7 +32,6 @@
       "theme": "ville.cssuc.theme.mantine.Theme",
       "name": "villeuiapp",
       "bootPath": "source/boot/villeuiapp",
-      "include": ["ville.ui.*", "ville.cssuc.*"],
       "exclude": [
         "carbonapp.*",
         "mantineapp.*",
