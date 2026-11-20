@@ -55,34 +55,34 @@ qx.Class.define("ville.ui.layout.HGroup", {
 
         _applyJustify(value, old) {
             if (value) {
-                this.setStyle("--group-justify", value);
+                this.getContentElement().setStyle("--group-justify", value);
             } else if (old && value == null) {
-                this.removeStyle("--group-justify");
+                this.getContentElement().removeStyle("--group-justify");
             }
         },
 
         _applyGap(value, old) {
             if (value) {
-                this.setStyle("--group-gap", `var(--mantine-spacing-${value})`);
+                this.getContentElement().setStyle("--group-gap", `var(--mantine-spacing-${value})`);
             } else if (old && value == null) {
-                this.removeStyle("--group-gap");
+                this.getContentElement().removeStyle("--group-gap");
             }
         },
         
         _applyGrow(value, old) {
             if (value) {
-                this.setAttribute("data-grow", "true");
+                this.getContentElement().setAttribute("data-grow", "true");
                 if (this.hasChildren()) {
                     const childcount = this.getChildren().length;
                     const percent = 100/childcount;
                     const gap = this.getGap();
                     const newstr = `calc(${percent}% - (var(--mantine-spacing-${gap}) - var(--mantine-spacing-${gap}) / ${childcount}))`;
-                    this.setStyle("--group-child-width", newstr);
+                    this.getContentElement().setStyle("--group-child-width", newstr);
                 }
                 
             } else {
-                this.removeAttribute("data-grow");
-                this.removeStyles("--group-child-width");
+                this.getContentElement().removeAttribute("data-grow");
+                this.getContentElement().removeStyles("--group-child-width");
             }
         }
 

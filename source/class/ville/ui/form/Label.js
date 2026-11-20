@@ -161,7 +161,6 @@ qx.Class.define("ville.ui.form.Label", {
         contentEl.addAt(this.__textNode, 0);
       }
 
-      qx.html.Element.flush();
     },
 
     /**
@@ -201,8 +200,7 @@ qx.Class.define("ville.ui.form.Label", {
     }),
 
     /**
-     * Creates, updates, or detaches the internal `qx.html.Text` node and commits
-     * changes via `qx.html.Element.flush()`.
+     * Creates, updates, or detaches the internal `qx.html.Text` node
      *
      * @param {string} text Escaped plain-text content to render.
      * @private
@@ -232,7 +230,6 @@ qx.Class.define("ville.ui.form.Label", {
         contentEl.remove(this.__textNode);
       }
 
-      qx.html.Element.flush();
     }
   },
 

@@ -1,33 +1,22 @@
 /**
  * Base Container
- * external(mantine/core/styles/Container.css)
  */
 qx.Class.define("ville.ui.layout.Container", {
-    
-    extend: qx.ui.core.Widget,
-
-    include: qx.ui.core.MChildrenHandling,
+    extend: qx.ui.core.Box,
 
     construct(component) {
         
-        if (component) {
-            this.__componenttag = component;
-        }
-        
-        super();
-
-        this.setCssUtilityClass("m_7485cace mantine-Container-root");
+        super(component);
 
     },
 
-    members: {
+    properties: {
 
-        __componenttag: "div",
-
-        // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+        appearance: {
+            refine: true,
+            init: "layout-container"
         }
 
     }
+
   });

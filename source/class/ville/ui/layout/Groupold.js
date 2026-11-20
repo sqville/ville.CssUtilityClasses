@@ -1,6 +1,5 @@
 /**
  * Horizontal flex layout
- * @external(mantine/core/styles/Group.css)
  */
 qx.Class.define("ville.ui.layout.Groupold", {
     extend: ville.ui.layout.Container,
@@ -9,7 +8,7 @@ qx.Class.define("ville.ui.layout.Groupold", {
         //align, justify, gap, wrap, grow
         super();
 
-        this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
+        //this.setCssUtilityClass("m_4081bf90 mantine-Group-root");
 
         /*if (align) {
             this.setAlign(align);

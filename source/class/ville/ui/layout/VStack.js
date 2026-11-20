@@ -69,25 +69,25 @@ qx.Class.define("ville.ui.layout.VStack", {
 
         _applyAlign(value, old) {
             if (value) {
-                this.setStyle("--stack-align", value);
+                this.getContentElement().setStyle("--stack-align", value);
             } else if (old && value == null) {
-                this.removeStyle("--stack-align");
+                this.getContentElement().removeStyle("--stack-align");
             }
         },
 
         _applyJustify(value, old) {
             if (value) {
-                this.setStyle("--stack-justify", value);
+                this.getContentElement().setStyle("--stack-justify", value);
             } else if (old && value == null) {
-                this.removeStyle("--stack-justify");
+                this.getContentElement().removeStyle("--stack-justify");
             }
         },
 
         _applyGap(value, old) {
             if (value) {
-                this.setStyle("--stack-gap", `var(--mantine-spacing-${value})`);
+                this.getContentElement().setStyle("--stack-gap", `var(--mantine-spacing-${value})`);
             } else if (old && value == null) {
-                this.removeStyle("--stack-gap");
+                this.getContentElement().removeStyle("--stack-gap");
             }
         }
         

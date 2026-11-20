@@ -15,7 +15,7 @@ qx.Class.define("ville.ui.form.Button", {
    *
    * @param {string|null} [label] Button text caption.
    * @param {string|ville.ui.core.Widget|null} [icon] Image URI string or `ville.ui.core.Widget` icon instance.
-   * @param {qx.ui.command.Command|null} [command] Command instance bound via `MExecutable`.
+   * @param {ville.ui.command.Command|null} [command] Command instance bound via `ville.ui.core.MExecutable`.
    */
   construct(label, icon, command) {
     // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define

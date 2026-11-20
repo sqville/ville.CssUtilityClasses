@@ -122,7 +122,7 @@ qx.Class.define("ville.ui.icon.default.Abstract", {
 
       if (this.__useSprite) {
         const symbolId = `${this.classname.replace(/\./g, "-")}-${isFilled ? "filled" : "regular"}`;
-        ville.ui.icon.Abstract.ensureSpriteSymbol(symbolId, viewBox, pathMarkup);
+        this.constructor.ensureSpriteSymbol(symbolId, viewBox, pathMarkup);
         return `<use href="#${symbolId}"></use>`;
       }
 

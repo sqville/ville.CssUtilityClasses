@@ -3,14 +3,11 @@
  */
 qx.Class.define("ville.ui.overlay.Overlay", {
     
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Box,
 
     construct(component) {
-        
-        if (component != null)
-            this._contentElementTag = component;
-        
-        super();
+
+        super(component);
 
     },
 
@@ -19,7 +16,7 @@ qx.Class.define("ville.ui.overlay.Overlay", {
         // overridden
         appearance: {
             refine: true,
-            init: "affix"
+            init: "overlay"
         }
 
     }

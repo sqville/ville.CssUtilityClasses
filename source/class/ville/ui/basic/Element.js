@@ -4,13 +4,13 @@
  */
 qx.Class.define("ville.ui.basic.Element", {
     
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Widget,
 
-    include: qx.ui.core.MChildrenHandling,
+    include: ville.ui.core.MChildrenHandling,
 
     construct(component) {
         
-        this._contentElementTag = component ?? "div";
+        //this._contentElementTag = component ?? "div";
         
         super();
     }

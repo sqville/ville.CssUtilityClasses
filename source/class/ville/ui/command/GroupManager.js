@@ -9,11 +9,11 @@
 ************************************************************************ */
 
 /**
- * Coordinator for mutually exclusive `ville.ui.command.Group` instances[span_191](start_span)[span_191](end_span).
+ * Coordinator for mutually exclusive `ville.ui.command.Group` instances.
  *
  * Ensures that at most one registered command group is active at any time
  * (for example, switching active shortcut contexts between views or modals)
- * and provides global `block()` / `unblock()` controls[span_192](start_span)[span_192](end_span).
+ * and provides global `block()` / `unblock()` controls.
  *
  * @example
  * const manager = new ville.ui.command.GroupManager();
@@ -25,16 +25,17 @@ qx.Class.define("ville.ui.command.GroupManager", {
   extend: qx.core.Object,
 
   /**
-   * Creates a new command group manager[span_193](start_span)[span_193](end_span).
+   * Creates a new command group manager.
    */
   construct() {
+    // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
     this.__groups = [];
   },
 
   members: {
     /**
-     * List of registered command groups[span_194](start_span)[span_194](end_span).
+     * List of registered command groups.
      *
      * @type {ville.ui.command.Group[]|null}
      * @private
@@ -42,7 +43,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
     __groups: null,
 
     /**
-     * Currently active command group, or `null` if none is active[span_195](start_span)[span_195](end_span).
+     * Currently active command group, or `null` if none is active.
      *
      * @type {ville.ui.command.Group|null}
      * @private
@@ -51,10 +52,10 @@ qx.Class.define("ville.ui.command.GroupManager", {
 
     /**
      * Registers a command group with the manager and deactivates it initially
-     * to prevent shortcut collisions[span_196](start_span)[span_196](end_span).
+     * to prevent shortcut collisions.
      *
-     * @param {ville.ui.command.Group} group Command group to register[span_197](start_span)[span_197](end_span).
-     * @returns {boolean} `true` if added; `false` if already registered[span_198](start_span)[span_198](end_span).
+     * @param {ville.ui.command.Group} group Command group to register.
+     * @returns {boolean} `true` if added; `false` if already registered.
      */
     add(group) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -74,17 +75,17 @@ qx.Class.define("ville.ui.command.GroupManager", {
 
       this.__groups.push(group);
 
-      // Deactivate added group to prevent collisions[span_199](start_span)[span_199](end_span)
+      // Deactivate added group to prevent collisions
       group.setActive(false);
 
       return true;
     },
 
     /**
-     * Checks whether a command group is registered with this manager[span_200](start_span)[span_200](end_span).
+     * Checks whether a command group is registered with this manager.
      *
-     * @param {ville.ui.command.Group} group Command group to test[span_201](start_span)[span_201](end_span).
-     * @returns {boolean} `true` if the group is registered[span_202](start_span)[span_202](end_span).
+     * @param {ville.ui.command.Group} group Command group to test.
+     * @returns {boolean} `true` if the group is registered.
      */
     has(group) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -100,10 +101,10 @@ qx.Class.define("ville.ui.command.GroupManager", {
 
     /**
      * Removes a command group from the manager, clearing `activeGroup` if the
-     * removed group was active[span_203](start_span)[span_203](end_span).
+     * removed group was active.
      *
-     * @param {ville.ui.command.Group} group Command group to remove[span_204](start_span)[span_204](end_span).
-     * @returns {ville.ui.command.Group|null} The removed command group[span_205](start_span)[span_205](end_span).
+     * @param {ville.ui.command.Group} group Command group to remove.
+     * @returns {ville.ui.command.Group|null} The removed command group, or `null` if not found.
      */
     remove(group) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -114,7 +115,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
         );
       }
 
-      var index = this.__groups.indexOf(group);
+      const index = this.__groups.indexOf(group);
       if (index === -1) {
         if (qx.core.Environment.get("qx.debug")) {
           this.debug(
@@ -122,14 +123,15 @@ qx.Class.define("ville.ui.command.GroupManager", {
               "'add()' method to add the group."
           );
         }
+        return null;
       }
 
-      // Reset active group[span_206](start_span)[span_206](end_span)
+      // Reset active group
       if (this.getActive() === group) {
         this.__activeGroup = null;
       }
 
-      // Remove group from internal array[span_207](start_span)[span_207](end_span)
+      // Remove group from internal array
       this.__groups.splice(index, 1);
 
       return group;
@@ -137,10 +139,10 @@ qx.Class.define("ville.ui.command.GroupManager", {
 
     /**
      * Activates the specified registered command group and deactivates all
-     * other groups managed by this instance[span_208](start_span)[span_208](end_span).
+     * other groups managed by this instance.
      *
-     * @param {ville.ui.command.Group} group Command group to activate[span_209](start_span)[span_209](end_span).
-     * @returns {boolean} `true` if activated; `false` if the group is not registered[span_210](start_span)[span_210](end_span).
+     * @param {ville.ui.command.Group} group Command group to activate.
+     * @returns {boolean} `true` if activated; `false` if the group is not registered.
      */
     setActive(group) {
       if (qx.core.Environment.get("qx.debug")) {
@@ -154,16 +156,16 @@ qx.Class.define("ville.ui.command.GroupManager", {
       if (!this.has(group)) {
         if (qx.core.Environment.get("qx.debug")) {
           this.debug(
-            "Group was not added before! You have to use 'addCommand()' method before activating!"
+            "Group was not added before! You have to use 'add()' method before activating!"
           );
         }
         return false;
       }
 
-      // Iterate through all groups and deactivate all except the given one[span_211](start_span)[span_211](end_span)
-      for (var i = 0; i < this.__groups.length; i++) {
-        var item = this.__groups[i];
-        if (item == group) {
+      // Iterate through all groups and deactivate all except the given one
+      for (let i = 0; i < this.__groups.length; i++) {
+        const item = this.__groups[i];
+        if (item === group) {
           item.setActive(true);
           this.__activeGroup = item;
           continue;
@@ -175,9 +177,9 @@ qx.Class.define("ville.ui.command.GroupManager", {
     },
 
     /**
-     * Returns the currently active command group[span_212](start_span)[span_212](end_span).
+     * Returns the currently active command group.
      *
-     * @returns {ville.ui.command.Group|null} Active command group, or `null`[span_213](start_span)[span_213](end_span).
+     * @returns {ville.ui.command.Group|null} Active command group, or `null`.
      */
     getActive() {
       return this.__activeGroup;
@@ -185,7 +187,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
 
     /**
      * Temporarily deactivates the currently active command group without
-     * clearing the `activeGroup` reference[span_214](start_span)[span_214](end_span).
+     * clearing the `activeGroup` reference.
      */
     block() {
       if (this.__activeGroup) {
@@ -194,7 +196,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
     },
 
     /**
-     * Re-activates the currently active command group after a `block()` call[span_215](start_span)[span_215](end_span).
+     * Re-activates the currently active command group after a `block()` call.
      */
     unblock() {
       if (this.__activeGroup) {
@@ -203,14 +205,14 @@ qx.Class.define("ville.ui.command.GroupManager", {
     },
 
     /**
-     * Internal lookup helper that finds a registered group by reference[span_216](start_span)[span_216](end_span).
+     * Internal lookup helper that finds a registered group by reference.
      *
-     * @param {ville.ui.command.Group} group Command group to locate[span_217](start_span)[span_217](end_span).
-     * @returns {ville.ui.command.Group|null} Matching group instance, or `null`[span_218](start_span)[span_218](end_span).
+     * @param {ville.ui.command.Group} group Command group to locate.
+     * @returns {ville.ui.command.Group|null} Matching group instance, or `null`.
      * @protected
      */
     _getGroup(group) {
-      var index = this.__groups.indexOf(group);
+      const index = this.__groups.indexOf(group);
       if (index === -1) {
         return null;
       }
@@ -220,7 +222,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
   },
 
   /**
-   * Releases internal group array and active group references[span_219](start_span)[span_219](end_span).
+   * Releases internal group array and active group references.
    */
   destruct() {
     this.__groups = this.__activeGroup = null;

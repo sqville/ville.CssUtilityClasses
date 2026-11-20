@@ -2,8 +2,7 @@
  * Center
  * 
  */
-qx.Class.define("ville.ui.layout.Center", {
-    
+qx.Class.define("ville.ui.layout.Center", {    
     extend: ville.ui.core.Box,
 
     construct(component) {
@@ -13,9 +12,7 @@ qx.Class.define("ville.ui.layout.Center", {
     },
 
     properties: {
-        /**
-         * Appearance selector ID resolved against the active theme (defaults to `"button"`)[span_83](start_span)[span_83](end_span).
-         */
+
         appearance: {
             refine: true,
             init: "layout-center"

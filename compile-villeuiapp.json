@@ -1,0 +1,69 @@
+{
+  "$schema": "https://qooxdoo.org/schema/compile-1-0-0.json",
+  "targets": [
+    {
+      "type": "source",
+      "outputPath": "compiled/source"
+    },
+    {
+      "type": "build",
+      "outputPath": "compiled/build"
+    }
+  ],
+  "defaultTarget": "source",
+  "locales": ["en"],
+  "ignores": ["crypto", "require"],
+  "environment": {
+    "qx.nativeScrollBars": true,
+    "qx.dyntheme": false,
+    "qx.Promise.useNativePromise": true,
+    "qx.command.bindEnabled": false,
+    "qx.debug.ui.queue": false,
+    "ville.ssg": false
+  },
+  "babel" : {
+    "options" : {
+      "targets" : "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions, last 2 Edge versions"
+    } 
+  },
+  "applications": [
+    {
+      "class": "villeuiapp.Application",
+      "theme": "ville.cssuc.theme.mantine.Appearance",
+      "name": "villeuiapp",
+      "bootPath": "source/boot/villeuiapp",
+      "loaderTemplate": "source/resource/ville/ville-loader-browser.tmpl.js",
+      "exclude": [
+        "ville.cssuc.include.*",
+        "ville.cssuc.patch.*",
+        "ville.cssuc.register.*",
+        "ville.cssuc.resources.*",
+        "qx.theme.Classic",
+        "qx.theme.Indigo",
+        "qx.theme.Modern",
+        "qx.theme.Simple",
+        "qx.theme.Tangible",
+        "qx.theme.manager.Color",
+        "qx.theme.manager.Font",
+        "qx.theme.manager.Image",
+        "qx.theme.manager.Decoration",
+        "ville.ui.adapter.*",
+        "ville.ui.component.*",
+        "ville.ui.experimental.*",
+        "ville.ui.form.nextup.*",
+        "ville.ui.form.renderer.*",
+        "ville.ui.icon.nextup.*",
+        "ville.ui.menu.NavLink",
+        "ville.ui.tabview.*",
+        "ville.ui.window.*",
+        "ville.ui.tree.*",
+        "ville.ui.util.*"
+      ],
+      "group": ["main", "mantine"],
+      "environment": {
+        "ville.cssLayout": true,
+        "ville.cssEngine" : "mantine"
+      }
+    }
+  ]
+}

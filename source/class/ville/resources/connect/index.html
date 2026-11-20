@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MDI Dialog Workflow</title>
+  <link rel="stylesheet" href="styles.css?v=2" />
+</head>
+<body>
+  <div class="toolbar">
+    <strong>MDI Workflow</strong>
+    <button id="b-src">+ Source</button>
+    <button id="b-mrg">+ Merge</button>
+    <button id="b-dsp">+ Display</button>
+    <button id="b-exp">Export JSON</button>
+    <button id="b-imp">Import JSON</button>
+    <input id="file-in" type="file" accept=".json" hidden />
+    <span>Drag right port (●) to left port (●). Click wire to delete.</span>
+  </div>
+  <div id="workspace"></div>
+  <svg id="svg" xmlns="http://w3.org" style="position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:900;"></svg>
+  <script src="engine.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>

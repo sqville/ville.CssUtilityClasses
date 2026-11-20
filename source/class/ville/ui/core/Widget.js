@@ -3,11 +3,11 @@
  * `cssStates` themeable property.
  *
  * @typedef {Object} VilleCssStatesPayload
- * @property {Object<string, string|number|boolean>} [set-attributes] Map of HTML attribute names to values to set on the content element.
+ * @property {Object<string, string|number|boolean|null>} [set-attributes] Map of HTML attribute names to values to set on the content element.
  * @property {string[]} [remove-attributes] List of HTML attribute names to remove from the content element.
  * @property {string[]} [set-classes] List of CSS class names to add to the content element.
  * @property {string[]} [remove-classes] List of CSS class names to remove from the content element.
- * @property {Object<string, string|number>} [set-styles] Map of CSS property names to values to apply inline.
+ * @property {Object<string, string|number|null>} [set-styles] Map of CSS property names to values to apply inline.
  * @property {string[]} [remove-styles] List of CSS property names to remove from inline styles.
  */
 
@@ -17,24 +17,47 @@
  * `qx.ui.core.LayoutItem`, and `qx.ui.core.queue.*`).
  *
  * Architectural responsibilities:
- * - Wraps `qx.html.Element` directly with lazy DOM element instantiation.
+ * - Wraps `qx.html.Element` directly with lazy DOM element instantiation and
+ *   microtask-coalesced `qx.html.Element.flush()` scheduling.
  * - Coalesces state and appearance invalidations via `queueMicrotask` into a
  *   single `syncAppearance()` evaluation per synchronous turn.
  * - Bridges Qooxdoo states (`hovered`, `pressed`, `disabled`, `variant-*`,
  *   `size-*`, etc.) to external CSS frameworks (Mantine, Tailwind, Carbon, Tabler)
  *   via themeable `cssUtilityClass` and `cssStates` delta-diffing properties.
- * - Transparently delegates DOM, pointer, and keyboard event listeners to the
- *   underlying `qx.html.Element` when not declared as Qooxdoo class events.
+ * - Delegates native DOM events directly to `getContentElement()` while retaining
+ *   `qx.core.MEvent` for declared Qooxdoo class and `qx.data` property events.
  *
  * @example
  * const widget = new ville.ui.core.Widget();
  * widget.setCssUtilityClass("mantine-Box-root");
  * widget.addState("active");
+ * 
+ * @ignore(queueMicrotask)
  */
 qx.Class.define("ville.ui.core.Widget", {
   extend: qx.core.Object,
   include: [qx.locale.MTranslation],
   implement: [qx.core.IDisposable],
+
+  statics: {
+    /** @type {boolean} @private */
+    __flushScheduled: false,
+
+    /**
+     * Schedules a single coalesced `qx.html.Element.flush()` at the end of the
+     * current microtask turn so callers never need to flush manually.
+     */
+    scheduleFlush() {
+      if (this.__flushScheduled) {
+        return;
+      }
+      this.__flushScheduled = true;
+      queueMicrotask(() => {
+        this.__flushScheduled = false;
+        qx.html.Element.flush();
+      });
+    }
+  },
 
   /**
    * Creates a new Mode 3 widget instance without eagerly creating DOM nodes.
@@ -42,15 +65,14 @@ qx.Class.define("ville.ui.core.Widget", {
    * @param {string} [existingDomId] Optional ID of an existing DOM element to hydrate via `qx.html.Element#useElement`.
    */
   construct(existingDomId) {
+    // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
 
-    // Pure data initialization. Absolutely NO DOM creation here.
     this.__children = [];
     this.__states = {};
     this.__childControls = {};
     this.__existingDomId = existingDomId;
 
-    // Trigger initial appearance evaluation
     this.initAppearance();
   },
 
@@ -67,7 +89,7 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
-     * WAI-ARIA `role` attribute applied to the root content element (e.g., `"button"`, `"dialog"`).
+     * WAI-ARIA `role` attribute applied to the root content element (e.g., `"menu"`, `"tablist"`).
      */
     ariaRole: {
       check: "String",
@@ -77,8 +99,9 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
-     * Whether the widget is interactive. When `false`, adds the `"disabled"` state,
-     * sets the native `disabled` attribute, and sets `aria-disabled="true"`.
+     * Whether the widget is interactive. When `false`, adds the `"disabled"` state
+     * and sets `aria-disabled="true"`. Form control subclasses also toggle the
+     * native `disabled` HTML attribute.
      */
     enabled: {
       check: "Boolean",
@@ -98,8 +121,7 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
-     * Whether the widget acts as an anonymous pointer target.
-     * Maps to `pointer-events: none` so pointer events pass through to parent elements.
+     * Whether the widget acts as an anonymous pointer target (`pointer-events: none`).
      */
     anonymous: {
       check: "Boolean",
@@ -109,7 +131,6 @@ qx.Class.define("ville.ui.core.Widget", {
 
     /**
      * Whitespace-separated utility or root CSS classes applied to the content element.
-     * Diffed against previous values so unchanged classes remain untouched.
      */
     cssUtilityClass: {
       check: "String",
@@ -130,7 +151,6 @@ qx.Class.define("ville.ui.core.Widget", {
       themeable: true,
       apply: "_applyCssStates"
     }
-
   },
 
   members: {
@@ -167,7 +187,6 @@ qx.Class.define("ville.ui.core.Widget", {
     /**
      * Map of state names (e.g., `{ disabled: true }`) that should automatically
      * propagate to child controls registered via `getChildControl()`.
-     * Subclasses can override this declaratively.
      *
      * @type {Object<string, boolean>|null}
      * @protected
@@ -175,14 +194,15 @@ qx.Class.define("ville.ui.core.Widget", {
      */
     _forwardStates: null,
 
-    // --- Event Delegation ---
+    // --- 1. Event Delegation & Native CustomEvent Dispatch ---
 
     /**
      * Registers an event listener. Declared Qooxdoo class and property events attach
-     * to the widget instance; all other events (DOM, pointer, keyboard, focus)
-     * delegate directly to `getContentElement()`.
+     * to the widget instance (`qx.core.MEvent`); native DOM events (`"click"`,
+     * `"keydown"`, `"toggle"`, `"command"`, `"change"`) delegate directly to
+     * `getContentElement()`.
      *
-     * @param {string} type Name of the event (e.g., `"execute"`, `"pointerover"`, `"keydown"`).
+     * @param {string} type Event name (e.g., `"changeValue"`, `"click"`, `"keydown"`).
      * @param {Function} listener Event handler function.
      * @param {Object} [self] Context (`this`) bound when invoking the listener.
      * @param {boolean} [capture=false] Whether to attach during the DOM capture phase.
@@ -199,7 +219,7 @@ qx.Class.define("ville.ui.core.Widget", {
      * Unregisters a previously attached event listener from either the widget
      * or its underlying content element.
      *
-     * @param {string} type Name of the event.
+     * @param {string} type Event name.
      * @param {Function} listener Event handler function to remove.
      * @param {Object} [self] Context (`this`) originally passed to `addListener()`.
      * @param {boolean} [capture=false] Whether the listener was registered for the capture phase.
@@ -216,7 +236,7 @@ qx.Class.define("ville.ui.core.Widget", {
      * Checks whether at least one listener is registered for the given event type
      * on either the widget or its underlying content element.
      *
-     * @param {string} type Name of the event.
+     * @param {string} type Event name.
      * @param {boolean} [capture=false] Whether to check the capture phase.
      * @returns {boolean} `true` if a matching listener exists.
      */
@@ -228,22 +248,43 @@ qx.Class.define("ville.ui.core.Widget", {
       return el ? el.hasListener(type, capture) : false;
     },
 
-    // --- 1. WAI-ARIA Support ---
+    /**
+     * Dispatches a standard Web API `CustomEvent` directly on the widget's live
+     * root `HTMLElement` (materializing the DOM element just-in-time if needed).
+     *
+     * @template T
+     * @param {string} type Event name (e.g., `"ville:select"`, `"ville:change"`).
+     * @param {T} [detail] Typed payload attached to `event.detail`.
+     * @param {{ bubbles?: boolean, cancelable?: boolean, composed?: boolean }} [options] Dispatch options.
+     * @returns {boolean} `false` if any listener called `event.preventDefault()`, otherwise `true`.
+     * @protected
+     */
+    _dispatchNativeEvent(type, detail, options = {}) {
+      const domEl = this._ensureDomElement();
+      if (!domEl) {
+        return true;
+      }
+
+      const event = new CustomEvent(type, {
+        detail: detail !== undefined ? detail : null,
+        bubbles: options.bubbles !== undefined ? options.bubbles : true,
+        cancelable: options.cancelable !== undefined ? options.cancelable : true,
+        composed: options.composed !== undefined ? options.composed : true
+      });
+
+      return domEl.dispatchEvent(event);
+    },
+
+    // --- 2. WAI-ARIA Support ---
 
     /**
      * Property apply handler for `ariaRole`.
      *
      * @param {string|null} value New ARIA role value.
-     * @param {string|null} old Previous ARIA role value.
      * @protected
      */
-    _applyAriaRole(value, old) {
-      const el = this.getContentElement();
-      if (value) {
-        el.setAttribute("role", value);
-      } else {
-        el.removeAttribute("role");
-      }
+    _applyAriaRole(value) {
+      this._setAttribute("role", value);
     },
 
     /**
@@ -253,15 +294,10 @@ qx.Class.define("ville.ui.core.Widget", {
      * @param {string|boolean|number|null} value Attribute value, or `null` to remove the attribute.
      */
     setAriaState(state, value) {
-      const el = this.getContentElement();
-      if (value === null) {
-        el.removeAttribute("aria-" + state);
-      } else {
-        el.setAttribute("aria-" + state, String(value));
-      }
+      this._setAttribute("aria-" + state, value === null ? null : String(value));
     },
 
-    // --- 2. Element Lifecycle (Lazy Load) ---
+    // --- 3. Element Lifecycle (Lazy Load & Flush) ---
 
     /**
      * Returns the widget's root `qx.html.Element`, creating and binding it lazily
@@ -277,6 +313,26 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
+     * Returns the widget's live `HTMLElement`, flushing pending `qx.html.Element`
+     * mutations just-in-time if the element has not yet been materialized.
+     *
+     * @returns {HTMLElement|null} Live DOM element.
+     * @protected
+     */
+    _ensureDomElement() {
+      let domEl = /** @type {HTMLElement|null} */ (
+        this.getContentElement().getDomElement()
+      );
+      if (!domEl || !domEl.isConnected) {
+        qx.html.Element.flush();
+        domEl = /** @type {HTMLElement|null} */ (
+          this.getContentElement().getDomElement()
+        );
+      }
+      return domEl;
+    },
+
+    /**
      * Instantiates, connects, and optionally hydrates the root `qx.html.Element`.
      *
      * @returns {qx.html.Element} The initialized content element.
@@ -284,11 +340,8 @@ qx.Class.define("ville.ui.core.Widget", {
      */
     __createContentElement() {
       const el = this._createContentElement();
-
-      // Bind the DOM element for memory management
       el.connectObject(this);
 
-      // Hydration Mode: Bind to existing DOM if applicable
       if (this.__existingDomId !== undefined && this.__existingDomId !== null) {
         const staticNode = document.getElementById(this.__existingDomId);
         if (staticNode) {
@@ -296,7 +349,6 @@ qx.Class.define("ville.ui.core.Widget", {
         }
       }
 
-      // Debugging metadata
       if (qx.core.Environment.get("qx.debug")) {
         el.setAttribute("villeClass", this.classname);
       }
@@ -306,8 +358,7 @@ qx.Class.define("ville.ui.core.Widget", {
 
     /**
      * Factory method that creates the underlying `qx.html.Element`.
-     * Subclasses override this to return semantic tags (e.g., `"button"`, `"a"`)
-     * or raw SVG markup via `useMarkup()`.
+     * Subclasses override this to return semantic tags (e.g., `"button"`, `"a"`, `"dialog"`).
      *
      * @returns {qx.html.Element} Newly constructed content element (defaults to `"div"`).
      * @protected
@@ -316,7 +367,7 @@ qx.Class.define("ville.ui.core.Widget", {
       return new qx.html.Element("div");
     },
 
-    // --- 3. State Management ---
+    // --- 4. State Management ---
 
     /**
      * Activates a visual/behavioral state on the widget, schedules an appearance
@@ -423,23 +474,21 @@ qx.Class.define("ville.ui.core.Widget", {
       }
     },
 
-    // --- 4. Appearance Resolution (Zero Layout Engine Dependency) ---
+    // --- 5. Appearance Resolution (Zero Layout Engine Dependency) ---
 
     /**
      * Property apply handler for `appearance`.
      *
-     * @param {string} value New appearance selector ID.
-     * @param {string} old Previous appearance selector ID.
      * @protected
      */
-    _applyAppearance(value, old) {
+    _applyAppearance() {
       this._invalidateAppearance();
     },
 
     /**
      * Marks this widget's appearance as dirty and schedules `syncAppearance()` on
      * the microtask queue so multiple synchronous state/property mutations
-     * coalesce into a single theme evaluation. Also invalidates child subcontrols.
+     * coalesce into a single theme evaluation.
      *
      * @protected
      * @ignore(queueMicrotask)
@@ -454,7 +503,6 @@ qx.Class.define("ville.ui.core.Widget", {
         });
       }
 
-      // Child controls with subcontrol IDs depend on parent appearance path
       if (this.__childControls) {
         for (const id in this.__childControls) {
           const control = this.__childControls[id];
@@ -481,9 +529,8 @@ qx.Class.define("ville.ui.core.Widget", {
 
     /**
      * Evaluates the active `qx.theme.manager.Appearance` entry for this widget's
-     * current `__states` map, applies returned themeable properties via
-     * `setThemed*()` / `resetThemed()`, and flushes buffered `qx.html.Element`
-     * mutations once all microtask passes settle.
+     * current `__states` map, applies returned themeable properties, and schedules
+     * a single coalesced DOM flush once microtask passes settle.
      */
     syncAppearance() {
       this.__appearanceDirty = false;
@@ -502,7 +549,6 @@ qx.Class.define("ville.ui.core.Widget", {
 
       const oldStyles = this.__themeValues;
 
-      // 1. Reset themed properties that no longer apply in the current state
       if (oldStyles) {
         for (const prop in oldStyles) {
           if (!styles || !(prop in styles)) {
@@ -515,7 +561,6 @@ qx.Class.define("ville.ui.core.Widget", {
         }
       }
 
-      // 2. Apply themed properties returned by the Appearance entry
       if (styles) {
         for (const prop in styles) {
           const setMethod =
@@ -532,30 +577,27 @@ qx.Class.define("ville.ui.core.Widget", {
 
       this.__themeValues = styles;
 
-      // 3. Flush buffered qx.html.Element mutations once microtask passes settle
       if (!this.__appearanceDirty) {
-        qx.html.Element.flush();
+        ville.ui.core.Widget.scheduleFlush();
       }
     },
 
-    // --- 5. Property Apply Methods ---
+    // --- 6. Core Property Apply Methods ---
 
     /**
-     * Property apply handler for `enabled`.
+     * Property apply handler for `enabled`. Toggles `"disabled"` state and
+     * `aria-disabled`. Form control subclasses override this to also toggle
+     * the native HTML `disabled` attribute.
      *
      * @param {boolean} value New enabled state.
-     * @param {boolean} old Previous enabled state.
      * @protected
      */
-    _applyEnabled(value, old) {
-      const el = this.getContentElement();
+    _applyEnabled(value) {
       if (value) {
         this.removeState("disabled");
-        el.removeAttribute("disabled");
         this.setAriaState("disabled", null);
       } else {
         this.addState("disabled");
-        el.setAttribute("disabled", "disabled");
         this.setAriaState("disabled", true);
       }
     },
@@ -564,38 +606,36 @@ qx.Class.define("ville.ui.core.Widget", {
      * Property apply handler for `visibility`.
      *
      * @param {"visible"|"hidden"|"excluded"} value New visibility mode.
-     * @param {"visible"|"hidden"|"excluded"} old Previous visibility mode.
      * @protected
      */
-    _applyVisibility(value, old) {
+    _applyVisibility(value) {
       const el = this.getContentElement();
       if (value === "excluded") {
         el.setStyle("display", "none");
+        el.setStyle("visibility", null);
       } else if (value === "hidden") {
-        el.setStyle("display", "block");
+        el.setStyle("display", null);
         el.setStyle("visibility", "hidden");
       } else {
-        el.setStyle("display", "block");
-        el.setStyle("visibility", "visible");
+        el.setStyle("display", null);
+        el.setStyle("visibility", null);
       }
+      ville.ui.core.Widget.scheduleFlush();
     },
 
     /**
      * Property apply handler for `anonymous`.
      *
      * @param {boolean} value Whether pointer events should be disabled.
-     * @param {boolean} old Previous anonymous state.
      * @protected
      */
-    _applyAnonymous(value, old) {
-      const el = this.getContentElement();
-      el.setStyle("pointer-events", value ? "none" : null);
+    _applyAnonymous(value) {
+      this.getContentElement().setStyle("pointer-events", value ? "none" : null);
+      ville.ui.core.Widget.scheduleFlush();
     },
 
     /**
      * Plain-object delta-diff applier for `cssUtilityClass` (zero `Set`/`Map` allocations).
-     * Adds only newly introduced classes and removes only dropped classes while
-     * preserving exact token ordering.
      *
      * @param {string|null} value New whitespace-separated class string.
      * @param {string|null} old Previous whitespace-separated class string.
@@ -639,13 +679,12 @@ qx.Class.define("ville.ui.core.Widget", {
           el.addClass(cls);
         }
       }
+
+      ville.ui.core.Widget.scheduleFlush();
     },
 
     /**
      * Delta-diff applier for theme-driven state mutations (`VilleCssStatesPayload`).
-     * Diffs `set-attributes`, `set-classes`, and `set-styles` against `old`,
-     * automatically removing any entry present in `old` that was omitted in `value`,
-     * and processes explicit `remove-*` arrays.
      *
      * @param {VilleCssStatesPayload|null} value Incoming state DOM payload.
      * @param {VilleCssStatesPayload|null} old Previous state DOM payload.
@@ -653,6 +692,11 @@ qx.Class.define("ville.ui.core.Widget", {
      */
     _applyCssStates(value, old) {
       if (value === old) {
+        return;
+      }
+
+      const el = this.getContentElement();
+      if (!el) {
         return;
       }
 
@@ -667,7 +711,7 @@ qx.Class.define("ville.ui.core.Widget", {
       if (oldAttrs) {
         for (const key in oldAttrs) {
           if (!setAttrs || !(key in setAttrs)) {
-            this.removeAttribute(key, true);
+            el.removeAttribute(key, true);
           }
         }
       }
@@ -679,7 +723,7 @@ qx.Class.define("ville.ui.core.Widget", {
           }
         }
         if (deltaAttrs) {
-          this.setAttributes(deltaAttrs, true);
+          el.setAttributes(deltaAttrs, true);
         }
       }
 
@@ -689,7 +733,7 @@ qx.Class.define("ville.ui.core.Widget", {
         for (let i = 0, l = removeAttrs.length; i < l; i++) {
           const attr = removeAttrs[i];
           if (!oldRemAttrs || !oldRemAttrs.includes(attr)) {
-            this.removeAttribute(attr, true);
+            el.removeAttribute(attr, true);
           }
         }
       }
@@ -702,7 +746,7 @@ qx.Class.define("ville.ui.core.Widget", {
         for (let i = 0, l = oldSetClasses.length; i < l; i++) {
           const cls = oldSetClasses[i];
           if (!setClasses || !setClasses.includes(cls)) {
-            this.removeClass(cls);
+            el.removeClass(cls);
           }
         }
       }
@@ -710,7 +754,7 @@ qx.Class.define("ville.ui.core.Widget", {
         for (let i = 0, l = setClasses.length; i < l; i++) {
           const cls = setClasses[i];
           if (!oldSetClasses || !oldSetClasses.includes(cls)) {
-            this.addClass(cls);
+            el.addClass(cls);
           }
         }
       }
@@ -721,7 +765,7 @@ qx.Class.define("ville.ui.core.Widget", {
         for (let i = 0, l = removeClasses.length; i < l; i++) {
           const cls = removeClasses[i];
           if (!oldRemClasses || !oldRemClasses.includes(cls)) {
-            this.removeClass(cls);
+            el.removeClass(cls);
           }
         }
       }
@@ -734,7 +778,7 @@ qx.Class.define("ville.ui.core.Widget", {
       if (oldStyles) {
         for (const key in oldStyles) {
           if (!setStyles || !(key in setStyles)) {
-            this.removeStyle(key, true);
+            el.removeStyle(key, true);
           }
         }
       }
@@ -746,7 +790,7 @@ qx.Class.define("ville.ui.core.Widget", {
           }
         }
         if (deltaStyles) {
-          this.setStyles(deltaStyles, true);
+          el.setStyles(deltaStyles, true);
         }
       }
 
@@ -756,25 +800,15 @@ qx.Class.define("ville.ui.core.Widget", {
         for (let i = 0, l = removeStyles.length; i < l; i++) {
           const style = removeStyles[i];
           if (!oldRemStyles || !oldRemStyles.includes(style)) {
-            this.removeStyle(style, true);
+            el.removeStyle(style, true);
           }
         }
       }
+
+      ville.ui.core.Widget.scheduleFlush();
     },
 
-    /**
-     * Property apply handler for `variant`.
-     *
-     * @param {string|null} value New variant identifier.
-     * @param {string|null} old Previous variant identifier.
-     * @protected
-     */
-    _applyVariant(value, old) {
-      this._syncModifierState("variant", value, old);
-    },
-
-    
-    // --- 6. Hierarchy & Child Control System ---
+    // --- 7. Hierarchy, Child Controls & Attribute Helper ---
 
     /**
      * Assigns the logical parent widget reference.
@@ -827,7 +861,6 @@ qx.Class.define("ville.ui.core.Widget", {
 
     /**
      * Appends a child widget and inserts its content element into this widget's DOM container.
-     * Detaches `childWidget` from any previous parent first.
      *
      * @param {ville.ui.core.Widget} childWidget Child widget to append.
      * @protected
@@ -839,11 +872,12 @@ qx.Class.define("ville.ui.core.Widget", {
       this.__children.push(childWidget);
       childWidget.setParent(this);
       this.getContentElement().add(childWidget.getContentElement());
+
+      ville.ui.core.Widget.scheduleFlush();
     },
 
     /**
      * Inserts a child widget at the specified zero-based index.
-     * Detaches `childWidget` from any previous parent first.
      *
      * @param {ville.ui.core.Widget} childWidget Child widget to insert.
      * @param {number} index Zero-based insertion index.
@@ -857,6 +891,8 @@ qx.Class.define("ville.ui.core.Widget", {
       this.__children.splice(index, 0, childWidget);
       childWidget.setParent(this);
       this.getContentElement().addAt(childWidget.getContentElement(), index);
+
+      ville.ui.core.Widget.scheduleFlush();
     },
 
     /**
@@ -901,6 +937,8 @@ qx.Class.define("ville.ui.core.Widget", {
         this.__children.splice(idx, 1);
         childWidget.setParent(null);
         this.getContentElement().remove(childWidget.getContentElement());
+
+        ville.ui.core.Widget.scheduleFlush();
       }
     },
 
@@ -946,11 +984,10 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
-     * Retrieves (and lazily creates via `_createChildControlImpl()`) a named child control,
-     * wiring subcontrol appearance selector resolution and forwarding active states.
+     * Retrieves (and lazily creates via `_createChildControlImpl()`) a named child control.
      *
-     * @param {string} id Child control identifier (e.g., `"label"`, `"icon"`).
-     * @param {boolean} [notcreate=false] If `true`, returns `null` instead of creating the control when absent.
+     * @param {string} id Child control identifier.
+     * @param {boolean} [notcreate=false] If `true`, returns `null` when absent.
      * @returns {ville.ui.core.Widget|null} The child control widget instance, or `null`.
      */
     getChildControl(id, notcreate) {
@@ -966,7 +1003,6 @@ qx.Class.define("ville.ui.core.Widget", {
           control.__subcontrolId = id;
           control.__subparent = this;
 
-          // Forward existing active states down to new child control
           if (this._forwardStates) {
             for (const state in this.__states) {
               if (this._forwardStates[state]) {
@@ -985,7 +1021,6 @@ qx.Class.define("ville.ui.core.Widget", {
 
     /**
      * Factory hook for creating named child controls on demand.
-     * Subclasses override this method to instantiate their internal subcontrols.
      *
      * @param {string} id Child control identifier.
      * @param {*} [hash] Optional configuration map passed during creation.
@@ -996,10 +1031,9 @@ qx.Class.define("ville.ui.core.Widget", {
       return null;
     },
 
-    // --- 7. DOM Passthrough Helpers ---
-
     /**
-     * Internal helper to set, toggle (boolean), or remove (`null`/`false`) an HTML attribute.
+     * Protected helper to set, toggle (boolean), or remove (`null`/`false`) an HTML
+     * attribute on the content element and schedule a coalesced DOM flush.
      *
      * @param {string} key HTML attribute name.
      * @param {string|boolean|null} value Attribute value (`true` sets empty string; `null`/`false` removes).
@@ -1012,106 +1046,7 @@ qx.Class.define("ville.ui.core.Widget", {
       } else {
         el.setAttribute(key, value === true ? "" : value);
       }
-    },
-
-    /**
-     * Adds a CSS class name to the root content element.
-     *
-     * @param {string} classname CSS class name to add.
-     */
-    addClass(classname) {
-      this.getContentElement().addClass(classname);
-    },
-
-    /**
-     * Removes a CSS class name from the root content element.
-     *
-     * @param {string} classname CSS class name to remove.
-     */
-    removeClass(classname) {
-      this.getContentElement().removeClass(classname);
-    },
-
-    /**
-     * Sets a single inline CSS style property on the root content element.
-     *
-     * @param {string} style CSS property name (e.g., `"width"`, `"--button-radius"`).
-     * @param {string|number|null} value CSS property value.
-     * @param {boolean} [direct=false] Whether to bypass `qx.html.Element` queueing and write directly to the DOM.
-     */
-    setStyle(style, value, direct) {
-      this.getContentElement().setStyle(style, value, direct);
-    },
-
-    /**
-     * Reads an inline CSS style value from the root content element.
-     *
-     * @param {string} style CSS property name.
-     * @returns {*} Current style value.
-     */
-    getStyle(style) {
-      return this.getContentElement().getStyle(style);
-    },
-
-    /**
-     * Sets multiple inline CSS style properties on the root content element.
-     *
-     * @param {Object<string, string|number|null>} styles Map of CSS property names to values.
-     * @param {boolean} [direct=false] Whether to write directly to the DOM.
-     */
-    setStyles(styles, direct) {
-      this.getContentElement().setStyles(styles, direct);
-    },
-
-    /**
-     * Removes an inline CSS style property from the root content element.
-     *
-     * @param {string} style CSS property name to remove.
-     * @param {boolean} [direct=false] Whether to write directly to the DOM.
-     */
-    removeStyle(style, direct) {
-      this.getContentElement().removeStyle(style, direct);
-    },
-
-    /**
-     * Sets a single HTML attribute on the root content element.
-     *
-     * @param {string} attribute HTML attribute name.
-     * @param {string|number|boolean|null} value Attribute value.
-     * @param {boolean} [direct=false] Whether to write directly to the DOM.
-     */
-    setAttribute(attribute, value, direct) {
-      this.getContentElement().setAttribute(attribute, value, direct);
-    },
-
-    /**
-     * Reads an HTML attribute value from the root content element.
-     *
-     * @param {string} attribute HTML attribute name.
-     * @returns {*} Current attribute value.
-     */
-    getAttribute(attribute) {
-      return this.getContentElement().getAttribute(attribute);
-    },
-
-    /**
-     * Sets multiple HTML attributes on the root content element.
-     *
-     * @param {Object<string, string|number|boolean|null>} attributes Map of attribute names to values.
-     * @param {boolean} [direct=false] Whether to write directly to the DOM.
-     */
-    setAttributes(attributes, direct) {
-      this.getContentElement().setAttributes(attributes, direct);
-    },
-
-    /**
-     * Removes an HTML attribute from the root content element.
-     *
-     * @param {string} attribute HTML attribute name to remove.
-     * @param {boolean} [direct=false] Whether to write directly to the DOM.
-     */
-    removeAttribute(attribute, direct) {
-      this.getContentElement().removeAttribute(attribute, direct);
+      ville.ui.core.Widget.scheduleFlush();
     }
   },
 

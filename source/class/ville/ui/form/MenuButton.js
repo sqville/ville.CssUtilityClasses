@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * Mode 3 Menu Opener Button (`ville.ui.form.MenuButton`) that declaratively controls
  * a `ville.ui.menu.Menu` popover via the native HTML `popovertarget` attribute.

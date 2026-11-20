@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ville UI — Semantic CSS Workflow Diagram</title>
+<style>
+  /* Ville UI Workflow Design Tokens */
+  :root {
+    --wf-bg: #fafafa;
+    --wf-dot: #e2e8f0;
+    --wf-line: #cbd5e1;
+    --wf-line-width: 1.5px;
+    --wf-gap-x: 44px;
+    --wf-gap-y: 16px;
+    --wf-radius: 10px;
+    --wf-node-bg: #ffffff;
+    --wf-node-border: #e2e8f0;
+    --wf-node-text: #1e293b;
+    --wf-port-fill: #64748b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background-color: var(--wf-bg);
+    background-image: radial-gradient(var(--wf-dot) 1.25px, transparent 1.25px);
+    background-size: 16px 16px;
+    padding: 48px;
+    overflow-x: auto;
+  }
+
+  /* Semantic Tree Container */
+  .wf-tree,
+  .wf-branches {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Each Step + Its Downstream Subtree */
+  .wf-step {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: calc(var(--wf-gap-y) / 2) 0;
+  }
+
+  /* Incoming Horizontal Connector to Every Child Step */
+  .wf-branches > .wf-step {
+    padding-left: var(--wf-gap-x);
+  }
+
+  .wf-branches > .wf-step::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: var(--wf-gap-x);
+    height: var(--wf-line-width);
+    background: var(--wf-line);
+  }
+
+  /* Vertical Branch Spine */
+  .wf-branches > .wf-step::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--wf-line-width);
+    background: var(--wf-line);
+  }
+
+  /* Clip Vertical Spine at Top & Bottom Branches (with subtle rounded corners) */
+  .wf-branches > .wf-step:first-child::after {
+    top: 50%;
+    border-top-left-radius: var(--wf-radius);
+  }
+  .wf-branches > .wf-step:last-child::after {
+    bottom: 50%;
+    border-bottom-left-radius: var(--wf-radius);
+  }
+
+  /* Single Child = Straight Line (No Vertical Spine) */
+  .wf-branches > .wf-step:only-child::after {
+    display: none;
+  }
+
+  /* Rounded Elbow Corner on First/Last Branch Horizontal Arm */
+  .wf-branches > .wf-step:first-child:not(:only-child)::before {
+    border-top: var(--wf-line-width) solid var(--wf-line);
+    border-left: var(--wf-line-width) solid var(--wf-line);
+    background: transparent;
+    height: 12px;
+    border-top-left-radius: var(--wf-radius);
+  }
+  .wf-branches > .wf-step:last-child:not(:only-child)::before {
+    top: auto;
+    bottom: 50%;
+    border-bottom: var(--wf-line-width) solid var(--wf-line);
+    border-left: var(--wf-line-width) solid var(--wf-line);
+    background: transparent;
+    height: 12px;
+    border-bottom-left-radius: var(--wf-radius);
+  }
+
+  /* Pill-Shaped Node Card */
+  .wf-node {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: var(--wf-node-bg);
+    color: var(--wf-node-text);
+    border: 1px solid var(--wf-node-border);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    z-index: 1;
+  }
+
+  .wf-node svg {
+    width: 18px;
+    height: 18px;
+    stroke: #475569;
+    fill: none;
+    stroke-width: 1.75;
+    flex-shrink: 0;
+  }
+
+  /* Input / Output Port Dots */
+  .wf-node[data-in]::before,
+  .wf-node[data-out]::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--wf-port-fill);
+    transform: translateY(-50%);
+  }
+  .wf-node[data-in]::before { left: -4px; }
+  .wf-node[data-out]::after { right: -4px; }
+</style>
+</head>
+<body>
+
+  <nav aria-label="Deployment Workflow">
+    <ul class="wf-tree">
+      <li class="wf-step">
+        <article class="wf-node" data-out>
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9v6H9"/></svg>
+          <span>Trigger: On push</span>
+        </article>
+
+        <ul class="wf-branches">
+          <li class="wf-step">
+            <article class="wf-node" data-in data-out>
+              <svg viewBox="0 0 24 24"><path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/></svg>
+              <span>Fingerprint</span>
+            </article>
+
+            <ul class="wf-branches">
+              <!-- Android Branch -->
+              <li class="wf-step">
+                <article class="wf-node" data-in data-out>
+                  <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <span>Get Android build</span>
+                </article>
+
+                <ul class="wf-branches">
+                  <li class="wf-step">
+                    <article class="wf-node" data-in data-out>
+                      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                      <span>Build Android</span>
+                    </article>
+
+                    <ul class="wf-branches">
+                      <li class="wf-step">
+                        <article class="wf-node" data-in>
+                          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                          <span>Submit Android</span>
+                        </article>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li class="wf-step">
+                    <article class="wf-node" data-in>
+                      <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                      <span>Publish Android update</span>
+                    </article>
+                  </li>
+                </ul>
+              </li>
+
+              <!-- iOS Branch -->
+              <li class="wf-step">
+                <article class="wf-node" data-in data-out>
+                  <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <span>Get iOS build</span>
+                </article>
+
+                <ul class="wf-branches">
+                  <li class="wf-step">
+                    <article class="wf-node" data-in data-out>
+                      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                      <span>Build iOS</span>
+                    </article>
+
+                    <ul class="wf-branches">
+                      <li class="wf-step">
+                        <article class="wf-node" data-in>
+                          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                          <span>Submit iOS</span>
+                        </article>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li class="wf-step">
+                    <article class="wf-node" data-in>
+                      <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                      <span>Publish iOS update</span>
+                    </article>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+</body>
+</html>

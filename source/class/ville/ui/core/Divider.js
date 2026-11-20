@@ -197,9 +197,9 @@ qx.Class.define("ville.ui.core.Divider", {
       this._syncModifierState("orientation", value, old);
 
       if (value === "vertical") {
-        this.setAttribute("aria-orientation", "vertical");
+        this.getContentElement().setAttribute("aria-orientation", "vertical");
       } else {
-        this.removeAttribute("aria-orientation");
+        this.getContentElement().removeAttribute("aria-orientation");
       }
     },
 

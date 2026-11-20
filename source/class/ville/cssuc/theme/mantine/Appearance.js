@@ -159,6 +159,22 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       }
     },
 
+    "layout-container": {
+      style() {
+        return {
+          cssUtilityClass: `m_7485cace${qx.core.Environment.get("qx.debug") ? ' mantine-Container-root' : ''}`
+        };
+      }
+    },
+
+    simplegrid : {
+      style() {
+        return {
+          cssUtilityClass: `m_2415a157${qx.core.Environment.get("qx.debug") ? ' mantine-SimpleGrid-root' : ''}`
+        };
+      }
+    },
+
     "typography-title": {
       style() {
         return {
@@ -269,6 +285,13 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       }
     },
 
+    "layout-flex": {
+      style() {
+        return {
+          cssUtilityClass: `m_8bffd616${qx.core.Environment.get("qx.debug") ? ' mantine-Flex-root' : ''}`
+        };
+      }
+    },
 
 
     /*

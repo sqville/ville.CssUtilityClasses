@@ -28,8 +28,8 @@ qx.Class.define("ville.ui.menu.Menu", {
     contentEl.setAttribute("popover", "auto");
 
     contentEl.addListener("toggle", this._onPopoverToggle, this);
-    this.addListener("pointerover", this._onPointerOver, this);
-    this.addListener("pointerout", this._onPointerOut, this);
+    contentEl.addListener("pointerover", this._onPointerOver, this);
+    contentEl.addListener("pointerout", this._onPointerOut, this);
   },
 
   events: {
@@ -254,9 +254,7 @@ qx.Class.define("ville.ui.menu.Menu", {
         this.removeState("open");
       }
 
-      const domEl = /** @type {HTMLElement|null} */ (
-        this.getContentElement().getDomElement()
-      );
+      const domEl = this._ensureDomElement();
       if (!domEl || !domEl.isConnected) {
         return;
       }

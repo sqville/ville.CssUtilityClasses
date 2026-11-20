@@ -1,21 +1,3 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2011 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-   * Martin Wittemann (martinwittemann)
-
-************************************************************************* */
-
 /**
  * The simple qooxdoo font theme.
  *
@@ -26,7 +8,7 @@
 qx.Theme.define("ville.cssuc.theme.mantine.Font", {
   fonts: {
        
-    "default-family": {
+    /*"default-family": {
       family: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji"]
     },
 
@@ -95,6 +77,6 @@ qx.Theme.define("ville.cssuc.theme.mantine.Font", {
     monospace: {
       family: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
       size: 11
-    }
+    }*/
   }
 });

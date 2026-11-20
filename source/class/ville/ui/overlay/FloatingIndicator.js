@@ -1,16 +1,13 @@
 /**
- * Base Container
+ * 
  */
 qx.Class.define("ville.ui.overlay.FloatingIndicator", {
     
-    extend: qx.ui.core.Widget,
+    extend: ville.ui.core.Box,
 
     construct(component) {
-        
-        if (component != null)
-            this._contentElementTag = component;
 
-        super();
+        super(component);
 
     },
 

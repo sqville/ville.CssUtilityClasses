@@ -24,10 +24,8 @@ qx.Class.define("villeuiapp.Application",
       // Enable logging in debug variant
       if (qx.core.Environment.get("qx.debug"))
       {
-        // support native logging capabilities, e.g. Firebug for Firefox
+        // support native logging capabilities.
         qx.log.appender.Native;
-        // support additional cross-browser console. Press F7 to toggle visibility
-        qx.log.appender.Console;
       }
       
       /*
@@ -50,7 +48,7 @@ qx.Class.define("villeuiapp.Application",
       // Document is the application root and AppShell root
       const appShell = this.getRoot();
       appShell.setCssUtilityClass("m_89ab340 mantine-AppShell-root");
-      appShell.setAttribute("data-mode", "fixed");
+      appShell.getContentElement().setAttribute("data-mode", "fixed");
 
       /* Inline Styles */
       const rootAppShellcssVariables = new ville.ui.style.Style(true);
@@ -61,11 +59,11 @@ qx.Class.define("villeuiapp.Application",
       /* ::: Header ::: */
       var headerBox = new ville.ui.core.Box("header");
       headerBox.setCssUtilityClass("m_3b16f56b mantine-AppShell-header right-scroll-bar-position");
-      headerBox.setAttribute("data-with-border", "true");
-      headerBox.setStyle("--app-shell-header-z-index", "100");
+      headerBox.getContentElement().setAttribute("data-with-border", "true");
+      headerBox.getContentElement().setStyle("--app-shell-header-z-index", "100");
 
       var headerInnerBox = new ville.ui.core.Box();
-      headerInnerBox.setStyles({
+      headerInnerBox.getContentElement().setStyles({
         "--container-size": "var(--container-size-xl)",
         "padding-inline": "var(--mantine-spacing-md)",
         "display": "flex",
@@ -75,7 +73,7 @@ qx.Class.define("villeuiapp.Application",
       });
 
       var headerLogoBurgerGroupBox = new ville.ui.layout.HGroup();
-      headerLogoBurgerGroupBox.setStyles({
+      headerLogoBurgerGroupBox.getContentElement().setStyles({
         "--group-gap": "var(--mantine-spacing-md)",
         "--group-align": "center",
         "--group-justify": "flex-start",
@@ -83,7 +81,7 @@ qx.Class.define("villeuiapp.Application",
       });
 
       var headerNavGroupBox = new ville.ui.layout.HGroup();
-      headerNavGroupBox.setStyles({
+      headerNavGroupBox.getContentElement().setStyles({
         "--group-gap": "var(--mantine-spacing-md)",
         "--group-align": "center",
         "--group-justify": "flex-start",
@@ -91,7 +89,7 @@ qx.Class.define("villeuiapp.Application",
       });
 
       var headerLinksGroupBox = new ville.ui.layout.HGroup();
-      headerLinksGroupBox.setStyles({
+      headerLinksGroupBox.getContentElement().setStyles({
         "--group-gap": "calc(0.3125rem * var(--mantine-scale))",
         "--group-align": "center",
         "--group-justify": "flex-start",
@@ -101,20 +99,20 @@ qx.Class.define("villeuiapp.Application",
 
       // Logo
       var villeLogo = new ville.ui.basic.Image("images/ville_logo.png");
-      villeLogo.setAttributes({
+      villeLogo.getContentElement().setAttributes({
         "src": "resource/villeuiapp/images/ville_logo.png",
         "alt": "Ville Software Logo"
       }, true);
-      villeLogo.setStyles({"width": "32px","height": "32px"});
+      villeLogo.getContentElement().setStyles({"width": "32px","height": "32px"});
 
       var headerLogoBox = new ville.ui.core.Box("span");
-      headerLogoBox.setStyles({
+      headerLogoBox.getContentElement().setStyles({
         "font-weight": "bold",
         "font-style": "normal",
         "color": "inherit",
         "font-size": "20px"
       });
-      headerLogoBox.setAttribute("html", "Ville.");
+      headerLogoBox.getContentElement().setAttribute("html", "Ville.");
 
       // Links
       /*
@@ -185,7 +183,7 @@ qx.Class.define("villeuiapp.Application",
 
       // Menu
       var btnMenu = new ville.ui.menu.Menu();
-      btnMenu.setStyles({
+      btnMenu.getContentElement().setStyles({
         "transition-property": "opacity",
         "backface-visibility": "hidden",
         "transition-duration": "150ms",
@@ -193,9 +191,9 @@ qx.Class.define("villeuiapp.Application",
       });
 
       var menuitem01 = new ville.ui.menu.Button("Update Works");
-      menuitem01.setStyle("white-space", "nowrap");
+      menuitem01.getContentElement().setStyle("white-space", "nowrap");
       var menuitem02 = new ville.ui.menu.Button("Toggle Enabled");
-      menuitem02.setStyle("white-space", "nowrap");
+      menuitem02.getContentElement().setStyle("white-space", "nowrap");
       btnMenu.add(menuitem01);
       btnMenu.add(menuitem02);
 

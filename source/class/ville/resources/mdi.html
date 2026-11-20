@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Minimal Web API MDI Starter</title>
+<style>
+  :root {
+    --bg-canvas: #121417;
+    --bg-pane: #1e2228;
+    --bg-header: #282d35;
+    --border: #383f4a;
+    --accent: #3b82f6;
+    --text: #e5e7eb;
+    --text-muted: #9ca3af;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg-canvas);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Top Workspace Bar */
+  .toolbar {
+    height: 40px;
+    background: #181b20;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 10px;
+  }
+
+  .toolbar button {
+    background: var(--bg-header);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .toolbar button:hover { border-color: var(--accent); }
+
+  /* Floating MDI Window (Popover Top-Layer) */
+  .mdi-window {
+    position: fixed;
+    inset: unset; /* Override default popover centering */
+    margin: 0;
+    background: var(--bg-pane);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    min-width: 240px;
+    min-height: 160px;
+    contain: content; /* Isolates layout/paint performance */
+    container-type: inline-size; /* Enables @container queries inside */
+  }
+
+  .mdi-window.active {
+    border-color: var(--accent);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+  }
+
+  /* Draggable Title + Tab Bar */
+  .title-bar {
+    height: 34px;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 8px;
+    cursor: grab;
+    touch-action: none;
+  }
+  .title-bar:active { cursor: grabbing; }
+
+  .tabs {
+    display: flex;
+    height: 100%;
+    overflow-x: auto;
+  }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--bg-pane);
+    color: var(--text);
+    border-top: 2px solid var(--accent);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+  }
+  .close-btn:hover { color: #ef4444; }
+
+  /* Document Content Area */
+  .pane-body {
+    flex: 1;
+    padding: 14px;
+    overflow: auto;
+    user-select: text;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Responsive layout inside the pane via Container Queries */
+  .adaptive-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  @container (min-width: 420px) {
+    .adaptive-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .card {
+    background: #262b33;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  /* Bottom-Right Resize Handle */
+  .resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 14px;
+    height: 14px;
+    cursor: nwse-resize;
+    touch-action: none;
+    background: linear-gradient(135deg, transparent 50%, var(--text-muted) 50%);
+    opacity: 0.5;
+  }
+  .resize-handle:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <strong>MDI Workspace</strong>
+    <button id="new-win-btn">+ New Tabbed Window</button>
+  </div>
+
+  <script>
+    let windowCount = 0;
+
+    function createMDIWindow({ x = 60, y = 70, width = 380, height = 260, tabs = [] } = {}) {
+      windowCount++;
+      const win = document.createElement('div');
+      win.className = 'mdi-window';
+      win.setAttribute('popover', 'manual'); // Native Top-Layer support
+      Object.assign(win.style, {
+        left: `${x}px`,
+        top: `${y}px`,
+        width: `${width}px`,
+        height: `${height}px`
+      });
+
+      win.innerHTML = `
+        <div class="title-bar">
+          <div class="tabs"></div>
+          <button class="close-btn" title="Close Window">✕</button>
+        </div>
+        <div class="pane-body"></div>
+        <div class="resize-handle"></div>
+      `;
+
+      const tabsContainer = win.querySelector('.tabs');
+      const bodyContainer = win.querySelector('.pane-body');
+
+      // Populate Tabs
+      tabs.forEach((tabData, idx) => {
+        const tabEl = document.createElement('div');
+        tabEl.className = `tab ${idx === 0 ? 'active' : ''}`;
+        tabEl.textContent = tabData.title;
+
+        const panelEl = document.createElement('div');
+        panelEl.className = `tab-panel ${idx === 0 ? 'active' : ''}`;
+        panelEl.innerHTML = tabData.content;
+
+        tabEl.addEventListener('pointerdown', (e) => {
+          e.stopPropagation(); // Prevent triggering window drag on tab click
+          win.querySelectorAll('.tab, .tab-panel').forEach(el => el.classList.remove('active'));
+          tabEl.classList.add('active');
+          panelEl.classList.add('active');
+          bringToFront(win);
+        });
+
+        tabsContainer.appendChild(tabEl);
+        bodyContainer.appendChild(panelEl);
+      });
+
+      // Bring window to top of Top-Layer stack on interaction
+      win.addEventListener('pointerdown', () => bringToFront(win));
+
+      // Close button
+      win.querySelector('.close-btn').addEventListener('click', () => {
+        win.hidePopover();
+        win.remove();
+      });
+
+      // Dragging via Pointer Capture
+      const titleBar = win.querySelector('.title-bar');
+      titleBar.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button')) return;
+        titleBar.setPointerCapture(e.pointerId);
+        const startX = e.clientX - win.offsetLeft;
+        const startY = e.clientY - win.offsetTop;
+
+        const onMove = (ev) => {
+          win.style.left = `${Math.max(0, ev.clientX - startX)}px`;
+          win.style.top = `${Math.max(40, ev.clientY - startY)}px`;
+        };
+        const onUp = () => {
+          titleBar.removeEventListener('pointermove', onMove);
+          titleBar.removeEventListener('pointerup', onUp);
+        };
+        titleBar.addEventListener('pointermove', onMove);
+        titleBar.addEventListener('pointerup', onUp);
+      });
+
+      // Resizing via Pointer Capture
+      const resizer = win.querySelector('.resize-handle');
+      resizer.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        resizer.setPointerCapture(e.pointerId);
+        const startW = win.offsetWidth;
+        const startH = win.offsetHeight;
+        const startX = e.clientX;
+        const startY = e.clientY;
+
+        const onMove = (ev) => {
+          win.style.width = `${Math.max(240, startW + (ev.clientX - startX))}px`;
+          win.style.height = `${Math.max(160, startH + (ev.clientY - startY))}px`;
+        };
+        const onUp = () => {
+          resizer.removeEventListener('pointermove', onMove);
+          resizer.removeEventListener('pointerup', onUp);
+        };
+        resizer.addEventListener('pointermove', onMove);
+        resizer.addEventListener('pointerup', onUp);
+      });
+
+      document.body.appendChild(win);
+      win.showPopover();
+      bringToFront(win);
+    }
+
+    // Re-invoking showPopover() moves an element to the top of the browser's Top Layer
+    function bringToFront(targetWin) {
+      document.querySelectorAll('.mdi-window').forEach(w => w.classList.remove('active'));
+      targetWin.classList.add('active');
+      if (targetWin.matches(':popover-open')) {
+        targetWin.hidePopover();
+        targetWin.showPopover();
+      }
+    }
+
+    // Spawn initial demo windows
+    createMDIWindow({
+      x: 40, y: 65, width: 450, height: 280,
+      tabs: [
+        {
+          title: 'Document 1',
+          content: `<h4>Container-Adaptive View</h4>
+                    <p style="font-size:13px; color:#9ca3af; margin-top:4px;">Widen this pane past 420px to see the grid shift to 2 columns.</p>
+                    <div class="adaptive-grid">
+                      <div class="card">Panel A Metrics</div>
+                      <div class="card">Panel B Logs</div>
+                    </div>`
+        },
+        {
+          title: 'Notes.md',
+          content: `<textarea style="width:100%; height:160px; background:#121417; color:#e5e7eb; border:1px solid #383f4a; padding:8px;">Type notes here...</textarea>`
+        }
+      ]
+    });
+
+    createMDIWindow({
+      x: 320, y: 180, width: 340, height: 220,
+      tabs: [
+        { title: 'Inspector', content: '<p style="font-size:13px;">Click or drag either window to reorder Top-Layer focus automatically.</p>' },
+        { title: 'Console', content: '<code style="font-size:12px; color:#34d399;">> Workspace ready.</code>' }
+      ]
+    });
+
+    document.getElementById('new-win-btn').addEventListener('click', () => {
+      const offset = (windowCount % 6) * 28;
+      createMDIWindow({
+        x: 80 + offset,
+        y: 80 + offset,
+        tabs: [
+          { title: `Untitled-${windowCount}`, content: `<p style="font-size:13px;">Content for window #${windowCount}.</p>` },
+          { title: 'Properties', content: '<p style="font-size:13px;">Secondary tab content.</p>' }
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

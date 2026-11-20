@@ -1,12 +1,24 @@
 ---
-name: CSS Utility Integration
+title: Ville UI CSS Utility Integration
 description: Guidelines for integrating modern CSS utility tokens and frameworks into ville.CssUtilityClasses on qooxdoo v7.9.3
+created: 2026-11-08
+updated: 2026-17-08
+type: architecture
+status: active
+published: false
 alwaysApply: true
+aliases:
+  - AI Agent Rules
+  - Project Goal & Active Patches
+  - Ville UI Development Guidelines
+  - ville.CssUtilityClasses Project
+tags:
+  - architecture
+  - project-overview
+related:
 ---
 
-# Project Goal & Active Patches: ville.CssUtilityClasses
-
-You are an expert AI assisting in the development of `ville.CssUtilityClasses` running on qooxdoo v7.9.3.
+You are an expert software architect assisting in the development of `ville.CssUtilityClasses`, a library running on **qooxdoo v7.9.3**. Always adhere to modern qooxdoo v7+ class syntax (`qx.Class.define`), strict ES6+ standards, and qooxdoo's widget/layout lifecycle. Avoid deprecated qooxdoo v5/v6 APIs. Keep code modular, well-documented with JSDoc tags compatible with the qooxdoo compiler, and concise.
 
 ## Glossary of Terms
 
@@ -31,6 +43,32 @@ Treat **Semantic HTML** as a high-weight **go-to heuristic** (a primary decision
 - **Semantic Root Elements:** Return the most specific native HTML tag directly from `_createContentElement()` (`<button>`, `<a>`, `<img>`, `<dialog>`, `<label>`, `<input>`, `<h1>`–`<h6>`, `<hr>`) instead of wrapping it inside a `<div>`.
 - **Avoid "Div Soup":** Flatten Mode 3 widget DOM trees to a single root element whenever possible. Expose a polymorphic `component` property on layout and text primitives (`Box`, `Stack`, `Group`, `Container`, `Text`) so callers can render `<nav>`, `<main>`, `<section>`, `<article>`, `<header>`, `<footer>`, or `<ul>`/`<li>` directly without extra wrapper `<div>`s.
 - **Native AOM & First Rule of ARIA:** Rely on native semantic elements to build the browser's Accessibility Object Model (AOM) and supply built-in keyboard/focus behavior (`Enter`/`Space` on `<button>`, `Escape` on `<dialog>`). Omit redundant `role` and `tabindex` attributes on native tags; fall back to `<div>`/`<span>` with explicit ARIA roles (`role="menu"`, `role="tablist"`) only when a composite widget or purely visual layout container has no semantic HTML equivalent.
+
+## Event System Architecture (Ville UI Mode 3 Only)
+
+> **Scope:** Apply these rules **exclusively** to **Ville UI Mode 3** (`ville.ui.*` and `villeuiapp.*`). **Do not** apply them to legacy Mode 1/2 applications (`mantineapp`, `qxapp`, `shadcnapp`, `tablerapp`, `twindapp`, `carbonapp`, `villewebsite`) or legacy `qx.ui.*` patches (`ville.cssuc.patch.*`).
+
+Use a **two-tier hybrid event model** that eliminates Qooxdoo's legacy DOM event shims while preserving `qx.core.Property` reactivity and `qx.data` data binding:
+
+- **Exclude Legacy Qooxdoo DOM Event Handlers:** Never import or `@require` `qx.event.Registration` or `qx.event.handler.*` (`Pointer`, `Gesture`, `Mouse`, `Keyboard`, `Touch`, `Focus`), and never attach synthesized Qooxdoo DOM events (`"tap"`, `"pointerdown"`, `"keyinput"`) on widgets.
+- **Bind Native DOM Events via `getContentElement()`:** Attach standard Web API events (`click`, `input`, `change`, `keydown`, `pointerover`, `pointerout`, `focusin`, `toggle`, `command`, `close`) on `this.getContentElement()` (or via `Widget`'s delegating `addListener`) and read the native browser event via `e.getNativeEvent()`.
+- **Emit Bubbling `CustomEvent`s via `_dispatchNativeEvent()`:** Dispatch widget-level semantic UI events (`"ville:select"`, `"ville:change"`, `"ville:dismiss"`) using `this._dispatchNativeEvent(type, detail, options)` on `ville.ui.core.Widget` so both Qooxdoo widgets and vanilla DOM / Web Component parents can observe them natively.
+- **Preserve `qx.core.MEvent` (`change*`) for Properties & Data Binding:** Keep `event: "change*"` on stateful Qooxdoo properties (`value`, `checked`, `open`, `selected`) so `widget.bind(...)`, `qx.data.controller.*`, `MExecutable`, and `qx.locale.Manager` (`changeLocale`) continue working without changes.
+- **Compiler & Bootloader Conventions:** Always pair ES2015+ default function parameters (`options = {}`) with explicit JSDoc `@param` annotations so `@qooxdoo/compiler`'s `.d.ts` generator emits accurate types. Keep the `unload` $\rightarrow$ `pagehide` shim isolated in `villeuiapp`'s custom `loaderTemplate` (`source/boot/villeuiapp/loader.tmpl.js`) rather than inside `AbstractGui.js`.
+
+## Form & Input Architecture (Ville UI Mode 3 Only)
+
+> **Scope:** Apply these rules **exclusively** to **Ville UI Mode 3** (`ville.ui.*`, `ville.html.*`, and `villeuiapp.*`). **Do not** apply them to legacy Mode 1/2 applications (`mantineapp`, `qxapp`, `shadcnapp`, `tablerapp`, `twindapp`, `carbonapp`, `villewebsite`) or legacy `qx.ui.*` patches (`ville.cssuc.patch.*`).
+
+Build all Mode 3 form controls on `ville.html.Input` and `ville.ui.form.core.Input` using native HTML semantics, direct DOM IDL properties, and the Mode 3 hybrid event model:
+
+- **Ban Legacy `qx.html.Input` and `qx.bom.Input`:** Never import `qx.html.Input` or `qx.bom.Input` in Mode 3. Always use `ville.html.Input` (extending `qx.html.Element`), which supports all 22 HTML `<input>` types plus `<textarea>` and `<select>` without legacy IE/WebKit shims, loose-equality falsy `0` bugs, or `<input type="file">` value assignment exceptions.
+- **Single Semantic Root (`ville.ui.form.core.Input`):** Extend `ville.ui.form.core.Input` for form widgets (`TextField`, `PasswordField`, `DateField`, `Spinner`, `CheckBox`, `RadioButton`, `TextArea`, `SelectBox`, `ComboBox`, `FileSelectorButton`). Keep only universal attributes (`type`, `value`, `name`, `placeholder`, `readOnly`, `required`, `autoComplete`) on the base class; declare type-specific attributes (`min`/`max`/`step`, `rows`/`cols`, `checked`/`indeterminate`, `accept`/`multiple`/`files`) on subclasses.
+- **Dynamic `type` Switching Rules:**
+  - **Mutate `domEl.type` Directly:** When changing an input's `type` at runtime (e.g., `password` $\leftrightarrow$ `text`), assign `domEl.type = nextType` directly (and call `setAttribute("type", nextType, true)` to keep `qx.html.Element`'s cache synchronized). Never replace `outerHTML`, which destroys attached DOM listeners, focus, and element references. Preserve and restore `selectionStart`/`selectionEnd` when focused.
+  - **Restrict to Compatible Families:** Allow runtime `setType()` transitions only within text-entry types (`text`, `password`, `email`, `search`, `tel`, `url`). Never morph a text input into `checkbox`, `radio`, `file`, `select`, or `textarea`.
+  - **Sync Toggle Button ARIA & States:** Whenever toggling input visibility (such as `PasswordField`), update the `<button type="button">` (`ville.ui.core.AbstractButton`) simultaneously: set `aria-pressed` (`"true"` when revealed, `"false"` when masked), toggle `aria-label` (`"Hide password"` / `"Show password"`), and toggle the `"revealed"` widget state.
+- **Native Events, Validation & Data Binding:** Bind native DOM `"input"`, `"change"`, and `"invalid"` listeners on `getContentElement()`, preserve `event: "changeValue"` (`qx.core.MEvent`) for `qx.data` bindings, emit bubbling `"ville:input"` and `"ville:change"` `CustomEvent`s via `_dispatchNativeEvent()`, and delegate validation to native `checkValidity()` and `reportValidity()`.
 
 ### Mode 1: Hybrid Approach (Qooxdoo Layouts + CSS Styling)
 

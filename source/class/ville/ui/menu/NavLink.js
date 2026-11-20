@@ -6,9 +6,7 @@
  */
 qx.Class.define("ville.ui.menu.NavLink", {
     
-    extend: qx.ui.menu.RadioButton,
-
-    include: ville.ui.core.MWidget,
+    extend: ville.ui.menu.RadioButton,
 
     construct(label, variant, sectionLeft, sectionRight, component) {
         

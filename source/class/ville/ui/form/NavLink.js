@@ -15,12 +15,12 @@ qx.Class.define("ville.ui.form.NavLink", {
         this.setCssUtilityClass("mantine-focus-auto m_f0824112 mantine-NavLink-root m_87cf2631 mantine-UnstyledButton-root");
 
         if (this.__componenttag !== "button") {
-            this.removeAttribute('type');
-            this.removeAttribute('role');
+            this.getContentElement().removeAttribute('type');
+            this.getContentElement().removeAttribute('role');
         }
 
         if (label != null) {
-            this.setAttribute('html', label);
+            this.getContentElement().setAttribute('html', label);
         }
     },
 
@@ -53,12 +53,12 @@ qx.Class.define("ville.ui.form.NavLink", {
             // only apply if tag is an anchor "a"
             if (this.__componenttag == "a") {
                 if (value) {
-                    this.setAttribute("href", value);
+                    this.getContentElement().setAttribute("href", value);
                     this.__clickpreventListnerId = this.addListener("click", (e) => {e.preventDefault()});
                 } else {
                     this.removeAttribute("href");
                     if (this.__clickpreventListnerId != null)
-                        this.removeListener(this.__clickpreventListnerId);
+                        this.getContentElement().removeListener(this.__clickpreventListnerId);
                 }
             }
         },
@@ -68,9 +68,9 @@ qx.Class.define("ville.ui.form.NavLink", {
             // only apply if tag is an anchor "a"
             if (this.__componenttag == "a") {
                 if (value) {
-                    this.setAttribute("target", value);
+                    this.getContentElement().setAttribute("target", value);
                 } else {
-                    this.removeAttribute("target");
+                    this.getContentElement().removeAttribute("target");
                 }
             }
         }

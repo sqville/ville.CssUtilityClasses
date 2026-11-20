@@ -23,7 +23,7 @@
   },
   "babel" : {
     "options" : {
-      "targets" : "> 0.25%, not dead"
+      "targets" : "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions, last 2 Edge versions"
     } 
   },
   "applications": [
@@ -32,14 +32,13 @@
       "theme": "ville.cssuc.theme.mantine.Theme",
       "name": "villeuiapp",
       "bootPath": "source/boot/villeuiapp",
+      "loaderTemplate": "source/resource/ville/ville-loader-browser.tmpl.js",
       "exclude": [
-        "carbonapp.*",
-        "mantineapp.*",
-        "qxapp.*",
-        "shadcnapp.*",
-        "tablerapp.*",
-        "twindapp.*",
-        "villewebsite.*"
+        "qx.theme.Classic",
+        "qx.theme.Indigo",
+        "qx.theme.Modern",
+        "qx.theme.Simple",
+        "qx.theme.Tangible"
       ],
       "group": ["main", "mantine"],
       "environment": {

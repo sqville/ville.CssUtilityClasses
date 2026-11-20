@@ -120,7 +120,6 @@ qx.Class.define("ville.ui.typography.Title", {
         this.__textNode.setText(textContent);
       }
 
-      qx.html.Element.flush();
     }
   },
 

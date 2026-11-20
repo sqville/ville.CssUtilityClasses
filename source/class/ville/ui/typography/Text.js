@@ -216,7 +216,6 @@ qx.Class.define("ville.ui.typography.Text", {
         this.__textNode.setText(textContent);
       }
 
-      qx.html.Element.flush();
     },
 
     /**

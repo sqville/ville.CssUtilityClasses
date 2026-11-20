@@ -4,29 +4,21 @@
  */
 qx.Class.define("ville.ui.layout.SimpleGrid", {
     
-    extend: qx.ui.core.Widget,
-
-    include: qx.ui.core.MChildrenHandling,
+    extend: ville.ui.core.Box,
 
     construct(component) {
         
-        if (component) {
-            this.__componenttag = component;
-        }
-        super();
-
-        this.setCssUtilityClass("m_2415a157 mantine-SimpleGrid-root");
+        super(component);
 
     },
 
-    members: {
-
-        __componenttag: "div",
+    properties: {
 
         // overridden
-        _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+        appearance: {
+            refine: true,
+            init: "simplegrid"
         }
-
     }
+
   });

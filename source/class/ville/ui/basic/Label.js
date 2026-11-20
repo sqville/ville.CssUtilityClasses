@@ -131,8 +131,7 @@ qx.Class.define("ville.ui.basic.Label", {
     }),
 
     /**
-     * Lazily creates and updates the internal `qx.html.Text` node and commits
-     * the change via `qx.html.Element.flush()`.
+     * Lazily creates and updates the internal `qx.html.Text` node.
      *
      * @param {string} text Escaped plain-text content to render.
      * @private
@@ -144,7 +143,7 @@ qx.Class.define("ville.ui.basic.Label", {
       } else {
         this.__textNode.setText(text);
       }
-      qx.html.Element.flush();
+
     }
   },
 

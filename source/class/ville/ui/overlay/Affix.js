@@ -1,18 +1,13 @@
 /**
- * external(mantine/core/styles/Affix.css)
+ * 
  */
 qx.Class.define("ville.ui.overlay.Affix", {
     
-    extend: qx.ui.core.Widget,
-
-    include: qx.ui.core.MChildrenHandling,
+    extend: ville.ui.core.Box,
 
     construct(component) {
-        
-        if (component != null)
-            this._contentElementTag = component;
 
-        super();
+        super(component);
 
     },
 

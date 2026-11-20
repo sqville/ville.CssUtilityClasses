@@ -13,7 +13,7 @@ qx.Class.define("ville.ui.menu.Button", {
    *
    * @param {string|null} [label] Menu item text caption.
    * @param {string|ville.ui.core.Widget|null} [icon] Left icon URI string or widget.
-   * @param {qx.ui.command.Command|null} [command] Command instance bound via `MExecutable`.
+   * @param {ville.ui.command.Command|null} [command] Command instance bound via `ville.ui.core.MExecutable`.
    * @param {ville.ui.menu.Menu|null} [menu] Optional submenu popover.
    * @param {string|ville.ui.core.Widget|null} [arrow] Optional right arrow icon for submenus.
    */
@@ -232,15 +232,15 @@ qx.Class.define("ville.ui.menu.Button", {
     },
 
     /**
-     * Handles `"tap"` on a menu item. If this item is a leaf action (no submenu),
+     * Handles native `"click"` on a menu item. If this item is a leaf action (no submenu),
      * fires `execute()` and closes the enclosing parent menu stack.
      *
      * @override
      * @this {ville.ui.menu.Button}
-     * @param {qx.event.type.Tap} e Tap event.
+     * @param {qx.event.type.Native} e Native click event wrapper.
      * @protected
      */
-    _onTap(e) {
+    _onClick(e) {
       if (this.hasState("disabled")) {
         return;
       }

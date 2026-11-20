@@ -1,8 +1,6 @@
 /**
  * Mode 3 abstract base class for GUI applications (`ville.ui.application.AbstractGui`),
  * decoupled from `qx.ui.core.queue.Manager` and legacy Qooxdoo layout engines.
- *
- * @require(qx.core.Init)
  */
 qx.Class.define("ville.ui.application.AbstractGui", {
   type: "abstract",
@@ -10,25 +8,18 @@ qx.Class.define("ville.ui.application.AbstractGui", {
   implement: [qx.application.IApplication],
   include: [qx.locale.MTranslation],
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
     /** @type {ville.ui.core.Widget|null} The root widget */
     __root: null,
 
     /**
-     * Create the root widget. This method is abstract and must be overridden
-     * by subclasses.
+     * Creates the root widget. Subclasses must override this method.
      *
      * @returns {ville.ui.core.Widget} The root widget.
      * @protected
      */
     _createRootWidget() {
-      throw new Error("Abstract method call");
+      throw new Error("Abstract method call: _createRootWidget()");
     },
 
     /**
@@ -42,12 +33,9 @@ qx.Class.define("ville.ui.application.AbstractGui", {
 
     // interface method
     main() {
-      // Initialize configured Meta/Appearance themes
-      qx.theme.manager.Meta.getInstance().initialize();
-
+      ville.ui.theme.manager.Meta.getInstance().initialize();
+      
       this.__root = this._createRootWidget();
-
-      // Ensure initial viewport starts at top-left
       window.scrollTo(0, 0);
     },
 
@@ -57,7 +45,8 @@ qx.Class.define("ville.ui.application.AbstractGui", {
     },
 
     /**
-     * Flushes buffered `qx.html.Element` virtual DOM mutations to the live DOM.
+     * Synchronously flushes buffered `qx.html.Element` virtual DOM mutations
+     * to the live DOM (invoked at boot completion via `finalize()`).
      */
     render() {
       qx.html.Element.flush();
@@ -69,19 +58,11 @@ qx.Class.define("ville.ui.application.AbstractGui", {
      * @param {string} [val] Optional unload value.
      * @returns {string|undefined} Optional browser confirmation prompt text.
      */
-    close() {},
+    close(val) {},
 
     // interface method
-    terminate() {
-      // empty
-    }
+    terminate() {}
   },
-
-  /*
-  *****************************************************************************
-     DESTRUCTOR
-  *****************************************************************************
-  */
 
   destruct() {
     this._disposeObjects("__root");

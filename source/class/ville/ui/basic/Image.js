@@ -186,7 +186,7 @@ qx.Class.define("ville.ui.basic.Image", {
       this.removeState("failed");
       this.addState("loading");
 
-      this.setAttribute("src", this._resolveUri(value));
+      this.getContentElement().setAttribute("src", this._resolveUri(value));
 
     },
 
@@ -198,7 +198,7 @@ qx.Class.define("ville.ui.basic.Image", {
     * @protected
     */
     _applyAlt(value) {
-      this.setAttribute("alt", value != null ? value : "");
+      this.getContentElement().setAttribute("alt", value != null ? value : "");
     },
 
     /**
@@ -209,7 +209,7 @@ qx.Class.define("ville.ui.basic.Image", {
     * @protected
     */
     _applyLoading(value) {
-      this.setAttribute("loading", value);
+      this.getContentElement().setAttribute("loading", value);
     },
 
     /**
@@ -220,7 +220,7 @@ qx.Class.define("ville.ui.basic.Image", {
     * @protected
     */
     _applyDecoding(value) {
-      this.setAttribute("decoding", value);
+      this.getContentElement().setAttribute("decoding", value);
     },
 
     /**
@@ -244,9 +244,9 @@ qx.Class.define("ville.ui.basic.Image", {
     */
     _applyIntrinsicWidth(value) {
       if (value != null) {
-        this.setAttribute("width", String(value));
+        this.getContentElement().setAttribute("width", String(value));
       } else {
-        this.removeAttribute("width");
+        this.getContentElement().removeAttribute("width");
       }
 
     },
@@ -260,9 +260,9 @@ qx.Class.define("ville.ui.basic.Image", {
     */
     _applyIntrinsicHeight(value) {
       if (value != null) {
-        this.setAttribute("height", String(value));
+        this.getContentElement().setAttribute("height", String(value));
       } else {
-        this.removeAttribute("height");
+        this.getContentElement().removeAttribute("height");
       }
     },
 

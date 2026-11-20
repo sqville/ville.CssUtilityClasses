@@ -64,9 +64,9 @@ qx.Class.define("ville.ui.style.Style", {
      */
     _applyBlocking(value) {
       if (value === true) {
-        this.setAttribute("blocking", "render");
+        this.getContentElement().setAttribute("blocking", "render");
       } else {
-        this.removeAttribute("blocking");
+        this.getContentElement().removeAttribute("blocking");
       }
     },
 
@@ -78,9 +78,9 @@ qx.Class.define("ville.ui.style.Style", {
      */
     _applyStyletype(value) {
       if (value === null || value === "false") {
-        this.removeAttribute("data-cssengine-styles");
+        this.getContentElement().removeAttribute("data-cssengine-styles");
       } else {
-        this.setAttribute("data-cssengine-styles", value);
+        this.getContentElement().setAttribute("data-cssengine-styles", value);
       }
     },
 
@@ -105,7 +105,6 @@ qx.Class.define("ville.ui.style.Style", {
         this.__textNode.setText("");
       }
 
-      qx.html.Element.flush();
     }
   },
 
