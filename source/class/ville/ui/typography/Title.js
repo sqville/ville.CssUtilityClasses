@@ -1,6 +1,6 @@
 /**
  * Mode 3 CSS-driven Title widget (`ville.ui.typography.Title`) that renders
- * semantic `<h1>`–`<h6>` heading elements with safe `qx.html.Text` content
+ * semantic `<h1>`–`<h6>` heading elements with safe `ville.html.Text` content
  * and `"order-<1..6>"` modifier states for Appearance themes.
  *
  * @example
@@ -53,7 +53,7 @@ qx.Class.define("ville.ui.typography.Title", {
     },
 
     /**
-     * Plain-text heading content rendered via `qx.html.Text`.
+     * Plain-text heading content rendered via `ville.html.Text`.
      * Accepts standard strings or `qx.locale.LocalizedString` instances.
      *
      * @type {string|qx.locale.LocalizedString|null}
@@ -72,17 +72,17 @@ qx.Class.define("ville.ui.typography.Title", {
     /** @type {"h1"|"h2"|"h3"|"h4"|"h5"|"h6"} @private */
     __contentElementTag: "h1",
 
-    /** @type {qx.html.Text|null} @private */
+    /** @type {ville.html.Text|null} @private */
     __textNode: null,
 
     /**
-     * Creates the semantic `<h1–h6>` `qx.html.Element`.
+     * Creates the semantic `<h1–h6>` `ville.html.Element`.
      *
-     * @returns {qx.html.Element} Root heading element.
+     * @returns {ville.html.Element} Root heading element.
      * @protected
      */
     _createContentElement() {
-      return new qx.html.Element(this.__contentElementTag);
+      return new ville.html.Element(this.__contentElementTag);
     },
 
     /**
@@ -103,7 +103,7 @@ qx.Class.define("ville.ui.typography.Title", {
     },
 
     /**
-     * Property apply handler for `text`. Updates the heading's `qx.html.Text`
+     * Property apply handler for `text`. Updates the heading's `ville.html.Text`
      * node safely without `innerHTML` and flushes buffered DOM mutations.
      *
      * @param {string|qx.locale.LocalizedString|null} value New heading text.
@@ -114,17 +114,16 @@ qx.Class.define("ville.ui.typography.Title", {
       const textContent = resolved != null ? String(resolved) : "";
 
       if (!this.__textNode) {
-        this.__textNode = new qx.html.Text(textContent);
+        this.__textNode = new ville.html.Text(textContent);
         this.getContentElement().add(this.__textNode);
       } else {
         this.__textNode.setText(textContent);
       }
-
     }
   },
 
   /**
-   * Disposes the internal `qx.html.Text` node on widget destruction.
+   * Disposes the internal `ville.html.Text` node on widget destruction.
    */
   destruct() {
     if (this.__textNode) {

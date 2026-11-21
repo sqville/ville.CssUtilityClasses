@@ -10,7 +10,7 @@
 /**
  * Mode 3 CSS-driven Text widget (`ville.ui.typography.Text`) that renders
  * semantic `<p>` or `<span>` (or custom polymorphic) text elements with safe
- * `qx.html.Text` content and CSS-engine-agnostic modifier states.
+ * `ville.html.Text` content and CSS-engine-agnostic modifier states.
  *
  * @example
  * const body = new ville.ui.typography.Text("Hello world");
@@ -65,7 +65,7 @@ qx.Class.define("ville.ui.typography.Text", {
     },
 
     /**
-     * Plain-text content rendered via `qx.html.Text`.
+     * Plain-text content rendered via `ville.html.Text`.
      * Accepts standard strings or `qx.locale.LocalizedString` instances.
      *
      * @type {string|qx.locale.LocalizedString|null}
@@ -185,21 +185,21 @@ qx.Class.define("ville.ui.typography.Text", {
     /** @type {"p"|"span"|"div"|"label"|"a"|"strong"|"em"} @private */
     __componentTag: "p",
 
-    /** @type {qx.html.Text|null} @private */
+    /** @type {ville.html.Text|null} @private */
     __textNode: null,
 
     /**
-     * Creates the root `qx.html.Element` using the configured tag (defaults to `"p"`).
+     * Creates the root `ville.html.Element` using the configured tag (defaults to `"p"`).
      *
-     * @returns {qx.html.Element} Root text element.
+     * @returns {ville.html.Element} Root text element.
      * @protected
      */
     _createContentElement() {
-      return new qx.html.Element(this.__componentTag);
+      return new ville.html.Element(this.__componentTag);
     },
 
     /**
-     * Property apply handler for `text`. Updates the internal `qx.html.Text`
+     * Property apply handler for `text`. Updates the internal `ville.html.Text`
      * node safely without `innerHTML` and flushes buffered DOM mutations.
      *
      * @param {string|qx.locale.LocalizedString|null} value New text value.
@@ -210,12 +210,11 @@ qx.Class.define("ville.ui.typography.Text", {
       const textContent = resolved != null ? String(resolved) : "";
 
       if (!this.__textNode) {
-        this.__textNode = new qx.html.Text(textContent);
+        this.__textNode = new ville.html.Text(textContent);
         this.getContentElement().add(this.__textNode);
       } else {
         this.__textNode.setText(textContent);
       }
-
     },
 
     /**
@@ -335,7 +334,7 @@ qx.Class.define("ville.ui.typography.Text", {
   },
 
   /**
-   * Disposes the internal `qx.html.Text` node on widget destruction.
+   * Disposes the internal `ville.html.Text` node on widget destruction.
    */
   destruct() {
     if (this.__textNode) {

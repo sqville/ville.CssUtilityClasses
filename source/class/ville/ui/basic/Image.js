@@ -143,13 +143,13 @@ qx.Class.define("ville.ui.basic.Image", {
 
   members: {
     /**
-    * Creates the root `<img>` `qx.html.Element`.
+    * Creates the root `<img>` `ville.html.Element`.
     *
-    * @returns {qx.html.Element} Root image element.
+    * @returns {ville.html.Element} Root image element.
     * @protected
     */
     _createContentElement() {
-      return new qx.html.Element("img");
+      return new ville.html.Element("img");
     },
 
     /**

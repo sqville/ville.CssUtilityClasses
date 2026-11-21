@@ -29,7 +29,7 @@
   "applications": [
     {
       "class": "villeuiapp.Application",
-      "theme": "ville.cssuc.theme.mantine.Appearance",
+      "theme": "ville.cssuc.theme.mantine.Theme",
       "name": "villeuiapp",
       "bootPath": "source/boot/villeuiapp",
       "loaderTemplate": "source/resource/ville/ville-loader-browser.tmpl.js",

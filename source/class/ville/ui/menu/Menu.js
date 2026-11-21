@@ -3,8 +3,9 @@
  * (`popover="auto"`).
  *
  * Eliminates `qx.ui.menu.Manager`, `MPlacement`, `Blocker`, and `MenuSlideBar` in favor
- * of top-layer popover promotion, native light-dismiss, and CSS overflow scrolling.
- * 
+ * of top-layer popover promotion, native light-dismiss, CSS `:hover` / `:focus`, and
+ * CSS overflow scrolling.
+ *
  * @external(ville/ville-menu.css)
  */
 qx.Class.define("ville.ui.menu.Menu", {
@@ -16,11 +17,6 @@ qx.Class.define("ville.ui.menu.Menu", {
 
     qx.core.Init.getApplication().getRoot().add(this);
 
-    /*const app = qx.core.Init.getApplication();
-    if (app && typeof app.getRoot === "function") {
-      app.getRoot().add(this);
-    }*/
-
     this.setAriaRole("menu");
 
     const contentEl = this.getContentElement();
@@ -29,7 +25,6 @@ qx.Class.define("ville.ui.menu.Menu", {
 
     contentEl.addListener("toggle", this._onPopoverToggle, this);
     contentEl.addListener("pointerover", this._onPointerOver, this);
-    contentEl.addListener("pointerout", this._onPointerOut, this);
   },
 
   events: {
@@ -60,7 +55,7 @@ qx.Class.define("ville.ui.menu.Menu", {
     },
 
     /**
-     * The currently highlighted/selected menu button.
+     * The currently keyboard-selected menu button (hover highlighting is handled natively via CSS `:hover`).
      */
     selectedButton: {
       check: "ville.ui.core.AbstractButton",
@@ -120,7 +115,7 @@ qx.Class.define("ville.ui.menu.Menu", {
      * using CSS custom properties (`--menu-x`, `--menu-y`).
      *
      * @this {ville.ui.menu.Menu}
-     * @param {qx.event.type.Pointer|MouseEvent} e Pointer or native `contextmenu` event.
+     * @param {Object|MouseEvent} e Pointer wrapper or native `contextmenu` event.
      */
     openAtPointer(e) {
       const x = typeof e.getDocumentLeft === "function" ? e.getDocumentLeft() : e.clientX;
@@ -194,7 +189,6 @@ qx.Class.define("ville.ui.menu.Menu", {
       return /** @type {ville.ui.menu.Menu|null} */ (widget);
     },
 
-
     /*
     ---------------------------------------------------------------------------
       POPOVER SYNCHRONIZATION & PROPERTY APPLIERS
@@ -206,7 +200,7 @@ qx.Class.define("ville.ui.menu.Menu", {
      * back into the `open` property and parent menu state.
      *
      * @this {ville.ui.menu.Menu}
-     * @param {qx.event.type.Native} e Native `toggle` event wrapper.
+     * @param {Object} e Native `toggle` event wrapper.
      * @protected
      */
     _onPopoverToggle(e) {
@@ -345,15 +339,16 @@ qx.Class.define("ville.ui.menu.Menu", {
 
     /*
     ---------------------------------------------------------------------------
-      POINTER HOVER SELECTION & SUBMENU COORDINATION
+      SUBMENU COORDINATION (HOVER VISUALS HANDLED NATIVELY BY CSS :hover)
     ---------------------------------------------------------------------------
     */
 
     /**
-     * Highlights hovered menu buttons and opens/closes nested submenus directly.
+     * Coordinates opening/closing nested submenus when hovering over menu items.
+     * Visual hover highlighting is controlled purely by CSS `:hover` without DOM attribute churn.
      *
      * @this {ville.ui.menu.Menu}
-     * @param {qx.event.type.Pointer} e Pointerover event.
+     * @param {Object} e Pointerover event wrapper.
      * @protected
      */
     _onPointerOver(e) {
@@ -362,8 +357,6 @@ qx.Class.define("ville.ui.menu.Menu", {
         target instanceof ville.ui.core.AbstractButton &&
         target.isEnabled()
       ) {
-        this.setSelectedButton(target);
-
         const subMenu =
           typeof target.getMenu === "function" ? target.getMenu() : null;
         if (subMenu) {
@@ -371,32 +364,8 @@ qx.Class.define("ville.ui.menu.Menu", {
         } else if (this.getOpenedButton()) {
           this.resetOpenedButton();
         }
-      } else if (!this.getOpenedButton()) {
-        this.resetSelectedButton();
       }
     },
-
-    /**
-     * Clears highlight selection when the pointer leaves the menu unless a
-     * submenu remains open.
-     *
-     * @this {ville.ui.menu.Menu}
-     * @param {qx.event.type.Pointer} e Pointerout event.
-     * @protected
-     */
-    _onPointerOut(e) {
-      const related = e.getRelatedTarget();
-      if (related instanceof ville.ui.core.Widget && related.getParent() === this) {
-        return;
-      }
-      const opened = this.getOpenedButton();
-      if (opened) {
-        this.setSelectedButton(opened);
-      } else {
-        this.resetSelectedButton();
-      }
-    },
-
 
     /**
      * Walks up the parent menu chain to find the root opener button.
@@ -423,8 +392,7 @@ qx.Class.define("ville.ui.menu.Menu", {
     const contentEl = this.getContentElement();
     if (contentEl) {
       contentEl.removeListener("toggle", this._onPopoverToggle, this);
+      contentEl.removeListener("pointerover", this._onPointerOver, this);
     }
-    this.removeListener("pointerover", this._onPointerOver, this);
-    this.removeListener("pointerout", this._onPointerOut, this);
   }
 });

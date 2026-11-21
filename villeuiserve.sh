@@ -4,12 +4,18 @@ set -e
 # Define variables for easy maintenance
 APP_NAME="villeuiapp"
 TARGET="source"
+ALT_CONFIG="compile-villeuiapp.json"
+
+CONFIG_ARGS=()
+if [[ -n "$ALT_CONFIG" ]]; then
+  CONFIG_ARGS=(-c "$ALT_CONFIG")
+fi
 
 echo "🧹 Cleaning..."
-npx qx clean
+npx qx clean "${CONFIG_ARGS[@]}"
 
 echo "⚙️  Generating transpiled files..."
-npx qx compile --app-name="$APP_NAME" --target="$TARGET"
+npx qx compile "${CONFIG_ARGS[@]}" --app-name="$APP_NAME" --target="$TARGET"
 
 echo "📦 Bundling Mantine CSS..."
 # -----------------------------------------------------------------------------
@@ -31,4 +37,4 @@ echo "📦 Bundling Mantine CSS..."
 node bundle-mantine.js --app-name="$APP_NAME" --target="$TARGET" --styles-dir="source/resource/mantine/core/styles"
 
 echo "🌐 Starting development server..."
-npx qx serve --app-name="$APP_NAME" --target="$TARGET"
+npx qx serve "${CONFIG_ARGS[@]}" --app-name="$APP_NAME" --target="$TARGET"

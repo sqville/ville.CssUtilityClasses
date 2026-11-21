@@ -27,7 +27,7 @@ qx.Class.define("ville.ui.core.Box", {
 
         // overridden
         _createContentElement() {
-            return new qx.html.Element(this.__contentElementTag);
+            return new ville.html.Element(this.__contentElementTag);
         }
 
     }

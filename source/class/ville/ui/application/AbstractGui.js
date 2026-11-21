@@ -45,11 +45,11 @@ qx.Class.define("ville.ui.application.AbstractGui", {
     },
 
     /**
-     * Synchronously flushes buffered `qx.html.Element` virtual DOM mutations
+     * Synchronously flushes buffered `ville.html.Element` virtual DOM mutations
      * to the live DOM (invoked at boot completion via `finalize()`).
      */
     render() {
-      qx.html.Element.flush();
+      ville.html.Element.flush();
     },
 
     /**

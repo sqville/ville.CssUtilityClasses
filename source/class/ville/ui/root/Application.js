@@ -31,11 +31,11 @@ qx.Class.define("ville.ui.root.Application", {
     __doc: null,
 
     /**
-     * Creates the root `qx.html.Root` element mounted inside a dedicated
+     * Creates the root `ville.html.Root` element mounted inside a dedicated
      * `<div id="ville-app">` child of `document.body`.
      *
      * @this {ville.ui.root.Application}
-     * @returns {qx.html.Root} Root HTML element wrapper.
+     * @returns {ville.html.Root} Root HTML element wrapper.
      * @protected
      */
     _createContentElement() {
@@ -45,10 +45,10 @@ qx.Class.define("ville.ui.root.Application", {
       elem.id = "ville-app";
       doc.body.appendChild(elem);
 
-      const root = new qx.html.Root(elem);
+      const root = new ville.html.Root(elem);
       root.connectObject(this);
 
-      qx.html.Element.flush();
+      ville.html.Element.flush();
 
       return root;
     },

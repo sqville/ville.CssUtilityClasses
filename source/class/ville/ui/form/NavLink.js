@@ -45,7 +45,7 @@ qx.Class.define("ville.ui.form.NavLink", {
 
         // overridden
         _createContentElement() {
-            return new qx.html.Element(this.__componenttag);
+            return new ville.html.Element(this.__componenttag);
         },
 
         // property apply

@@ -1,0 +1,73 @@
+{
+  "id": "deploy-pipeline",
+  "label": "Deployment Workflow",
+  "layout": "adaptive",
+  "root": {
+    "id": "trigger-push",
+    "title": "Trigger: On push",
+    "status": "success",
+    "expanded": true,
+    "branches": [
+      {
+        "id": "fingerprint",
+        "title": "Fingerprint",
+        "status": "success",
+        "expanded": true,
+        "branches": [
+          {
+            "id": "get-android",
+            "title": "Get Android build",
+            "status": "success",
+            "expanded": true,
+            "branches": [
+              {
+                "id": "build-android",
+                "title": "Build Android",
+                "status": "running",
+                "expanded": true,
+                "branches": [
+                  {
+                    "id": "submit-android",
+                    "title": "Submit Android",
+                    "status": "skipped"
+                  }
+                ]
+              },
+              {
+                "id": "publish-android",
+                "title": "Publish Android update",
+                "status": "success"
+              }
+            ]
+          },
+          {
+            "id": "get-ios",
+            "title": "Get iOS build",
+            "status": "error",
+            "expanded": true,
+            "branches": [
+              {
+                "id": "build-ios",
+                "title": "Build iOS",
+                "status": "skipped",
+                "expanded": true,
+                "branches": [
+                  {
+                    "id": "submit-ios",
+                    "title": "Submit iOS",
+                    "status": "skipped"
+                  }
+                ]
+              },
+              {
+                "id": "publish-ios",
+                "title": "Publish iOS update",
+                "status": "skipped"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

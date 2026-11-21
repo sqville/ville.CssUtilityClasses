@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ville UI — Collapsible Semantic Workflow</title>
+  <link rel="stylesheet" href="workflow.css" />
+</head>
+<body>
+
+  <p class="wf-hint">Click any branching node to collapse/expand its downstream steps. Drag bottom-right corner to test container query switch.</p>
+
+  <div class="wf-container">
+    <nav aria-label="Deployment Workflow">
+      <ul class="wf-tree wf-tree--adaptive">
+        <li class="wf-step">
+          <details class="wf-group" open>
+            <summary class="wf-node" data-out data-status="success">
+              <span class="wf-badge" aria-hidden="true"></span>
+              <span>Trigger: On push</span>
+              <span class="wf-toggle" aria-hidden="true"></span>
+            </summary>
+
+            <ul class="wf-branches">
+              <li class="wf-step">
+                <details class="wf-group" open>
+                  <summary class="wf-node" data-in data-out data-status="success">
+                    <span class="wf-badge" aria-hidden="true"></span>
+                    <span>Fingerprint</span>
+                    <span class="wf-toggle" aria-hidden="true"></span>
+                  </summary>
+
+                  <ul class="wf-branches">
+                    <!-- Android Branch -->
+                    <li class="wf-step">
+                      <details class="wf-group" open>
+                        <summary class="wf-node" data-in data-out data-status="success">
+                          <span class="wf-badge" aria-hidden="true"></span>
+                          <span>Get Android build</span>
+                          <span class="wf-toggle" aria-hidden="true"></span>
+                        </summary>
+
+                        <ul class="wf-branches">
+                          <li class="wf-step">
+                            <details class="wf-group" open>
+                              <summary class="wf-node" data-in data-out data-status="running">
+                                <span class="wf-badge" aria-hidden="true"></span>
+                                <span>Build Android</span>
+                                <span class="wf-toggle" aria-hidden="true"></span>
+                              </summary>
+                              <ul class="wf-branches">
+                                <li class="wf-step">
+                                  <article class="wf-node" data-in data-status="skipped">
+                                    <span class="wf-badge" aria-hidden="true"></span>
+                                    <span>Submit Android</span>
+                                  </article>
+                                </li>
+                              </ul>
+                            </details>
+                          </li>
+                          <li class="wf-step">
+                            <article class="wf-node" data-in data-status="success">
+                              <span class="wf-badge" aria-hidden="true"></span>
+                              <span>Publish Android update</span>
+                            </article>
+                          </li>
+                        </ul>
+                      </details>
+                    </li>
+
+                    <!-- iOS Branch -->
+                    <li class="wf-step">
+                      <details class="wf-group" open>
+                        <summary class="wf-node" data-in data-out data-status="error">
+                          <span class="wf-badge" aria-hidden="true"></span>
+                          <span>Get iOS build</span>
+                          <span class="wf-toggle" aria-hidden="true"></span>
+                        </summary>
+
+                        <ul class="wf-branches">
+                          <li class="wf-step">
+                            <details class="wf-group" open>
+                              <summary class="wf-node" data-in data-out data-status="skipped">
+                                <span class="wf-badge" aria-hidden="true"></span>
+                                <span>Build iOS</span>
+                                <span class="wf-toggle" aria-hidden="true"></span>
+                              </summary>
+                              <ul class="wf-branches">
+                                <li class="wf-step">
+                                  <article class="wf-node" data-in data-status="skipped">
+                                    <span class="wf-badge" aria-hidden="true"></span>
+                                    <span>Submit iOS</span>
+                                  </article>
+                                </li>
+                              </ul>
+                            </details>
+                          </li>
+                          <li class="wf-step">
+                            <article class="wf-node" data-in data-status="skipped">
+                              <span class="wf-badge" aria-hidden="true"></span>
+                              <span>Publish iOS update</span>
+                            </article>
+                          </li>
+                        </ul>
+                      </details>
+                    </li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+</body>
+</html>

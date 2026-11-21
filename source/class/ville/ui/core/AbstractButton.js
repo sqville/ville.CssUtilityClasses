@@ -7,7 +7,7 @@
  * HTML Popover API (`popovertarget`) and Invoker Commands API (`commandfor` / `command`),
  * and binds exclusively to native DOM events (`click`, `pointerdown`, `pointerup`,
  * `pointerout`, `keydown`, `keyup`) via `getContentElement()` with zero dependencies
- * on `qx.event.handler.*`.
+ * on `qx.event.handler.*` or `qx.html.*`.
  */
 qx.Class.define("ville.ui.core.AbstractButton", {
   extend: ville.ui.core.Widget,
@@ -85,9 +85,9 @@ qx.Class.define("ville.ui.core.AbstractButton", {
 
   members: {
     /**
-     * Direct `qx.html.Text` node rendering the button's caption without a wrapper `<span>`.
+     * Direct `ville.html.Text` node rendering the button's caption without a wrapper `<span>`.
      *
-     * @type {qx.html.Text|null}
+     * @type {ville.html.Text|null}
      * @protected
      */
     _textNode: null,
@@ -144,13 +144,13 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     */
 
     /**
-     * Creates the semantic `<button type="button">` root `qx.html.Element`.
+     * Creates the semantic `<button type="button">` root `ville.html.Element`.
      *
-     * @returns {qx.html.Element} Root `<button>` element.
+     * @returns {ville.html.Element} Root `<button>` element.
      * @protected
      */
     _createContentElement() {
-      const el = new qx.html.Element("button");
+      const el = new ville.html.Element("button");
       el.setAttribute("type", "button");
       return el;
     },
@@ -184,7 +184,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
           control = new ville.ui.basic.Label(initialText);
           control.setAnonymous(true);
 
-          this._textNode = new qx.html.Text(initialText || "");
+          this._textNode = new ville.html.Text(initialText || "");
 
           control.addListener("changeValue", (e) => {
             if (this._textNode) {
@@ -398,7 +398,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      * Handles native `"click"` events by invoking `execute()` when interactive.
      *
      * @this {ville.ui.core.AbstractButton}
-     * @param {qx.event.type.Native} e Native click event wrapper.
+     * @param {Object} e Native click event wrapper.
      * @protected
      */
     _onClick(e) {
@@ -422,7 +422,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      * Presses the button on primary pointer down (`button === 0`).
      *
      * @this {ville.ui.core.AbstractButton}
-     * @param {qx.event.type.Native} e Native pointerdown event wrapper.
+     * @param {Object} e Native pointerdown event wrapper.
      * @protected
      */
     _onPointerDown(e) {
@@ -450,7 +450,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      * Presses the button on `Enter` or `Space` (`" "`) keydown.
      *
      * @this {ville.ui.core.AbstractButton}
-     * @param {qx.event.type.Native} e Native keydown event wrapper.
+     * @param {Object} e Native keydown event wrapper.
      * @protected
      */
     _onKeyDown(e) {
@@ -468,7 +468,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      * Releases `"pressed"` on `Enter` or `Space` (`" "`) keyup.
      *
      * @this {ville.ui.core.AbstractButton}
-     * @param {qx.event.type.Native} e Native keyup event wrapper.
+     * @param {Object} e Native keyup event wrapper.
      * @protected
      */
     _onKeyUp(e) {

@@ -27,17 +27,6 @@ qx.Class.define("villeuiapp.Application",
         // support native logging capabilities.
         qx.log.appender.Native;
       }
-      
-      /*
-      * Configure global CSS variables to support control styles
-      */
-      var rules = [
-        "--app-shell-header-height : calc(3.75rem * var(--mantine-scale));",
-        "--app-shell-header-offset : calc(3.75rem * var(--mantine-scale));",
-        "--app-shell-padding : 0px;"
-      ];
-      var cssstr = rules.join(' ');
-      qx.ui.style.Stylesheet.getInstance().addRule(":root", cssstr);
 
       /*
       -------------------------------------------------------------------------

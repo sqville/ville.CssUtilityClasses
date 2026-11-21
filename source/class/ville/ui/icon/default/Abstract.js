@@ -23,7 +23,7 @@ qx.Class.define("ville.ui.icon.default.Abstract", {
       }
 
       if (!this.__spriteDefs) {
-        const svgNS = "[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)";
+        const svgNS = "http://www.w3.org/2000/svg";
         const spriteSvg = document.createElementNS(svgNS, "svg");
         spriteSvg.setAttribute("id", "ville-icon-sprite-sheet");
         spriteSvg.setAttribute("aria-hidden", "true");
@@ -35,7 +35,7 @@ qx.Class.define("ville.ui.icon.default.Abstract", {
         this.__spriteDefs = defs;
       }
 
-      const svgNS = "[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)";
+      const svgNS = "http://www.w3.org/2000/svg";
       const symbol = document.createElementNS(svgNS, "symbol");
       symbol.setAttribute("id", symbolId);
       symbol.setAttribute("viewBox", viewBox);
@@ -122,7 +122,7 @@ qx.Class.define("ville.ui.icon.default.Abstract", {
 
       if (this.__useSprite) {
         const symbolId = `${this.classname.replace(/\./g, "-")}-${isFilled ? "filled" : "regular"}`;
-        this.constructor.ensureSpriteSymbol(symbolId, viewBox, pathMarkup);
+        ville.ui.icon.default.Abstract.ensureSpriteSymbol(symbolId, viewBox, pathMarkup);
         return `<use href="#${symbolId}"></use>`;
       }
 
@@ -141,11 +141,11 @@ qx.Class.define("ville.ui.icon.default.Abstract", {
 
       const innerMarkup = this._getInnerSvgMarkup(this.__initialStyle);
 
-      // width="1em" height="1em" scales automatically with CSS font-size in Mode 2,
+      // width="1em" height="1em" scales automatically with CSS font-size in Mode 2/3,
       // while Mode 1 layout managers can override via inline pixel styles.
-      const markup = `<svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="${viewBox}" width="1em" height="1em" fill="${fill}" stroke="${stroke}"${strokeWidth}${strokeLinecap}${strokeLinejoin}>${innerMarkup}</svg>`;
+      const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" width="1em" height="1em" fill="${fill}" stroke="${stroke}"${strokeWidth}${strokeLinecap}${strokeLinejoin}>${innerMarkup}</svg>`;
 
-      const el = new qx.html.Element();
+      const el = new ville.html.Element();
       el.useMarkup(markup);
       return el;
     },

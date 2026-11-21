@@ -44,7 +44,7 @@ qx.Class.define("ville.ui.core.Widget", {
     __flushScheduled: false,
 
     /**
-     * Schedules a single coalesced `qx.html.Element.flush()` at the end of the
+     * Schedules a single coalesced `ville.html.Element.flush()` at the end of the
      * current microtask turn so callers never need to flush manually.
      */
     scheduleFlush() {
@@ -54,7 +54,7 @@ qx.Class.define("ville.ui.core.Widget", {
       this.__flushScheduled = true;
       queueMicrotask(() => {
         this.__flushScheduled = false;
-        qx.html.Element.flush();
+        ville.html.Element.flush();
       });
     }
   },
@@ -313,7 +313,7 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
-     * Returns the widget's live `HTMLElement`, flushing pending `qx.html.Element`
+     * Returns the widget's live `HTMLElement`, flushing pending `ville.html.Element`
      * mutations just-in-time if the element has not yet been materialized.
      *
      * @returns {HTMLElement|null} Live DOM element.
@@ -324,7 +324,7 @@ qx.Class.define("ville.ui.core.Widget", {
         this.getContentElement().getDomElement()
       );
       if (!domEl || !domEl.isConnected) {
-        qx.html.Element.flush();
+        ville.html.Element.flush();
         domEl = /** @type {HTMLElement|null} */ (
           this.getContentElement().getDomElement()
         );
@@ -333,9 +333,9 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
-     * Instantiates, connects, and optionally hydrates the root `qx.html.Element`.
+     * Instantiates, connects, and optionally hydrates the root `ville.html.Element`.
      *
-     * @returns {qx.html.Element} The initialized content element.
+     * @returns {ville.html.Element} The initialized content element.
      * @private
      */
     __createContentElement() {
@@ -357,14 +357,14 @@ qx.Class.define("ville.ui.core.Widget", {
     },
 
     /**
-     * Factory method that creates the underlying `qx.html.Element`.
+     * Factory method that creates the underlying `ville.html.Element`.
      * Subclasses override this to return semantic tags (e.g., `"button"`, `"a"`, `"dialog"`).
      *
-     * @returns {qx.html.Element} Newly constructed content element (defaults to `"div"`).
+     * @returns {ville.html.Element} Newly constructed content element (defaults to `"div"`).
      * @protected
      */
     _createContentElement() {
-      return new qx.html.Element("div");
+      return new ville.html.Element("div");
     },
 
     // --- 4. State Management ---

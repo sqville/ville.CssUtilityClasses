@@ -93,8 +93,7 @@ qx.Class.define("ville.ui.menu.Button", {
      * @lint ignoreReferenceField(_forwardStates)
      */
     _forwardStates: {
-      disabled: true,
-      selected: true
+      disabled: true
     },
 
     /**

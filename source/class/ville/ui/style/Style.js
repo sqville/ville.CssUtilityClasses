@@ -40,20 +40,19 @@ qx.Class.define("ville.ui.style.Style", {
   },
 
   members: {
-
     __contentElementTag: "style",
 
-    /** @type {qx.html.Text|null} @private */
+    /** @type {ville.html.Text|null} @private */
     __textNode: null,
 
     /**
-     * Creates an inline `<style>` `qx.html.Element`.
+     * Creates an inline `<style>` `ville.html.Element`.
      *
-     * @returns {qx.html.Element} style element.
+     * @returns {ville.html.Element} style element.
      * @protected
      */
     _createContentElement() {
-      return new qx.html.Element(this.__contentElementTag);
+      return new ville.html.Element(this.__contentElementTag);
     },
 
     /**
@@ -85,7 +84,7 @@ qx.Class.define("ville.ui.style.Style", {
     },
 
     /**
-     * Updates the `<style>` element's CSS text via a `qx.html.Text` node
+     * Updates the `<style>` element's CSS text via a `ville.html.Text` node
      * instead of `innerHTML` (`setAttribute("html", ...)`).
      *
      * @param {string|null} value Raw CSS text.
@@ -96,7 +95,7 @@ qx.Class.define("ville.ui.style.Style", {
 
       if (value) {
         if (!this.__textNode) {
-          this.__textNode = new qx.html.Text(value);
+          this.__textNode = new ville.html.Text(value);
           contentEl.add(this.__textNode);
         } else {
           this.__textNode.setText(value);
@@ -104,7 +103,6 @@ qx.Class.define("ville.ui.style.Style", {
       } else if (this.__textNode) {
         this.__textNode.setText("");
       }
-
     }
   },
 

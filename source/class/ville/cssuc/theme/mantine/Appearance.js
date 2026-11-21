@@ -524,7 +524,6 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
           cssUtilityClass: cssucs,
           cssStates: {
             "set-attributes": {
-              "data-hovered": states.selected ? "true" : null,
               "data-disabled": states.disabled ? "true" : null
             }
           }

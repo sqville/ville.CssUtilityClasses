@@ -3,7 +3,7 @@
  *
  * Extends `ville.ui.core.Box` (with `MChildrenHandling`) to support HTML `<label>`
  * implicit control nesting (e.g., `label.add(input)`) alongside explicit `htmlFor`
- * association, rendering its text safely via `qx.html.Text` so nested children are
+ * association, rendering its text safely via `ville.html.Text` so nested children are
  * never overwritten by `innerHTML`.
  *
  * @example
@@ -18,7 +18,7 @@
  */
 qx.Class.define("ville.ui.form.Label", {
   extend: ville.ui.core.Box,
-  implement: [qx.ui.form.IStringForm],
+  implement: [ville.ui.form.IStringForm],
 
   /**
    * Creates a new form Label container.
@@ -71,7 +71,7 @@ qx.Class.define("ville.ui.form.Label", {
     },
 
     /**
-     * Plain-text label caption rendered via `qx.html.Text`.
+     * Plain-text label caption rendered via `ville.html.Text`.
      * Accepts standard strings or `qx.locale.LocalizedString` instances.
      *
      * @type {string|qx.locale.LocalizedString|null}
@@ -108,7 +108,7 @@ qx.Class.define("ville.ui.form.Label", {
   },
 
   members: {
-    /** @type {qx.html.Text|null} @private */
+    /** @type {ville.html.Text|null} @private */
     __textNode: null,
 
     /** @type {string|null} @private */
@@ -142,7 +142,7 @@ qx.Class.define("ville.ui.form.Label", {
 
     /**
      * Property apply handler for `labelPosition`. Repositions the internal
-     * `qx.html.Text` node before or after nested child widgets.
+     * `ville.html.Text` node before or after nested child widgets.
      *
      * @param {"before"|"after"} value New text placement.
      * @protected
@@ -160,7 +160,6 @@ qx.Class.define("ville.ui.form.Label", {
       } else {
         contentEl.addAt(this.__textNode, 0);
       }
-
     },
 
     /**
@@ -183,7 +182,7 @@ qx.Class.define("ville.ui.form.Label", {
     }),
 
     /**
-     * Property apply handler for `value`. Updates the label's `qx.html.Text`
+     * Property apply handler for `value`. Updates the label's `ville.html.Text`
      * node safely without disturbing nested child widgets.
      *
      * @param {string|qx.locale.LocalizedString|null} value New label text.
@@ -200,7 +199,7 @@ qx.Class.define("ville.ui.form.Label", {
     }),
 
     /**
-     * Creates, updates, or detaches the internal `qx.html.Text` node
+     * Creates, updates, or detaches the internal `ville.html.Text` node.
      *
      * @param {string} text Escaped plain-text content to render.
      * @private
@@ -210,7 +209,7 @@ qx.Class.define("ville.ui.form.Label", {
 
       if (text !== "") {
         if (!this.__textNode) {
-          this.__textNode = new qx.html.Text(text);
+          this.__textNode = new ville.html.Text(text);
           if (this.getLabelPosition() === "after") {
             contentEl.add(this.__textNode);
           } else {
@@ -229,12 +228,11 @@ qx.Class.define("ville.ui.form.Label", {
       } else if (this.__textNode && this.__textNode.getParent()) {
         contentEl.remove(this.__textNode);
       }
-
     }
   },
 
   /**
-   * Unregisters the locale change listener and disposes the internal `qx.html.Text` node.
+   * Unregisters the locale change listener and disposes the internal `ville.html.Text` node.
    */
   destruct() {
     if (qx.core.Environment.get("qx.dynlocale") && this.__changeLocaleLabelListenerId) {

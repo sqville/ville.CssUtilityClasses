@@ -337,7 +337,7 @@ qx.Class.define("ville.ui.command.Command", {
      */
     __normalizeKeyToken(rawToken) {
       const lower = rawToken.toLowerCase();
-      const aliases = this.constructor.KEY_ALIASES;
+      const aliases = ville.ui.command.Command.KEY_ALIASES;
 
       if (aliases[lower]) {
         return aliases[lower];
@@ -469,7 +469,7 @@ qx.Class.define("ville.ui.command.Command", {
       }
 
       if (this.__key) {
-        const displayMap = this.constructor.DISPLAY_LABELS;
+        const displayMap = ville.ui.command.Command.DISPLAY_LABELS;
         parts.push(displayMap[this.__key] || this.__key);
       }
 

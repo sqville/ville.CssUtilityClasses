@@ -1,7 +1,7 @@
 /**
  * Mode 3 CSS-driven Label widget (`ville.ui.basic.Label`).
  *
- * Renders plain text safely inside a `<span>` or `<div>` element via `qx.html.Text`
+ * Renders plain text safely inside a `<span>` or `<div>` element via `ville.html.Text`
  * (avoiding `innerHTML` / `setAttribute("html", ...)` XSS sinks) and supports
  * dynamic locale updates when `qx.dynlocale` is enabled.
  *
@@ -11,7 +11,7 @@
  */
 qx.Class.define("ville.ui.basic.Label", {
   extend: ville.ui.core.Widget,
-  implement: [qx.ui.form.IStringForm],
+  implement: [ville.ui.form.IStringForm],
 
   /**
    * Creates a new Label instance.
@@ -78,20 +78,20 @@ qx.Class.define("ville.ui.basic.Label", {
     /** @type {"span"|"div"} @private */
     __contentElementTag: "span",
 
-    /** @type {qx.html.Text|null} @private */
+    /** @type {ville.html.Text|null} @private */
     __textNode: null,
 
     /** @type {string|null} @private */
     __changeLocaleLabelListenerId: null,
 
     /**
-     * Creates the root `qx.html.Element` (`"span"` or `"div"`).
+     * Creates the root `ville.html.Element` (`"span"` or `"div"`).
      *
-     * @returns {qx.html.Element} Root label element.
+     * @returns {ville.html.Element} Root label element.
      * @protected
      */
     _createContentElement() {
-      return new qx.html.Element(this.__contentElementTag);
+      return new ville.html.Element(this.__contentElementTag);
     },
 
     /**
@@ -114,7 +114,7 @@ qx.Class.define("ville.ui.basic.Label", {
     }),
 
     /**
-     * Updates the label's `qx.html.Text` node safely without `innerHTML` and
+     * Updates the label's `ville.html.Text` node safely without `innerHTML` and
      * flushes buffered virtual DOM changes.
      *
      * @param {string|qx.locale.LocalizedString|null} value New text or localized string.
@@ -131,24 +131,23 @@ qx.Class.define("ville.ui.basic.Label", {
     }),
 
     /**
-     * Lazily creates and updates the internal `qx.html.Text` node.
+     * Lazily creates and updates the internal `ville.html.Text` node.
      *
      * @param {string} text Escaped plain-text content to render.
      * @private
      */
     __setTextContent(text) {
       if (!this.__textNode) {
-        this.__textNode = new qx.html.Text(text);
+        this.__textNode = new ville.html.Text(text);
         this.getContentElement().add(this.__textNode);
       } else {
         this.__textNode.setText(text);
       }
-
     }
   },
 
   /**
-   * Unregisters the locale change listener and disposes the internal `qx.html.Text` node.
+   * Unregisters the locale change listener and disposes the internal `ville.html.Text` node.
    */
   destruct() {
     if (qx.core.Environment.get("qx.dynlocale") && this.__changeLocaleLabelListenerId) {
