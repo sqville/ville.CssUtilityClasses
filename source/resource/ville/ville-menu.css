@@ -1,4 +1,8 @@
 /* Root & Submenu Popover Base */
+.ville-menu-dropdown {
+  backface-visibility: hidden;
+}
+
 .ville-menu-dropdown:popover-open {
   position: fixed;
   inset: auto;
@@ -13,6 +17,27 @@
   position-area: block-end span-inline-end;
   margin-block-start: 4px;
   position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+}
+
+/* Accessible Entry/Exit Transitions (Disabled automatically when reduced motion is preferred or forced) */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-reduce-motion="true"]) .ville-menu-dropdown {
+    opacity: 0;
+    transition:
+      opacity 150ms ease,
+      display 150ms allow-discrete,
+      overlay 150ms allow-discrete;
+  }
+
+  html:not([data-reduce-motion="true"]) .ville-menu-dropdown:popover-open {
+    opacity: 1;
+  }
+
+  @starting-style {
+    html:not([data-reduce-motion="true"]) .ville-menu-dropdown:popover-open {
+      opacity: 0;
+    }
+  }
 }
 
 /* Nested Submenu Placement: right of parent menu-button, top-aligned, 4px gap */
@@ -39,6 +64,7 @@
   gap: var(--mantine-spacing-xs, 0.5rem);
   width: 100%;
   text-align: start;
+  white-space: nowrap;
 }
 
 .ville-menu-item-shortcut,

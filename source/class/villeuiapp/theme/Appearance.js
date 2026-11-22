@@ -9,148 +9,75 @@
 ************************************************************************ */
 qx.Theme.define("villeuiapp.theme.Appearance",
 {
-  extend : ville.cssuc.theme.middleman.Appearance,
+  extend : ville.cssuc.theme.mantine.Appearance,
 
   appearances :
   {
-    // overridden
-    root: {},
-
-    // overridden
-    popup: {},
-
-    // overridden
-    label: {},
-
-    /*
-    ---------------------------------------------------------------------------
-      MENU
-    ---------------------------------------------------------------------------
-    */
-
-    // overridden
-    menu: {},
-
-    "menu-button": "atom",
-    /*
-    ---------------------------------------------------------------------------
-      BUTTON
-    ---------------------------------------------------------------------------
-    */
-   // overridden
-    "button-frame": {},
-    /*
-    ---------------------------------------------------------------------------
-      WINDOW
-    ---------------------------------------------------------------------------
-    */
-
-    window: {
-      style() {
-        qx.bom.Stylesheet.includeFile(qx.util.ResourceManager.getInstance().toUri("mantine/core/styles/Modal.css"));
-        return {
-          cssUtilityClass: "m_9df02822 mantine-Modal-root"
-        };
-      }
-    },
-
-    "window-resize-frame": "resize-frame",
-
-    "window/pane": {
+    appshell: {
       style() {
         return {
-          excludeBoundsFromDom: true,
-          clearAllInlineStyles: true,
-          cssUtilityClass: "m_5df29311 mantine-Modal-body"
+          cssUtilityClass: "m_89ab340 mantine-AppShell-root ville-mantineapp-Application",
+          cssStates: {
+            "set-attributes": {
+              "data-mode": "fixed"
+            }
+          }
         };
       }
     },
 
-    "window/captionbar": {
+    "appshell-header": {
       style() {
         return {
-          excludeBoundsFromDom: true,
-          clearAllInlineStyles: true,
-          cssUtilityClass: "m_b5489c3c m_d0e2b9cd mantine-Modal-header"
+          cssUtilityClass: "m_3b16f56b mantine-AppShell-header right-scroll-bar-position",
+          cssStates: {
+            "set-attributes": {
+              "data-with-border": "true"
+            },
+            "set-styles": {
+              "--app-shell-header-z-index": "100"
+            }
+          }
         };
       }
     },
 
-    "window/icon": {
-      style(states) {
+    "appshell-header-inner": {
+      include: "hgroup",
+      style() {
         return {
-          marginRight: 4
+          cssStates: {
+            "set-styles": {
+              "--container-size": "var(--container-size-xl)",
+              "padding-inline": "var(--mantine-spacing-md)",
+              "height": "100%"
+            }
+          }
         };
       }
     },
 
-    "window/title": {
-      style(states) {
+    "appshell-logo-text": {
+      style() {
         return {
-          cursor: "default",
-          marginRight: 20,
-          alignY: "middle"
+          cssStates: {
+            "set-styles": {
+              "font-weight": "bold",
+              "font-style": "normal",
+              "color": "inherit",
+              "font-size": "20px"
+            }
+          }
         };
       }
     },
 
-    "window/minimize-button": {
-      alias: "button",
-
-      style(states) {
+    "appshell-main": {
+      style() {
         return {
-          icon: qx.theme.simple.Image.URLS["window-minimize"],
-          padding: [1, 2],
-          cursor: states.disabled ? undefined : "pointer"
+          cssUtilityClass: "m_8983817 mantine-AppShell-main"
         };
       }
-    },
-
-    "window/restore-button": {
-      alias: "button",
-
-      style(states) {
-        return {
-          icon: qx.theme.simple.Image.URLS["window-restore"],
-          padding: [1, 2],
-          cursor: states.disabled ? undefined : "pointer"
-        };
-      }
-    },
-
-    "window/maximize-button": {
-      alias: "button",
-
-      style(states) {
-        return {
-          icon: qx.theme.simple.Image.URLS["window-maximize"],
-          padding: [1, 2],
-          cursor: states.disabled ? undefined : "pointer"
-        };
-      }
-    },
-
-    "window/close-button": {
-      alias: "button",
-
-      style(states) {
-        return {
-          marginLeft: 2,
-          icon: qx.theme.simple.Image.URLS["window-close"],
-          padding: [1, 2],
-          cursor: states.disabled ? undefined : "pointer"
-        };
-      }
-    },
-
-    "window/statusbar": {
-      style(states) {
-        return {
-          padding: [2, 6]
-        };
-      }
-    },
-
-    "window/statusbar-text": "label"
+    }
   }
 });

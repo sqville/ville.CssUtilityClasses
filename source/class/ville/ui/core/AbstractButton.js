@@ -5,9 +5,9 @@
  *
  * Enforces a native `<button>` root element so all subclasses natively support the
  * HTML Popover API (`popovertarget`) and Invoker Commands API (`commandfor` / `command`),
- * and binds exclusively to native DOM events (`click`, `pointerdown`, `pointerup`,
- * `pointerout`, `keydown`, `keyup`) via `getContentElement()` with zero dependencies
- * on `qx.event.handler.*` or `qx.html.*`.
+ * delegates transient interaction visuals (`:hover`, `:active`, `:focus-visible`) to native
+ * CSS pseudo-classes, and binds a single native `"click"` listener via `getContentElement()`
+ * with zero dependencies on `qx.event.handler.*` or `qx.html.*`.
  */
 qx.Class.define("ville.ui.core.AbstractButton", {
   extend: ville.ui.core.Widget,
@@ -101,40 +101,6 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      */
     _forwardStates: {
       disabled: true
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      USER API
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Programmatically puts the button into its `"pressed"` visual state unless
-     * the current pointer interaction has been `"abandoned"` or `"disabled"`.
-     */
-    press() {
-      if (this.hasState("abandoned") || this.hasState("disabled")) {
-        return;
-      }
-      this.addState("pressed");
-    },
-
-    /**
-     * Programmatically releases the button's `"pressed"` visual state.
-     */
-    release() {
-      if (this.hasState("pressed")) {
-        this.removeState("pressed");
-      }
-    },
-
-    /**
-     * Clears transient interactive states (`"pressed"` and `"abandoned"`).
-     */
-    reset() {
-      this.removeState("pressed");
-      this.removeState("abandoned");
     },
 
     /*
@@ -240,9 +206,6 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      * @protected
      */
     _applyEnabled(value) {
-      if (!value) {
-        this.reset();
-      }
       this._syncDisabledState();
     },
 
@@ -298,8 +261,8 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     },
 
     /**
-     * Property apply handler for `icon`. Swaps existing widget icons in place
-     * or updates the image source URI.
+     * Property apply handler for `icon`. Swaps existing widget icons in place,
+     * updates the image source URI, and toggles the `"hasIcon"` state.
      *
      * @this {ville.ui.core.AbstractButton}
      * @param {string|ville.ui.core.Widget|null} value New icon widget or URI string.
@@ -308,6 +271,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      */
     _applyIcon(value, old) {
       if (value != null) {
+        this.addState("hasIcon");
         const icon = this.getChildControl("icon");
         if (value instanceof ville.ui.core.Widget) {
           if (old instanceof ville.ui.core.Widget && old !== value) {
@@ -325,6 +289,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
           icon.setSource(value);
         }
       } else {
+        this.removeState("hasIcon");
         const icon = this.getChildControl("icon", true);
         if (icon && typeof icon.setSource === "function") {
           icon.setSource(null);
@@ -374,12 +339,11 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     */
 
     /**
-     * Registers native DOM pointer, click, and keyboard listeners on the `<button>`
-     * content element to synchronize the `"pressed"` state and fire `execute()`.
+     * Registers a single native DOM `"click"` listener on the `<button>` content element.
      *
-     * Native `<button type="button">` automatically synthesizes a `"click"` event
-     * when activated via `Enter` or `Space`, so a single `"click"` listener covers
-     * mouse, touch, pen, and keyboard execution without `qx.event.handler.*`.
+     * Native `<button type="button">` automatically synthesizes `"click"` when
+     * activated via `Enter` or `Space`, while CSS `:hover`, `:active`, and `:focus-visible`
+     * handle all transient interaction visuals without JavaScript state churn.
      *
      * @this {ville.ui.core.AbstractButton}
      * @protected
@@ -387,11 +351,6 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     _initEventBridge() {
       const contentEl = this.getContentElement();
       contentEl.addListener("click", this._onClick, this);
-      contentEl.addListener("pointerout", this._onPointerOut, this);
-      contentEl.addListener("pointerdown", this._onPointerDown, this);
-      contentEl.addListener("pointerup", this._onPointerUp, this);
-      contentEl.addListener("keydown", this._onKeyDown, this);
-      contentEl.addListener("keyup", this._onKeyUp, this);
     },
 
     /**
@@ -406,79 +365,6 @@ qx.Class.define("ville.ui.core.AbstractButton", {
         return;
       }
       this.execute();
-    },
-
-    /**
-     * Releases `"pressed"` when the pointer leaves the button.
-     *
-     * @this {ville.ui.core.AbstractButton}
-     * @protected
-     */
-    _onPointerOut() {
-      this.release();
-    },
-
-    /**
-     * Presses the button on primary pointer down (`button === 0`).
-     *
-     * @this {ville.ui.core.AbstractButton}
-     * @param {Object} e Native pointerdown event wrapper.
-     * @protected
-     */
-    _onPointerDown(e) {
-      if (this.hasState("disabled")) {
-        return;
-      }
-      const nativeEvent = /** @type {PointerEvent} */ (e.getNativeEvent());
-      if (nativeEvent && nativeEvent.button !== 0) {
-        return;
-      }
-      this.press();
-    },
-
-    /**
-     * Releases `"pressed"` on pointer up.
-     *
-     * @this {ville.ui.core.AbstractButton}
-     * @protected
-     */
-    _onPointerUp() {
-      this.release();
-    },
-
-    /**
-     * Presses the button on `Enter` or `Space` (`" "`) keydown.
-     *
-     * @this {ville.ui.core.AbstractButton}
-     * @param {Object} e Native keydown event wrapper.
-     * @protected
-     */
-    _onKeyDown(e) {
-      if (this.hasState("disabled")) {
-        return;
-      }
-      const nativeEvent = /** @type {KeyboardEvent} */ (e.getNativeEvent());
-      const key = nativeEvent ? nativeEvent.key : "";
-      if (key === "Enter" || key === " " || key === "Spacebar") {
-        this.press();
-      }
-    },
-
-    /**
-     * Releases `"pressed"` on `Enter` or `Space` (`" "`) keyup.
-     *
-     * @this {ville.ui.core.AbstractButton}
-     * @param {Object} e Native keyup event wrapper.
-     * @protected
-     */
-    _onKeyUp(e) {
-      const nativeEvent = /** @type {KeyboardEvent} */ (e.getNativeEvent());
-      const key = nativeEvent ? nativeEvent.key : "";
-      if (key === "Enter" || key === " " || key === "Spacebar") {
-        if (this.hasState("pressed")) {
-          this.release();
-        }
-      }
     }
   },
 
@@ -486,11 +372,6 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     const contentEl = this.getContentElement();
     if (contentEl) {
       contentEl.removeListener("click", this._onClick, this);
-      contentEl.removeListener("pointerout", this._onPointerOut, this);
-      contentEl.removeListener("pointerdown", this._onPointerDown, this);
-      contentEl.removeListener("pointerup", this._onPointerUp, this);
-      contentEl.removeListener("keydown", this._onKeyDown, this);
-      contentEl.removeListener("keyup", this._onKeyUp, this);
     }
     if (this._textNode) {
       this._textNode.dispose();

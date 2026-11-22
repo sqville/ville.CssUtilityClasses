@@ -17,21 +17,23 @@
  * `qx.ui.core.LayoutItem`, and `qx.ui.core.queue.*`).
  *
  * Architectural responsibilities:
- * - Wraps `qx.html.Element` directly with lazy DOM element instantiation and
- *   microtask-coalesced `qx.html.Element.flush()` scheduling.
+ * - Wraps `ville.html.Element` directly with lazy DOM element instantiation and
+ *   microtask-coalesced `ville.html.Element.flush()` scheduling.
  * - Coalesces state and appearance invalidations via `queueMicrotask` into a
  *   single `syncAppearance()` evaluation per synchronous turn.
- * - Bridges Qooxdoo states (`hovered`, `pressed`, `disabled`, `variant-*`,
+ * - Bridges provider-independent widget states (`disabled`, `loading`, `variant-*`,
  *   `size-*`, etc.) to external CSS frameworks (Mantine, Tailwind, Carbon, Tabler)
  *   via themeable `cssUtilityClass` and `cssStates` delta-diffing properties.
  * - Delegates native DOM events directly to `getContentElement()` while retaining
  *   `qx.core.MEvent` for declared Qooxdoo class and `qx.data` property events.
+ * - Provides reduced-motion awareness (`prefersReducedMotion()`, `setReduceMotion()`)
+ *   and an accessible Web Animations API wrapper (`animate()`).
  *
  * @example
  * const widget = new ville.ui.core.Widget();
  * widget.setCssUtilityClass("mantine-Box-root");
  * widget.addState("active");
- * 
+ *
  * @ignore(queueMicrotask)
  */
 qx.Class.define("ville.ui.core.Widget", {
@@ -44,25 +46,93 @@ qx.Class.define("ville.ui.core.Widget", {
     __flushScheduled: false,
 
     /**
+     * Explicit application-level reduced-motion override (`true` forces reduced motion,
+     * `false` forces full motion, `null` defers to OS/browser `prefers-reduced-motion`).
+     *
+     * @type {boolean|null}
+     * @private
+     */
+    __reduceMotionOverride: null,
+
+    /**
+     * Cached `MediaQueryList` for `(prefers-reduced-motion: reduce)`.
+     *
+     * @type {MediaQueryList|null}
+     * @private
+     */
+    __reducedMotionQuery: null,
+
+    /**
      * Schedules a single coalesced `ville.html.Element.flush()` at the end of the
      * current microtask turn so callers never need to flush manually.
      */
     scheduleFlush() {
-      if (this.__flushScheduled) {
+      if (ville.ui.core.Widget.__flushScheduled) {
         return;
       }
-      this.__flushScheduled = true;
+      ville.ui.core.Widget.__flushScheduled = true;
       queueMicrotask(() => {
-        this.__flushScheduled = false;
+        ville.ui.core.Widget.__flushScheduled = false;
         ville.html.Element.flush();
       });
+    },
+
+    /**
+     * Sets or clears an application-level override for reduced motion, and syncs
+     * `data-reduce-motion="true"` on `document.documentElement` so CSS rules can
+     * also respond to programmatic motion pausing/disabling.
+     *
+     * @param {boolean|null} value `true` to disable animations, `false` to enable, or `null` to follow OS `prefers-reduced-motion`.
+     */
+    setReduceMotion(value) {
+      ville.ui.core.Widget.__reduceMotionOverride =
+        value === null || value === undefined ? null : Boolean(value);
+
+      if (typeof document !== "undefined" && document.documentElement) {
+        if (ville.ui.core.Widget.prefersReducedMotion()) {
+          document.documentElement.setAttribute("data-reduce-motion", "true");
+        } else {
+          document.documentElement.removeAttribute("data-reduce-motion");
+        }
+      }
+    },
+
+    /**
+     * Returns the explicit application-level reduced-motion override (`true`, `false`, or `null`).
+     *
+     * @returns {boolean|null} Current override value.
+     */
+    getReduceMotion() {
+      return ville.ui.core.Widget.__reduceMotionOverride;
+    },
+
+    /**
+     * Returns `true` when animations should be suppressed or shortened—either
+     * because `Widget.setReduceMotion(true)` was called or because the user's OS/browser
+     * reports `(prefers-reduced-motion: reduce)`.
+     *
+     * @returns {boolean} `true` if reduced motion is active.
+     */
+    prefersReducedMotion() {
+      if (ville.ui.core.Widget.__reduceMotionOverride !== null) {
+        return ville.ui.core.Widget.__reduceMotionOverride;
+      }
+      if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+        if (!ville.ui.core.Widget.__reducedMotionQuery) {
+          ville.ui.core.Widget.__reducedMotionQuery = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+          );
+        }
+        return ville.ui.core.Widget.__reducedMotionQuery.matches;
+      }
+      return false;
     }
   },
 
   /**
    * Creates a new Mode 3 widget instance without eagerly creating DOM nodes.
    *
-   * @param {string} [existingDomId] Optional ID of an existing DOM element to hydrate via `qx.html.Element#useElement`.
+   * @param {string} [existingDomId] Optional ID of an existing DOM element to hydrate via `ville.html.Element#useElement`.
    */
   construct(existingDomId) {
     // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
@@ -154,7 +224,7 @@ qx.Class.define("ville.ui.core.Widget", {
   },
 
   members: {
-    /** @type {qx.html.Element|null} @private */
+    /** @type {ville.html.Element|null} @private */
     __contentElement: null,
 
     /** @type {string|null|undefined} @private */
@@ -194,7 +264,7 @@ qx.Class.define("ville.ui.core.Widget", {
      */
     _forwardStates: null,
 
-    // --- 1. Event Delegation & Native CustomEvent Dispatch ---
+    // --- 1. Event Delegation, Native CustomEvent Dispatch & Web Animations API ---
 
     /**
      * Registers an event listener. Declared Qooxdoo class and property events attach
@@ -275,6 +345,43 @@ qx.Class.define("ville.ui.core.Widget", {
       return domEl.dispatchEvent(event);
     },
 
+    /**
+     * Runs a native Web Animations API (`Element.prototype.animate`) transition on
+     * this widget's live DOM element while automatically honoring `prefers-reduced-motion`
+     * and `ville.ui.core.Widget.setReduceMotion()`.
+     *
+     * When reduced motion is active, `duration` is collapsed to `0` (so final `fill`
+     * styles and `onfinish` callbacks still complete cleanly) unless `options.skipIfReduced`
+     * is `true`, in which case `null` is returned without starting an animation.
+     *
+     * @param {Keyframe[]|PropertyIndexedKeyframes} keyframes Standard WAAPI keyframes.
+     * @param {number|(KeyframeAnimationOptions & { skipIfReduced?: boolean })} [options=150] Duration in ms or WAAPI options object.
+     * @returns {Animation|null} The active browser `Animation` instance, or `null`.
+     */
+    animate(keyframes, options = 150) {
+      const domEl = this._ensureDomElement();
+      if (!domEl || typeof domEl.animate !== "function") {
+        return null;
+      }
+
+      const reduced = ville.ui.core.Widget.prefersReducedMotion();
+      const normalizedOptions =
+        typeof options === "number"
+          ? { duration: options }
+          : Object.assign({}, options);
+
+      if (reduced) {
+        if (normalizedOptions.skipIfReduced) {
+          return null;
+        }
+        normalizedOptions.duration = 0;
+        normalizedOptions.delay = 0;
+      }
+
+      delete normalizedOptions.skipIfReduced;
+      return domEl.animate(keyframes, normalizedOptions);
+    },
+
     // --- 2. WAI-ARIA Support ---
 
     /**
@@ -300,10 +407,10 @@ qx.Class.define("ville.ui.core.Widget", {
     // --- 3. Element Lifecycle (Lazy Load & Flush) ---
 
     /**
-     * Returns the widget's root `qx.html.Element`, creating and binding it lazily
+     * Returns the widget's root `ville.html.Element`, creating and binding it lazily
      * on first access.
      *
-     * @returns {qx.html.Element} The root virtual DOM wrapper element.
+     * @returns {ville.html.Element} The root virtual DOM wrapper element.
      */
     getContentElement() {
       if (!this.__contentElement) {
@@ -373,7 +480,7 @@ qx.Class.define("ville.ui.core.Widget", {
      * Activates a visual/behavioral state on the widget, schedules an appearance
      * re-evaluation, and forwards the state to child controls if listed in `_forwardStates`.
      *
-     * @param {string} state State identifier (e.g., `"hovered"`, `"pressed"`, `"disabled"`).
+     * @param {string} state State identifier (e.g., `"disabled"`, `"loading"`, `"expanded"`).
      */
     addState(state) {
       if (!this.__states[state]) {
@@ -1052,7 +1159,7 @@ qx.Class.define("ville.ui.core.Widget", {
 
   /**
    * Disposes all instantiated child controls, disconnects and disposes the root
-   * `qx.html.Element`, and clears internal state/hierarchy references.
+   * `ville.html.Element`, and clears internal state/hierarchy references.
    */
   destruct() {
     this._disposeMap("__childControls");

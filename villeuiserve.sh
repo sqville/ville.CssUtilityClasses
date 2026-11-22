@@ -4,7 +4,7 @@ set -e
 # Define variables for easy maintenance
 APP_NAME="villeuiapp"
 TARGET="source"
-ALT_CONFIG="compile-villeuiapp.json"
+ALT_CONFIG="compile.json"
 
 CONFIG_ARGS=()
 if [[ -n "$ALT_CONFIG" ]]; then

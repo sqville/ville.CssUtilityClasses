@@ -1,24 +1,21 @@
 /**
- * Base Container
- * external(mantine/core/styles/SimpleGrid.css)
+ * Mode 3 SimpleGrid layout (`ville.ui.layout.SimpleGrid`).
  */
 qx.Class.define("ville.ui.layout.SimpleGrid", {
-    
-    extend: ville.ui.core.Box,
+  extend: ville.ui.core.Box,
 
-    construct(component) {
-        
-        super(component);
+  /**
+   * @param {string} [component="div"] Root HTML tag name.
+   */
+  construct(component) {
+    // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
+    super(component);
+  },
 
-    },
-
-    properties: {
-
-        // overridden
-        appearance: {
-            refine: true,
-            init: "simplegrid"
-        }
+  properties: {
+    appearance: {
+      refine: true,
+      init: "simplegrid"
     }
-
-  });
+  }
+});

@@ -106,7 +106,7 @@ qx.Class.define("ville.ui.form.MenuButton", {
     },
 
     /**
-     * Synchronizes the button's `"pressed"` state and `aria-expanded` attribute
+     * Synchronizes the button's `"expanded"` state and `aria-expanded` attribute
      * whenever the attached `Menu` popover opens or closes.
      *
      * @this {ville.ui.form.MenuButton}
@@ -116,9 +116,9 @@ qx.Class.define("ville.ui.form.MenuButton", {
     _onMenuOpenChange(e) {
       const isOpen = Boolean(e.getData());
       if (isOpen) {
-        this.addState("pressed");
+        this.addState("expanded");
       } else {
-        this.removeState("pressed");
+        this.removeState("expanded");
       }
       this.getContentElement().setAttribute("aria-expanded", String(isOpen));
     }

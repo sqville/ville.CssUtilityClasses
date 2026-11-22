@@ -121,17 +121,82 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
     },
 
     hgroup: {
-      style() {
+      style(states) {
+        const setAttrs = {};
+        const setStyles = {};
+
+        for (const justify of ["center", "flex-start", "flex-end", "space-between", "space-around"]) {
+          if (states["justify-" + justify]) {
+            setStyles["--group-justify"] = justify;
+            break;
+          }
+        }
+
+        for (const align of ["stretch", "center", "flex-start", "flex-end", "baseline"]) {
+          if (states["align-" + align]) {
+            setStyles["--group-align"] = align;
+            break;
+          }
+        }
+
+        for (const gap of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["gap-" + gap]) {
+            setStyles["--group-gap"] = `var(--mantine-spacing-${gap})`;
+            break;
+          }
+        }
+
+        for (const wrap of ["wrap", "nowrap", "wrap-reverse"]) {
+          if (states["wrap-" + wrap]) {
+            setStyles["--group-wrap"] = wrap;
+            break;
+          }
+        }
+
+        if (states.grow) {
+          setAttrs["data-grow"] = "true";
+        }
+
         return {
-          cssUtilityClass: `m_4081bf90${qx.core.Environment.get("qx.debug") ? ' mantine-Group-root' : ''}`
+          cssUtilityClass: `m_4081bf90${qx.core.Environment.get("qx.debug") ? ' mantine-Group-root' : ''}`,
+          cssStates: {
+            "set-attributes": setAttrs,
+            "set-styles": setStyles
+          }
         };
       }
     },
 
     vstack: {
-      style() {
+      style(states) {
+        const setStyles = {};
+
+        for (const align of ["stretch", "center", "flex-start", "flex-end"]) {
+          if (states["align-" + align]) {
+            setStyles["--stack-align"] = align;
+            break;
+          }
+        }
+
+        for (const justify of ["center", "flex-start", "flex-end", "space-between", "space-around"]) {
+          if (states["justify-" + justify]) {
+            setStyles["--stack-justify"] = justify;
+            break;
+          }
+        }
+
+        for (const gap of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["gap-" + gap]) {
+            setStyles["--stack-gap"] = `var(--mantine-spacing-${gap})`;
+            break;
+          }
+        }
+
         return {
-          cssUtilityClass: `m_6d731127${qx.core.Environment.get("qx.debug") ? ' mantine-Stack-root' : ''}`
+          cssUtilityClass: `m_6d731127${qx.core.Environment.get("qx.debug") ? ' mantine-Stack-root' : ''}`,
+          cssStates: {
+            "set-styles": setStyles
+          }
         };
       }
     },
@@ -160,9 +225,27 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
     },
 
     "layout-container": {
-      style() {
+      style(states) {
+        const setAttrs = {};
+        const setStyles = {};
+
+        if (states.fluid) {
+          setAttrs["data-fluid"] = "true";
+        } else {
+          for (const size of ["xs", "sm", "md", "lg", "xl"]) {
+            if (states["size-" + size]) {
+              setStyles["--container-size"] = `var(--container-size-${size})`;
+              break;
+            }
+          }
+        }
+
         return {
-          cssUtilityClass: `m_7485cace${qx.core.Environment.get("qx.debug") ? ' mantine-Container-root' : ''}`
+          cssUtilityClass: `m_7485cace${qx.core.Environment.get("qx.debug") ? ' mantine-Container-root' : ''}`,
+          cssStates: {
+            "set-attributes": setAttrs,
+            "set-styles": setStyles
+          }
         };
       }
     },
@@ -515,10 +598,9 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
     "menu-button": {
       style(states) {
 
-        // mantine-focus-auto m_99ac2aa1 mantine-Menu-item m_87cf2631 mantine-UnstyledButton-root
-        // ville-menu-item
+        // mantine-focus-auto m_99ac2aa1 mantine-Menu-item m_87cf2631 mantine-UnstyledButton-root ville-menu-item
 
-        const cssucs = `mantine-focus-auto m_99ac2aa1${qx.core.Environment.get("qx.debug") ? ' mantine-Menu-item' : ''} m_87cf2631${qx.core.Environment.get("qx.debug") ? ' mantine-UnstyledButton-root' : ''}`
+        const cssucs = `mantine-focus-auto m_99ac2aa1${qx.core.Environment.get("qx.debug") ? ' mantine-Menu-item' : ''} m_87cf2631${qx.core.Environment.get("qx.debug") ? ' mantine-UnstyledButton-root' : ''} ville-menu-item`;
 
         return {
           cssUtilityClass: cssucs,
@@ -1054,7 +1136,7 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
         return {
           cssStates: {
             "set-attributes": {
-              "data-expanded": states.pressed ? "true" : null
+              "data-expanded": states.expanded ? "true" : null
             }
           }
         };

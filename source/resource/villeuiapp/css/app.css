@@ -1,13 +1,35 @@
-.ville-mantineapp-Application {
-    padding:calc(0.75rem * var(--mantine-scale));
+:root {
+    --app-shell-navbar-width: calc(18.75rem * var(--mantine-scale));
+    --app-shell-navbar-offset: calc(18.75rem * var(--mantine-scale));
+    --app-shell-header-height: calc(3.75rem * var(--mantine-scale));
+    --app-shell-header-offset: calc(3.75rem * var(--mantine-scale));
+    --app-shell-padding: var(--mantine-spacing-md);
+}
 
-    div.ville-mantineapp-InnerAppContainer {
-        margin-left:auto;
-        margin-right:auto;
-        padding-top:calc(2.5rem * var(--mantine-scale));
-        max-width:calc(26.25rem * var(--mantine-scale));
+@media(min-width: 48em) {
+    :root {
+        --app-shell-navbar-transform: translateX(calc(var(--app-shell-navbar-width) * -1));
+        --app-shell-navbar-transform-rtl: translateX(var(--app-shell-navbar-width));
+        --app-shell-navbar-offset: 0px !important;
     }
 }
 
+@media(max-width: 47.99375em) {
+    :root {
+        --app-shell-navbar-width: 100%;
+        --app-shell-navbar-offset: 0px;
+        --app-shell-navbar-transform: translateX(calc(var(--app-shell-navbar-width) * -1));
+        --app-shell-navbar-transform-rtl: translateX(var(--app-shell-navbar-width));
+    }
+}
 
+.ville-mantineapp-Application {
+    padding: calc(0.75rem * var(--mantine-scale));
 
+    div.ville-mantineapp-InnerAppContainer {
+        margin-left: auto;
+        margin-right: auto;
+        padding-top: calc(2.5rem * var(--mantine-scale));
+        max-width: calc(26.25rem * var(--mantine-scale));
+    }
+}

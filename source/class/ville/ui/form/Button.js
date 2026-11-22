@@ -178,8 +178,8 @@ qx.Class.define("ville.ui.form.Button", {
     },
 
     /**
-     * Property apply handler for `loading`. Resets active press states, toggles
-     * `"loading"`, and locks interactive disabled attributes.
+     * Property apply handler for `loading`. Toggles `"loading"` state
+     * and locks interactive disabled attributes.
      *
      * @this {ville.ui.form.Button}
      * @param {boolean} value Whether loading state is active.
@@ -187,7 +187,6 @@ qx.Class.define("ville.ui.form.Button", {
      */
     _applyLoading(value) {
       if (value) {
-        this.reset();
         this.addState("loading");
       } else {
         this.removeState("loading");
