@@ -26,6 +26,73 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
     ---------------------------------------------------------------------------
     */
 
+    appshell: {
+      style() {
+        return {
+          cssUtilityClass: "m_89ab340 mantine-AppShell-root ville-mantineapp-Application",
+          cssStates: {
+            "set-attributes": {
+              "data-mode": "fixed"
+            }
+          }
+        };
+      }
+    },
+
+    "appshell-header": {
+      style() {
+        return {
+          cssUtilityClass: "m_3b16f56b mantine-AppShell-header right-scroll-bar-position",
+          cssStates: {
+            "set-attributes": {
+              "data-with-border": "true"
+            },
+            "set-styles": {
+              "--app-shell-header-z-index": "100"
+            }
+          }
+        };
+      }
+    },
+
+    "appshell-header-inner": {
+      include: "hgroup",
+      style() {
+        return {
+          cssStates: {
+            "set-styles": {
+              "--container-size": "var(--container-size-xl)",
+              "padding-inline": "var(--mantine-spacing-md)",
+              "height": "100%"
+            }
+          }
+        };
+      }
+    },
+
+    "appshell-logo-text": {
+      style() {
+        return {
+          cssStates: {
+            "set-styles": {
+              "font-weight": "bold",
+              "font-style": "normal",
+              "color": "inherit",
+              "font-size": "20px"
+            }
+          }
+        };
+      }
+    },
+
+    "appshell-main": {
+      style() {
+        return {
+          cssUtilityClass: "m_8983817 mantine-AppShell-main"
+        };
+      }
+    },
+
     overlay: {
       style() {
         return {
@@ -1631,6 +1698,79 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
       --------------------
     */
 
-    "list-search-highlight": {}
+    "list-search-highlight": {},
+
+    /* --- Tier A1 Actions, Toggles, Navigation, Overlays & Form Controls --- */
+    actionicon: "button",
+    "toggle-actionicon": "toggle-button",
+    burger: {
+      style(states) {
+        return {
+          cssUtilityClass: "ville-burger",
+          cssStates: {
+            "set-attributes": {
+              "data-opened": states.opened ? "true" : null
+            }
+          }
+        };
+      }
+    },
+    navlink: {
+      style(states) {
+        return {
+          cssUtilityClass: "ville-navlink",
+          cssStates: {
+            "set-attributes": {
+              "data-active": states.active ? "true" : null
+            }
+          }
+        };
+      }
+    },
+    checkbox: {
+      style() {
+        return {
+          cssUtilityClass: "ville-checkbox"
+        };
+      }
+    },
+    switch: {
+      style() {
+        return {
+          cssUtilityClass: "ville-switch"
+        };
+      }
+    },
+    radiobutton: {
+      style() {
+        return {
+          cssUtilityClass: "ville-radiobutton"
+        };
+      }
+    },
+    radiobuttongroup: {},
+    tooltip: {
+      style() {
+        return {
+          cssUtilityClass: "ville-tooltip"
+        };
+      }
+    },
+    modal: {
+      style() {
+        return {
+          cssUtilityClass: "ville-modal"
+        };
+      }
+    },
+    "modal/header": "hgroup",
+    "modal/title": "typography-title",
+    "modal/close-button": "actionicon",
+    "modal/pane": "vstack",
+    window: "modal",
+    "window/header": "hgroup",
+    "window/title": "typography-title",
+    "window/close-button": "actionicon",
+    "window/pane": "vstack"
   }
 });

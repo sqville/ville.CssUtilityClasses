@@ -1,89 +1,47 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2007 David Pérez Carmona
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * David Perez Carmona (david-perez)
-     * Sebastian Werner (wpbasti)
-     * Fabian Jakobs (fjakobs)
-     * Martin Wittemann (martinwittemann)
-
-************************************************************************ */
-
 /**
- * Provides resizing behavior to any widget.
+ * Provides pointer-capture edge and corner resizing behavior to any `ville.ui.core.Widget` (`STRAT-LAYOUT-01`).
+ *
+ * Modernized for Path B Ville UI:
+ * - Uses native `Element.setPointerCapture()` (`this.capture(e.getPointerId())`) and
+ *   `Element.getBoundingClientRect()` (`this.getContentLocation()`).
+ * - Zero dependency on `qx.ui.core.Widget` or `qx.event.handler.DragDrop`.
  */
 qx.Mixin.define("ville.ui.core.MResizable", {
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
-
   construct() {
-    // Register listeners to the content
-    var content = this.getContentElement();
+    const content = this.getContentElement();
     content.addListener("pointerdown", this.__onResizePointerDown, this, true);
     content.addListener("pointerup", this.__onResizePointerUp, this);
     content.addListener("pointermove", this.__onResizePointerMove, this);
     content.addListener("pointerout", this.__onResizePointerOut, this);
-    content.addListener("losecapture", this.__onResizeLoseCapture, this);
-
-    // Get a reference of the drag and drop handler
-    var domElement = content.getDomElement();
-    if (domElement == null) {
-      domElement = window;
-    }
-
-    this.__dragDropHandler = qx.event.Registration.getManager(
-      domElement
-    ).getHandler(qx.event.handler.DragDrop);
+    content.addListener("lostpointercapture", this.__onResizeLoseCapture, this);
   },
 
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
-
   properties: {
-    /** Whether the top edge is resizable */
+    /** Whether the top edge is resizable. */
     resizableTop: {
       check: "Boolean",
       init: true
     },
 
-    /** Whether the right edge is resizable */
+    /** Whether the right edge is resizable. */
     resizableRight: {
       check: "Boolean",
       init: true
     },
 
-    /** Whether the bottom edge is resizable */
+    /** Whether the bottom edge is resizable. */
     resizableBottom: {
       check: "Boolean",
       init: true
     },
 
-    /** Whether the left edge is resizable */
+    /** Whether the left edge is resizable. */
     resizableLeft: {
       check: "Boolean",
       init: true
     },
 
-    /**
-     * Property group to configure the resize behaviour for all edges at once
-     */
+    /** Shorthand property group configuring all four edges at once. */
     resizable: {
       group: [
         "resizableTop",
@@ -91,36 +49,39 @@ qx.Mixin.define("ville.ui.core.MResizable", {
         "resizableBottom",
         "resizableLeft"
       ],
-
       mode: "shorthand"
     },
 
-    /** The tolerance to activate resizing */
+    /** Distance tolerance in pixels from an edge to activate resizing. */
     resizeSensitivity: {
       check: "Integer",
       init: 5
     },
 
-    /** Whether a frame replacement should be used during the resize sequence */
+    /** Whether a preview frame should be used during the resize sequence. */
     useResizeFrame: {
       check: "Boolean",
-      init: true
+      init: false
     }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-  /* eslint-disable @qooxdoo/qx/no-refs-in-members */
   members: {
-    __dragDropHandler: null,
+    /** @type {ville.ui.core.Widget|null} @private */
     __resizeFrame: null,
-    __resizeActive: null,
-    __resizeLeft: null,
-    __resizeTop: null,
+
+    /** @type {number} @private */
+    __resizeActive: 0,
+
+    /** @type {number} @private */
+    __resizeLeft: 0,
+
+    /** @type {number} @private */
+    __resizeTop: 0,
+
+    /** @type {Object|null} @private */
     __resizeStart: null,
+
+    /** @type {Object|null} @private */
     __resizeRange: null,
 
     RESIZE_TOP: 1,
@@ -128,78 +89,83 @@ qx.Mixin.define("ville.ui.core.MResizable", {
     RESIZE_LEFT: 4,
     RESIZE_RIGHT: 8,
 
-    /*
-    ---------------------------------------------------------------------------
-      CORE FEATURES
-    ---------------------------------------------------------------------------
-    */
+    /**
+     * @type {Object<number, string>}
+     * @lint ignoreReferenceField(__resizeCursors)
+     */
+    __resizeCursors: {
+      1: "n-resize",
+      2: "s-resize",
+      4: "w-resize",
+      8: "e-resize",
+      5: "nw-resize",
+      6: "sw-resize",
+      9: "ne-resize",
+      10: "se-resize"
+    },
 
     /**
-     * Get the widget, which draws the resize/move frame. The resize frame is
-     * shared by all widgets and is added to the root widget.
+     * Returns or lazily creates the resize preview frame widget.
      *
-     * @return {qx.ui.core.Widget} The resize frame
+     * @returns {ville.ui.core.Widget} The resize frame widget.
+     * @protected
      */
     _getResizeFrame() {
-      var frame = this.__resizeFrame;
+      let frame = this.__resizeFrame;
       if (!frame) {
-        frame = this.__resizeFrame = new qx.ui.core.Widget();
+        frame = this.__resizeFrame = new ville.ui.core.Widget();
         frame.setAppearance("resize-frame");
         frame.exclude();
 
-        qx.core.Init.getApplication().getRoot().add(frame);
+        const root = this.getApplicationRoot();
+        if (root && typeof root._add === "function") {
+          root._add(frame);
+        }
       }
-
       return frame;
     },
 
     /**
-     * Creates, shows and syncs the frame with the widget.
+     * Displays and syncs the resize frame with the widget's live location.
+     *
+     * @private
      */
     __showResizeFrame() {
-      var location = this.getContentLocation();
-      var frame = this._getResizeFrame();
+      const location = this.getContentLocation();
+      const frame = this._getResizeFrame();
       frame.setUserBounds(
         location.left,
         location.top,
         location.right - location.left,
         location.bottom - location.top
       );
-
       frame.show();
-      frame.setZIndex(this.getZIndex() + 1);
+      frame.setZIndex((this.getZIndex() || 100) + 1);
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      RESIZE SUPPORT
-    ---------------------------------------------------------------------------
-    */
-
     /**
-     * Computes the new boundaries at each interval
-     * of the resize sequence.
+     * Computes updated widget boundaries during a resize drag.
      *
-     * @param e {qx.event.type.Pointer} Last pointer event
-     * @return {Map} A map with the computed boundaries
+     * @param {Object} e Wrapped native pointer event.
+     * @returns {{ viewportLeft: number, viewportTop: number, parentLeft: number, parentTop: number, width: number, height: number }} Computed bounds.
+     * @private
      */
     __computeResizeResult(e) {
-      // Detect mode
-      var resizeActive = this.__resizeActive;
+      const resizeActive = this.__resizeActive;
+      const hint = this.getSizeHint();
+      const range = this.__resizeRange;
+      const start = this.__resizeStart;
 
-      // Read size hint
-      var hint = this.getSizeHint();
-      var range = this.__resizeRange;
+      let width = start.width;
+      let height = start.height;
+      let left = start.left;
+      let top = start.top;
+      let diff;
 
-      // Read original values
-      var start = this.__resizeStart;
-      var width = start.width;
-      var height = start.height;
-      var left = start.left;
-      var top = start.top;
-      var diff;
-
-      if (resizeActive & this.RESIZE_TOP || resizeActive & this.RESIZE_BOTTOM) {
+      if (
+        resizeActive & this.RESIZE_TOP ||
+        resizeActive & this.RESIZE_BOTTOM
+      ) {
         diff =
           Math.max(range.top, Math.min(range.bottom, e.getDocumentTop())) -
           this.__resizeTop;
@@ -221,7 +187,10 @@ qx.Mixin.define("ville.ui.core.MResizable", {
         }
       }
 
-      if (resizeActive & this.RESIZE_LEFT || resizeActive & this.RESIZE_RIGHT) {
+      if (
+        resizeActive & this.RESIZE_LEFT ||
+        resizeActive & this.RESIZE_RIGHT
+      ) {
         diff =
           Math.max(range.left, Math.min(range.right, e.getDocumentLeft())) -
           this.__resizeLeft;
@@ -244,58 +213,35 @@ qx.Mixin.define("ville.ui.core.MResizable", {
       }
 
       return {
-        // left and top of the visible widget
         viewportLeft: left,
         viewportTop: top,
-
         parentLeft: start.bounds.left + left - start.left,
         parentTop: start.bounds.top + top - start.top,
-
-        // dimensions of the visible widget
-        width: width,
-        height: height
+        width,
+        height
       };
     },
 
     /**
-     * @type {Map} Maps internal states to cursor symbols to use
+     * Updates active edge flags based on pointer distance to widget edges.
      *
-     * @lint ignoreReferenceField(__resizeCursors)
-     */
-    __resizeCursors: {
-      1: "n-resize",
-      2: "s-resize",
-      4: "w-resize",
-      8: "e-resize",
-
-      5: "nw-resize",
-      6: "sw-resize",
-      9: "ne-resize",
-      10: "se-resize"
-    },
-
-    /**
-     * Updates the internally stored resize mode
-     *
-     * @param e {qx.event.type.Pointer} Last pointer event
+     * @param {Object} e Wrapped native pointer event.
+     * @private
      */
     __computeResizeMode(e) {
-      var location = this.getContentLocation();
-      var pointerTolerance = this.getResizeSensitivity();
+      const location = this.getContentLocation();
+      const pointerTolerance = this.getResizeSensitivity();
+      const pointerLeft = e.getDocumentLeft();
+      const pointerTop = e.getDocumentTop();
 
-      var pointerLeft = e.getDocumentLeft();
-      var pointerTop = e.getDocumentTop();
-
-      var resizeActive = this.__computeResizeActive(
+      let resizeActive = this.__computeResizeActive(
         location,
         pointerLeft,
         pointerTop,
         pointerTolerance
       );
 
-      // check again in case we have a corner [BUG #1200]
       if (resizeActive > 0) {
-        // this is really a | (or)!
         resizeActive =
           resizeActive |
           this.__computeResizeActive(
@@ -310,19 +256,18 @@ qx.Mixin.define("ville.ui.core.MResizable", {
     },
 
     /**
-     * Internal helper for computing the proper resize action based on the
-     * given parameters.
+     * Evaluates edge proximity flags.
      *
-     * @param location {Map} The current location of the widget.
-     * @param pointerLeft {Integer} The left position of the pointer.
-     * @param pointerTop {Integer} The top position of the pointer.
-     * @param pointerTolerance {Integer} The desired distance to the edge.
-     * @return {Integer} The resize active number.
+     * @param {Object} location Widget viewport box.
+     * @param {number} pointerLeft Pointer X.
+     * @param {number} pointerTop Pointer Y.
+     * @param {number} pointerTolerance Pixel tolerance.
+     * @returns {number} Bitmask of active resize edges.
+     * @private
      */
     __computeResizeActive(location, pointerLeft, pointerTop, pointerTolerance) {
-      var resizeActive = 0;
+      let resizeActive = 0;
 
-      // TOP
       if (
         this.getResizableTop() &&
         Math.abs(location.top - pointerTop) < pointerTolerance &&
@@ -330,8 +275,6 @@ qx.Mixin.define("ville.ui.core.MResizable", {
         pointerLeft < location.right + pointerTolerance
       ) {
         resizeActive += this.RESIZE_TOP;
-
-        // BOTTOM
       } else if (
         this.getResizableBottom() &&
         Math.abs(location.bottom - pointerTop) < pointerTolerance &&
@@ -341,7 +284,6 @@ qx.Mixin.define("ville.ui.core.MResizable", {
         resizeActive += this.RESIZE_BOTTOM;
       }
 
-      // LEFT
       if (
         this.getResizableLeft() &&
         Math.abs(location.left - pointerLeft) < pointerTolerance &&
@@ -349,8 +291,6 @@ qx.Mixin.define("ville.ui.core.MResizable", {
         pointerTop < location.bottom + pointerTolerance
       ) {
         resizeActive += this.RESIZE_LEFT;
-
-        // RIGHT
       } else if (
         this.getResizableRight() &&
         Math.abs(location.right - pointerLeft) < pointerTolerance &&
@@ -359,53 +299,45 @@ qx.Mixin.define("ville.ui.core.MResizable", {
       ) {
         resizeActive += this.RESIZE_RIGHT;
       }
+
       return resizeActive;
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      RESIZE EVENT HANDLERS
-    ---------------------------------------------------------------------------
-    */
-
     /**
-     * Event handler for the pointer down event
-     *
-     * @param e {qx.event.type.Pointer} The pointer event instance
+     * @param {Object} e Wrapped native pointerdown event.
+     * @private
      */
     __onResizePointerDown(e) {
-      // Check for active resize
       if (
         !this.__resizeActive ||
         !this.getEnabled() ||
-        e.getPointerType() == "touch"
+        e.getPointerType() === "touch"
       ) {
         return;
       }
 
-      // Add resize state
       this.addState("resize");
-
-      // Store pointer coordinates
       this.__resizeLeft = e.getDocumentLeft();
       this.__resizeTop = e.getDocumentTop();
 
-      // Cache bounds
-      var location = this.getContentLocation();
-      var bounds = this.getBounds();
+      const location = this.getContentLocation();
+      const bounds = this.getBounds();
 
       this.__resizeStart = {
         top: location.top,
         left: location.left,
         width: location.right - location.left,
         height: location.bottom - location.top,
-        bounds: qx.lang.Object.clone(bounds)
+        bounds: Object.assign({}, bounds)
       };
 
-      // Compute range
-      var parent = this.getLayoutParent();
-      var parentLocation = parent.getContentLocation();
-      var parentBounds = parent.getBounds();
+      const parent = this.getLayoutParent() || this.getApplicationRoot();
+      const parentLocation = parent
+        ? parent.getContentLocation()
+        : { left: 0, top: 0 };
+      const parentBounds = parent
+        ? parent.getBounds()
+        : { width: window.innerWidth, height: window.innerHeight };
 
       this.__resizeRange = {
         left: parentLocation.left,
@@ -414,46 +346,35 @@ qx.Mixin.define("ville.ui.core.MResizable", {
         bottom: parentLocation.top + parentBounds.height
       };
 
-      // Show frame if configured this way
       if (this.getUseResizeFrame()) {
         this.__showResizeFrame();
       }
 
-      // Enable capturing
-      this.capture();
-
-      // Stop event
+      this.capture(e.getPointerId());
       e.stop();
     },
 
     /**
-     * Event handler for the pointer up event
-     *
-     * @param e {qx.event.type.Pointer} The pointer event instance
+     * @param {Object} e Wrapped native pointerup event.
+     * @private
      */
     __onResizePointerUp(e) {
-      // Check for active resize
       if (
         !this.hasState("resize") ||
         !this.getEnabled() ||
-        e.getPointerType() == "touch"
+        e.getPointerType() === "touch"
       ) {
         return;
       }
 
-      // Hide frame afterwards
       if (this.getUseResizeFrame()) {
         this._getResizeFrame().exclude();
       }
 
-      // Compute bounds
-      var bounds = this.__computeResizeResult(e);
-
-      // Sync with widget
+      const bounds = this.__computeResizeResult(e);
       this.setWidth(bounds.width);
       this.setHeight(bounds.height);
 
-      // Update coordinate in canvas
       if (this.getResizableLeft() || this.getResizableTop()) {
         this.setLayoutProperties({
           left: bounds.parentLeft,
@@ -461,63 +382,41 @@ qx.Mixin.define("ville.ui.core.MResizable", {
         });
       }
 
-      // Clear mode
       this.__resizeActive = 0;
-
-      // Remove resize state
       this.removeState("resize");
-
-      // Reset cursor
       this.resetCursor();
-      this.getApplicationRoot().resetGlobalCursor();
-
-      // Disable capturing
-      this.releaseCapture();
+      this.releaseCapture(e.getPointerId());
 
       e.stopPropagation();
     },
 
     /**
-     * Event listener for <code>losecapture</code> event.
-     *
-     * @param e {qx.event.type.Event} Lose capture event
+     * @private
      */
-    __onResizeLoseCapture(e) {
-      // Check for active resize
+    __onResizeLoseCapture() {
       if (!this.__resizeActive) {
         return;
       }
-
-      // Reset cursor
       this.resetCursor();
-      this.getApplicationRoot().resetGlobalCursor();
-
-      // Remove drag state
-      this.removeState("move");
-
-      // Hide frame afterwards
+      this.removeState("resize");
       if (this.getUseResizeFrame()) {
         this._getResizeFrame().exclude();
       }
     },
 
     /**
-     * Event handler for the pointer move event
-     *
-     * @param e {qx.event.type.Pointer} The pointer event instance
+     * @param {Object} e Wrapped native pointermove event.
+     * @private
      */
     __onResizePointerMove(e) {
-      if (!this.getEnabled() || e.getPointerType() == "touch") {
+      if (!this.getEnabled() || e.getPointerType() === "touch") {
         return;
       }
 
       if (this.hasState("resize")) {
-        var bounds = this.__computeResizeResult(e);
-
-        // Update widget
+        const bounds = this.__computeResizeResult(e);
         if (this.getUseResizeFrame()) {
-          // Sync new bounds to frame
-          var frame = this._getResizeFrame();
+          const frame = this._getResizeFrame();
           frame.setUserBounds(
             bounds.viewportLeft,
             bounds.viewportTop,
@@ -525,11 +424,8 @@ qx.Mixin.define("ville.ui.core.MResizable", {
             bounds.height
           );
         } else {
-          // Update size
           this.setWidth(bounds.width);
           this.setHeight(bounds.height);
-
-          // Update coordinate in canvas
           if (this.getResizableLeft() || this.getResizableTop()) {
             this.setLayoutProperties({
               left: bounds.parentLeft,
@@ -537,64 +433,38 @@ qx.Mixin.define("ville.ui.core.MResizable", {
             });
           }
         }
-
-        // Full stop for event
         e.stopPropagation();
-      } else if (
-        !this.hasState("maximized") &&
-        !this.__dragDropHandler.isSessionActive()
-      ) {
+      } else if (!this.hasState("maximized")) {
         this.__computeResizeMode(e);
-
-        var resizeActive = this.__resizeActive;
-        var root = this.getApplicationRoot();
-
+        const resizeActive = this.__resizeActive;
         if (resizeActive) {
-          var cursor = this.__resizeCursors[resizeActive];
-          this.setCursor(cursor);
-          root.setGlobalCursor(cursor);
+          this.setCursor(this.__resizeCursors[resizeActive]);
         } else if (this.getCursor()) {
           this.resetCursor();
-          root.resetGlobalCursor();
         }
       }
     },
 
     /**
-     * Event handler for the pointer out event
-     *
-     * @param e {qx.event.type.Pointer} The pointer event instance
+     * @param {Object} e Wrapped native pointerout event.
+     * @private
      */
     __onResizePointerOut(e) {
-      if (e.getPointerType() == "touch") {
+      if (e.getPointerType() === "touch") {
         return;
       }
-      // When the pointer left the window and resizing is not yet
-      // active we must be sure to (especially) reset the global
-      // cursor.
       if (this.getCursor() && !this.hasState("resize")) {
         this.resetCursor();
-        this.getApplicationRoot().resetGlobalCursor();
       }
     }
   },
 
-  /*
-  *****************************************************************************
-     DESTRUCTOR
-  *****************************************************************************
-  */
-
   destruct() {
     if (this.getCursor()) {
-      this.getApplicationRoot().resetGlobalCursor();
+      this.resetCursor();
     }
-
-    if (this.__resizeFrame != null && !qx.core.ObjectRegistry.inShutDown) {
-      this.__resizeFrame.destroy();
-      this.__resizeFrame = null;
-    }
-
-    this.__dragDropHandler = null;
+    this._disposeObjects("__resizeFrame");
+    this.__resizeStart = null;
+    this.__resizeRange = null;
   }
 });

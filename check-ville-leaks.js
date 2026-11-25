@@ -2,20 +2,21 @@
 /**
  * check-ville-leaks.js
  *
- * Queries a compiled Qooxdoo db.json (and cross-checks compiled/<target>/<app>/index.js)
- * to detect and trace:
+ * Queries a compiled Qooxdoo db.json (and cross-checks compiled/<target>/<app>/index.js
+ * or ville-bundle.js) to detect and trace:
  *  1. Direct leaks: ville.* or app classes referencing qx.ui.* directly
  *  2. Transitive bridge leaks: non-qx.ui.* classes (like qx.html.* or qx.event.*)
  *     that bridge into qx.ui.*, with shortest-path traces and blast-radius counts
  *  3. Breakdown of leaked qx.ui.* classes by namespace (and whether they are
- *     actively emitted in index.js)
+ *     actively emitted in index.js / package-0.js)
  *  4. Legacy subsystem leaks: qx.theme.manager.* (Decoration/Font/Color/Meta),
- *     qx.event.handler.* (DragDrop/Gesture/Touch/Pointer/Keyboard/Focus), & Bluebird
+ *     qx.locale.* / DateFormat / Formatter, qx.event.handler.*, & Bluebird
  *  5. CommonJS / Browserify triggers (db.classInfo[*].commonjsModules)
  *
  * Usage:
  *   node check-ville-leaks.js
- *   node check-ville-leaks.js --db compiled/source/db.json --entry villeuiapp.Application
+ *   node check-ville-leaks.js --target build
+ *   node check-ville-leaks.js --db compiled/build/db.json --entry villeuiapp.Application
  *   node check-ville-leaks.js --trace qx.ui.core.Widget
  */
 
@@ -29,12 +30,27 @@ function getArg(flag, fallback) {
   return idx !== -1 && args[idx + 1] ? args[idx + 1] : fallback;
 }
 
-const dbPath = path.resolve(getArg("--db", "compiled/source/db.json"));
+const explicitTarget = getArg("--target", null);
+function resolveDefaultDbPath() {
+  if (explicitTarget) {
+    return `compiled/${explicitTarget}/db.json`;
+  }
+  if (fs.existsSync(path.resolve("compiled/source/db.json"))) {
+    return "compiled/source/db.json";
+  }
+  if (fs.existsSync(path.resolve("compiled/build/db.json"))) {
+    return "compiled/build/db.json";
+  }
+  return "compiled/source/db.json";
+}
+
+const dbPath = path.resolve(getArg("--db", resolveDefaultDbPath()));
 const entryClass = getArg("--entry", "villeuiapp.Application");
 const themeClass = getArg("--theme", "ville.cssuc.theme.mantine.Theme");
 const appName = getArg("--app", entryClass.split(".")[0]);
+const appOutDir = path.join(path.dirname(dbPath), appName);
 const indexPath = path.resolve(
-  getArg("--index", path.join(path.dirname(dbPath), appName, "index.js"))
+  getArg("--index", path.join(appOutDir, "index.js"))
 );
 const traceTarget = getArg("--trace", null);
 
@@ -46,17 +62,62 @@ if (!fs.existsSync(dbPath)) {
 const db = JSON.parse(fs.readFileSync(dbPath, "utf8"));
 const classInfo = db.classInfo || {};
 
-// --- Optional: Parse Emitted Classes from compiled/<target>/<app>/index.js ---
+// --- Parse Emitted Classes from compiled/<target>/<app>/index.js (or package-0.js / ville-bundle.js in build target) ---
 let bundledClasses = null;
 let bundledPreBoot = [];
 if (fs.existsSync(indexPath)) {
   const indexContent = fs.readFileSync(indexPath, "utf8");
   bundledClasses = new Set();
-  const uriRegex = /"\.\.\/transpiled\/([^"]+)\.js"/g;
+  const uriRegex = /"\.\.\/transpiled\/([^"?]+)\.js(?:\?[^"]*)?"/g;
   let match;
   while ((match = uriRegex.exec(indexContent)) !== null) {
     bundledClasses.add(match[1].replace(/\//g, "."));
   }
+
+  // In `--target=build`, scripts are concatenated into `package-0.js` instead of individual `../transpiled/*.js` URIs
+  if (bundledClasses.size === 0) {
+    const pkg0Path = path.join(appOutDir, "package-0.js");
+    const villeBundlePath = path.join(appOutDir, "ville-bundle.js");
+    const bundleSource = fs.existsSync(pkg0Path)
+      ? fs.readFileSync(pkg0Path, "utf8")
+      : fs.existsSync(villeBundlePath)
+      ? fs.readFileSync(villeBundlePath, "utf8")
+      : "";
+
+    if (bundleSource) {
+      if (
+        bundleSource.includes("@villeui/core") ||
+        bundleSource.includes("ville.core.Init") ||
+        bundleSource.includes("ClassRegistry")
+      ) {
+        bundledClasses.add("ville.core.Kernel");
+      }
+      const defRegex =
+        /\b(?:qx|ville)\.(?:Class|Mixin|Interface|Theme)\.define\(\s*["']([^"']+)["']/g;
+      let defMatch;
+      while ((defMatch = defRegex.exec(bundleSource)) !== null) {
+        const definedName = defMatch[1];
+        // Ignore internal kernel bootstrap definitions inside ville.core.Kernel
+        if (
+          bundledClasses.has("ville.core.Kernel") &&
+          [
+            "qx.theme.manager.Appearance",
+            "qx.data.IListData",
+            "qx.data.Array",
+            "qx.util.AliasManager",
+            "qx.util.ResourceManager",
+            "qx.util.DeferredCall",
+            "qx.core.IDisposable",
+            "qx.application.IApplication"
+          ].includes(definedName)
+        ) {
+          continue;
+        }
+        bundledClasses.add(definedName);
+      }
+    }
+  }
+
   if (indexContent.includes('"polyfill.js"')) bundledPreBoot.push("polyfill.js");
   if (indexContent.includes('"commonjs-browserify.js"')) {
     bundledPreBoot.push("commonjs-browserify.js");
@@ -64,12 +125,20 @@ if (fs.existsSync(indexPath)) {
 }
 
 function isActiveInBundle(clsName) {
-  if (!bundledClasses) return Boolean(classInfo[clsName]);
+  if (!bundledClasses || bundledClasses.size === 0) {
+    return Boolean(classInfo[clsName]);
+  }
   return bundledClasses.has(clsName);
 }
 
 // --- Build Forward & Shortest-Path BFS Graph from Entry Roots ---
-const seeds = [entryClass, themeClass].filter((c) => classInfo[c]);
+const seeds = [
+  entryClass,
+  themeClass,
+  "villeuiapp.theme.Theme",
+  "ville.cssuc.theme.obsidian.Theme",
+  "ville.cssuc.theme.shadcn.Theme"
+].filter((c) => classInfo[c] && isActiveInBundle(c));
 const reachable = new Set(seeds);
 const parentMap = new Map();
 const depthMap = new Map();
@@ -163,22 +232,28 @@ const villeClasses = allReachable.filter(
   (c) => c.startsWith("ville.") || c === entryClass || c.startsWith(appPrefix)
 );
 const leakedQxUi = allReachable.filter((c) => c.startsWith("qx.ui.")).sort();
+const bundledQxCount = bundledClasses
+  ? Array.from(bundledClasses).filter((c) => c.startsWith("qx.")).length
+  : allReachable.filter((c) => c.startsWith("qx.")).length;
+const hasVilleKernel = bundledClasses
+  ? bundledClasses.has("ville.core.Kernel")
+  : false;
 
 console.log("======================================================================");
-console.log(` Ville UI Mode 3 Dependency & Leak Audit`);
+console.log(` Ville UI Mode 3 / Path B Dependency & Leak Audit`);
 console.log(
   ` DB:    ${path.relative(process.cwd(), dbPath)} (Qx ${db.libraries?.qx || "?"}, Compiler ${db.compilerVersion || "?"})`
 );
 if (bundledClasses) {
   console.log(
-    ` Index: ${path.relative(process.cwd(), indexPath)} (${bundledClasses.size} transpiled classes, pre-boot: ${
-      bundledPreBoot.length ? bundledPreBoot.join(", ") : "none"
-    })`
+    ` Index: ${path.relative(process.cwd(), indexPath)} (${bundledClasses.size} transpiled files, qx.* files: ${bundledQxCount}, kernel: ${
+      hasVilleKernel ? "ville.core.Kernel" : "legacy qx"
+    }, pre-boot: ${bundledPreBoot.length ? bundledPreBoot.join(", ") : "none"})`
   );
 }
 console.log(` Seeds: ${seeds.join(", ")}`);
 console.log(
-  ` Reachable Active Classes: ${allReachable.length} (ville.*: ${villeClasses.length}, qx.ui.*: ${leakedQxUi.length})`
+  ` Reachable Active Classes: ${allReachable.length} (ville.*: ${villeClasses.length}, qx.* in bundle: ${bundledQxCount}, qx.ui.*: ${leakedQxUi.length})`
 );
 console.log("======================================================================\n");
 
@@ -273,13 +348,18 @@ if (leakedQxUi.length > 0) {
   console.log("");
 }
 
-// --- 4. Legacy Theme Managers, Event Handlers & Bluebird Promise ---
+// --- 4. Legacy Theme Managers, Event Handlers, Locale & Bluebird Promise ---
 const watchedSubsystems = [
   "qx.theme.manager.Meta",
   "qx.theme.manager.Decoration",
   "qx.theme.manager.Color",
   "qx.theme.manager.Font",
   "qx.theme.manager.Icon",
+  "qx.locale.Manager",
+  "qx.locale.Date",
+  "qx.locale.LocalizedString",
+  "qx.util.format.DateFormat",
+  "qx.log.appender.Formatter",
   "qx.event.handler.DragDrop",
   "qx.event.handler.Gesture",
   "qx.event.handler.Touch",

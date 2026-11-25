@@ -1,0 +1,306 @@
+/**
+ * Ville UI — Layer 2 Vendor Theme: shadcn/ui Atomic Utility & Component Rules (`STRAT-CSS-06`)
+ *
+ * Provides the exact Tailwind v4 / UnoCSS `presetWind4` utility classes referenced
+ * by `ville.cssuc.theme.shadcn.Appearance`.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- AppShell & Layout Utilities --- */
+.shadcn-appshell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.shadcn-appshell-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 3.5rem;
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in oklch, var(--background) 95%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.shadcn-appshell-main {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+.shadcn-hgroup {
+  display: flex;
+  flex-direction: row;
+  align-items: var(--group-align, center);
+  justify-content: var(--group-justify, flex-start);
+  gap: var(--group-gap, 0.75rem);
+  flex-wrap: var(--group-wrap, wrap);
+}
+
+.shadcn-vstack {
+  display: flex;
+  flex-direction: column;
+  align-items: var(--stack-align, stretch);
+  justify-content: var(--stack-justify, flex-start);
+  gap: var(--stack-gap, 1rem);
+}
+
+.shadcn-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shadcn-card {
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--card-foreground);
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* --- shadcn Button Variants & Sizes --- */
+.shadcn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-radius: var(--button-radius, calc(var(--radius) - 2px));
+  font-size: var(--button-fz, 0.875rem);
+  font-weight: 500;
+  height: var(--button-height, 2.25rem);
+  padding-inline: var(--button-padding-x, 1rem);
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shadcn-btn:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+  border-color: var(--ring);
+}
+
+.shadcn-btn[disabled],
+.shadcn-btn[aria-disabled="true"],
+.shadcn-btn.is-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.shadcn-btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+@media (hover: hover) {
+  .shadcn-btn-primary:hover {
+    background-color: color-mix(in oklch, var(--primary) 90%, transparent);
+  }
+}
+
+.shadcn-btn-outline {
+  border-color: var(--input);
+  background-color: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+@media (hover: hover) {
+  .shadcn-btn-outline:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+}
+
+.shadcn-btn-secondary {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+@media (hover: hover) {
+  .shadcn-btn-secondary:hover {
+    background-color: color-mix(in oklch, var(--secondary) 80%, transparent);
+  }
+}
+
+.shadcn-btn-ghost {
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+@media (hover: hover) {
+  .shadcn-btn-ghost:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+}
+
+.shadcn-btn-destructive {
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
+}
+
+.shadcn-btn-block {
+  width: 100%;
+}
+
+/* --- shadcn Input, Label & Fieldset --- */
+.shadcn-input {
+  display: flex;
+  height: var(--input-height, 2.25rem);
+  width: 100%;
+  border-radius: var(--input-radius, calc(var(--radius) - 2px));
+  border: 1px solid var(--input);
+  background-color: transparent;
+  padding: 0.25rem 0.75rem;
+  font-size: var(--input-fz, 0.875rem);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.shadcn-input:focus-visible {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 40%, transparent);
+}
+
+.shadcn-input-invalid,
+.shadcn-input[aria-invalid="true"] {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 25%, transparent);
+}
+
+.shadcn-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--foreground);
+  width: 100%;
+}
+
+.shadcn-fieldset {
+  border-radius: var(--fieldset-radius, var(--radius));
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--card-foreground);
+  padding: 1.25rem;
+  margin: 0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+.shadcn-fieldset-legend {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0 0.5rem;
+}
+
+/* --- shadcn Dropdown Menu (Popover) --- */
+.shadcn-menu.ville-menu-dropdown {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  padding: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.shadcn-menu-item.ville-menu-item {
+  border-radius: calc(var(--radius) - 4px);
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--popover-foreground);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+@media (hover: hover) {
+  .shadcn-menu-item.ville-menu-item:hover:not([disabled]):not([aria-disabled="true"]) {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+}
+
+.shadcn-menu-separator {
+  height: 1px;
+  background-color: var(--border);
+  margin: 0.25rem -0.25rem;
+  border: none;
+}
+
+/* --- shadcn Divider, Title, Text & Anchor --- */
+.shadcn-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.75rem;
+  margin-block: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.shadcn-divider::before,
+.shadcn-divider::after {
+  content: "";
+  flex: 1;
+  border-top: var(--divider-size, 1px) solid var(--border);
+}
+
+.shadcn-title {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+}
+
+.shadcn-text {
+  margin: 0;
+  font-size: var(--text-fz, 0.875rem);
+  color: var(--foreground);
+}
+
+.shadcn-anchor {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-underline-offset: 4px;
+}
+
+.shadcn-anchor:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+}

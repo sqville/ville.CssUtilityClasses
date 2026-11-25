@@ -40,11 +40,11 @@ qx.Class.define("ville.ui.form.Label", {
     }
 
     if (qx.core.Environment.get("qx.dynlocale")) {
-      this.__changeLocaleLabelListenerId = qx.locale.Manager.getInstance().addListener(
-        "changeLocale",
-        this._onChangeLocale,
-        this
-      );
+      this.__changeLocaleLabelListenerId =
+        ville.locale.MTranslation.addChangeLocaleListener(
+          this._onChangeLocale,
+          this
+        );
     }
   },
 
@@ -236,7 +236,7 @@ qx.Class.define("ville.ui.form.Label", {
    */
   destruct() {
     if (qx.core.Environment.get("qx.dynlocale") && this.__changeLocaleLabelListenerId) {
-      qx.locale.Manager.getInstance().removeListenerById(
+      ville.locale.MTranslation.removeChangeLocaleListenerById(
         this.__changeLocaleLabelListenerId
       );
       this.__changeLocaleLabelListenerId = null;

@@ -1,0 +1,60 @@
+/**
+ * Ville UI — Layer 1 Browser Mechanics: App Profiles (`web` vs. `pwa`),
+ * Native Icon Sizing & Tier 1 Data-View Virtualization (`STRAT-CSS-06`, `STRAT-WIDGET-07`, `STRAT-WIDGET-08`)
+ */
+
+/* --- 1. Installable PWA / Desktop App Shell Profile (`"ville.appType": "pwa"`) --- */
+html[data-ville-app-type="pwa"],
+html[data-ville-app-type="pwa"] body {
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html[data-ville-app-type="pwa"] input,
+html[data-ville-app-type="pwa"] textarea,
+html[data-ville-app-type="pwa"] [contenteditable="true"],
+html[data-ville-app-type="pwa"] .ville-selectable {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* PWA Window Controls Overlay (`display_override: ["window-controls-overlay"]`) */
+.ville-pwa-titlebar {
+  padding-inline-start: env(titlebar-area-x, 0px);
+  width: env(titlebar-area-width, 100%);
+  min-height: env(titlebar-area-height, 2.25rem);
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+.ville-pwa-titlebar button,
+.ville-pwa-titlebar input,
+.ville-pwa-titlebar a,
+.ville-pwa-titlebar [role="button"],
+.ville-app-region-no-drag {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+}
+
+.ville-app-region-drag {
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+/* --- 2. Tier 1 Native CSS C++ Data-View Virtualization (`STRAT-WIDGET-08`) --- */
+.ville-virtual-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--ville-row-height, 2.25rem);
+}
+
+/* --- 3. Native SVG & Pure-CSS Iconify Base Mechanics (`STRAT-WIDGET-07`) --- */
+svg[aria-hidden="true"],
+span[class^="i-"],
+span[class*=" i-"] {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+}

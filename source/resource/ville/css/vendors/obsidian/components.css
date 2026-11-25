@@ -1,0 +1,304 @@
+/**
+ * Ville UI — Layer 2 Vendor Theme: Obsidian Semantic HTML & `.mod-*` / `.is-*` Components (`STRAT-CSS-06`)
+ *
+ * Styles bare semantic HTML tags (`<button>`, `<input>`, `<fieldset>`, `<legend>`, `<hr>`, `<a>`)
+ * augmented with Obsidian's `.mod-cta`, `.mod-warning`, `.mod-destructive`, `.mod-muted`,
+ * `.is-disabled`, `.is-invalid`, `.menu`, `.menu-item`, and `.setting-item` classes.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-medium);
+  color: var(--text-normal);
+  background-color: var(--background-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- 1. Semantic <button> & .mod-* Modifiers (from obsidian-button.css) --- */
+button {
+  --text-color: var(--text-normal);
+  -webkit-app-region: no-drag;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-4-2);
+  color: var(--text-color);
+  font-size: var(--button-fz, var(--font-ui-small));
+  border-radius: var(--button-radius, var(--radius-s));
+  border: 0;
+  padding: var(--size-4-1) var(--button-padding-x, var(--size-4-3));
+  height: var(--button-height, var(--input-height));
+  font-weight: var(--input-font-weight);
+  cursor: var(--cursor);
+  font-family: inherit;
+  outline: none;
+  user-select: none;
+  white-space: nowrap;
+  transition: var(--button-transition);
+}
+
+button:not(.clickable-icon):not(.menu-item) {
+  color: var(--text-color);
+  background-color: var(--interactive-normal);
+  box-shadow: var(--input-shadow);
+}
+
+@media (hover: hover) {
+  button:not(.clickable-icon):not(.menu-item):hover:not([disabled]):not([aria-disabled="true"]) {
+    background-color: var(--interactive-hover);
+    box-shadow: var(--input-shadow-hover);
+  }
+}
+
+button:focus-visible {
+  box-shadow: 0 0 0 3px var(--background-modifier-border-focus);
+}
+
+button[disabled],
+button[aria-disabled="true"],
+button.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button.mod-cta {
+  background-color: var(--interactive-accent) !important;
+  --text-color: var(--text-on-accent);
+  color: var(--text-on-accent) !important;
+}
+
+@media (hover: hover) {
+  button.mod-cta:hover:not([disabled]):not([aria-disabled="true"]) {
+    background-color: var(--interactive-accent-hover) !important;
+  }
+}
+
+button.mod-warning,
+button.mod-destructive {
+  background-color: var(--background-modifier-error) !important;
+  --text-color: var(--text-on-accent);
+  color: var(--text-on-accent) !important;
+}
+
+button.clickable-icon {
+  background: transparent;
+  box-shadow: none;
+  padding: var(--size-2-2) var(--size-4-2);
+  color: var(--text-muted);
+}
+
+@media (hover: hover) {
+  button.clickable-icon:hover:not([disabled]) {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+  }
+}
+
+button.mod-full-width {
+  width: 100%;
+}
+
+/* --- 2. Semantic <input>, <textarea>, <label> & <fieldset> --- */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+input[type="number"],
+input[type="url"],
+input[type="tel"],
+textarea {
+  font-family: inherit;
+  font-size: var(--input-fz, var(--font-ui-small));
+  color: var(--text-normal);
+  background-color: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--input-radius, var(--radius-s));
+  height: var(--input-height, 32px);
+  padding: var(--size-4-1) var(--size-4-2);
+  width: 100%;
+  outline: none;
+  transition: border-color var(--anim-duration-superfast) ease-in-out,
+    box-shadow var(--anim-duration-superfast) ease-in-out;
+}
+
+input:hover:not([disabled]) {
+  border-color: var(--background-modifier-border-hover);
+}
+
+input:focus,
+input:focus-visible,
+textarea:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 25%, transparent);
+}
+
+input.is-invalid,
+input[aria-invalid="true"] {
+  border-color: var(--background-modifier-error);
+  color: var(--text-error);
+}
+
+label.ville-obsidian-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-2);
+  font-size: var(--font-ui-small);
+  font-weight: 500;
+  color: var(--text-normal);
+  width: 100%;
+}
+
+fieldset.ville-obsidian-fieldset {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--fieldset-radius, var(--radius-m));
+  background-color: var(--background-secondary);
+  padding: var(--size-4-4);
+  margin: 0;
+}
+
+fieldset.ville-obsidian-fieldset > legend {
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 var(--size-4-2);
+}
+
+/* --- 3. Popover Menu (`.menu`, `.menu-item`, `.menu-separator`) --- */
+.menu.ville-menu-dropdown {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  padding: var(--size-2-3);
+  box-shadow: var(--shadow-s);
+}
+
+.menu-item.ville-menu-item {
+  background: transparent;
+  box-shadow: none;
+  border-radius: var(--radius-s);
+  padding: var(--size-2-2) var(--size-4-2);
+  height: 28px;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  justify-content: flex-start;
+}
+
+@media (hover: hover) {
+  .menu-item.ville-menu-item:hover:not([disabled]):not([aria-disabled="true"]) {
+    background-color: var(--background-modifier-hover);
+  }
+}
+
+.menu-separator {
+  height: 1px;
+  background-color: var(--background-modifier-border);
+  margin: var(--size-2-2) 0;
+  border: 0;
+}
+
+/* --- 4. Divider, Typography & Anchor --- */
+.ville-obsidian-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--size-4-3);
+  margin-block: var(--size-4-3);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.ville-obsidian-divider::before,
+.ville-obsidian-divider::after {
+  content: "";
+  flex: 1;
+  border-top: var(--divider-size, 1px) solid var(--background-modifier-border);
+}
+
+.ville-obsidian-title {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--text-normal);
+}
+
+.ville-obsidian-text {
+  margin: 0;
+  font-size: var(--text-fz, var(--font-ui-medium));
+  color: var(--text-normal);
+}
+
+.ville-obsidian-anchor {
+  color: var(--text-accent);
+  font-size: var(--font-ui-small);
+  text-decoration: none;
+  cursor: var(--cursor-link);
+  background: transparent !important;
+  box-shadow: none !important;
+  height: auto;
+  padding: 0;
+}
+
+.ville-obsidian-anchor:hover {
+  color: var(--text-accent-hover);
+  text-decoration: underline;
+}
+
+/* --- 5. Declarative Layout Containers & AppShell --- */
+.ville-obsidian-appshell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background-color: var(--background-primary);
+}
+
+.ville-obsidian-appshell-header {
+  height: 52px;
+  background-color: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.ville-obsidian-appshell-main {
+  flex: 1;
+  padding: var(--size-4-6);
+}
+
+.ville-obsidian-hgroup {
+  display: flex;
+  flex-direction: row;
+  align-items: var(--group-align, center);
+  justify-content: var(--group-justify, flex-start);
+  gap: var(--group-gap, var(--size-4-3));
+  flex-wrap: var(--group-wrap, wrap);
+}
+
+.ville-obsidian-vstack {
+  display: flex;
+  flex-direction: column;
+  align-items: var(--stack-align, stretch);
+  justify-content: var(--stack-justify, flex-start);
+  gap: var(--stack-gap, var(--size-4-3));
+}
+
+.ville-obsidian-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ville-obsidian-paper {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  padding: var(--size-4-4);
+}

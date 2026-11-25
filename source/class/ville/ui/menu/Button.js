@@ -266,13 +266,12 @@ qx.Class.define("ville.ui.menu.Button", {
         const oldCommand = e.getOldData();
         if (command && !oldCommand) {
           this.__changeLocaleCommandListenerId =
-            qx.locale.Manager.getInstance().addListener(
-              "changeLocale",
+            ville.locale.MTranslation.addChangeLocaleListener(
               this._onChangeLocale,
               this
             );
         } else if (!command && this.__changeLocaleCommandListenerId) {
-          qx.locale.Manager.getInstance().removeListenerById(
+          ville.locale.MTranslation.removeChangeLocaleListenerById(
             this.__changeLocaleCommandListenerId
           );
           this.__changeLocaleCommandListenerId = null;
@@ -326,7 +325,7 @@ qx.Class.define("ville.ui.menu.Button", {
       qx.core.Environment.get("qx.dynlocale") &&
       this.__changeLocaleCommandListenerId
     ) {
-      qx.locale.Manager.getInstance().removeListenerById(
+      ville.locale.MTranslation.removeChangeLocaleListenerById(
         this.__changeLocaleCommandListenerId
       );
       this.__changeLocaleCommandListenerId = null;

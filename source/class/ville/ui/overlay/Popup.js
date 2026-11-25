@@ -1,119 +1,175 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Andreas Ecker (ecker)
-     * Fabian Jakobs (fjakobs)
-
-************************************************************************ */
-
 /**
- * Popups are widgets, which can be placed on top of the application.
- * They are automatically added to the application root.
+ * Path B Top-Layer Popover Widget (`STRAT-EVENT-02` & `STRAT-CORE-09`).
  *
- * Popups are used to display menus, the lists of combo or select boxes,
- * tooltips, etc.
+ * Replaces legacy `qx.ui.popup.Popup` + `qx.ui.popup.Manager` with the native
+ * HTML5 Popover API (`popover="auto" | "manual" | "hint"`), `#top-layer`
+ * rendering, native light-dismiss, and CSS Anchor Positioning via
+ * `ville.ui.core.MPlacement`.
+ *
+ * @ignore(CommandEvent)
  */
 qx.Class.define("ville.ui.overlay.Popup", {
-  extend: qx.ui.container.Composite,
-  include: qx.ui.core.MPlacement,
-
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+  extend: ville.ui.core.Box,
+  include: [ville.ui.core.MPlacement],
 
   construct(layout) {
-    super(layout);
+    super();
+    if (layout) {
+      this._setLayout(layout);
+    }
+    const contentEl = this.getContentElement();
+    contentEl.addClass("ville-popover");
+    contentEl.setAttribute("popover", this.getPopoverMode());
 
-    // Initialize visibility
-    this.initVisibility();
+    contentEl.addListener("toggle", (e) => {
+      const nativeEvt = e?.getNativeEvent ? e.getNativeEvent() : e;
+      const isOpen =
+        nativeEvt?.newState === "open" ||
+        Boolean(contentEl.getDomElement()?.matches?.(":popover-open"));
+      this.setOpened(isOpen);
+    });
   },
 
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
+  events: {
+    /** Fired when the popover opens in `#top-layer`. */
+    open: "qx.event.type.Event",
+
+    /** Fired when the popover closes from `#top-layer`. */
+    close: "qx.event.type.Event"
+  },
 
   properties: {
-    // overridden
     appearance: {
       refine: true,
       init: "popup"
     },
 
-    // overridden
-    visibility: {
-      refine: true,
-      init: "excluded"
+    /**
+     * Native HTML5 `popover` attribute mode:
+     * - `"auto"`: light-dismiss on outside click or Escape, closes other auto popovers
+     * - `"manual"`: explicit open/close without automatic light-dismiss
+     * - `"hint"`: ephemeral tooltip/hint popover
+     */
+    popoverMode: {
+      check: ["auto", "manual", "hint"],
+      init: "auto",
+      apply: "_applyPopoverMode"
     },
 
     /**
-     * Whether to let the system decide when to hide the popup. Setting
-     * this to false gives you better control but it also requires you
-     * to handle the closing of the popup.
+     * Legacy compatibility alias for `popoverMode: "auto"` vs `"manual"`.
      */
     autoHide: {
       check: "Boolean",
-      init: true
-    }
-  },
-
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
-  members: {
-    /*
-    ---------------------------------------------------------------------------
-      WIDGET API
-    ---------------------------------------------------------------------------
-    */
-
-    // overridden
-    show() {
-      // Lazy adding to the root element, otherwise it could happen that
-      // IE scrolls automatically to top, see bug #3955 for details.
-      if (this.getLayoutParent() == null) {
-        // Automatically add to application's root
-        qx.core.Init.getApplication().getRoot().add(this);
-      }
-      super.show();
+      init: true,
+      apply: "_applyAutoHide"
     },
 
-    // overridden
-    _applyVisibility(value, old) {
-      super._applyVisibility(value, old);
-
-      var mgr = qx.ui.popup.Manager.getInstance();
-      value === "visible" ? mgr.add(this) : mgr.remove(this);
+    /**
+     * Reactive open state synchronized with native `:popover-open`.
+     */
+    opened: {
+      check: "Boolean",
+      init: false,
+      event: "changeOpened",
+      apply: "_applyOpened"
     }
   },
 
-  /*
-  *****************************************************************************
-     DESTRUCTOR
-  *****************************************************************************
-  */
+  members: {
+    __syncingPopover: false,
 
-  destruct() {
-    if (!qx.ui.popup.Manager.getInstance().isDisposed()) {
-      qx.ui.popup.Manager.getInstance().remove(this);
+    /**
+     * Ensures the popover DOM element is attached to the application root or
+     * `document.body` so native `showPopover()` can promote it to `#top-layer`.
+     */
+    _ensureInDocument() {
+      const contentEl = this.getContentElement();
+      if (!contentEl.getParent()) {
+        const appRoot = qx.core.Init.getApplication?.()?.getRoot?.();
+        if (appRoot) {
+          appRoot.add(this);
+        }
+      }
+      contentEl.flush();
+      const domEl = contentEl.getDomElement();
+      if (domEl && !domEl.isConnected && typeof document !== "undefined") {
+        document.body.appendChild(domEl);
+      }
+      return domEl;
+    },
+
+    /**
+     * Opens the popover in the browser `#top-layer`.
+     */
+    open() {
+      this.setOpened(true);
+    },
+
+    /**
+     * Closes the popover from the browser `#top-layer`.
+     */
+    close() {
+      this.setOpened(false);
+    },
+
+    /**
+     * Toggles the popover open/closed state.
+     */
+    toggle() {
+      this.setOpened(!this.getOpened());
+    },
+
+    // Override Widget#show / hide to route through the top-layer Popover API
+    show() {
+      super.show();
+      this.open();
+    },
+
+    hide() {
+      this.close();
+    },
+
+    _applyPopoverMode(value) {
+      this.getContentElement().setAttribute("popover", value || "auto");
+    },
+
+    _applyAutoHide(value) {
+      this.setPopoverMode(value ? "auto" : "manual");
+    },
+
+    _applyOpened(value) {
+      if (this.__syncingPopover) {
+        return;
+      }
+      this.__syncingPopover = true;
+      try {
+        const domEl = this._ensureInDocument();
+        if (value) {
+          this.updatePlacement();
+          if (domEl && typeof domEl.showPopover === "function") {
+            if (!domEl.matches(":popover-open")) {
+              domEl.showPopover();
+            }
+          } else {
+            this.getContentElement().setAttribute("data-open", "true");
+            this.getContentElement().setStyle("display", "block");
+          }
+          this.fireEvent("open");
+        } else {
+          if (domEl && typeof domEl.hidePopover === "function") {
+            if (domEl.matches(":popover-open")) {
+              domEl.hidePopover();
+            }
+          } else {
+            this.getContentElement().removeAttribute("data-open");
+            this.getContentElement().setStyle("display", "none");
+          }
+          this.fireEvent("close");
+        }
+      } finally {
+        this.__syncingPopover = false;
+      }
     }
   }
 });

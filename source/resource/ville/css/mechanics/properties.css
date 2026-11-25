@@ -1,0 +1,118 @@
+/**
+ * Ville UI — Layer 1 Browser Mechanics: Scoped CSS Custom Properties (`STRAT-CSS-03`)
+ *
+ * Uses the W3C CSS Properties and Values API (`@property`) with `inherits: false`
+ * on container-scoped layout and component tokens so nested layout containers
+ * (`HGroup` inside `VStack`, `HBox` inside `Grid`, `Button` inside `FieldSet`)
+ * never bleed parent spacing, alignment, or radius tokens into child widgets.
+ */
+
+/* --- 1. Baseline Fallback Spacing & Radius Tokens (Shared Across All 3 Vendors) --- */
+:root {
+  --ville-spacing-xs: var(--mantine-spacing-xs, 0.5rem);
+  --ville-spacing-sm: var(--mantine-spacing-sm, 0.75rem);
+  --ville-spacing-md: var(--mantine-spacing-md, 1rem);
+  --ville-spacing-lg: var(--mantine-spacing-lg, 1.25rem);
+  --ville-spacing-xl: var(--mantine-spacing-xl, 2rem);
+
+  --ville-radius-xs: var(--mantine-radius-xs, 0.125rem);
+  --ville-radius-sm: var(--mantine-radius-sm, 0.25rem);
+  --ville-radius-md: var(--mantine-radius-md, 0.5rem);
+  --ville-radius-lg: var(--mantine-radius-lg, 1rem);
+  --ville-radius-xl: var(--mantine-radius-xl, 2rem);
+}
+
+/* --- 2. Non-Inheriting Container Layout Properties (`inherits: false`) --- */
+@property --ville-gap {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --group-gap {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1rem;
+}
+
+@property --group-align {
+  syntax: "*";
+  inherits: false;
+  initial-value: center;
+}
+
+@property --group-justify {
+  syntax: "*";
+  inherits: false;
+  initial-value: flex-start;
+}
+
+@property --group-wrap {
+  syntax: "*";
+  inherits: false;
+  initial-value: wrap;
+}
+
+@property --stack-gap {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1rem;
+}
+
+@property --stack-align {
+  syntax: "*";
+  inherits: false;
+  initial-value: stretch;
+}
+
+@property --stack-justify {
+  syntax: "*";
+  inherits: false;
+  initial-value: flex-start;
+}
+
+/* --- 3. Non-Inheriting Widget Component Properties (`inherits: false`) --- */
+@property --button-radius {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --button-height {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --button-padding-x {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --button-fz {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --input-radius {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --input-height {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --input-fz {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --fieldset-radius {
+  syntax: "*";
+  inherits: false;
+}
+
+@property --divider-size {
+  syntax: "*";
+  inherits: false;
+}

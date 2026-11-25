@@ -195,6 +195,24 @@ qx.Mixin.define("ville.ui.core.MExecutable", {
           }
         }
       }
+
+      if (typeof this.getContentElement === "function") {
+        const el = this.getContentElement();
+        if (el) {
+          const shortcut =
+            value && typeof value.getShortcut === "function"
+              ? value.getShortcut()
+              : null;
+          if (shortcut) {
+            el.setAttribute(
+              "aria-keyshortcuts",
+              String(shortcut).replace(/\+/g, "+")
+            );
+          } else {
+            el.removeAttribute("aria-keyshortcuts");
+          }
+        }
+      }
     }
   },
 

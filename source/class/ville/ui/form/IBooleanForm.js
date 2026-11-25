@@ -1,52 +1,16 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Martin Wittemann (martinwittemann)
-
-************************************************************************ */
-
 /**
  * Form interface for all form widgets which have boolean as their primary
- * data type like a checkbox.
+ * data type like a checkbox or switch.
  */
 qx.Interface.define("ville.ui.form.IBooleanForm", {
-  extend: qx.ui.form.IField,
-
-  /*
-  *****************************************************************************
-     EVENTS
-  *****************************************************************************
-  */
+  extend: ville.ui.form.IField,
 
   events: {
     /** Fired when the value was modified */
     changeValue: "qx.event.type.Data"
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
-    /*
-    ---------------------------------------------------------------------------
-      VALUE PROPERTY
-    ---------------------------------------------------------------------------
-    */
-
     /**
      * Sets the element's value.
      *

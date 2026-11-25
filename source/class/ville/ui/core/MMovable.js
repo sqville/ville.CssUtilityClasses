@@ -1,79 +1,53 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Fabian Jakobs (fjakobs)
-
-************************************************************************ */
-
 /**
- * Provides move behavior to any widget.
+ * Provides pointer-capture move behavior to any `ville.ui.core.Widget` (`STRAT-LAYOUT-01`).
  *
- * The widget using the mixin must register a widget as move handle so that
- * the pointer events needed for moving it are attached to this widget).
- * <pre class='javascript'>this._activateMoveHandle(widget);</pre>
+ * Modernized for Path B Ville UI:
+ * - Uses native `Element.setPointerCapture()` (`widget.capture(e.getPointerId())`) and
+ *   `Element.getBoundingClientRect()` (`widget.getContentLocation()`).
+ * - Zero dependency on `qx.ui.core.Widget`, `qx.ui.window.IDesktop`, or `qx.event.handler.DragDrop`.
  */
 qx.Mixin.define("ville.ui.core.MMovable", {
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
-
   properties: {
-    /** Whether the widget is movable */
+    /** Whether the widget is movable. */
     movable: {
       check: "Boolean",
       init: true
     },
 
-    /** Whether to use a frame instead of the original widget during move sequences */
+    /** Whether to use a ghost frame instead of moving the widget live. */
     useMoveFrame: {
       check: "Boolean",
       init: false
     }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
+    /** @type {ville.ui.core.Widget|null} @private */
     __moveHandle: null,
+
+    /** @type {ville.ui.core.Widget|null} @private */
     __moveFrame: null,
+
+    /** @type {{ left: number, top: number, right: number, bottom: number }|null} @private */
     __dragRange: null,
-    __dragLeft: null,
-    __dragTop: null,
-    __parentLeft: null,
-    __parentTop: null,
 
-    __blockerAdded: false,
-    __oldBlockerColor: null,
-    __oldBlockerOpacity: 0,
+    /** @type {number} @private */
+    __dragLeft: 0,
 
-    /*
-    ---------------------------------------------------------------------------
-      CORE FEATURES
-    ---------------------------------------------------------------------------
-    */
+    /** @type {number} @private */
+    __dragTop: 0,
+
+    /** @type {number} @private */
+    __parentLeft: 0,
+
+    /** @type {number} @private */
+    __parentTop: 0,
 
     /**
-     * Configures the given widget as a move handle
+     * Registers a child control or widget as the drag/move handle.
      *
-     * @param widget {qx.ui.core.Widget} Widget to activate as move handle
+     * @param {ville.ui.core.Widget} widget Widget to activate as move handle.
+     * @protected
      */
     _activateMoveHandle(widget) {
       if (this.__moveHandle) {
@@ -84,127 +58,101 @@ qx.Mixin.define("ville.ui.core.MMovable", {
       widget.addListener("pointerdown", this._onMovePointerDown, this);
       widget.addListener("pointerup", this._onMovePointerUp, this);
       widget.addListener("pointermove", this._onMovePointerMove, this);
-      widget.addListener("losecapture", this.__onMoveLoseCapture, this);
+      widget.addListener("lostpointercapture", this.__onMoveLoseCapture, this);
     },
 
     /**
-     * Get the widget, which draws the resize/move frame.
+     * Returns or lazily creates the shared move frame widget on the application root.
      *
-     * @return {qx.ui.core.Widget} The resize frame
+     * @returns {ville.ui.core.Widget} The move frame widget.
+     * @private
      */
     __getMoveFrame() {
-      var frame = this.__moveFrame;
+      let frame = this.__moveFrame;
       if (!frame) {
-        frame = this.__moveFrame = new qx.ui.core.Widget();
+        frame = this.__moveFrame = new ville.ui.core.Widget();
         frame.setAppearance("move-frame");
         frame.exclude();
 
-        qx.core.Init.getApplication().getRoot().add(frame);
+        const root = this.getApplicationRoot();
+        if (root && typeof root._add === "function") {
+          root._add(frame);
+        }
       }
-
       return frame;
     },
 
     /**
-     * Creates, shows and syncs the frame with the widget.
+     * Displays and aligns the move preview frame with the widget's current bounds.
+     *
+     * @private
      */
     __showMoveFrame() {
-      var location = this.getContentLocation();
-      var bounds = this.getBounds();
-      var frame = this.__getMoveFrame();
+      const location = this.getContentLocation();
+      const bounds = this.getBounds();
+      const frame = this.__getMoveFrame();
       frame.setUserBounds(
         location.left,
         location.top,
         bounds.width,
         bounds.height
       );
-
       frame.show();
-      frame.setZIndex(this.getZIndex() + 1);
+      frame.setZIndex((this.getZIndex() || 100) + 1);
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      MOVE SUPPORT
-    ---------------------------------------------------------------------------
-    */
-
     /**
-     * Computes the new drag coordinates
+     * Computes clamped drag coordinates from the pointer event.
      *
-     * @param e {qx.event.type.Pointer} Pointer event
-     * @return {Map} A map with the computed drag coordinates
+     * @param {Object} e Wrapped native pointer event.
+     * @returns {{ viewportLeft: number, viewportTop: number, parentLeft: number, parentTop: number }} Computed coordinates.
+     * @private
      */
     __computeMoveCoordinates(e) {
-      var range = this.__dragRange;
-      var pointerLeft = Math.max(
+      const range = this.__dragRange || {
+        left: -Infinity,
+        top: -Infinity,
+        right: Infinity,
+        bottom: Infinity
+      };
+      const pointerLeft = Math.max(
         range.left,
         Math.min(range.right, e.getDocumentLeft())
       );
-
-      var pointerTop = Math.max(
+      const pointerTop = Math.max(
         range.top,
         Math.min(range.bottom, e.getDocumentTop())
       );
 
-      var viewportLeft = this.__dragLeft + pointerLeft;
-      var viewportTop = this.__dragTop + pointerTop;
+      const viewportLeft = this.__dragLeft + pointerLeft;
+      const viewportTop = this.__dragTop + pointerTop;
 
       return {
-        viewportLeft: parseInt(viewportLeft, 10),
-        viewportTop: parseInt(viewportTop, 10),
-
-        parentLeft: parseInt(viewportLeft - this.__parentLeft, 10),
-        parentTop: parseInt(viewportTop - this.__parentTop, 10)
+        viewportLeft: Math.round(viewportLeft),
+        viewportTop: Math.round(viewportTop),
+        parentLeft: Math.round(viewportLeft - this.__parentLeft),
+        parentTop: Math.round(viewportTop - this.__parentTop)
       };
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      MOVE EVENT HANDLERS
-    ---------------------------------------------------------------------------
-    */
-
     /**
-     * Roll handler which prevents the scrolling via tap & move on parent widgets
-     * during the move of the widget.
-     * @param e {qx.event.type.Roll} The roll event
-     */
-    _onMoveRoll(e) {
-      e.stop();
-    },
-
-    /**
-     * Enables the capturing of the caption bar and prepares the drag session and the
-     * appearance (translucent, frame or opaque) for the moving of the window.
+     * Starts a pointer-captured move session.
      *
-     * @param e {qx.event.type.Pointer} pointer down event
+     * @param {Object} e Wrapped native pointerdown event.
+     * @protected
      */
     _onMovePointerDown(e) {
       if (!this.getMovable() || this.hasState("maximized")) {
         return;
       }
 
-      this.addListener("roll", this._onMoveRoll, this);
-
-      // Compute drag range
-      var parent = this.getLayoutParent();
-      var parentLocation = parent.getContentLocation();
-      var parentBounds = parent.getBounds();
-
-      // Added a blocker, this solves the issue described in [BUG #1462]
-      if (qx.Class.implementsInterface(parent, qx.ui.window.IDesktop)) {
-        if (!parent.isBlocked()) {
-          this.__oldBlockerColor = parent.getBlockerColor();
-          this.__oldBlockerOpacity = parent.getBlockerOpacity();
-          parent.setBlockerColor(null);
-          parent.setBlockerOpacity(1);
-
-          parent.blockContent(this.getZIndex() - 1);
-
-          this.__blockerAdded = true;
-        }
-      }
+      const parent = this.getLayoutParent() || this.getApplicationRoot();
+      const parentLocation = parent
+        ? parent.getContentLocation()
+        : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+      const parentBounds = parent
+        ? parent.getBounds()
+        : { width: window.innerWidth, height: window.innerHeight };
 
       this.__dragRange = {
         left: parentLocation.left,
@@ -213,50 +161,42 @@ qx.Mixin.define("ville.ui.core.MMovable", {
         bottom: parentLocation.top + parentBounds.height
       };
 
-      // Compute drag positions
-      var widgetLocation = this.getContentLocation();
+      const widgetLocation = this.getContentLocation();
       this.__parentLeft = parentLocation.left;
       this.__parentTop = parentLocation.top;
-
       this.__dragLeft = widgetLocation.left - e.getDocumentLeft();
       this.__dragTop = widgetLocation.top - e.getDocumentTop();
 
-      // Add state
       this.addState("move");
+      this.__moveHandle.capture(e.getPointerId());
 
-      // Enable capturing
-      this.__moveHandle.capture();
-
-      // Enable drag frame
       if (this.getUseMoveFrame()) {
         this.__showMoveFrame();
       }
 
-      // Stop event
       e.stop();
     },
 
     /**
-     * Does the moving of the window by rendering the position
-     * of the window (or frame) at runtime using direct dom methods.
+     * Updates widget or frame position during pointer move.
      *
-     * @param e {qx.event.type.Pointer} pointer move event
+     * @param {Object} e Wrapped native pointermove event.
+     * @protected
      */
     _onMovePointerMove(e) {
-      // Only react when dragging is active
       if (!this.hasState("move")) {
         return;
       }
 
-      // Apply new coordinates using DOM
-      var coords = this.__computeMoveCoordinates(e);
+      const coords = this.__computeMoveCoordinates(e);
       if (this.getUseMoveFrame()) {
         this.__getMoveFrame().setDomPosition(
           coords.viewportLeft,
           coords.viewportTop
         );
       } else {
-        var insets = this.getLayoutParent().getInsets();
+        const parent = this.getLayoutParent();
+        const insets = parent ? parent.getInsets() : { left: 0, top: 0 };
         this.setDomPosition(
           coords.parentLeft - (insets.left || 0),
           coords.parentTop - (insets.top || 0)
@@ -267,52 +207,27 @@ qx.Mixin.define("ville.ui.core.MMovable", {
     },
 
     /**
-     * Disables the capturing of the caption bar and moves the window
-     * to the last position of the drag session. Also restores the appearance
-     * of the window.
+     * Finalizes the move session and commits `left` / `top` layout properties.
      *
-     * @param e {qx.event.type.Pointer} pointer up event
+     * @param {Object} e Wrapped native pointerup event.
+     * @protected
      */
     _onMovePointerUp(e) {
-      if (this.hasListener("roll")) {
-        this.removeListener("roll", this._onMoveRoll, this);
-      }
-
-      // Only react when dragging is active
       if (!this.hasState("move")) {
         return;
       }
 
-      // Remove drag state
       this.removeState("move");
+      this.__moveHandle.releaseCapture(e.getPointerId());
 
-      // Removed blocker, this solves the issue described in [BUG #1462]
-      var parent = this.getLayoutParent();
-      if (qx.Class.implementsInterface(parent, qx.ui.window.IDesktop)) {
-        if (this.__blockerAdded) {
-          parent.unblock();
-
-          parent.setBlockerColor(this.__oldBlockerColor);
-          parent.setBlockerOpacity(this.__oldBlockerOpacity);
-          this.__oldBlockerColor = null;
-          this.__oldBlockerOpacity = 0;
-
-          this.__blockerAdded = false;
-        }
-      }
-
-      // Disable capturing
-      this.__moveHandle.releaseCapture();
-
-      // Apply them to the layout
-      var coords = this.__computeMoveCoordinates(e);
-      var insets = this.getLayoutParent().getInsets();
+      const coords = this.__computeMoveCoordinates(e);
+      const parent = this.getLayoutParent();
+      const insets = parent ? parent.getInsets() : { left: 0, top: 0 };
       this.setLayoutProperties({
         left: coords.parentLeft - (insets.left || 0),
         top: coords.parentTop - (insets.top || 0)
       });
 
-      // Hide frame afterwards
       if (this.getUseMoveFrame()) {
         this.__getMoveFrame().exclude();
       }
@@ -321,31 +236,20 @@ qx.Mixin.define("ville.ui.core.MMovable", {
     },
 
     /**
-     * Event listener for <code>losecapture</code> event.
+     * Cleans up move state if pointer capture is lost unexpectedly.
      *
-     * @param e {qx.event.type.Event} Lose capture event
+     * @private
      */
-    __onMoveLoseCapture(e) {
-      // Check for active move
+    __onMoveLoseCapture() {
       if (!this.hasState("move")) {
         return;
       }
-
-      // Remove drag state
       this.removeState("move");
-
-      // Hide frame afterwards
       if (this.getUseMoveFrame()) {
         this.__getMoveFrame().exclude();
       }
     }
   },
-
-  /*
-  *****************************************************************************
-     DESTRUCTOR
-  *****************************************************************************
-  */
 
   destruct() {
     this._disposeObjects("__moveFrame", "__moveHandle");

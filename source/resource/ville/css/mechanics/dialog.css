@@ -1,0 +1,270 @@
+/**
+ * Ville UI — Layer 1 Browser Mechanics: Native `<dialog>` Modal & Window Overlays
+ * (`STRAT-EVENT-02`, `STRAT-EVENT-03`)
+ *
+ * Provides vendor-agnostic top-layer `<dialog>` positioning, `::backdrop` dimming,
+ * scroll locking (`body:has(dialog.ville-modal[open])`), and reduced-motion-safe
+ * `@starting-style` entry/exit transitions for `ville.ui.overlay.Modal` and
+ * `ville.ui.overlay.Window`, plus shared semantic mechanics for `Burger`,
+ * `CheckBox`, `Switch`, `RadioButton`, and `NavLink`.
+ */
+
+dialog.ville-modal,
+dialog.ville-window {
+  box-sizing: border-box;
+  padding: 1.25rem;
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.25))));
+  border-radius: var(--radius, var(--radius-m, var(--mantine-radius-md, 0.5rem)));
+  background-color: var(--card, var(--background-primary, var(--mantine-color-body, #ffffff)));
+  color: var(--card-foreground, var(--text-normal, var(--mantine-color-text, inherit)));
+  width: min(92dvw, var(--ville-modal-size, 28rem));
+  max-width: min(92dvw, var(--ville-modal-size, 32rem));
+  max-height: 90dvh;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+dialog.ville-modal[open],
+dialog.ville-window[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+dialog.ville-modal[open] {
+  margin: auto;
+}
+
+dialog.ville-window[open] {
+  position: fixed;
+  inset: auto;
+  top: 5rem;
+  left: calc(50dvw - 14rem);
+  z-index: 200;
+}
+
+dialog.ville-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(var(--ville-backdrop-blur, 2px));
+}
+
+/* Lock background document scrolling while a modal <dialog> is open in the top layer */
+body:has(dialog.ville-modal[open]) {
+  overflow: hidden;
+}
+
+/* --- Shared Tier A1 Interactive Controls Mechanics --- */
+
+/* Burger 3-bar icon toggle */
+.ville-burger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0.375rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ville-burger-bars,
+.ville-burger-bars::before,
+.ville-burger-bars::after {
+  display: block;
+  width: 1.125rem;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 2px;
+  position: relative;
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+
+.ville-burger-bars::before,
+.ville-burger-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.ville-burger-bars::before {
+  top: -5px;
+}
+
+.ville-burger-bars::after {
+  top: 5px;
+}
+
+.ville-burger[data-opened="true"] .ville-burger-bars {
+  background-color: transparent;
+}
+
+.ville-burger[data-opened="true"] .ville-burger-bars::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.ville-burger[data-opened="true"] .ville-burger-bars::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+/* Semantic CheckBox, Switch & RadioButton */
+.ville-checkbox,
+.ville-switch,
+.ville-radiobutton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+.ville-checkbox > input,
+.ville-switch > input,
+.ville-radiobutton > input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.ville-checkbox > span[aria-hidden="true"],
+.ville-radiobutton > span[aria-hidden="true"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--input, var(--background-modifier-border, var(--mantine-color-default-border, #888)));
+  background-color: var(--background, var(--background-modifier-form-field, var(--mantine-color-body, transparent)));
+  color: transparent;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.ville-radiobutton > span[aria-hidden="true"] {
+  border-radius: 9999px;
+}
+
+.ville-checkbox > input:checked + span[aria-hidden="true"],
+.ville-radiobutton > input:checked + span[aria-hidden="true"] {
+  background-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+  border-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+  color: var(--primary-foreground, var(--text-on-accent, var(--mantine-color-white, #ffffff)));
+}
+
+/* Switch Track & Thumb */
+.ville-switch > span[aria-hidden="true"] {
+  display: inline-flex;
+  align-items: center;
+  width: 2.25rem;
+  height: 1.25rem;
+  padding: 2px;
+  border-radius: 9999px;
+  background-color: var(--input, var(--background-modifier-border, var(--mantine-color-gray-4, #ced4da)));
+  color: transparent;
+  transition: background-color 150ms ease;
+}
+
+.ville-switch > span[aria-hidden="true"] > svg {
+  display: none;
+}
+
+.ville-switch > span[aria-hidden="true"]::after {
+  content: "";
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 150ms ease;
+}
+
+.ville-switch > input:checked + span[aria-hidden="true"] {
+  background-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+}
+
+.ville-switch > input:checked + span[aria-hidden="true"]::after {
+  transform: translateX(1rem);
+}
+
+/* NavLink */
+.ville-navlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.ville-navlink[data-active="true"] {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-primary-color-light, rgba(34, 139, 230, 0.12))));
+  color: var(--accent-foreground, var(--text-normal, var(--mantine-primary-color-light-color, inherit)));
+}
+
+/* Tooltip & Popover default surface */
+.ville-popover,
+.ville-tooltip {
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.25))));
+  background-color: var(--popover, var(--background-secondary, var(--mantine-color-body, #1e1e1e)));
+  color: var(--popover-foreground, var(--text-normal, var(--mantine-color-text, inherit)));
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Accessible Entry/Exit Transitions (`@starting-style` + `prefers-reduced-motion`) */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-reduce-motion="true"]) dialog.ville-modal {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease,
+      display 150ms allow-discrete,
+      overlay 150ms allow-discrete;
+  }
+
+  html:not([data-reduce-motion="true"]) dialog.ville-modal[open] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  html:not([data-reduce-motion="true"]) dialog.ville-modal::backdrop {
+    opacity: 0;
+    transition:
+      opacity 150ms ease,
+      display 150ms allow-discrete,
+      overlay 150ms allow-discrete;
+  }
+
+  html:not([data-reduce-motion="true"]) dialog.ville-modal[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    html:not([data-reduce-motion="true"]) dialog.ville-modal[open] {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+
+    html:not([data-reduce-motion="true"]) dialog.ville-modal[open]::backdrop {
+      opacity: 0;
+    }
+  }
+}

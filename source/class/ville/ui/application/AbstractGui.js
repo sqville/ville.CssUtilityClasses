@@ -1,12 +1,15 @@
 /**
  * Mode 3 abstract base class for GUI applications (`ville.ui.application.AbstractGui`),
- * decoupled from `qx.ui.core.queue.Manager` and legacy Qooxdoo layout engines.
+ * decoupled from `qx.ui.core.queue.Manager`, `qx.bom.webfonts.*`, and legacy Qooxdoo
+ * layout engines (`STRAT-BUILD-07`, `STRAT-CSS-04`).
+ *
+ * @ignore(FontFace)
  */
 qx.Class.define("ville.ui.application.AbstractGui", {
   type: "abstract",
   extend: qx.core.Object,
   implement: [qx.application.IApplication],
-  include: [qx.locale.MTranslation],
+  include: [ville.locale.MTranslation],
 
   members: {
     /** @type {ville.ui.core.Widget|null} The root widget */
@@ -31,17 +34,64 @@ qx.Class.define("ville.ui.application.AbstractGui", {
       return this.__root;
     },
 
-    // interface method
+    /**
+     * Initializes the active appearance theme, synchronizes `data-ville-app-type`
+     * and `data-ville-theme` on `document.documentElement`, and mounts the root widget.
+     */
     main() {
-      ville.ui.theme.manager.Meta.getInstance().initialize();
-      
+      const metaMgr = ville.ui.theme.manager.Meta.getInstance();
+      metaMgr.initialize();
+
+      if (typeof document !== "undefined" && document.documentElement) {
+        const appType = qx.core.Environment.get("ville.appType") || "web";
+        const cssEngine = qx.core.Environment.get("ville.cssEngine") || "mantine";
+        const rootEl = document.documentElement;
+        rootEl.setAttribute("data-ville-app-type", String(appType));
+        rootEl.setAttribute("data-ville-theme", String(cssEngine));
+      }
+
       this.__root = this._createRootWidget();
-      window.scrollTo(0, 0);
+      if (typeof window !== "undefined" && !window.location.hash) {
+        window.scrollTo(0, 0);
+      }
     },
 
-    // interface method
+    /**
+     * Returns the current color scheme (`"light"` or `"dark"`).
+     *
+     * @returns {"light"|"dark"}
+     */
+    getColorScheme() {
+      return ville.ui.theme.manager.Meta.getInstance().getColorScheme();
+    },
+
+    /**
+     * Sets the active color scheme (`"light"` or `"dark"`) across Mantine,
+     * Obsidian, and shadcn/ui.
+     *
+     * @param {"light"|"dark"} scheme
+     */
+    setColorScheme(scheme) {
+      ville.ui.theme.manager.Meta.getInstance().setColorScheme(scheme);
+    },
+
+    /**
+     * Toggles the active color scheme between `"light"` and `"dark"`.
+     *
+     * @returns {"light"|"dark"} The newly activated color scheme.
+     */
+    toggleColorScheme() {
+      return ville.ui.theme.manager.Meta.getInstance().toggleColorScheme();
+    },
+
+    /**
+     * Flushes buffered virtual DOM nodes and signals `window.__VILLE_SSG_READY = true`.
+     */
     finalize() {
       this.render();
+      if (typeof window !== "undefined") {
+        window.__VILLE_SSG_READY = true;
+      }
     },
 
     /**
@@ -50,6 +100,47 @@ qx.Class.define("ville.ui.application.AbstractGui", {
      */
     render() {
       ville.html.Element.flush();
+    },
+
+    /**
+     * Returns a Promise that resolves via the browser's native CSS Font Loading API
+     * (`document.fonts.ready`) once all active web fonts have finished loading and
+     * layout metrics are stable (`STRAT-CSS-04`, replacing `qx.bom.webfonts.*`).
+     *
+     * @returns {Promise<FontFaceSet|null>} Promise resolving when `document.fonts.ready` settles.
+     */
+    whenFontsReady() {
+      if (typeof document !== "undefined" && document.fonts && document.fonts.ready) {
+        return document.fonts.ready;
+      }
+      return Promise.resolve(null);
+    },
+
+    /**
+     * Dynamically loads and registers a web font family using the native W3C `FontFace`
+     * API (`STRAT-CSS-04`).
+     *
+     * @param {string} family Font family name.
+     * @param {string|BufferSource} source CSS `url(...)` string or binary font buffer.
+     * @param {FontFaceDescriptors} [descriptors] Optional weight/style/display descriptors.
+     * @returns {Promise<FontFace|null>} Loaded `FontFace` instance.
+     */
+    async loadFont(family, source, descriptors) {
+      if (
+        typeof FontFace === "undefined" ||
+        typeof document === "undefined" ||
+        !document.fonts
+      ) {
+        return null;
+      }
+      const face = new FontFace(
+        family,
+        source,
+        Object.assign({ display: "swap" }, descriptors || {})
+      );
+      const loaded = await face.load();
+      document.fonts.add(loaded);
+      return loaded;
     },
 
     /**

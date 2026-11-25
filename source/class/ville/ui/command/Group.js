@@ -1,16 +1,6 @@
-/* ************************************************************************
-
-   Copyright:
-     2012 1&1 Internet AG, Germany, http://www.1und1.de
-
-   Authors:
-     * Mustafa Sak (msak)
-
-************************************************************************ */
-
 /**
  * Keyed registry for grouping related `ville.ui.command.Command` instances so
- * their `active` state can be toggled collectively.
+ * their `active` state can be toggled collectively (`STRAT-CORE-09`).
  *
  * @example
  * const editGroup = new ville.ui.command.Group();
@@ -21,9 +11,6 @@
 qx.Class.define("ville.ui.command.Group", {
   extend: qx.core.Object,
 
-  /**
-   * Creates a new empty command group.
-   */
   construct() {
     // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
@@ -52,8 +39,7 @@ qx.Class.define("ville.ui.command.Group", {
     _cmds: null,
 
     /**
-     * Property apply handler for `active`. Propagates the active flag to every
-     * registered command in `_cmds`.
+     * Property apply handler for `active`.
      *
      * @param {boolean} value New active state.
      * @protected
@@ -63,12 +49,6 @@ qx.Class.define("ville.ui.command.Group", {
         this._cmds[cmdkey].setActive(value);
       }
     },
-
-    /*
-    ---------------------------------------------------------------------------
-      PUBLIC API
-    ---------------------------------------------------------------------------
-    */
 
     /**
      * Registers a command under a unique string key and synchronizes its `active`
@@ -80,16 +60,8 @@ qx.Class.define("ville.ui.command.Group", {
      */
     add(key, command) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertArgumentsCount(
-          arguments,
-          2,
-          2,
-          "Given parameter count mismatch! Please provide a key as string " +
-            "and a command instance."
-        );
-
-        this.assertString(key, "Key parameter must be a string.");
-        this.assertInstance(
+        qx.core.Assert.assertString(key, "Key parameter must be a string.");
+        qx.core.Assert.assertInstance(
           command,
           ville.ui.command.Command,
           "Given command is not an instance of ville.ui.command.Command"
@@ -97,15 +69,11 @@ qx.Class.define("ville.ui.command.Group", {
       }
 
       if (this.has(key)) {
-        if (qx.core.Environment.get("qx.debug")) {
-          this.debug("Command with key: '" + key + "' already exists!");
-        }
         return false;
       }
 
       command.setActive(this.getActive());
       this._cmds[key] = command;
-
       return true;
     },
 
@@ -117,24 +85,9 @@ qx.Class.define("ville.ui.command.Group", {
      */
     get(key) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertString(key, "Key parameter must be a string.");
+        qx.core.Assert.assertString(key, "Key parameter must be a string.");
       }
-
-      const cmd = this._cmds[key];
-      if (!cmd) {
-        if (qx.core.Environment.get("qx.debug")) {
-          this.debug(
-            "The key: '" +
-              key +
-              "' was not added before. Please use " +
-              "'add()' method to add the command."
-          );
-        }
-
-        return null;
-      }
-
-      return cmd;
+      return this._cmds[key] || null;
     },
 
     /**
@@ -145,10 +98,9 @@ qx.Class.define("ville.ui.command.Group", {
      */
     has(key) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertString(key, "Key parameter must be a string.");
+        qx.core.Assert.assertString(key, "Key parameter must be a string.");
       }
-
-      return !!this._cmds[key];
+      return Boolean(this._cmds && this._cmds[key]);
     },
 
     /**
@@ -159,32 +111,17 @@ qx.Class.define("ville.ui.command.Group", {
      */
     remove(key) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertString(key, "Key parameter must be a string.");
+        qx.core.Assert.assertString(key, "Key parameter must be a string.");
       }
-
       const cmd = this._cmds[key];
       if (!cmd) {
-        if (qx.core.Environment.get("qx.debug")) {
-          this.debug(
-            "The key: '" +
-              key +
-              "' was not added before. Please use " +
-              "'add()' method to add the command."
-          );
-        }
-
         return null;
       }
-
       delete this._cmds[key];
-
       return cmd;
     }
   },
 
-  /**
-   * Releases the internal command map reference.
-   */
   destruct() {
     this._cmds = null;
   }

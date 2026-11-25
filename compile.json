@@ -19,15 +19,17 @@
   "environment": {
     "qx.nativeScrollBars": true,
     "qx.dyntheme": false,
+    "qx.dynlocale": false,
     "qx.Promise.useNativePromise": true,
     "qx.command.bindEnabled": false,
     "qx.debug.ui.queue": false,
+    "ville.appType": "web",
     "ville.ssg": false
   },
-  "babel" : {
-    "options" : {
-      "targets" : "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions, last 2 Edge versions"
-    } 
+  "babel": {
+    "options": {
+      "targets": "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions, last 2 Edge versions"
+    }
   },
   "applications": [
     {
@@ -51,7 +53,6 @@
         "ville.ui.indicator.*",
         "ville.ui.list.*",
         "ville.ui.menu.NavLink",
-        "ville.ui.overlay.*",
         "ville.ui.splitpane.*",
         "ville.ui.table.*",
         "ville.ui.tabview.*",
@@ -59,10 +60,11 @@
         "ville.ui.tree.*",
         "ville.ui.util.*"
       ],
-      "group": ["main", "mantine"],
+      "group": ["main"],
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "mantine"
+        "ville.cssEngine": "shadcn",
+        "ville.appType": "web"
       }
     },
     {
@@ -74,7 +76,7 @@
       "group": ["mantine"],
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "mantine"
+        "ville.cssEngine": "mantine"
       }
     },
     {
@@ -85,7 +87,7 @@
       "group": "mantine",
       "environment": {
         "ville.cssLayout": false,
-        "ville.cssEngine" : "mantine"
+        "ville.cssEngine": "mantine"
       }
     },
     {
@@ -97,7 +99,7 @@
       "group": "tailwindcss",
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "tailwindcss"
+        "ville.cssEngine": "tailwindcss"
       }
     },
     {
@@ -109,7 +111,8 @@
       "group": "mantine",
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "mantine",
+        "ville.cssEngine": "mantine",
+        "ville.appType": "web",
         "ville.ssg": true
       }
     },
@@ -122,7 +125,7 @@
       "group": "scss",
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "scss"
+        "ville.cssEngine": "scss"
       }
     },
     {
@@ -134,7 +137,7 @@
       "group": "tailwindcss",
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "tailwindcss"
+        "ville.cssEngine": "tailwindcss"
       }
     },
     {
@@ -146,7 +149,7 @@
       "group": "mantine",
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "mantine"
+        "ville.cssEngine": "mantine"
       }
     },
     {
@@ -157,7 +160,7 @@
       "group": "scss",
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "scss"
+        "ville.cssEngine": "scss"
       }
     }
   ]

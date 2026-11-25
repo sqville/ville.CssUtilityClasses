@@ -1,37 +1,39 @@
 <!DOCTYPE html>
-<html data-mantine-color-scheme="dark">
+<html lang="en" data-mantine-color-scheme="dark">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta charset="utf-8" />
 
-  <!-- Setup the viewport for mobile and desktop environments -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
+  <!-- Accessible responsive viewport for mobile, desktop, and PWA Window Controls Overlay -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <!-- Configure linking of this application to the home screen of mobile devices -->
-  <meta name="apple-mobile-web-app-title" content="villeuiapp"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-  <meta name="msapplication-tap-highlight" content="no"/>
-  <link rel="apple-touch-icon" href="${resourcePath}villeuiapp/images/app.png"/>
-  <link rel="icon" sizes="192x192" href="${resourcePath}villeuiapp/images/app.png">
+  <!-- Progressive Web App & mobile home screen metadata -->
+  <meta name="application-name" content="villeuiapp" />
+  <meta name="apple-mobile-web-app-title" content="villeuiapp" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <link rel="apple-touch-icon" href="${resourcePath}villeuiapp/images/app.png" />
+  <link rel="icon" sizes="192x192" href="${resourcePath}villeuiapp/images/app.png" />
 
-  <!-- Disable chrome translation requests and automatic phone number linking -->
-  <meta name="google" value="notranslate"/>
-  <meta name="format-detection" content="telephone=no"/>
+  <!-- Disable automatic translation prompts and phone number linking -->
+  <meta name="google" content="notranslate" />
+  <meta name="format-detection" content="telephone=no" />
 
   <!-- Shortcut icon setup -->
-  <link rel="shortcut icon" type="image/png" href="${resourcePath}villeuiapp/images/favicon.png"/>
-  <link rel="mask-icon" href="${resourcePath}villeuiapp/images/favicon.png"/>
+  <link rel="shortcut icon" type="image/png" href="${resourcePath}villeuiapp/images/favicon.png" />
+  <link rel="mask-icon" href="${resourcePath}villeuiapp/images/favicon.png" />
+
+  <!-- Zero-FOUC pre-linked 3-Layer CSS bundle -->
+  <link rel="stylesheet" href="${resourcePath}villeuiapp/css/bundle.min.css" />
 
   <title>villeuiapp</title>
   <noscript>
-    <meta http-equiv="refresh" content="0; url=${appPath}nojs.html"/>
+    <meta http-equiv="refresh" content="0; url=${appPath}nojs.html" />
   </noscript>
   ${preBootJs}
   <script type="text/javascript" src="${appPath}index.js"></script>
-
- </head>
+</head>
 <body>
+  <div id="ville-app"></div>
 </body>
 </html>

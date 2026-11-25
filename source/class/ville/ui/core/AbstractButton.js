@@ -99,6 +99,34 @@ qx.Class.define("ville.ui.core.AbstractButton", {
       nullable: false,
       themeable: true,
       apply: "_applyShow"
+    },
+
+    /**
+     * W3C Invoker Commands API target (`commandfor` attribute on `<button>` — `STRAT-EVENT-02`).
+     * Accepts either a target DOM element ID string or a target `ville.ui.core.Widget`
+     * (such as a `Modal`, `Window`, `Menu`, or `Popup`), automatically assigning a
+     * deterministic `domId` to the target widget if it does not yet have one.
+     *
+     * @type {string|ville.ui.core.Widget|null}
+     */
+    commandFor: {
+      nullable: true,
+      init: null,
+      apply: "_applyCommandFor",
+      event: "changeCommandFor"
+    },
+
+    /**
+     * W3C Invoker Commands API action (`command` attribute on `<button>` — `STRAT-EVENT-02`),
+     * such as `"show-modal"`, `"close"`, `"toggle-popover"`, `"show-popover"`, `"hide-popover"`,
+     * or a custom `"--my-action"` command token.
+     */
+    commandAction: {
+      check: "String",
+      nullable: true,
+      init: null,
+      apply: "_applyCommandAction",
+      event: "changeCommandAction"
     }
   },
 
@@ -311,6 +339,49 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      */
     _applyShow() {
       this._syncShowVisibility();
+    },
+
+    /**
+     * Property apply handler for `commandFor` (`STRAT-EVENT-02`).
+     * Sets the native HTML `commandfor` attribute on `<button>`, assigning a
+     * deterministic DOM `id` to a target `ville.ui.core.Widget` when passed an object.
+     *
+     * @param {string|ville.ui.core.Widget|null} value Target widget or DOM ID.
+     * @protected
+     */
+    _applyCommandFor(value) {
+      const el = this.getContentElement();
+      if (!value) {
+        el.removeAttribute("commandfor");
+        return;
+      }
+      let targetId = typeof value === "string" ? value : null;
+      if (!targetId && value instanceof ville.ui.core.Widget) {
+        targetId = value.getDomId();
+        if (!targetId) {
+          targetId = `ville-cmd-target-${value.toHashCode()}`;
+          value.setDomId(targetId);
+        }
+      }
+      if (targetId) {
+        el.setAttribute("commandfor", targetId);
+      }
+    },
+
+    /**
+     * Property apply handler for `commandAction` (`STRAT-EVENT-02`).
+     * Sets the native HTML `command` attribute on `<button>`.
+     *
+     * @param {string|null} value Invoker command action token.
+     * @protected
+     */
+    _applyCommandAction(value) {
+      const el = this.getContentElement();
+      if (value) {
+        el.setAttribute("command", value);
+      } else {
+        el.removeAttribute("command");
+      }
     },
 
     /**

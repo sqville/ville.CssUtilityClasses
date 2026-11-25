@@ -16,15 +16,17 @@
   "environment": {
     "qx.nativeScrollBars": true,
     "qx.dyntheme": false,
+    "qx.dynlocale": false,
     "qx.Promise.useNativePromise": true,
     "qx.command.bindEnabled": false,
     "qx.debug.ui.queue": false,
+    "ville.appType": "web",
     "ville.ssg": false
   },
-  "babel" : {
-    "options" : {
-      "targets" : "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions, last 2 Edge versions"
-    } 
+  "babel": {
+    "options": {
+      "targets": "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions, last 2 Edge versions"
+    }
   },
   "applications": [
     {
@@ -59,7 +61,8 @@
       "group": ["main", "mantine"],
       "environment": {
         "ville.cssLayout": true,
-        "ville.cssEngine" : "mantine"
+        "ville.cssEngine": "mantine",
+        "ville.appType": "web"
       }
     }
   ]

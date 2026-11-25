@@ -138,6 +138,116 @@ qx.Class.define("ville.html.Node", {
         },
 
         /**
+         * Returns the horizontal viewport coordinate (`clientX`).
+         *
+         * @returns {number} Horizontal viewport coordinate in pixels.
+         */
+        getViewportLeft() {
+          return /** @type {MouseEvent} */ (nativeEvent).clientX || 0;
+        },
+
+        /**
+         * Returns the vertical viewport coordinate (`clientY`).
+         *
+         * @returns {number} Vertical viewport coordinate in pixels.
+         */
+        getViewportTop() {
+          return /** @type {MouseEvent} */ (nativeEvent).clientY || 0;
+        },
+
+        /**
+         * Returns the standardized W3C `KeyboardEvent.key` value (e.g., `"Enter"`, `"Escape"`, `"ArrowDown"`).
+         *
+         * @returns {string} Key value or empty string.
+         */
+        getKey() {
+          return /** @type {KeyboardEvent} */ (nativeEvent).key || "";
+        },
+
+        /**
+         * Returns a Qooxdoo-compatible key identifier mapped from `KeyboardEvent.key`.
+         *
+         * @returns {string} Key identifier (e.g., `"Enter"`, `"Escape"`, `"Up"`, `"Down"`, `"Left"`, `"Right"`).
+         */
+        getKeyIdentifier() {
+          const key = /** @type {KeyboardEvent} */ (nativeEvent).key || "";
+          if (key === " ") return "Space";
+          if (key.startsWith("Arrow")) return key.slice(5);
+          return key;
+        },
+
+        /**
+         * Returns the physical key code (`KeyboardEvent.code`).
+         *
+         * @returns {string} Physical key code.
+         */
+        getCode() {
+          return /** @type {KeyboardEvent} */ (nativeEvent).code || "";
+        },
+
+        /**
+         * Returns the active pointer ID for `PointerEvent` instances.
+         *
+         * @returns {number} Pointer ID (defaults to `1`).
+         */
+        getPointerId() {
+          return /** @type {PointerEvent} */ (nativeEvent).pointerId ?? 1;
+        },
+
+        /**
+         * Returns the pointer type (`"mouse"`, `"pen"`, `"touch"`).
+         *
+         * @returns {string} Pointer type.
+         */
+        getPointerType() {
+          return /** @type {PointerEvent} */ (nativeEvent).pointerType || "mouse";
+        },
+
+        /**
+         * Checks whether the `Ctrl` key was pressed when the event fired.
+         *
+         * @returns {boolean} `true` if `ctrlKey` is active.
+         */
+        isCtrlPressed() {
+          return Boolean(
+            /** @type {KeyboardEvent|MouseEvent} */ (nativeEvent).ctrlKey
+          );
+        },
+
+        /**
+         * Checks whether the `Shift` key was pressed when the event fired.
+         *
+         * @returns {boolean} `true` if `shiftKey` is active.
+         */
+        isShiftPressed() {
+          return Boolean(
+            /** @type {KeyboardEvent|MouseEvent} */ (nativeEvent).shiftKey
+          );
+        },
+
+        /**
+         * Checks whether the `Alt` / `Option` key was pressed when the event fired.
+         *
+         * @returns {boolean} `true` if `altKey` is active.
+         */
+        isAltPressed() {
+          return Boolean(
+            /** @type {KeyboardEvent|MouseEvent} */ (nativeEvent).altKey
+          );
+        },
+
+        /**
+         * Checks whether the `Meta` (`Cmd` / `Win`) key was pressed when the event fired.
+         *
+         * @returns {boolean} `true` if `metaKey` is active.
+         */
+        isMetaPressed() {
+          return Boolean(
+            /** @type {KeyboardEvent|MouseEvent} */ (nativeEvent).metaKey
+          );
+        },
+
+        /**
          * Cancels the browser's default action for the event.
          */
         preventDefault() {

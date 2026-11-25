@@ -1,331 +1,243 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2009 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Martin Wittemann (martinwittemann)
-
-************************************************************************ */
-
 /**
- * The radio container handles a collection of items from which only one item
- * can be selected. Selection another item will deselect the previously selected
- * item. For that, it uses the {@link qx.ui.form.RadioGroup} object.
+ * Path B Semantic Radio Button Group (`STRAT-FORM-04` & `STRAT-CORE-09`).
  *
- * This class is used to create radio groups of {@link qx.ui.form.RadioButton}
- * instances.
- *
- * This widget takes care of the layout of the added items. If you want to
- * take full control of the layout and just use the selection behavior,
- * take a look at the {@link qx.ui.form.RadioGroup} object for a loose coupling.
+ * Replaces legacy `qx.ui.form.RadioButtonGroup` + `qx.ui.form.RadioGroup`
+ * manager with a standards-backed `<div role="radiogroup">` container that:
+ * 1. Assigns a shared `name` attribute to every child `ville.ui.form.RadioButton`
+ *    so the browser natively handles mutual exclusion and arrow-key roving focus.
+ * 2. Listens to a single bubbling native `"change"` event on the group container.
+ * 3. Preserves Qooxdoo's `ISingleSelection` (`getSelection`, `setSelection`,
+ *    `resetSelection`, `getSelectables`) and `MModelSelection` (`getModelSelection`,
+ *    `setModelSelection`) contracts so `ville.data.controller.Form` binds cleanly.
  */
 qx.Class.define("ville.ui.form.RadioButtonGroup", {
-  extend: qx.ui.core.Widget,
-  include: [qx.ui.core.MLayoutHandling, qx.ui.form.MModelSelection],
-  implement: [
-    qx.ui.form.IForm,
-    qx.ui.form.IField,
-    qx.ui.core.ISingleSelection,
-    qx.ui.form.IModelSelection
-  ],
+  extend: ville.ui.core.Box,
+  include: [ville.ui.form.MForm],
+  implement: [ville.ui.form.IForm],
 
-  /**
-   * @param layout {qx.ui.layout.Abstract} The new layout or
-   *     <code>null</code> to reset the layout.
-   */
   construct(layout) {
     super();
 
-    // if no layout is given, use the default layout (VBox)
-    if (layout == null) {
-      this.setLayout(new qx.ui.layout.VBox(4));
+    this.__items = [];
+    this.__groupName = `ville-radiogroup-${this.toHashCode()}`;
+
+    if (layout instanceof ville.ui.layout.Abstract) {
+      this._setLayout(layout);
     } else {
-      this.setLayout(layout);
+      this._setLayout(new ville.ui.layout.VBox(8));
     }
 
-    // ARIA attrs
-    this.getContentElement().setAttribute("role", "radiogroup");
-
-    // create the radio group
-    this.__radioGroup = new qx.ui.form.RadioGroup();
-
-    // attach the listener
-    this.__radioGroup.addListener(
-      "changeSelection",
-      this._onChangeSelection,
-      this
-    );
-  },
-
-  properties: {
-    /**
-     * Flag signaling if the group at all is valid. All children will have the
-     * same state.
-     */
-    valid: {
-      check: "Boolean",
-      init: true,
-      apply: "_applyValid",
-      event: "changeValid"
-    },
-
-    /**
-     * Flag signaling if the group is required.
-     */
-    required: {
-      check: "Boolean",
-      init: false,
-      event: "changeRequired"
-    },
-
-    /**
-     * Message which is shown in an invalid tooltip.
-     */
-    invalidMessage: {
-      check: "String",
-      init: "",
-      event: "changeInvalidMessage",
-      apply: "_applyInvalidMessage"
-    },
-
-    /**
-     * Message which is shown in an invalid tooltip if the {@link #required} is
-     * set to true.
-     */
-    requiredInvalidMessage: {
-      check: "String",
-      nullable: true,
-      event: "changeInvalidMessage"
-    }
+    const el = this.getContentElement();
+    el.setAttribute("role", "radiogroup");
+    el.addListener("change", this._onBubbledChange, this);
   },
 
   events: {
-    /** Fires after the value was modified */
-    changeValue: "qx.event.type.Data",
+    /** Fired when the selected radio button changes. */
+    changeSelection: "qx.event.type.Data",
 
-    /**
-     * Fires after the selection was modified
-     */
-    changeSelection: "qx.event.type.Data"
+    /** Fired when the selected radio button's value/model changes. */
+    changeValue: "qx.event.type.Data"
   },
 
-  members: {
-    __radioGroup: null,
-
-    /*
-    ---------------------------------------------------------------------------
-      APPLY ROUTINES
-    ---------------------------------------------------------------------------
-    */
-    // property apply
-    _applyInvalidMessage(value, old) {
-      var children = this._getChildren();
-      for (var i = 0; i < children.length; i++) {
-        children[i].setInvalidMessage(value);
-      }
-    },
-
-    // property apply
-    _applyValid(value, old) {
-      var children = this._getChildren();
-      for (var i = 0; i < children.length; i++) {
-        children[i].setValid(value);
-      }
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      REGISTRY
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * The internally used radio group instance will be returned.
-     *
-     * @return {qx.ui.form.RadioGroup} Returns the used RadioGroup instance.
-     */
-    getRadioGroup() {
-      return this.__radioGroup;
+  properties: {
+    appearance: {
+      refine: true,
+      init: "radiobuttongroup"
     },
 
     /**
-     * Returns the children list
-     *
-     * @return {qx.ui.core.LayoutItem[]} The children array.
+     * Shared HTML `<input type="radio" name="...">` group identifier.
      */
-    getChildren() {
-      return this._getChildren();
-    },
-
-    /**
-     * Adds a new child widget.
-     *
-     * The supported keys of the layout options map depend on the layout
-     * used to position the widget. The options are documented in the class
-     * documentation of each layout manager {@link qx.ui.layout}.
-     *
-     * @param child {qx.ui.core.LayoutItem} the widget to add.
-     * @param options {Map?null} Optional layout data for widget.
-     */
-    add(child, options) {
-      this.__radioGroup.add(child);
-      this._add(child, options);
-    },
-
-    /**
-     * Remove the given child widget.
-     *
-     * @param child {qx.ui.core.LayoutItem} the widget to remove
-     */
-    remove(child) {
-      this.__radioGroup.remove(child);
-      this._remove(child);
-    },
-
-    /**
-     * Remove all children.
-     *
-     * @return {Array} An array of {@link qx.ui.core.LayoutItem}'s.
-     */
-    removeAll() {
-      // remove all children from the radio group
-      var radioItems = this.__radioGroup.getItems();
-      for (var i = radioItems.length - 1; i >= 0; i--) {
-        this.__radioGroup.remove(radioItems[i]);
-      }
-
-      return this._removeAll();
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      SELECTION
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Returns an array of currently selected items.
-     *
-     * Note: The result is only a set of selected items, so the order can
-     * differ from the sequence in which the items were added.
-     *
-     * @return {qx.ui.core.Widget[]} List of items.
-     */
-    getSelection() {
-      return this.__radioGroup.getSelection();
-    },
-
-    /**
-     * Replaces current selection with the given items.
-     *
-     * @param items {qx.ui.core.Widget[]} Items to select.
-     * @throws {Error} if the item is not a child element.
-     */
-    setSelection(items) {
-      this.__radioGroup.setSelection(items);
-    },
-
-    /**
-     * Clears the whole selection at once.
-     */
-    resetSelection() {
-      this.__radioGroup.resetSelection();
-    },
-
-    /**
-     * Detects whether the given item is currently selected.
-     *
-     * @param item {qx.ui.core.Widget} Any valid selectable item
-     * @return {Boolean} Whether the item is selected.
-     * @throws {Error} if the item is not a child element.
-     */
-    isSelected(item) {
-      return this.__radioGroup.isSelected(item);
-    },
-
-    /**
-     * Whether the selection is empty.
-     *
-     * @return {Boolean} Whether the selection is empty.
-     */
-    isSelectionEmpty() {
-      return this.__radioGroup.isSelectionEmpty();
-    },
-
-    /**
-     * Returns all elements which are selectable.
-     *
-     * @param all {Boolean} true for all selectables, false for the
-     *   selectables the user can interactively select
-     * @return {qx.ui.core.Widget[]} The contained items.
-     */
-    getSelectables(all) {
-      return this.__radioGroup.getSelectables(all);
-    },
-
-    /**
-     * Select given value.
-     *
-     * @param item {null|var} Item to set as selected value.
-     * @return {null|Error} The status of this operation.
-     */
-    setValue(item) {
-      if (
-        item &&
-        "object" === typeof item &&
-        item instanceof qx.ui.form.IRadioItem
-      ) {
-        return this.__radioGroup.setValue(item);
-      } else {
-        return new Error("can not select radio item from value");
-      }
-    },
-
-    /**
-     * @return {null|var} Returns the selected value.
-     */
-    getValue() {
-      return this.__radioGroup.getValue();
-    },
-
-    /**
-     * Reset radio item selection.
-     */
-    resetValue() {
-      this.__radioGroup.resetValue();
-    },
-
-    /**
-     * Called on {@link qx.ui.form.RadioGroup} selection change event.
-     *
-     * @param event {qx.event.type.Data} Event containing the {@link qx.ui.form.RadioGroup} selection data.
-     */
-    _onChangeSelection(event) {
-      this.fireDataEvent("changeValue", event.getData(), event.getOldData());
-      this.fireDataEvent(
-        "changeSelection",
-        event.getData(),
-        event.getOldData()
-      );
+    name: {
+      check: "String",
+      nullable: true,
+      init: null,
+      apply: "_applyName"
     }
   },
 
-  destruct() {
-    this.__radioGroup.removeListener(
-      "changeSelection",
-      this._onChangeSelection,
-      this
-    );
+  members: {
+    __items: null,
+    __groupName: null,
+    __selectedItem: null,
 
-    this._disposeObjects("__radioGroup");
+    /**
+     * Returns the effective HTML `name` shared across child radio inputs.
+     *
+     * @return {String}
+     */
+    getEffectiveGroupName() {
+      return this.getName() || this.__groupName;
+    },
+
+    // Override Box#add to register radio buttons and synchronize their shared `name`
+    add(child, options) {
+      super.add(child, options);
+      if (child && !this.__items.includes(child)) {
+        this.__items.push(child);
+        if (typeof child.setName === "function") {
+          child.setName(this.getEffectiveGroupName());
+        }
+        if (typeof child.setGroup === "function") {
+          child.setGroup(this);
+        }
+        if (typeof child.getValue === "function" && child.getValue()) {
+          this.__selectItem(child);
+        }
+      }
+      return this;
+    },
+
+    remove(child) {
+      const idx = this.__items ? this.__items.indexOf(child) : -1;
+      if (idx !== -1) {
+        this.__items.splice(idx, 1);
+      }
+      if (this.__selectedItem === child) {
+        this.__selectedItem = null;
+      }
+      return super.remove(child);
+    },
+
+    removeAll() {
+      if (this.__items) {
+        this.__items.length = 0;
+      }
+      this.__selectedItem = null;
+      return super.removeAll();
+    },
+
+    _onBubbledChange() {
+      if (!this.__items) return;
+      for (const item of this.__items) {
+        const domInput = item.getInputElement?.()?.getDomElement?.();
+        if (domInput && domInput.checked) {
+          this.__selectItem(item);
+          return;
+        }
+      }
+    },
+
+    __selectItem(selected) {
+      if (!this.__items) return;
+      const oldItem = this.__selectedItem;
+      this.__selectedItem = selected || null;
+      for (const item of this.__items) {
+        if (typeof item.setValue === "function") {
+          item.setValue(item === selected);
+        }
+      }
+      if (oldItem !== this.__selectedItem) {
+        const nextSel = this.__selectedItem ? [this.__selectedItem] : [];
+        const prevSel = oldItem ? [oldItem] : [];
+        this.fireDataEvent("changeSelection", nextSel, prevSel);
+        this.fireDataEvent(
+          "changeValue",
+          this.getValue(),
+          oldItem ? this.__extractItemValue(oldItem) : null
+        );
+      }
+    },
+
+    __extractItemValue(item) {
+      if (!item) return null;
+      if (typeof item.getModel === "function" && item.getModel() != null) {
+        return item.getModel();
+      }
+      if (typeof item.getLabel === "function") {
+        return item.getLabel();
+      }
+      return item;
+    },
+
+    /*
+    ---------------------------------------------------------------------------
+      SELECTION & FORM VALUE API (`ISingleSelection`, `MModelSelection`, `IField`)
+    ---------------------------------------------------------------------------
+    */
+
+    getSelection() {
+      return this.__selectedItem ? [this.__selectedItem] : [];
+    },
+
+    setSelection(items) {
+      const target = Array.isArray(items) && items.length > 0 ? items[0] : null;
+      this.__selectItem(target);
+    },
+
+    resetSelection() {
+      this.__selectItem(null);
+    },
+
+    isSelected(item) {
+      return this.__selectedItem === item;
+    },
+
+    isSelectionEmpty() {
+      return this.__selectedItem == null;
+    },
+
+    getSelectables() {
+      return this.__items ? this.__items.slice() : [];
+    },
+
+    getModelSelection() {
+      const val = this.getValue();
+      return new qx.data.Array(val != null ? [val] : []);
+    },
+
+    setModelSelection(models) {
+      const target =
+        models && typeof models.getItem === "function"
+          ? models.getItem(0)
+          : Array.isArray(models)
+          ? models[0]
+          : null;
+      this.setValue(target);
+    },
+
+    getValue() {
+      return this.__extractItemValue(this.__selectedItem);
+    },
+
+    setValue(value) {
+      if (value == null) {
+        this.resetSelection();
+        return;
+      }
+      if (!this.__items) return;
+      for (const item of this.__items) {
+        if (item === value || this.__extractItemValue(item) === value) {
+          this.__selectItem(item);
+          return;
+        }
+      }
+    },
+
+    resetValue() {
+      this.resetSelection();
+    },
+
+    _applyName() {
+      if (!this.__items) {
+        return;
+      }
+      const effective = this.getEffectiveGroupName();
+      for (const item of this.__items) {
+        if (typeof item.setName === "function") {
+          item.setName(effective);
+        }
+      }
+    }
+  },
+
+  defer(statics) {
+    qx.Bootstrap.createNamespace("ville.ui.form.RadioGroup", statics);
+  },
+
+  destruct() {
+    this.__items = null;
+    this.__selectedItem = null;
   }
 });

@@ -1,64 +1,28 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2009 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Christian Hagendorn (chris_schmidt)
-     * Martin Wittemann (martinwittemann)
-
-************************************************************************ */
-
 /**
- * Each object, which should support multiselection selection have to
+ * Each object, which should support multi selection has to
  * implement this interface.
  */
 qx.Interface.define("ville.ui.core.IMultiSelection", {
-  extend: qx.ui.core.ISingleSelection,
-
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
+  extend: ville.ui.core.ISingleSelection,
 
   members: {
     /**
      * Selects all items of the managed object.
      */
-    selectAll() {
-      return true;
-    },
+    selectAll() {},
 
     /**
      * Adds the given item to the existing selection.
      *
-     * @param item {qx.ui.core.Widget} Any valid item
-     * @throws {Error} if the item is not a child element.
+     * @param item {ville.ui.core.Widget} Any valid item
      */
-    addToSelection(item) {
-      return arguments.length == 1;
-    },
+    addToSelection(item) {},
 
     /**
      * Removes the given item from the selection.
      *
-     * Use {@link qx.ui.core.ISingleSelection#resetSelection} when you
-     * want to clear the whole selection at once.
-     *
-     * @param item {qx.ui.core.Widget} Any valid item
-     * @throws {Error} if the item is not a child element.
+     * @param item {ville.ui.core.Widget} Any valid item
      */
-    removeFromSelection(item) {
-      return arguments.length == 1;
-    }
+    removeFromSelection(item) {}
   }
 });

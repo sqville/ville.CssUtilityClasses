@@ -1,0 +1,118 @@
+/**
+ * Ville UI — Layer 2 Vendor Theme: Obsidian Design Tokens (`STRAT-CSS-06`)
+ *
+ * Sourced from Obsidian's desktop/PWA token contract (`obsidian-app.css`),
+ * supporting both light mode (`:root`, `.theme-light`) and dark mode
+ * (`.theme-dark`, `.dark`, `[data-theme="dark"]`).
+ */
+
+:root,
+.theme-light {
+  --anim-duration-superfast: 70ms;
+  --anim-duration-fast: 140ms;
+  --anim-duration-moderate: 300ms;
+  --anim-motion-smooth: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+
+  --size-2-1: 2px;
+  --size-2-2: 4px;
+  --size-2-3: 6px;
+  --size-4-1: 4px;
+  --size-4-2: 8px;
+  --size-4-3: 12px;
+  --size-4-4: 16px;
+  --size-4-5: 20px;
+  --size-4-6: 24px;
+  --size-4-8: 32px;
+  --size-4-12: 48px;
+
+  --ville-spacing-xs: var(--size-4-2);
+  --ville-spacing-sm: var(--size-4-3);
+  --ville-spacing-md: var(--size-4-4);
+  --ville-spacing-lg: var(--size-4-6);
+  --ville-spacing-xl: var(--size-4-8);
+
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+  --radius-xl: 16px;
+  --button-radius: var(--radius-s);
+
+  --font-interface: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Ubuntu, sans-serif;
+  --font-ui-smaller: 12px;
+  --font-ui-small: 13px;
+  --font-ui-medium: 15px;
+  --font-ui-large: 20px;
+
+  --input-height: 32px;
+  --input-font-weight: 400;
+  --cursor: default;
+  --cursor-link: pointer;
+  --button-transition: background-color var(--anim-duration-superfast) ease-in-out,
+    box-shadow var(--anim-duration-superfast) ease-in-out,
+    border-color var(--anim-duration-superfast) ease-in-out;
+
+  /* Light Mode Palette */
+  --background-primary: #ffffff;
+  --background-primary-alt: #fafafa;
+  --background-secondary: #f6f6f6;
+  --background-secondary-alt: #fcfcfc;
+  --background-modifier-hover: rgba(0, 0, 0, 0.065);
+  --background-modifier-active-hover: rgba(138, 92, 245, 0.12);
+  --background-modifier-border: #e0e0e0;
+  --background-modifier-border-hover: #d4d4d4;
+  --background-modifier-border-focus: #bdbdbd;
+  --background-modifier-error: #e93147;
+  --background-modifier-error-hover: #d32038;
+  --background-modifier-form-field: #ffffff;
+
+  --interactive-normal: #ffffff;
+  --interactive-hover: #fafafa;
+  --interactive-accent: #7c3aed;
+  --interactive-accent-hover: #6d28d9;
+
+  --text-normal: #222222;
+  --text-muted: #5c5c5c;
+  --text-faint: #999999;
+  --text-on-accent: #ffffff;
+  --text-error: #e93147;
+  --text-accent: #7c3aed;
+  --text-accent-hover: #6d28d9;
+
+  --input-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --input-shadow-hover: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-l: 0 4px 16px rgba(0, 0, 0, 0.12), 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+.theme-dark,
+html.dark,
+html[data-theme="dark"] {
+  --background-primary: #1e1e1e;
+  --background-primary-alt: #242424;
+  --background-secondary: #262626;
+  --background-secondary-alt: #1a1a1a;
+  --background-modifier-hover: rgba(255, 255, 255, 0.075);
+  --background-modifier-active-hover: rgba(138, 92, 245, 0.18);
+  --background-modifier-border: #363636;
+  --background-modifier-border-hover: #484848;
+  --background-modifier-border-focus: #5a5a5a;
+  --background-modifier-error: #fb464c;
+  --background-modifier-error-hover: #ff5c61;
+  --background-modifier-form-field: #2a2a2a;
+
+  --interactive-normal: #2a2a2a;
+  --interactive-hover: #333333;
+  --interactive-accent: #8b5cf6;
+  --interactive-accent-hover: #9d74f7;
+
+  --text-normal: #dcddde;
+  --text-muted: #999999;
+  --text-faint: #666666;
+  --text-on-accent: #ffffff;
+  --text-error: #fb464c;
+  --text-accent: #a78bfa;
+  --text-accent-hover: #c4b5fd;
+
+  --input-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --input-shadow-hover: inset 0 0 0 1px rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.35);
+}

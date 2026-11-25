@@ -1,39 +1,12 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2009 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Martin Wittemann (martinwittemann)
-
-************************************************************************ */
-
 /**
- * Mixin handling the valid and required properties for the form widgets.
+ * Path B Mixin handling the `valid`, `required`, `invalidMessage`, and
+ * `requiredInvalidMessage` properties for form widgets (`STRAT-FORM-01`).
  */
 qx.Mixin.define("ville.ui.form.MForm", {
-  construct() {
-    if (qx.core.Environment.get("qx.dynlocale")) {
-      this.__changeLocaleMFormListenerId = qx.locale.Manager.getInstance().addListener(
-        "changeLocale",
-        this.__onChangeLocale,
-        this
-      );
-    }
-  },
-
   properties: {
     /**
-     * Flag signaling if a widget is valid. If a widget is invalid, an invalid
-     * state will be set.
+     * Flag signaling if a widget is valid. If a widget is invalid, an `"invalid"`
+     * state and `aria-invalid="true"` attribute will be set.
      */
     valid: {
       check: "Boolean",
@@ -52,7 +25,7 @@ qx.Mixin.define("ville.ui.form.MForm", {
     },
 
     /**
-     * Message which will be shown in an tooltip if the widget is invalid.
+     * Message shown when the widget is invalid.
      */
     invalidMessage: {
       init: null,
@@ -62,8 +35,7 @@ qx.Mixin.define("ville.ui.form.MForm", {
     },
 
     /**
-     * Message which will be shown in an invalid tooltip if the {@link #required} is
-     * set to true.
+     * Message shown when `required` is `true` and the widget is invalid.
      */
     requiredInvalidMessage: {
       check: "String",
@@ -73,40 +45,18 @@ qx.Mixin.define("ville.ui.form.MForm", {
   },
 
   members: {
-    // apply method
-    _applyValid(value, old) {
-      value ? this.removeState("invalid") : this.addState("invalid");
-    },
-
-    /**
-     * Locale change event handler
-     *
-     * @signature function(e)
-     * @param e {Event} the change event
-     */
-    __onChangeLocale: qx.core.Environment.select("qx.dynlocale", {
-      true(e) {
-        // invalid message
-        var invalidMessage = this.getInvalidMessage();
-        if (invalidMessage && invalidMessage.translate) {
-          this.setInvalidMessage(invalidMessage.translate());
+    _applyValid(value) {
+      if (value) {
+        this.removeState("invalid");
+        if (typeof this.setAriaState === "function") {
+          this.setAriaState("invalid", null);
         }
-        // required invalid message
-        var requiredInvalidMessage = this.getRequiredInvalidMessage();
-        if (requiredInvalidMessage && requiredInvalidMessage.translate) {
-          this.setRequiredInvalidMessage(requiredInvalidMessage.translate());
+      } else {
+        this.addState("invalid");
+        if (typeof this.setAriaState === "function") {
+          this.setAriaState("invalid", "true");
         }
-      },
-
-      false: null
-    })
-  },
-
-  destruct() {
-    if (qx.core.Environment.get("qx.dynlocale") && this.__changeLocaleMFormListenerId) {
-      qx.locale.Manager.getInstance().removeListenerById(
-        this.__changeLocaleMFormListenerId
-      );
+      }
     }
   }
 });

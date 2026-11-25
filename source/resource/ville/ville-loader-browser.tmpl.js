@@ -197,16 +197,28 @@ qx.$$loader = {
         qx.event.handler.Application.onScriptLoaded();
         qx.$$loader.applicationHandlerReady = true;
       } else {
-        if (qx.$$loader.deferredEvents) {
-          Object.keys(qx.$$loader.deferredEvents).forEach(function(eventType) {
-            if (eventType === "ready") {
-              qx.$$loader.deferredEvents[eventType].forEach(function(handler) {
-                handler.handler(null);
-              });
-            }
-          });
+        var launchVilleKernel = function() {
+          if (qx.$$loader.deferredEvents) {
+            Object.keys(qx.$$loader.deferredEvents).forEach(function(eventType) {
+              if (eventType === "ready") {
+                qx.$$loader.deferredEvents[eventType].forEach(function(handler) {
+                  handler.handler(null);
+                });
+              }
+            });
+          }
+          if (window.ville && ville.core && ville.core.Init && typeof ville.core.Init.ready === "function") {
+            ville.core.Init.ready();
+          } else if (window.qx && qx.core && qx.core.Init && typeof qx.core.Init.ready === "function") {
+            qx.core.Init.ready();
+          }
+          qx.$$loader.applicationHandlerReady = true;
+        };
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", launchVilleKernel, { once: true });
+        } else {
+          launchVilleKernel();
         }
-        qx.$$loader.applicationHandlerReady = true;
       }
     }
     if (qx.Class.$$brokenClassDefinitions) {
@@ -350,13 +362,24 @@ function loadScript(uri, callback) {
 }
 
 /*
- * Load CSS
+ * Load CSS (deduplicated against pre-linked <head> stylesheets)
  */
 function loadCss(uri) {
+  var cleanUri = uri.split("?")[0];
+  var links = document.querySelectorAll('link[rel="stylesheet"]');
+  for (var i = 0; i < links.length; i++) {
+    var existingHref = (links[i].getAttribute("href") || "").split("?")[0];
+    if (
+      existingHref &&
+      (cleanUri.endsWith(existingHref) || existingHref.endsWith(cleanUri))
+    ) {
+      return;
+    }
+  }
   var elem = document.createElement("link");
   elem.rel = "stylesheet";
-  elem.type= "text/css";
-  elem.href= uri;
+  elem.type = "text/css";
+  elem.href = uri;
   var head = document.getElementsByTagName("head")[0];
   head.appendChild(elem);
 }

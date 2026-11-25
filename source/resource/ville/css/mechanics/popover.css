@@ -1,0 +1,180 @@
+/**
+ * Ville UI — Layer 1 Browser Mechanics: Top-Layer Popover & CSS Anchor Positioning
+ * (`STRAT-BUILD-05`, `STRAT-EVENT-03`, `STRAT-CORE-09`)
+ *
+ * Provides vendor-agnostic top-layer positioning, automatic viewport collision
+ * flipping (`position-try-fallbacks`), and reduced-motion-safe `@starting-style`
+ * entry/exit transitions for:
+ *  - `ville.ui.menu.Menu` (`.ville-menu-dropdown`, submenus, context menus)
+ *  - `ville.ui.overlay.Popup` & `MPlacement` (`.ville-popover`)
+ *  - `ville.ui.overlay.ToolTip` (`.ville-tooltip`)
+ *  - `ville.ui.form.SelectBox` & `ComboBox` dropdowns (`.ville-select-dropdown`)
+ */
+
+/* --- 1. Shared Popover Base Reset --- */
+.ville-menu-dropdown,
+.ville-popover,
+.ville-tooltip,
+.ville-select-dropdown {
+  backface-visibility: hidden;
+  box-sizing: border-box;
+}
+
+.ville-menu-dropdown:popover-open,
+.ville-popover:popover-open,
+.ville-tooltip:popover-open,
+.ville-select-dropdown:popover-open {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  position-anchor: var(--ville-anchor, var(--menu-anchor));
+  position-area: block-end span-inline-end;
+  margin-block-start: var(--ville-popover-offset, 4px);
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+}
+
+/* --- 2. Menu Dropdown Specifics (`ville.ui.menu.Menu`) --- */
+.ville-menu-dropdown:popover-open {
+  min-width: 12rem;
+  max-height: min(80dvh, 24rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Nested Submenu Placement: right of parent menu-button, top-aligned, 4px gap */
+.ville-menu-dropdown[data-submenu="true"]:popover-open {
+  position-area: inline-end span-block-end;
+  margin-block-start: 0;
+  margin-inline-start: 4px;
+  position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+}
+
+/* Context Menu / Coordinate Placement: pinned to pointer coordinates */
+.ville-menu-dropdown[data-contextmenu="true"]:popover-open,
+.ville-popover[data-contextmenu="true"]:popover-open {
+  position-anchor: none;
+  position-area: none;
+  left: clamp(8px, var(--menu-x, var(--ville-popover-x, 0px)), calc(100dvw - 100% - 8px));
+  top: clamp(8px, var(--menu-y, var(--ville-popover-y, 0px)), calc(100dvh - 100% - 8px));
+  margin: 0;
+}
+
+/* Menu Item Button Layout (Left Icon + Label + Right Shortcut/Arrow) */
+.ville-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ville-spacing-xs, 0.5rem);
+  width: 100%;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.ville-menu-item-shortcut,
+.ville-menu-item-arrow {
+  margin-inline-start: auto;
+}
+
+/* --- 3. MPlacement Declarative Anchor Positions (`data-placement="..."`) --- */
+.ville-popover[data-placement="bottom-start"]:popover-open,
+.ville-tooltip[data-placement="bottom-start"]:popover-open,
+.ville-select-dropdown[data-placement="bottom-start"]:popover-open {
+  position-area: block-end span-inline-end;
+}
+
+.ville-popover[data-placement="bottom-center"]:popover-open,
+.ville-popover[data-placement="bottom"]:popover-open,
+.ville-tooltip[data-placement="bottom-center"]:popover-open,
+.ville-tooltip[data-placement="bottom"]:popover-open {
+  position-area: block-end center;
+}
+
+.ville-popover[data-placement="bottom-end"]:popover-open,
+.ville-tooltip[data-placement="bottom-end"]:popover-open,
+.ville-select-dropdown[data-placement="bottom-end"]:popover-open {
+  position-area: block-end span-inline-start;
+}
+
+.ville-popover[data-placement="top-start"]:popover-open,
+.ville-tooltip[data-placement="top-start"]:popover-open {
+  position-area: block-start span-inline-end;
+  margin-block-start: 0;
+  margin-block-end: var(--ville-popover-offset, 4px);
+}
+
+.ville-popover[data-placement="top-center"]:popover-open,
+.ville-popover[data-placement="top"]:popover-open,
+.ville-tooltip[data-placement="top-center"]:popover-open,
+.ville-tooltip[data-placement="top"]:popover-open {
+  position-area: block-start center;
+  margin-block-start: 0;
+  margin-block-end: var(--ville-popover-offset, 4px);
+}
+
+.ville-popover[data-placement="top-end"]:popover-open,
+.ville-tooltip[data-placement="top-end"]:popover-open {
+  position-area: block-start span-inline-start;
+  margin-block-start: 0;
+  margin-block-end: var(--ville-popover-offset, 4px);
+}
+
+.ville-popover[data-placement="right-start"]:popover-open,
+.ville-tooltip[data-placement="right-start"]:popover-open {
+  position-area: inline-end span-block-end;
+  margin-block-start: 0;
+  margin-inline-start: var(--ville-popover-offset, 4px);
+}
+
+.ville-popover[data-placement="right-center"]:popover-open,
+.ville-popover[data-placement="right"]:popover-open,
+.ville-tooltip[data-placement="right-center"]:popover-open,
+.ville-tooltip[data-placement="right"]:popover-open {
+  position-area: inline-end center;
+  margin-block-start: 0;
+  margin-inline-start: var(--ville-popover-offset, 4px);
+}
+
+.ville-popover[data-placement="left-start"]:popover-open,
+.ville-tooltip[data-placement="left-start"]:popover-open {
+  position-area: inline-start span-block-end;
+  margin-block-start: 0;
+  margin-inline-end: var(--ville-popover-offset, 4px);
+}
+
+.ville-popover[data-placement="left-center"]:popover-open,
+.ville-popover[data-placement="left"]:popover-open,
+.ville-tooltip[data-placement="left-center"]:popover-open,
+.ville-tooltip[data-placement="left"]:popover-open {
+  position-area: inline-start center;
+  margin-block-start: 0;
+  margin-inline-end: var(--ville-popover-offset, 4px);
+}
+
+/* --- 4. Accessible Entry/Exit Transitions (`@starting-style` + `prefers-reduced-motion`) --- */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-reduce-motion="true"]) .ville-menu-dropdown,
+  html:not([data-reduce-motion="true"]) .ville-popover,
+  html:not([data-reduce-motion="true"]) .ville-tooltip,
+  html:not([data-reduce-motion="true"]) .ville-select-dropdown {
+    opacity: 0;
+    transition:
+      opacity 150ms ease,
+      display 150ms allow-discrete,
+      overlay 150ms allow-discrete;
+  }
+
+  html:not([data-reduce-motion="true"]) .ville-menu-dropdown:popover-open,
+  html:not([data-reduce-motion="true"]) .ville-popover:popover-open,
+  html:not([data-reduce-motion="true"]) .ville-tooltip:popover-open,
+  html:not([data-reduce-motion="true"]) .ville-select-dropdown:popover-open {
+    opacity: 1;
+  }
+
+  @starting-style {
+    html:not([data-reduce-motion="true"]) .ville-menu-dropdown:popover-open,
+    html:not([data-reduce-motion="true"]) .ville-popover:popover-open,
+    html:not([data-reduce-motion="true"]) .ville-tooltip:popover-open,
+    html:not([data-reduce-motion="true"]) .ville-select-dropdown:popover-open {
+      opacity: 0;
+    }
+  }
+}

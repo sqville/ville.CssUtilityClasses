@@ -235,12 +235,5 @@ qx.Class.define("ville.ui.core.Divider", {
     _applySpacing(value, old) {
       this._syncModifierState("spacing", value, old);
     }
-  },
-
-  /**
-   * Disposes the `"label"` child control on widget destruction.
-   */
-  destruct() {
-    this._disposeChildControl("label");
   }
 });

@@ -1,3 +1,7 @@
+const fs = require("fs");
+const path = require("path");
+const { bundleVilleApp } = require("./ville-build");
+
 qx.Class.define("ville.compiler.CompilerApi", {
   extend: qx.tool.cli.api.CompilerApi,
 
@@ -5,7 +9,25 @@ qx.Class.define("ville.compiler.CompilerApi", {
     afterCommandLoaded(command) {
       if (command instanceof qx.tool.cli.commands.Compile) {
         command.addListener("writingApplication", this._onWritingApplication, this);
+        command.addListener("writtenApplication", this._onWrittenApplication, this);
       }
+    },
+
+    /**
+     * Checks whether the current application is a standalone Path B (`ville.ui.*`)
+     * application (has `ville.cssLayout: true` and does not include Mode 1/2 `ville.cssuc.patch.*`).
+     */
+    _isPathBApplication(app, appMeta) {
+      if (!app || !appMeta) {
+        return false;
+      }
+      const isCssLayout = Boolean(appMeta.getEnvironmentValue("ville.cssLayout"));
+      if (!isCssLayout) {
+        return false;
+      }
+      const includes = app.getInclude ? app.getInclude() || [] : [];
+      const hasHybridPatch = includes.some((inc) => inc.startsWith("ville.cssuc.patch."));
+      return !hasHybridPatch;
     },
 
     _onWritingApplication(evt) {
@@ -15,6 +37,7 @@ qx.Class.define("ville.compiler.CompilerApi", {
       }
 
       const app = appMeta.getApplication();
+      const target = appMeta.getTarget();
       const analyser = appMeta.getAnalyser();
       const db = analyser ? analyser.getDatabase() : null;
       const classInfo = (db && db.classInfo) || {};
@@ -44,20 +67,147 @@ qx.Class.define("ville.compiler.CompilerApi", {
         return;
       }
 
+      const isPathB = this._isPathBApplication(app, appMeta);
+
+      // 1. Strip PolyfillJs, empty Browserify, and (for Path B apps) all 88 @qooxdoo/framework qx.* files
+      let removedQxCount = 0;
       const jsMetas = bootPkg.getJavascriptMetas().slice();
       for (const meta of jsMetas) {
         if (skipBrowserify && meta instanceof qx.tool.compiler.targets.meta.Browserify) {
           bootPkg.removeJavascriptMeta(meta);
-          qx.tool.compiler.Console.info(
-            `[${app.getName()}] Skipped empty Browserify bundle (only qx.util.Uuid crypto fallback detected).`
-          );
         } else if (meta instanceof qx.tool.compiler.targets.meta.PolyfillJs) {
           bootPkg.removeJavascriptMeta(meta);
-          qx.tool.compiler.Console.info(
-            `[${app.getName()}] Skipped legacy PolyfillJs bundle (evergreen browser target).`
-          );
+        } else if (isPathB && meta instanceof qx.tool.compiler.targets.meta.Javascript) {
+          const fileNorm = String(meta.getFilename() || "").replace(/\\/g, "/");
+          if (fileNorm.includes("/transpiled/qx/") || fileNorm.startsWith("transpiled/qx/")) {
+            bootPkg.removeJavascriptMeta(meta);
+            removedQxCount++;
+          }
         }
       }
+
+      if (!isPathB) {
+        return;
+      }
+
+      // 2. Inject `ville-kernel.js` (~15 KB Vanilla ES2025 Kernel) at index 0 of bootPkg
+      const kernelSourcePath = path.resolve(
+        process.cwd(),
+        "source/resource/ville/core/ville-kernel.js"
+      );
+      const kernelTranspiledPath = path.join(
+        target.getOutputDir(),
+        "transpiled/ville/core/Kernel.js"
+      );
+
+      if (fs.existsSync(kernelSourcePath)) {
+        fs.mkdirSync(path.dirname(kernelTranspiledPath), { recursive: true });
+        fs.copyFileSync(kernelSourcePath, kernelTranspiledPath);
+
+        const kernelMeta = new qx.tool.compiler.targets.meta.Javascript(
+          appMeta,
+          kernelTranspiledPath,
+          kernelSourcePath
+        );
+        bootPkg.getJavascriptMetas().unshift(kernelMeta);
+
+        // Clean `qx.*` classnames from bootPkg's class list and prepend `ville.core.Kernel`
+        const classnames = bootPkg.getClassnames();
+        if (Array.isArray(classnames)) {
+          for (let i = classnames.length - 1; i >= 0; i--) {
+            if (classnames[i].startsWith("qx.")) {
+              classnames.splice(i, 1);
+            }
+          }
+          classnames.unshift("ville.core.Kernel");
+        }
+      }
+
+      // 3. Strip 18 KB CLDR locale data from package-0.js when qx.dynlocale is false (native Intl used instead)
+      if (appMeta.getEnvironmentValue("qx.dynlocale") === false) {
+        const locales = bootPkg.getLocales();
+        if (locales && typeof locales === "object") {
+          for (const k of Object.keys(locales)) {
+            delete locales[k];
+          }
+        }
+        const translations = bootPkg.getTranslations();
+        if (translations && typeof translations === "object") {
+          for (const k of Object.keys(translations)) {
+            delete translations[k];
+          }
+        }
+      }
+
+      // 4. Deduplicate `ville-menu.css` from cssBefore (bundled into Layer 1 of bundle.min.css)
+      const preloads = appMeta.getPreloads && appMeta.getPreloads();
+      if (preloads && Array.isArray(preloads.cssBefore)) {
+        preloads.cssBefore = preloads.cssBefore.filter(
+          (uri) => !String(uri).endsWith("ville/ville-menu.css")
+        );
+      }
+
+      qx.tool.compiler.Console.info(
+        `[${app.getName()}] Path B Kernel active: replaced ${removedQxCount} @qooxdoo/framework qx.* files with ville/core/Kernel.js (0 qx.* files in bundle).`
+      );
+    },
+
+    _onWrittenApplication(evt) {
+      const { appMeta } = evt.getData();
+      if (!appMeta) {
+        return;
+      }
+      const app = appMeta.getApplication();
+      const target = appMeta.getTarget();
+      if (!this._isPathBApplication(app, appMeta)) {
+        return;
+      }
+
+      const appName = app.getName();
+      const targetType = target.getType ? target.getType() : "source";
+      const outputDir = target.getOutputDir();
+      const cssEngine = appMeta.getEnvironmentValue("ville.cssEngine") || "mantine";
+      const bootPkg = appMeta.getPackages()[0];
+      const activeClasses = bootPkg
+        ? bootPkg
+            .getClassnames()
+            .filter((c) => c !== "ville.core.Kernel" && !c.startsWith("qx."))
+        : [];
+
+      const resMap = {};
+      if (bootPkg && typeof bootPkg.getAssets === "function") {
+        for (const asset of bootPkg.getAssets()) {
+          const info = (typeof asset.getFileInfo === "function" && asset.getFileInfo()) || {};
+          const ext = path.extname(asset.getFilename()).replace(/^\./, "") || null;
+          const libNs =
+            typeof asset.getLibrary === "function" && asset.getLibrary()
+              ? asset.getLibrary().getNamespace()
+              : null;
+          resMap[asset.getFilename()] = [
+            info.width !== undefined ? info.width : null,
+            info.height !== undefined ? info.height : null,
+            info.format || ext,
+            libNs
+          ];
+        }
+      }
+
+      const result = bundleVilleApp({
+        appName,
+        target: targetType,
+        outputDir,
+        cssEngine,
+        activeClasses,
+        environment: appMeta.getEnvironment(),
+        resources: resMap
+      });
+
+      qx.tool.compiler.Console.info(
+        `[${appName}] Bundled 3-Layer CSS (${result.includedCssSlices.length} slices -> ${path.relative(
+          process.cwd(),
+          result.cssBundlePath
+        )}) & single-file JS bundle (${result.activeClassCount} classes).`
+      );
     }
   }
 });

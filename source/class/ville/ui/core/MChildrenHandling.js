@@ -1,31 +1,17 @@
 /**
  * Exposes public child-widget management methods (`add`, `addAt`, `addBefore`,
  * `addAfter`, `remove`, `removeAt`, `removeAll`, `getChildren`, `hasChildren`,
- * `indexOf`) for Mode 3 container widgets extending `ville.ui.core.Widget`.
+ * `indexOf`) for Ville UI container widgets extending `ville.ui.core.Widget`.
  *
- * Unlike `qx.ui.core.MChildrenHandling`, this mixin omits `QxLayout` layout
- * option maps—child order in the widget tree corresponds directly to DOM
- * element order so CSS Flexbox and CSS Grid handle positioning natively.
- *
- * Can only be included in classes extending `ville.ui.core.Widget`.
- *
- * @example
- * qx.Class.define("ville.ui.container.Box", {
- *   extend: ville.ui.core.Widget,
- *   include: [ville.ui.core.MChildrenHandling]
- * });
+ * Supports BOTH:
+ * 1. Qooxdoo `QxLayout` per-child layout options: `container.add(child, { flex: 1, row: 0, column: 1 })`
+ * 2. Modern variadic child addition (`STRAT-BUILD-06`): `container.add(child1, child2, child3)`
+ *    (returning `this` for method chaining).
  */
 qx.Mixin.define("ville.ui.core.MChildrenHandling", {
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
     /**
      * Returns the ordered list of child widgets.
-     * Note: Returns the internal array reference—do not mutate it in place.
      *
      * @returns {ville.ui.core.Widget[]} Ordered array of child widgets.
      */
@@ -54,24 +40,51 @@ qx.Mixin.define("ville.ui.core.MChildrenHandling", {
     },
 
     /**
-     * Appends a child widget to the end of this container and its root DOM element.
-     * If `child` already belongs to a parent widget, it is detached first.
+     * Appends one or more child widgets to this container.
+     * - When called as `add(child, { flex: 1 })` (where the second argument is a plain
+     *   layout options map), applies those `QxLayout` properties to `child`.
+     * - When called as `add(child1, child2, child3)` (where arguments are `Widget` instances),
+     *   appends all children in order.
      *
-     * @param {ville.ui.core.Widget} child Child widget to append.
+     * @param {ville.ui.core.Widget} childOrFirst First child widget to append.
+     * @param {...(ville.ui.core.Widget|Object<string, *>)} rest Optional layout options map or additional child widgets.
+     * @returns {this} This container instance for chaining.
      */
-    add(child) {
-      this._add(child);
+    add(childOrFirst, ...rest) {
+      if (!childOrFirst) {
+        return this;
+      }
+      if (
+        rest.length === 1 &&
+        rest[0] &&
+        typeof rest[0] === "object" &&
+        !(rest[0] instanceof ville.ui.core.Widget)
+      ) {
+        this._add(childOrFirst, /** @type {Object<string, *>} */ (rest[0]));
+        return this;
+      }
+
+      this._add(childOrFirst);
+      for (let i = 0; i < rest.length; i++) {
+        const nextChild = rest[i];
+        if (nextChild instanceof ville.ui.core.Widget) {
+          this._add(nextChild);
+        }
+      }
+      return this;
     },
 
     /**
-     * Inserts a child widget at the specified zero-based index in both the
-     * widget hierarchy and the underlying `qx.html.Element`.
+     * Inserts a child widget at the specified zero-based index with optional layout properties.
      *
      * @param {ville.ui.core.Widget} child Child widget to insert.
      * @param {number} index Zero-based insertion index.
+     * @param {Object<string, *>} [options] Optional per-child layout properties.
+     * @returns {this} This container instance for chaining.
      */
-    addAt(child, index) {
-      this._addAt(child, index);
+    addAt(child, index, options) {
+      this._addAt(child, index, options);
+      return this;
     },
 
     /**
@@ -79,9 +92,12 @@ qx.Mixin.define("ville.ui.core.MChildrenHandling", {
      *
      * @param {ville.ui.core.Widget} child Child widget to insert.
      * @param {ville.ui.core.Widget} before Existing sibling widget to insert before.
+     * @param {Object<string, *>} [options] Optional per-child layout properties.
+     * @returns {this} This container instance for chaining.
      */
-    addBefore(child, before) {
-      this._addBefore(child, before);
+    addBefore(child, before, options) {
+      this._addBefore(child, before, options);
+      return this;
     },
 
     /**
@@ -89,18 +105,23 @@ qx.Mixin.define("ville.ui.core.MChildrenHandling", {
      *
      * @param {ville.ui.core.Widget} child Child widget to insert.
      * @param {ville.ui.core.Widget} after Existing sibling widget to insert after.
+     * @param {Object<string, *>} [options] Optional per-child layout properties.
+     * @returns {this} This container instance for chaining.
      */
-    addAfter(child, after) {
-      this._addAfter(child, after);
+    addAfter(child, after, options) {
+      this._addAfter(child, after, options);
+      return this;
     },
 
     /**
      * Removes a direct child widget from this container and detaches its DOM element.
      *
      * @param {ville.ui.core.Widget} child Child widget to remove.
+     * @returns {this} This container instance for chaining.
      */
     remove(child) {
       this._remove(child);
+      return this;
     },
 
     /**

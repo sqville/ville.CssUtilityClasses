@@ -1,32 +1,13 @@
-/* ************************************************************************
-
-   Copyright:
-     2012 1&1 Internet AG, Germany, http://www.1und1.de
-
-   Authors:
-     * Mustafa Sak (msak)
-
-************************************************************************ */
-
 /**
- * Coordinator for mutually exclusive `ville.ui.command.Group` instances.
+ * Coordinator for mutually exclusive `ville.ui.command.Group` instances (`STRAT-CORE-09`).
  *
  * Ensures that at most one registered command group is active at any time
  * (for example, switching active shortcut contexts between views or modals)
  * and provides global `block()` / `unblock()` controls.
- *
- * @example
- * const manager = new ville.ui.command.GroupManager();
- * manager.add(editorGroup);
- * manager.add(modalGroup);
- * manager.setActive(modalGroup); // Activates modalGroup and deactivates editorGroup
  */
 qx.Class.define("ville.ui.command.GroupManager", {
   extend: qx.core.Object,
 
-  /**
-   * Creates a new command group manager.
-   */
   construct() {
     // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
@@ -34,20 +15,10 @@ qx.Class.define("ville.ui.command.GroupManager", {
   },
 
   members: {
-    /**
-     * List of registered command groups.
-     *
-     * @type {ville.ui.command.Group[]|null}
-     * @private
-     */
+    /** @type {ville.ui.command.Group[]|null} @private */
     __groups: null,
 
-    /**
-     * Currently active command group, or `null` if none is active.
-     *
-     * @type {ville.ui.command.Group|null}
-     * @private
-     */
+    /** @type {ville.ui.command.Group|null} @private */
     __activeGroup: null,
 
     /**
@@ -59,7 +30,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
      */
     add(group) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertInstance(
+        qx.core.Assert.assertInstance(
           group,
           ville.ui.command.Group,
           "Given group is not an instance of ville.ui.command.Group"
@@ -67,17 +38,11 @@ qx.Class.define("ville.ui.command.GroupManager", {
       }
 
       if (this.__groups.includes(group)) {
-        if (qx.core.Environment.get("qx.debug")) {
-          this.debug("Group is already added!");
-        }
         return false;
       }
 
       this.__groups.push(group);
-
-      // Deactivate added group to prevent collisions
       group.setActive(false);
-
       return true;
     },
 
@@ -89,14 +54,13 @@ qx.Class.define("ville.ui.command.GroupManager", {
      */
     has(group) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertInstance(
+        qx.core.Assert.assertInstance(
           group,
           ville.ui.command.Group,
           "Given group is not an instance of ville.ui.command.Group"
         );
       }
-
-      return !!this._getGroup(group);
+      return Boolean(this._getGroup(group));
     },
 
     /**
@@ -108,7 +72,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
      */
     remove(group) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertInstance(
+        qx.core.Assert.assertInstance(
           group,
           ville.ui.command.Group,
           "Group must be an instance of ville.ui.command.Group"
@@ -117,23 +81,14 @@ qx.Class.define("ville.ui.command.GroupManager", {
 
       const index = this.__groups.indexOf(group);
       if (index === -1) {
-        if (qx.core.Environment.get("qx.debug")) {
-          this.debug(
-            "Group was not added before. Please use " +
-              "'add()' method to add the group."
-          );
-        }
         return null;
       }
 
-      // Reset active group
       if (this.getActive() === group) {
         this.__activeGroup = null;
       }
 
-      // Remove group from internal array
       this.__groups.splice(index, 1);
-
       return group;
     },
 
@@ -146,7 +101,7 @@ qx.Class.define("ville.ui.command.GroupManager", {
      */
     setActive(group) {
       if (qx.core.Environment.get("qx.debug")) {
-        this.assertInstance(
+        qx.core.Assert.assertInstance(
           group,
           ville.ui.command.Group,
           "Given group is not an instance of ville.ui.command.Group"
@@ -154,23 +109,17 @@ qx.Class.define("ville.ui.command.GroupManager", {
       }
 
       if (!this.has(group)) {
-        if (qx.core.Environment.get("qx.debug")) {
-          this.debug(
-            "Group was not added before! You have to use 'add()' method before activating!"
-          );
-        }
         return false;
       }
 
-      // Iterate through all groups and deactivate all except the given one
       for (let i = 0; i < this.__groups.length; i++) {
         const item = this.__groups[i];
         if (item === group) {
           item.setActive(true);
           this.__activeGroup = item;
-          continue;
+        } else {
+          item.setActive(false);
         }
-        item.setActive(false);
       }
 
       return true;
@@ -213,17 +162,10 @@ qx.Class.define("ville.ui.command.GroupManager", {
      */
     _getGroup(group) {
       const index = this.__groups.indexOf(group);
-      if (index === -1) {
-        return null;
-      }
-
-      return this.__groups[index];
+      return index === -1 ? null : this.__groups[index];
     }
   },
 
-  /**
-   * Releases internal group array and active group references.
-   */
   destruct() {
     this.__groups = this.__activeGroup = null;
   }

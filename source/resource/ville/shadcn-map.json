@@ -1,0 +1,10 @@
+{
+  "order": [
+    "tokens.css",
+    "utilities.css"
+  ],
+  "map": {
+    "ville.ui.application.Standalone": ["tokens.css", "utilities.css"],
+    "ville.ui.core.Widget": ["tokens.css", "utilities.css"]
+  }
+}

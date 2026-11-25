@@ -1,8 +1,9 @@
 /**
  * Root application widget for Mode 3 (`ville.ui.*`) standalone applications.
  *
- * Mounts a `qx.html.Root` wrapper on a dedicated `<div id="ville-app">` element
- * inside `document.body`.
+ * Mounts a `ville.html.Root` wrapper on a dedicated `<div id="ville-app">` element
+ * inside `document.body` (reusing an existing `#ville-app` container from
+ * `boot/index.html`, SSG, or Node.js SSR when present).
  *
  * @example
  * const root = new ville.ui.root.Application(document);
@@ -22,7 +23,7 @@ qx.Class.define("ville.ui.root.Application", {
     // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
 
-    // Eagerly materialize and bind the qx.html.Root element
+    // Eagerly materialize and bind the ville.html.Root element
     this.getContentElement();
   },
 
@@ -31,8 +32,8 @@ qx.Class.define("ville.ui.root.Application", {
     __doc: null,
 
     /**
-     * Creates the root `ville.html.Root` element mounted inside a dedicated
-     * `<div id="ville-app">` child of `document.body`.
+     * Creates or binds the root `ville.html.Root` element mounted on the
+     * `<div id="ville-app">` container inside `document.body`.
      *
      * @this {ville.ui.root.Application}
      * @returns {ville.html.Root} Root HTML element wrapper.
@@ -41,9 +42,12 @@ qx.Class.define("ville.ui.root.Application", {
     _createContentElement() {
       const doc = /** @type {Document} */ (this.__doc);
 
-      const elem = doc.createElement("div");
-      elem.id = "ville-app";
-      doc.body.appendChild(elem);
+      let elem = doc.getElementById("ville-app");
+      if (!elem) {
+        elem = doc.createElement("div");
+        elem.id = "ville-app";
+        doc.body.appendChild(elem);
+      }
 
       const root = new ville.html.Root(elem);
       root.connectObject(this);
