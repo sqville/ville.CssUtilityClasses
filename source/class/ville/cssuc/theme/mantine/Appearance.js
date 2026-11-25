@@ -332,9 +332,26 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
         } else if (states["underline-never"]) {
           underline = "never";
         }
-        // m_8fdc1311 mantine-InputWrapper-label mantine-TextInput-label
+
+        let baseClasses;
+        if (qx.core.Environment.get("qx.debug")) {
+          baseClasses = [
+            "mantine-focus-auto",
+            "m_849cf0da",
+            "mantine-Anchor-root",
+            "m_b6d8b162",
+            "mantine-Text-root"
+          ];
+        } else {
+          baseClasses = [
+            "mantine-focus-auto",
+            "m_849cf0da",
+            "m_b6d8b162"
+          ];
+        }
+
         return {
-          cssUtilityClass: `m_8fdc1311${qx.core.Environment.get("qx.debug") ? ' mantine-InputWrapper-label mantine-TextInput-label' : ''}`,
+          cssUtilityClass: baseClasses.join(" "),
           cssStates: {
             "set-attributes": {
               "data-underline": underline
@@ -343,6 +360,54 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
         };
       }
     },
+
+    "fieldset": {
+      style(states) {
+        const setClasses = [];
+        const setStyles = {};
+
+        if (states["variant-filled"]) {
+          setClasses.push("m_ef274e49");
+        } else if (states["variant-unstyled"]) {
+          setClasses.push("m_eda993d3");
+        } else {
+          setClasses.push("m_84c9523a");
+        }
+
+        for (const radius of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["radius-" + radius]) {
+            setStyles["--fieldset-radius"] = `var(--mantine-radius-${radius})`;
+            break;
+          }
+        }
+
+        return {
+          cssUtilityClass: `m_e9408a47${qx.core.Environment.get("qx.debug") ? ' mantine-Fieldset-root' : ''}`,
+          cssStates: {
+            "set-classes": setClasses,
+            "set-styles": setStyles
+          }
+        };
+      }
+    },
+
+    "fieldset/legend": {
+      style(states) {
+        const setClasses = [];
+        if (states["variant-unstyled"]) {
+          setClasses.push("m_74ca27fe");
+        }
+
+        return {
+          cssUtilityClass: `m_90794832${qx.core.Environment.get("qx.debug") ? ' mantine-Fieldset-legend' : ''}`,
+          cssStates: {
+            "set-classes": setClasses
+          }
+        };
+      }
+    },
+
+    "form": {},
 
     "form-label": {
       style(states) {
@@ -737,10 +802,60 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
 
     /*
     ---------------------------------------------------------------------------
-      TEXT FIELD
+      TEXT FIELD & INPUT
     ---------------------------------------------------------------------------
     */
-    textfield: {},
+    input: {
+      style(states) {
+        const setAttrs = {};
+        const setStyles = {};
+
+        let variant = "default";
+        if (states["variant-filled"]) {
+          variant = "filled";
+        } else if (states["variant-unstyled"]) {
+          variant = "unstyled";
+        }
+        setAttrs["data-variant"] = variant;
+
+        if (states.disabled) {
+          setAttrs["data-disabled"] = "true";
+        }
+
+        if (states.invalid) {
+          setAttrs["data-error"] = "true";
+          setStyles["--input-bd"] = "var(--mantine-color-error)";
+          setStyles["--input-color"] = "var(--mantine-color-error)";
+          setStyles["--input-placeholder-color"] = "var(--mantine-color-error)";
+        }
+
+        for (const size of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["size-" + size]) {
+            setAttrs["data-size"] = size;
+            setStyles["--input-height"] = `var(--input-height-${size})`;
+            setStyles["--input-fz"] = `var(--mantine-font-size-${size})`;
+            break;
+          }
+        }
+
+        for (const radius of ["xs", "sm", "md", "lg", "xl"]) {
+          if (states["radius-" + radius]) {
+            setStyles["--input-radius"] = `var(--mantine-radius-${radius})`;
+            break;
+          }
+        }
+
+        return {
+          cssUtilityClass: `m_8fb7ebe7${qx.core.Environment.get("qx.debug") ? ' mantine-Input-input mantine-TextInput-input' : ''}`,
+          cssStates: {
+            "set-attributes": setAttrs,
+            "set-styles": setStyles
+          }
+        };
+      }
+    },
+
+    textfield: "input",
 
     textarea: "textfield",
 

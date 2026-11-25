@@ -26,14 +26,14 @@ qx.Class.define("ville.ui.typography.Text", {
    * Creates a new Text widget instance.
    *
    * @param {string|qx.locale.LocalizedString|null} [text] Initial text content.
-   * @param {"p"|"span"|"div"|"label"|"a"|"strong"|"em"} [component="p"] Root HTML tag to render.
+   * @param {"p"|"span"|"div"|"label"|"legend"|"a"|"strong"|"em"} [component="p"] Root HTML tag to render.
    */
   construct(text, component) {
     if (qx.core.Environment.get("qx.debug") && component !== undefined) {
       qx.core.Assert.assertInArray(
         component,
-        ["p", "span", "div", "label", "a", "strong", "em"],
-        `Invalid component tag '${component}'. Allowed tags are 'p', 'span', 'div', 'label', 'a', 'strong', or 'em'.`
+        ["p", "span", "div", "label", "legend", "a", "strong", "em"],
+        `Invalid component tag '${component}'. Allowed tags are 'p', 'span', 'div', 'label', 'legend', 'a', 'strong', or 'em'.`
       );
     }
 

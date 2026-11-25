@@ -70,9 +70,9 @@ qx.Class.define("villeuiapp.Application",
       const mainArea = new ville.ui.core.Box("main");
       mainArea.setAppearance("appshell-main");
 
-      // ---- ville.ui.form.Button -----
-      const icon = new ville.ui.icon.fluent.Airplane(26);
-      const btn = new ville.ui.form.Button("Execute Me", icon);
+      // ---- ville.ui.form.Button (Native SVG Icon via ville.ui.icon.Default) -----
+      const btn = new ville.ui.form.Button("Execute Me", "AIRPLANE");
+      btn.setIconSize(26);
       btn.addListener("execute", () => {
         btn.setLabel("Executed!");
         btn.setEnabled(false);
@@ -94,6 +94,39 @@ qx.Class.define("villeuiapp.Application",
       var btnMenuButton = new ville.ui.form.MenuButton("Menu Button");
       btnMenuButton.setMenu(btnMenu);
 
+
+      // ---- Form and form controls -----
+
+      // Form
+      var form = new ville.ui.form.Form();
+
+      // Email
+      var txtemail = new ville.ui.form.TextField();
+      form.add(txtemail, "Email", null, null, null, {complexity : "email"});
+
+      // Password
+      var txtpassword = new ville.ui.form.PasswordField();//.set({ required : true });
+      form.add(txtpassword, "Password", null, null, null, {complexity : "password"});
+
+      // Form Bottom Buttons
+      var registerbutton = new ville.ui.navigation.Anchor("Don't have an account? Register", "button");
+      /*registerbutton.setStyles({
+        color: "var(--mantine-color-dimmed)",
+        "--text-fz": "var(--mantine-font-size-xs)",
+        "--text-lh": "var(--mantine-line-height-xs)"
+      });*/
+
+      var loginbutton = new ville.ui.form.Button("Login");
+
+      form.addButton(registerbutton);
+      form.addButton(loginbutton);
+
+      // Form Renderer
+      var loginForm = new ville.ui.form.renderer.TestRenderer(form);
+
+
+      // ----- Assemble everything ------
+
       const centerArea = new ville.ui.layout.Center();
       const vstack = new ville.ui.layout.VStack("center");
       const titleh1 = new ville.ui.typography.Title(1, "Widget Sandbox");
@@ -102,6 +135,7 @@ qx.Class.define("villeuiapp.Application",
       vstack.add(btn);
       vstack.add(dividerPopups);
       vstack.add(btnMenuButton);
+      vstack.add(loginForm);
       centerArea.add(vstack);
       mainArea.add(centerArea);
 

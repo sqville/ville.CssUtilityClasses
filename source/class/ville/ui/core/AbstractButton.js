@@ -5,9 +5,11 @@
  *
  * Enforces a native `<button>` root element so all subclasses natively support the
  * HTML Popover API (`popovertarget`) and Invoker Commands API (`commandfor` / `command`),
- * delegates transient interaction visuals (`:hover`, `:active`, `:focus-visible`) to native
- * CSS pseudo-classes, and binds a single native `"click"` listener via `getContentElement()`
- * with zero dependencies on `qx.event.handler.*` or `qx.html.*`.
+ * renders both its text caption (`ville.html.Text`) and its icon (`ville.html.Element`
+ * created via `ville.ui.icon.Default.createElement`) directly inside the `<button>` with
+ * **zero child `ville.ui.core.Widget` overhead**, delegates transient interaction visuals
+ * (`:hover`, `:active`, `:focus-visible`) to native CSS pseudo-classes, and binds a single
+ * native `"click"` listener via `getContentElement()`.
  */
 qx.Class.define("ville.ui.core.AbstractButton", {
   extend: ville.ui.core.Widget,
@@ -20,7 +22,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
    * Creates a new AbstractButton instance.
    *
    * @param {string|null} [label] Button text caption.
-   * @param {string|ville.ui.core.Widget|null} [icon] Image URI string or `ville.ui.core.Widget` icon instance.
+   * @param {string|Object|ville.html.Element|ville.ui.core.Widget|null} [icon] Built-in glyph key (`"CHECK"`, `"AIRPLANE"`), Iconify CSS class (`"i-tabler-check"`), raw `<svg>`, image URI, or widget.
    * @param {ville.ui.command.Command|null} [command] Optional command instance bound via `ville.ui.core.MExecutable`.
    */
   construct(label, icon, command) {
@@ -44,7 +46,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
 
   properties: {
     /**
-     * Text caption displayed inside the button.
+     * Text caption displayed directly inside the `<button>` as a raw `ville.html.Text` node.
      */
     label: {
       check: "String",
@@ -55,20 +57,37 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     },
 
     /**
-     * Icon displayed alongside the button label. Accepts either an image URI string
-     * (rendered via `ville.ui.basic.Image`) or a `ville.ui.core.Widget` instance.
+     * Icon displayed alongside the button label. Accepts a `ville.ui.icon.Default`
+     * glyph key (`"CHECK"`, `"AIRPLANE"`), an Iconify CSS token (`"i-tabler-check"`),
+     * raw `<svg>` markup, an image URI string, a `ville.html.Element`, or a
+     * `ville.ui.core.Widget` instance.
      *
-     * @type {string|ville.ui.core.Widget|null}
+     * @type {string|Object|ville.html.Element|ville.ui.core.Widget|null}
      */
     icon: {
       // @ts-ignore
       check: (value) => {
-        return typeof value === "string" || value instanceof ville.ui.core.Widget;
+        return (
+          typeof value === "string" ||
+          typeof value === "object" ||
+          value instanceof ville.html.Element ||
+          value instanceof ville.ui.core.Widget
+        );
       },
       apply: "_applyIcon",
       nullable: true,
       themeable: true,
       event: "changeIcon"
+    },
+
+    /**
+     * Optional explicit icon size in pixels (`null` scales with `1em` font-size).
+     */
+    iconSize: {
+      check: "Number",
+      nullable: true,
+      themeable: true,
+      apply: "_applyIconSize"
     },
 
     /**
@@ -85,7 +104,8 @@ qx.Class.define("ville.ui.core.AbstractButton", {
 
   members: {
     /**
-     * Direct `ville.html.Text` node rendering the button's caption without a wrapper `<span>`.
+     * Direct `ville.html.Text` node rendering the button's caption with zero wrapper `<span>`
+     * and zero child `Widget` overhead.
      *
      * @type {ville.html.Text|null}
      * @protected
@@ -93,19 +113,17 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     _textNode: null,
 
     /**
-     * States automatically forwarded from the button to its child controls.
+     * Direct `ville.html.Element` rendering the button's native `<svg>`, `<span class="i-...">`,
+     * or `<img>` icon with zero child `Widget` overhead.
      *
-     * @type {Record<string, boolean>}
+     * @type {ville.html.Element|null}
      * @protected
-     * @lint ignoreReferenceField(_forwardStates)
      */
-    _forwardStates: {
-      disabled: true
-    },
+    _iconElement: null,
 
     /*
     ---------------------------------------------------------------------------
-      ELEMENT & CHILD CONTROLS
+      ELEMENT & NATIVE CONTENT SYNCHRONIZATION
     ---------------------------------------------------------------------------
     */
 
@@ -130,66 +148,6 @@ qx.Class.define("ville.ui.core.AbstractButton", {
      */
     _isIconRight() {
       return false;
-    },
-
-    /**
-     * Instantiates internal child controls (`"label"` and `"icon"`) on demand.
-     *
-     * @this {ville.ui.core.AbstractButton}
-     * @param {string} id Child control identifier (`"label"` or `"icon"`).
-     * @param {Record<string, any>} [hash] Optional configuration map.
-     * @returns {ville.ui.core.Widget|null} Created child control instance.
-     * @protected
-     */
-    _createChildControlImpl(id, hash) {
-      let control = null;
-
-      switch (id) {
-        case "label": {
-          const initialText = this.getLabel();
-          control = new ville.ui.basic.Label(initialText);
-          control.setAnonymous(true);
-
-          this._textNode = new ville.html.Text(initialText || "");
-
-          control.addListener("changeValue", (e) => {
-            if (this._textNode) {
-              const show = this.getShow();
-              const isVisible = show === "both" || show === "label";
-              this._textNode.setText(isVisible ? (e.getData() || "") : "");
-            }
-          });
-
-          const contentEl = this.getContentElement();
-          const hasLeftIcon = this.hasChildControl("icon") && !this._isIconRight();
-
-          if (hasLeftIcon) {
-            contentEl.addAt(this._textNode, 1);
-          } else {
-            contentEl.addAt(this._textNode, 0);
-          }
-          break;
-        }
-
-        case "icon": {
-          const iconVal = this.getIcon();
-          if (iconVal instanceof ville.ui.core.Widget) {
-            control = iconVal;
-          } else {
-            control = new ville.ui.basic.Image(iconVal);
-          }
-          control.setAnonymous(true);
-
-          if (this._isIconRight()) {
-            this._add(control);
-          } else {
-            this._addAt(control, 0);
-          }
-          break;
-        }
-      }
-
-      return control || super._createChildControlImpl(id, hash);
     },
 
     /*
@@ -241,61 +199,108 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     },
 
     /**
-     * Property apply handler for `label`.
+     * Property apply handler for `label`. Mutates or creates `this._textNode` directly
+     * without allocating a child `Label` widget.
      *
      * @this {ville.ui.core.AbstractButton}
      * @param {string|null} value New label string.
      * @protected
      */
     _applyLabel(value) {
+      const contentEl = this.getContentElement();
       if (value != null) {
-        const label = this.getChildControl("label");
-        label.setValue(value);
-      } else {
-        const label = this.getChildControl("label", true);
-        if (label) {
-          label.setValue("");
+        if (!this._textNode) {
+          this._textNode = new ville.html.Text(value);
+          const hasLeftIcon =
+            this._iconElement &&
+            this._iconElement.getParent() === contentEl &&
+            !this._isIconRight();
+          contentEl.addAt(this._textNode, hasLeftIcon ? 1 : 0);
+        } else {
+          this._textNode.setText(value);
         }
+      } else if (this._textNode) {
+        this._textNode.setText("");
       }
       this._syncShowVisibility();
     },
 
     /**
-     * Property apply handler for `icon`. Swaps existing widget icons in place,
-     * updates the image source URI, and toggles the `"hasIcon"` state.
+     * Property apply handler for `icon`. Creates or swaps a native `ville.html.Element`
+     * directly inside `<button>` via `ville.ui.icon.Default.createElement()`.
      *
      * @this {ville.ui.core.AbstractButton}
-     * @param {string|ville.ui.core.Widget|null} value New icon widget or URI string.
-     * @param {string|ville.ui.core.Widget|null} old Previous icon widget or URI string.
+     * @param {string|Object|ville.html.Element|ville.ui.core.Widget|null} value New icon spec.
      * @protected
      */
-    _applyIcon(value, old) {
+    _applyIcon(value) {
+      const contentEl = this.getContentElement();
+
+      if (this._iconElement && this._iconElement.getParent() === contentEl) {
+        contentEl.remove(this._iconElement);
+      }
+      this._iconElement = null;
+
       if (value != null) {
         this.addState("hasIcon");
-        const icon = this.getChildControl("icon");
+
+        let nextIconEl = null;
         if (value instanceof ville.ui.core.Widget) {
-          if (old instanceof ville.ui.core.Widget && old !== value) {
-            const contentEl = this.getContentElement();
-            const children = contentEl.getChildren();
-            const idx = children ? children.indexOf(old.getContentElement()) : -1;
-            this._remove(old);
-            if (idx !== -1) {
-              this._addAt(value, idx);
-            } else {
-              this._add(value);
-            }
+          value.setAnonymous(true);
+          nextIconEl = value.getContentElement();
+        } else {
+          nextIconEl = ville.ui.icon.Default.createElement(value, {
+            size: this.getIconSize()
+          });
+        }
+
+        if (nextIconEl) {
+          this._iconElement = nextIconEl;
+          if (this._isIconRight()) {
+            const textIdx =
+              this._textNode && this._textNode.getParent() === contentEl
+                ? contentEl.indexOf(this._textNode)
+                : -1;
+            contentEl.addAt(nextIconEl, textIdx !== -1 ? textIdx + 1 : 0);
+          } else {
+            contentEl.addAt(nextIconEl, 0);
           }
-        } else if (typeof icon.setSource === "function") {
-          icon.setSource(value);
         }
       } else {
         this.removeState("hasIcon");
-        const icon = this.getChildControl("icon", true);
-        if (icon && typeof icon.setSource === "function") {
-          icon.setSource(null);
+      }
+
+      this._syncShowVisibility();
+    },
+
+    /**
+     * Property apply handler for `iconSize`.
+     *
+     * @this {ville.ui.core.AbstractButton}
+     * @param {number|null} value Explicit pixel width/height for the icon.
+     * @protected
+     */
+    _applyIconSize(value) {
+      if (!this._iconElement) {
+        return;
+      }
+      if (value != null) {
+        const dim = `${value}px`;
+        if (this._iconElement.getNodeName() === "svg") {
+          this._iconElement.setAttribute("width", dim);
+          this._iconElement.setAttribute("height", dim);
+        } else {
+          this._iconElement.setStyles({ width: dim, height: dim });
+        }
+      } else {
+        if (this._iconElement.getNodeName() === "svg") {
+          this._iconElement.setAttribute("width", "1em");
+          this._iconElement.setAttribute("height", "1em");
+        } else {
+          this._iconElement.removeStyle("width");
+          this._iconElement.removeStyle("height");
         }
       }
-      this._syncShowVisibility();
     },
 
     /**
@@ -309,7 +314,7 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     },
 
     /**
-     * Synchronizes visibility of the `"label"` text node and `"icon"` child control
+     * Synchronizes visibility of the `"label"` text node and `"icon"` element
      * based on the `show` property.
      *
      * @this {ville.ui.core.AbstractButton}
@@ -318,17 +323,21 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     _syncShowVisibility() {
       const show = this.getShow();
       const hasLabel = this.getLabel() != null;
-      const hasIcon = this.getIcon() != null;
+      const hasIcon = this._iconElement != null;
 
       if (this._textNode) {
         const labelVisible = hasLabel && (show === "both" || show === "label");
-        this._textNode.setText(labelVisible ? (this.getLabel() || "") : "");
+        this._textNode.setText(labelVisible ? this.getLabel() || "" : "");
       }
 
-      const icon = this.getChildControl("icon", true);
-      if (icon) {
+      if (this._iconElement) {
         const iconVisible = hasIcon && (show === "both" || show === "icon");
-        icon.setVisibility(iconVisible ? "visible" : "excluded");
+        if (iconVisible) {
+          this._iconElement.include();
+          this._iconElement.setVisible(true);
+        } else {
+          this._iconElement.exclude();
+        }
       }
     },
 
@@ -376,6 +385,10 @@ qx.Class.define("ville.ui.core.AbstractButton", {
     if (this._textNode) {
       this._textNode.dispose();
       this._textNode = null;
+    }
+    if (this._iconElement) {
+      this._iconElement.dispose();
+      this._iconElement = null;
     }
   }
 });

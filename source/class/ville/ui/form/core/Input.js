@@ -3,25 +3,35 @@
  *
  * Wraps `ville.html.Input` to render a single semantic `<input type="...">`,
  * `<textarea>`, or `<select>` element with native Constraint Validation,
+ * provider-independent modifier states (`variant-*`, `size-*`, `radius-*`, `invalid`),
  * `qx.data` `changeValue` binding support, and bubbling `CustomEvent` dispatch.
  */
 qx.Class.define("ville.ui.form.core.Input", {
   extend: ville.ui.core.Widget,
+  implement: [ville.ui.form.IField],
 
   /**
    * Creates a new form input widget.
    *
    * @param {string} [type="text"] Any of the 22 HTML `<input>` types, `"textarea"`, or `"select"`.
    * @param {string|number|string[]|null} [value] Optional initial value.
+   * @param {string|null} [placeholder] Optional placeholder text.
    */
-  construct(type = "text", value) {
+  construct(type = "text", value, placeholder) {
     this.__initialType = type;
 
     // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
     super();
 
+    this.initVariant();
+    this.initSize();
+
     if (type !== "text") {
       this.setType(type);
+    }
+
+    if (placeholder != null) {
+      this.setPlaceholder(placeholder);
     }
 
     if (value !== undefined) {
@@ -52,6 +62,40 @@ qx.Class.define("ville.ui.form.core.Input", {
       init: "text",
       apply: "_applyType",
       event: "changeType"
+    },
+
+    /**
+     * Visual input variant (`"default"`, `"filled"`, or `"unstyled"`).
+     */
+    variant: {
+      init: "default",
+      check: ["default", "filled", "unstyled"],
+      apply: "_applyVariant",
+      themeable: true,
+      event: "changeVariant"
+    },
+
+    /**
+     * Input height and typography size scale (`"xs"`–`"xl"`).
+     */
+    size: {
+      init: "sm",
+      check: ["xs", "sm", "md", "lg", "xl"],
+      nullable: true,
+      themeable: true,
+      apply: "_applySize",
+      event: "changeSize"
+    },
+
+    /**
+     * Border radius scale (`"xs"`–`"xl"`).
+     */
+    radius: {
+      check: ["xs", "sm", "md", "lg", "xl"],
+      nullable: true,
+      themeable: true,
+      apply: "_applyRadius",
+      event: "changeRadius"
     },
 
     /**
@@ -216,6 +260,33 @@ qx.Class.define("ville.ui.form.core.Input", {
     },
 
     /**
+     * @param {"default"|"filled"|"unstyled"|null} value New variant.
+     * @param {"default"|"filled"|"unstyled"|null} old Previous variant.
+     * @protected
+     */
+    _applyVariant(value, old) {
+      this._syncModifierState("variant", value, old);
+    },
+
+    /**
+     * @param {"xs"|"sm"|"md"|"lg"|"xl"|null} value New size token.
+     * @param {"xs"|"sm"|"md"|"lg"|"xl"|null} old Previous size token.
+     * @protected
+     */
+    _applySize(value, old) {
+      this._syncModifierState("size", value, old);
+    },
+
+    /**
+     * @param {"xs"|"sm"|"md"|"lg"|"xl"|null} value New radius token.
+     * @param {"xs"|"sm"|"md"|"lg"|"xl"|null} old Previous radius token.
+     * @protected
+     */
+    _applyRadius(value, old) {
+      this._syncModifierState("radius", value, old);
+    },
+
+    /**
      * @param {string|number|string[]|null} value New value.
      * @protected
      */
@@ -279,7 +350,7 @@ qx.Class.define("ville.ui.form.core.Input", {
      * Syncs live keystroke/input mutations to `value` (firing `changeValue` for
      * `qx.data` bindings) and emits a bubbling `"ville:input"` `CustomEvent`.
      *
-     * @param {qx.event.type.Native} e Native `input` event wrapper.
+     * @param {Object} e Native `input` event wrapper.
      * @protected
      */
     _onNativeInput(e) {
@@ -306,7 +377,7 @@ qx.Class.define("ville.ui.form.core.Input", {
      * `<select>`, `date`, `color`, `file`, `checkbox`, `radio`) and emits a
      * bubbling `"ville:change"` `CustomEvent`.
      *
-     * @param {qx.event.type.Native} e Native `change` event wrapper.
+     * @param {Object} e Native `change` event wrapper.
      * @protected
      */
     _onNativeChange(e) {

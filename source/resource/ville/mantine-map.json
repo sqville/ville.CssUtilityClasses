@@ -17,7 +17,10 @@
     "InlineInput.css",
     "Flex.css",
     "FloatingIndicator.css",
-    "ActionIcon.css"
+    "ActionIcon.css",
+    "Text.css",
+    "Anchor.css",
+    "Fieldset.css"
   ],
   "map": {
     "ville.ui.application.Standalone": ["baseline.css", "default-css-variables.css", "global.css", "AppShell.css"],
@@ -33,13 +36,14 @@
     "ville.ui.core.Divider": ["Divider.css"],
     "ville.ui.core.InnerWrapper": ["InlineInput.css"],
     "ville.ui.form.ActionIcon": ["ActionIcon.css"],
-    "ville.ui.form.Anchor": ["Anchor.css"],
+    "ville.ui.navigation.Anchor": ["Text.css", "Anchor.css"],
     "ville.ui.form.CheckBox": ["Checkbox.css"],
     "ville.ui.form.ComboBox": ["Input.css", "Combobox.css"],
     "ville.ui.form.DateField": ["Input.css", "Combobox.css"],
-    "ville.ui.form.FieldSet": ["FieldSet.css"],
-    "ville.ui.form.NavLink": ["UnstyledButton.css", "NavLink.css"],
-    "ville.ui.form.PasswordField": ["PasswordInput.css"],
+    "ville.ui.form.FieldSet": ["Fieldset.css"],
+    "ville.ui.form.Label": ["Input.css"],
+    "ville.ui.navigation.NavLink": ["UnstyledButton.css", "NavLink.css"],
+    "ville.ui.form.PasswordField": ["Input.css", "PasswordInput.css"],
     "ville.ui.form.PasswordWrapper": ["PasswordInput.css"],
     "ville.ui.form.RadioButton": ["Radio.css"],
     "ville.ui.form.RepeatButton": ["UnstyledButton.css"],
@@ -47,6 +51,7 @@
     "ville.ui.form.Spinner": ["Input.css", "NumberInput.css"],
     "ville.ui.form.SplitButton": ["Group.css"],
     "ville.ui.form.TextField": ["Input.css"],
+    "ville.ui.form.core.Input": ["Input.css"],
     "ville.ui.form.TextFieldWrapper": ["Input.css"],
     "ville.ui.form.TextInput": ["Input.css"],
     "ville.ui.form.ToggleActionIcon": ["UnstyledButton.css", "ActionIcon.css"],
@@ -61,12 +66,15 @@
     "ville.ui.overlay.Affix": ["Affix.css"],
     "ville.ui.overlay.FloatingIndicator": ["FloatingIndicator.css"],
     "ville.ui.overlay.Overlay": ["Overlay.css"],
+    "ville.ui.overlay.Modal": ["Modal.css"],
+    "ville.ui.overlay.Popup": ["Popover.css"],
+    "ville.ui.overlay.ToolTip": ["Tooltip.css"],
+    "ville.ui.overlay.Window": ["FloatingWindow.css"],
     "ville.ui.tabview.TabView": ["Tabs.css"],
     "ville.ui.tree.Tree": ["Tree.css"],
     "ville.ui.tree.TreeFile": ["Tree.css"],
     "ville.ui.tree.TreeFolder": ["Tree.css"],
     "ville.ui.typography.Text": ["Text.css"],
-    "ville.ui.typography.Title": ["Title.css"],
-    "ville.ui.window.Modal": ["Modal.css"]
+    "ville.ui.typography.Title": ["Title.css"]
   }
 }

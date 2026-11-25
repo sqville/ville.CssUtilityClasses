@@ -2,8 +2,10 @@
  * Mode 3 Menu Item Button (`ville.ui.menu.Button`) rendered as `<button role="menuitem">`
  * inside a `ville.ui.menu.Menu` popover.
  *
- * @childControl shortcut {ville.ui.basic.Label} Displays the bound command shortcut text.
- * @childControl arrow {ville.ui.basic.Image|ville.ui.core.Widget} Submenu indicator icon on the right.
+ * Uses native `ville.html.Element` for its submenu right-arrow indicator (defaulting to
+ * `ville.ui.icon.Default.GLYPHS.CHEVRON_RIGHT` via sprite deduplication) and a lightweight
+ * `<span class="ville-menu-item-shortcut">` element for keyboard shortcuts—eliminating
+ * child `Widget` instance overhead per menu item.
  */
 qx.Class.define("ville.ui.menu.Button", {
   extend: ville.ui.core.AbstractButton,
@@ -12,10 +14,10 @@ qx.Class.define("ville.ui.menu.Button", {
    * Creates a new Menu Button instance.
    *
    * @param {string|null} [label] Menu item text caption.
-   * @param {string|ville.ui.core.Widget|null} [icon] Left icon URI string or widget.
+   * @param {string|Object|ville.html.Element|ville.ui.core.Widget|null} [icon] Left icon key, Iconify CSS class, URI, or element.
    * @param {ville.ui.command.Command|null} [command] Command instance bound via `ville.ui.core.MExecutable`.
    * @param {ville.ui.menu.Menu|null} [menu] Optional submenu popover.
-   * @param {string|ville.ui.core.Widget|null} [arrow] Optional right arrow icon for submenus.
+   * @param {string|Object|ville.html.Element|null} [arrow="CHEVRON_RIGHT"] Optional right arrow icon for submenus.
    */
   construct(label, icon, command, menu, arrow) {
     // @ts-ignore - @qooxdoo/compiler transforms super() inside qx.Class.define
@@ -58,16 +60,15 @@ qx.Class.define("ville.ui.menu.Button", {
 
     /**
      * Arrow icon displayed on the far right when a submenu is attached.
+     * Defaults to `"CHEVRON_RIGHT"` from `ville.ui.icon.Default`.
      *
-     * @type {string|ville.ui.core.Widget|null}
+     * @type {string|Object|ville.html.Element|null}
      */
     arrow: {
-      check(value) {
-        return typeof value === "string" || value instanceof ville.ui.core.Widget;
-      },
-      apply: "_applyArrow",
+      init: "CHEVRON_RIGHT",
       nullable: true,
-      themeable: true
+      themeable: true,
+      apply: "_applyArrow"
     },
 
     /**
@@ -87,53 +88,20 @@ qx.Class.define("ville.ui.menu.Button", {
     __changeLocaleCommandListenerId: null,
 
     /**
-     * @override
-     * @type {Record<string, boolean>}
-     * @protected
-     * @lint ignoreReferenceField(_forwardStates)
+     * Native `<span class="ville-menu-item-shortcut">` element for command shortcut display.
+     *
+     * @type {ville.html.Element|null}
+     * @private
      */
-    _forwardStates: {
-      disabled: true
-    },
+    __shortcutElement: null,
 
     /**
-     * Instantiates `"shortcut"` and `"arrow"` child controls in addition to
-     * `AbstractButton`'s `"label"` and `"icon"`.
+     * Native `<svg class="ville-menu-item-arrow">` element for submenu arrow indicator.
      *
-     * @this {ville.ui.menu.Button}
-     * @param {string} id Child control identifier.
-     * @param {Record<string, any>} [hash] Optional configuration map.
-     * @returns {ville.ui.core.Widget|null} Created child control.
-     * @protected
+     * @type {ville.html.Element|null}
+     * @private
      */
-    _createChildControlImpl(id, hash) {
-      let control = null;
-
-      switch (id) {
-        case "shortcut":
-          control = new ville.ui.basic.Label();
-          control.setAnonymous(true);
-          if (!this.getShowCommandLabel()) {
-            control.exclude();
-          }
-          this._add(control);
-          break;
-
-        case "arrow": {
-          const arrowVal = this.getArrow();
-          if (arrowVal instanceof ville.ui.core.Widget) {
-            control = arrowVal;
-          } else {
-            control = new ville.ui.basic.Image(arrowVal);
-          }
-          control.setAnonymous(true);
-          this._add(control);
-          break;
-        }
-      }
-
-      return control || super._createChildControlImpl(id, hash);
-    },
+    __arrowElement: null,
 
     /*
     ---------------------------------------------------------------------------
@@ -145,21 +113,41 @@ qx.Class.define("ville.ui.menu.Button", {
      * Property apply handler for `arrow`.
      *
      * @this {ville.ui.menu.Button}
-     * @param {string|ville.ui.core.Widget|null} value Arrow icon widget or URI.
-     * @param {string|ville.ui.core.Widget|null} old Previous arrow icon.
+     * @param {string|Object|ville.html.Element|null} value Arrow icon key, token, or element.
      * @protected
      */
-    _applyArrow(value, old) {
-      if (value != null) {
-        const arrowCtrl = this.getChildControl("arrow");
-        if (value instanceof ville.ui.core.Widget) {
-          if (old instanceof ville.ui.core.Widget && old !== value) {
-            this._remove(old);
-            this._add(value);
-          }
-        } else if (typeof arrowCtrl.setSource === "function") {
-          arrowCtrl.setSource(value);
-        }
+    _applyArrow(value) {
+      const contentEl = this.getContentElement();
+      if (this.__arrowElement && this.__arrowElement.getParent() === contentEl) {
+        contentEl.remove(this.__arrowElement);
+      }
+      this.__arrowElement = null;
+
+      if (value != null && this.getMenu() != null) {
+        this.__ensureArrowElement();
+      }
+    },
+
+    /**
+     * Ensures the native submenu arrow element is created and attached at the end of `<button>`.
+     *
+     * @this {ville.ui.menu.Button}
+     * @private
+     */
+    __ensureArrowElement() {
+      const arrowSpec = this.getArrow();
+      if (!arrowSpec) {
+        return;
+      }
+      const contentEl = this.getContentElement();
+      if (!this.__arrowElement) {
+        this.__arrowElement = ville.ui.icon.Default.createElement(arrowSpec, {
+          cssClass: "ville-menu-item-arrow",
+          useSprite: true
+        });
+      }
+      if (this.__arrowElement && this.__arrowElement.getParent() !== contentEl) {
+        contentEl.add(this.__arrowElement);
       }
     },
 
@@ -182,9 +170,7 @@ qx.Class.define("ville.ui.menu.Button", {
       const contentEl = this.getContentElement();
 
       if (value) {
-        if (this.getArrow() != null) {
-          this._showChildControl("arrow");
-        }
+        this.__ensureArrowElement();
         value.addState("submenu");
         value.setOpener(this);
         value.addListener("changeOpen", this._onMenuOpenChange, this);
@@ -195,7 +181,9 @@ qx.Class.define("ville.ui.menu.Button", {
         contentEl.setAttribute("aria-controls", menuId);
         contentEl.setAttribute("aria-expanded", String(value.getOpen()));
       } else {
-        this._excludeChildControl("arrow");
+        if (this.__arrowElement && this.__arrowElement.getParent() === contentEl) {
+          contentEl.remove(this.__arrowElement);
+        }
         contentEl.removeAttribute("popovertarget");
         contentEl.removeAttribute("aria-haspopup");
         contentEl.removeAttribute("aria-controls");
@@ -223,10 +211,13 @@ qx.Class.define("ville.ui.menu.Button", {
      * @protected
      */
     _applyShowCommandLabel(value) {
+      if (!this.__shortcutElement) {
+        return;
+      }
       if (value && this.getCommand() != null) {
-        this._showChildControl("shortcut");
+        this.__shortcutElement.include();
       } else {
-        this._excludeChildControl("shortcut");
+        this.__shortcutElement.exclude();
       }
     },
 
@@ -236,7 +227,7 @@ qx.Class.define("ville.ui.menu.Button", {
      *
      * @override
      * @this {ville.ui.menu.Button}
-     * @param {qx.event.type.Native} e Native click event wrapper.
+     * @param {Object} e Native click event wrapper.
      * @protected
      */
     _onClick(e) {
@@ -261,7 +252,8 @@ qx.Class.define("ville.ui.menu.Button", {
     },
 
     /**
-     * Updates the `"shortcut"` child control whenever `command` changes.
+     * Updates the native shortcut `<span class="ville-menu-item-shortcut">` element
+     * whenever `command` changes.
      *
      * @this {ville.ui.menu.Button}
      * @param {qx.event.type.Data} e Property change event.
@@ -287,18 +279,30 @@ qx.Class.define("ville.ui.menu.Button", {
         }
       }
 
+      const contentEl = this.getContentElement();
+
       if (command == null) {
-        this._excludeChildControl("shortcut");
+        if (this.__shortcutElement) {
+          this.__shortcutElement.exclude();
+        }
         return;
       }
 
       const cmdString = command.toString();
-      const shortcut = this.getChildControl("shortcut");
-      shortcut.setValue(cmdString);
+      if (!this.__shortcutElement) {
+        this.__shortcutElement = new ville.html.Element("span");
+        this.__shortcutElement.setAttribute("class", "ville-menu-item-shortcut");
+        contentEl.add(this.__shortcutElement);
+      }
+      this.__shortcutElement.removeAll();
+      if (cmdString) {
+        this.__shortcutElement.add(new ville.html.Text(cmdString));
+      }
+
       if (this.getShowCommandLabel() && cmdString) {
-        shortcut.show();
+        this.__shortcutElement.include();
       } else {
-        shortcut.exclude();
+        this.__shortcutElement.exclude();
       }
     },
 
@@ -308,8 +312,9 @@ qx.Class.define("ville.ui.menu.Button", {
     _onChangeLocale: qx.core.Environment.select("qx.dynlocale", {
       true() {
         const command = this.getCommand();
-        if (command != null) {
-          this.getChildControl("shortcut").setValue(command.toString());
+        if (command != null && this.__shortcutElement) {
+          this.__shortcutElement.removeAll();
+          this.__shortcutElement.add(new ville.html.Text(command.toString()));
         }
       },
       false: null
@@ -325,6 +330,14 @@ qx.Class.define("ville.ui.menu.Button", {
         this.__changeLocaleCommandListenerId
       );
       this.__changeLocaleCommandListenerId = null;
+    }
+    if (this.__shortcutElement) {
+      this.__shortcutElement.dispose();
+      this.__shortcutElement = null;
+    }
+    if (this.__arrowElement) {
+      this.__arrowElement.dispose();
+      this.__arrowElement = null;
     }
   }
 });
