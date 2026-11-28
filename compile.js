@@ -62,26 +62,41 @@ qx.Class.define("ville.compiler.CompilerApi", {
       }
 
       const skipBrowserify = realCommonjsModules.size === 0 && !hasLocalModules;
-      const bootPkg = appMeta.getPackages()[0];
+      const packages = appMeta.getPackages();
+      const bootPkg = packages[0];
       if (!bootPkg) {
         return;
       }
 
       const isPathB = this._isPathBApplication(app, appMeta);
 
-      // 1. Strip PolyfillJs, empty Browserify, and (for Path B apps) all 88 @qooxdoo/framework qx.* files
+      // 1. Strip PolyfillJs, empty Browserify, and (for Path B apps) all @qooxdoo/framework qx.* files
+      //    across ALL packages (boot package-0 AND lazy-loaded Part packages package-1..N)
       let removedQxCount = 0;
-      const jsMetas = bootPkg.getJavascriptMetas().slice();
-      for (const meta of jsMetas) {
-        if (skipBrowserify && meta instanceof qx.tool.compiler.targets.meta.Browserify) {
-          bootPkg.removeJavascriptMeta(meta);
-        } else if (meta instanceof qx.tool.compiler.targets.meta.PolyfillJs) {
-          bootPkg.removeJavascriptMeta(meta);
-        } else if (isPathB && meta instanceof qx.tool.compiler.targets.meta.Javascript) {
-          const fileNorm = String(meta.getFilename() || "").replace(/\\/g, "/");
-          if (fileNorm.includes("/transpiled/qx/") || fileNorm.startsWith("transpiled/qx/")) {
-            bootPkg.removeJavascriptMeta(meta);
-            removedQxCount++;
+      for (const pkg of packages) {
+        const jsMetas = pkg.getJavascriptMetas().slice();
+        for (const meta of jsMetas) {
+          if (skipBrowserify && meta instanceof qx.tool.compiler.targets.meta.Browserify) {
+            pkg.removeJavascriptMeta(meta);
+          } else if (meta instanceof qx.tool.compiler.targets.meta.PolyfillJs) {
+            pkg.removeJavascriptMeta(meta);
+          } else if (isPathB && meta instanceof qx.tool.compiler.targets.meta.Javascript) {
+            const fileNorm = String(meta.getFilename() || "").replace(/\\/g, "/");
+            if (fileNorm.includes("/transpiled/qx/") || fileNorm.startsWith("transpiled/qx/")) {
+              pkg.removeJavascriptMeta(meta);
+              removedQxCount++;
+            }
+          }
+        }
+
+        if (isPathB) {
+          const pkgClassnames = pkg.getClassnames();
+          if (Array.isArray(pkgClassnames)) {
+            for (let i = pkgClassnames.length - 1; i >= 0; i--) {
+              if (pkgClassnames[i].startsWith("qx.")) {
+                pkgClassnames.splice(i, 1);
+              }
+            }
           }
         }
       }
@@ -111,30 +126,26 @@ qx.Class.define("ville.compiler.CompilerApi", {
         );
         bootPkg.getJavascriptMetas().unshift(kernelMeta);
 
-        // Clean `qx.*` classnames from bootPkg's class list and prepend `ville.core.Kernel`
-        const classnames = bootPkg.getClassnames();
-        if (Array.isArray(classnames)) {
-          for (let i = classnames.length - 1; i >= 0; i--) {
-            if (classnames[i].startsWith("qx.")) {
-              classnames.splice(i, 1);
-            }
-          }
-          classnames.unshift("ville.core.Kernel");
+        const bootClassnames = bootPkg.getClassnames();
+        if (Array.isArray(bootClassnames)) {
+          bootClassnames.unshift("ville.core.Kernel");
         }
       }
 
-      // 3. Strip 18 KB CLDR locale data from package-0.js when qx.dynlocale is false (native Intl used instead)
+      // 3. Strip 18 KB CLDR locale data across all packages when qx.dynlocale is false (native Intl used instead)
       if (appMeta.getEnvironmentValue("qx.dynlocale") === false) {
-        const locales = bootPkg.getLocales();
-        if (locales && typeof locales === "object") {
-          for (const k of Object.keys(locales)) {
-            delete locales[k];
+        for (const pkg of packages) {
+          const locales = pkg.getLocales();
+          if (locales && typeof locales === "object") {
+            for (const k of Object.keys(locales)) {
+              delete locales[k];
+            }
           }
-        }
-        const translations = bootPkg.getTranslations();
-        if (translations && typeof translations === "object") {
-          for (const k of Object.keys(translations)) {
-            delete translations[k];
+          const translations = pkg.getTranslations();
+          if (translations && typeof translations === "object") {
+            for (const k of Object.keys(translations)) {
+              delete translations[k];
+            }
           }
         }
       }
@@ -148,7 +159,7 @@ qx.Class.define("ville.compiler.CompilerApi", {
       }
 
       qx.tool.compiler.Console.info(
-        `[${app.getName()}] Path B Kernel active: replaced ${removedQxCount} @qooxdoo/framework qx.* files with ville/core/Kernel.js (0 qx.* files in bundle).`
+        `[${app.getName()}] Path B Kernel active: replaced ${removedQxCount} @qooxdoo/framework qx.* files across ${packages.length} package(s) with ville/core/Kernel.js (0 qx.* files in bundle).`
       );
     },
 
@@ -167,45 +178,55 @@ qx.Class.define("ville.compiler.CompilerApi", {
       const targetType = target.getType ? target.getType() : "source";
       const outputDir = target.getOutputDir();
       const cssEngine = appMeta.getEnvironmentValue("ville.cssEngine") || "mantine";
-      const bootPkg = appMeta.getPackages()[0];
-      const activeClasses = bootPkg
-        ? bootPkg
-            .getClassnames()
-            .filter((c) => c !== "ville.core.Kernel" && !c.startsWith("qx."))
-        : [];
+      const packages = appMeta.getPackages();
 
+      // Collect active classes and asset resources across all packages (boot + lazy parts)
+      const activeClasses = [];
+      const seenClasses = new Set();
       const resMap = {};
-      if (bootPkg && typeof bootPkg.getAssets === "function") {
-        for (const asset of bootPkg.getAssets()) {
-          const info = (typeof asset.getFileInfo === "function" && asset.getFileInfo()) || {};
-          const ext = path.extname(asset.getFilename()).replace(/^\./, "") || null;
-          const libNs =
-            typeof asset.getLibrary === "function" && asset.getLibrary()
-              ? asset.getLibrary().getNamespace()
-              : null;
-          resMap[asset.getFilename()] = [
-            info.width !== undefined ? info.width : null,
-            info.height !== undefined ? info.height : null,
-            info.format || ext,
-            libNs
-          ];
+
+      for (const pkg of packages) {
+        const pkgClasses = pkg.getClassnames ? pkg.getClassnames() : [];
+        for (const c of pkgClasses) {
+          if (c !== "ville.core.Kernel" && !c.startsWith("qx.") && !seenClasses.has(c)) {
+            seenClasses.add(c);
+            activeClasses.push(c);
+          }
+        }
+
+        if (typeof pkg.getAssets === "function") {
+          for (const asset of pkg.getAssets()) {
+            const info =
+              (typeof asset.getFileInfo === "function" && asset.getFileInfo()) || {};
+            const ext = path.extname(asset.getFilename()).replace(/^\./, "") || null;
+            const libNs =
+              typeof asset.getLibrary === "function" && asset.getLibrary()
+                ? asset.getLibrary().getNamespace()
+                : null;
+            resMap[asset.getFilename()] = [
+              info.width !== undefined ? info.width : null,
+              info.height !== undefined ? info.height : null,
+              info.format || ext,
+              libNs
+            ];
+          }
         }
       }
 
+      const env = appMeta.getEnvironment();
       const result = bundleVilleApp({
         appName,
         target: targetType,
         outputDir,
         cssEngine,
         activeClasses,
-        environment: appMeta.getEnvironment(),
+        environment: env,
         resources: resMap
       });
 
       qx.tool.compiler.Console.info(
-        `[${appName}] Bundled 3-Layer CSS (${result.includedCssSlices.length} slices -> ${path.relative(
-          process.cwd(),
-          result.cssBundlePath
+        `[${appName}] Bundled 3-Layer CSS (${result.includedCssSlices.length} slices, prune=${result.pruneCss}, allThemes=${result.bundleAllThemes} -> ${result.emittedThemeBundles.join(
+          ", "
         )}) & single-file JS bundle (${result.activeClassCount} classes).`
       );
     }

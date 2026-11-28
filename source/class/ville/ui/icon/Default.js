@@ -431,6 +431,27 @@ qx.Class.define("ville.ui.icon.Default", {
       }
 
       return null;
+    },
+
+    /**
+     * Materializes a live browser DOM `Element` (`<svg>`, `<span>`, or `<img>`)
+     * directly for high-density `<template>` row cloning in `MDataView` (`SelectBox`,
+     * `ComboBox`, `List`, `Tree`, `Table`), defaulting to `useSprite: true` for built-in glyphs.
+     *
+     * @param {string|Object|ville.html.Element} iconSpec Icon key, Iconify class, raw `<svg>`, or image URI.
+     * @param {{ size?: number|string, cssClass?: string, useSprite?: boolean }} [options] Optional rendering config.
+     * @returns {Element|null} Live DOM element ready to append to a `<template>` clone or `DocumentFragment`.
+     */
+    createDomElement(iconSpec, options) {
+      const opts = Object.assign({ useSprite: true }, options || {});
+      const vdom = ville.ui.icon.Default.createElement(iconSpec, opts);
+      if (!vdom) {
+        return null;
+      }
+      if (!vdom.getDomElement()) {
+        vdom.flush();
+      }
+      return /** @type {Element|null} */ (vdom.getDomElement());
     }
   }
 });

@@ -1,58 +1,20 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Andreas Ecker (ecker)
-     * Jonathan Weiß (jonathan_rass)
-
-************************************************************************ */
-
 /**
- * A part is a container for multiple toolbar buttons. Each part comes
- * with a handle which may be used in later versions to drag the part
- * around and move it to another position. Currently mainly used
- * for structuring large toolbars beyond the capabilities of the
- * {@link Separator}.
+ * A part is a logical subdivision of a toolbar that groups logically related buttons.
  *
- * @childControl handle {qx.ui.basic.Image} prat handle to visualize the separation
- * @childControl container {qx.ui.toolbar.PartContainer} holds the content of the toolbar part
+ * @childControl handle {ville.ui.core.Widget} Visual handle indicator of the toolbar part
+ * @childControl container {ville.ui.toolbar.PartContainer} Holds the part's buttons
  */
 qx.Class.define("ville.ui.toolbar.Part", {
-  extend: qx.ui.core.Widget,
-  include: [qx.ui.core.MRemoteChildrenHandling],
-
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+  extend: ville.ui.core.Box,
+  include: [ville.ui.core.MRemoteChildrenHandling],
 
   construct() {
-    super();
+    super(new ville.ui.layout.HBox());
+    this.setAlignY("middle");
 
-    // Hard coded HBox layout
-    this._setLayout(new qx.ui.layout.HBox());
-
-    // Force creation of the handle
     this._createChildControl("handle");
+    this._createChildControl("container");
   },
-
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
 
   properties: {
     appearance: {
@@ -60,142 +22,80 @@ qx.Class.define("ville.ui.toolbar.Part", {
       init: "toolbar/part"
     },
 
-    /** Whether icons, labels, both or none should be shown. */
+    /** Spacing between every child of the toolbar part */
+    spacing: {
+      nullable: true,
+      check: "Integer",
+      init: 4,
+      themeable: true,
+      apply: "_applySpacing"
+    },
+
     show: {
       init: "both",
       check: ["both", "label", "icon"],
       inheritable: true,
+      apply: "_applyShow",
       event: "changeShow"
-    },
-
-    /** The spacing between every child of the toolbar */
-    spacing: {
-      nullable: true,
-      check: "Integer",
-      themeable: true,
-      apply: "_applySpacing"
     }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
-    /*
-    ---------------------------------------------------------------------------
-      WIDGET API
-    ---------------------------------------------------------------------------
-    */
+    getChildrenContainer() {
+      return this.getChildControl("container");
+    },
 
-    // overridden
-    _createChildControlImpl(id, hash) {
-      var control;
+    _createChildControlImpl(id) {
+      let control;
 
       switch (id) {
         case "handle":
-          control = new qx.ui.basic.Image();
+          control = new ville.ui.core.Widget();
           control.setAlignY("middle");
           this._add(control);
           break;
 
         case "container":
-          control = new qx.ui.toolbar.PartContainer();
-          control.addListener("syncAppearance", this.__onSyncAppearance, this);
+          control = new ville.ui.toolbar.PartContainer();
           this._add(control);
-          control.addListener("changeChildren", () => {
-            this.__onSyncAppearance();
-          });
-
           break;
       }
 
       return control || super._createChildControlImpl(id);
     },
 
-    // overridden
-    getChildrenContainer() {
-      return this.getChildControl("container");
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      PROPERTY APPLY ROUTINES
-    ---------------------------------------------------------------------------
-    */
-
-    _applySpacing(value, old) {
-      var layout = this.getChildControl("container").getLayout();
-      value == null ? layout.resetSpacing() : layout.setSpacing(value);
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      UTILITIES
-    ---------------------------------------------------------------------------
-    */
-    /**
-     * Helper which applies the left, right and middle states.
-     */
-    __onSyncAppearance() {
-      // check every child
-      var children = this.getChildrenContainer().getChildren();
-      children = children.filter(function (child) {
-        return child.getVisibility() == "visible";
-      });
-      for (var i = 0; i < children.length; i++) {
-        // if its the first child
-        if (i == 0 && i != children.length - 1) {
-          children[i].addState("left");
-          children[i].removeState("right");
-          children[i].removeState("middle");
-          // if its the last child
-        } else if (i == children.length - 1 && i != 0) {
-          children[i].addState("right");
-          children[i].removeState("left");
-          children[i].removeState("middle");
-          // if there is only one child
-        } else if (i == 0 && i == children.length - 1) {
-          children[i].removeState("left");
-          children[i].removeState("middle");
-          children[i].removeState("right");
-        } else {
-          children[i].addState("middle");
-          children[i].removeState("right");
-          children[i].removeState("left");
-        }
+    _applySpacing(value) {
+      const layout = this.getChildControl("container").getLayout();
+      if (layout && typeof layout.setSpacing === "function") {
+        layout.setSpacing(value == null ? 0 : value);
       }
+    },
+
+    _applyShow(value) {
+      this.getChildControl("container").setShow(value);
     },
 
     /**
      * Adds a separator to the toolbar part.
      */
     addSeparator() {
-      this.add(new qx.ui.toolbar.Separator());
+      this.add(new ville.ui.toolbar.Separator());
     },
 
     /**
-     * Returns all nested buttons which contains a menu to show. This is mainly
-     * used for keyboard support.
+     * Returns all nested menu buttons in this part.
      *
-     * @return {Array} List of all menu buttons
+     * @return {ville.ui.form.MenuButton[]}
      */
     getMenuButtons() {
-      var children = this.getChildren();
-      var buttons = [];
-      var child;
-
-      for (var i = 0, l = children.length; i < l; i++) {
-        child = children[i];
-
-        if (child instanceof qx.ui.menubar.Button) {
-          buttons.push(child);
+      const children = this.getChildren();
+      const menuButtons = [];
+      for (let i = 0; i < children.length; i++) {
+        if (children[i] instanceof ville.ui.form.MenuButton) {
+          menuButtons.push(children[i]);
         }
       }
-
-      return buttons;
+      return menuButtons;
     }
   }
 });

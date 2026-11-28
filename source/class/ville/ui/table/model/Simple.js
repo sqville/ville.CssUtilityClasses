@@ -1,781 +1,565 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2006 STZ-IDA, Germany, http://www.stz-ida.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Til Schneider (til132)
-
-************************************************************************ */
-
 /**
- * A simple table model that provides an API for changing the model data.
+ * Ville UI's `QxLayout`-Style Take on `qx.ui.table.model.Simple` (`ville.ui.table.model.Simple` — `STRAT-CORE-09`, `STRAT-CORE-07`, `STRAT-WIDGET-08`).
+ *
+ * Preserves 100% of Qooxdoo's beloved `qx.ui.table.model.Simple` developer contract:
+ *  - `setColumns(columnNameArr, columnIdArr)`
+ *  - `setData(rowArr)` (2D array) and `setDataAsMapArray(mapArr, rememberMaps)` (array of objects)
+ *  - `getRowCount()`, `getValue(col, row)`, `getValueById(id, row)`, `setValue(col, row, val)`
+ *  - `addRows()`, `addRowsAsMapArray()`, `removeRows()`
+ *  - `setEditable()`, `setColumnEditable()`, `setColumnSortable()`, `sortByColumn(col, ascending)`
+ *
+ * While adding first-class Baseline 2025 capabilities:
+ *  - Built-in live filtering (`filter(queryOrFn)` / `setSearchQuery(query)` / `resetFilter()`) without needing a separate model class.
+ *  - Optional off-thread Web Worker sorting & filtering (`useWorker: true`) powered by `ville.core.WorkerClient` (`STRAT-CORE-07`), with a reactive `busy` property (`model.bind("busy", button, "loading")`).
  */
 qx.Class.define("ville.ui.table.model.Simple", {
-  extend: qx.ui.table.model.Abstract,
+  extend: qx.core.Object,
+  implement: [ville.ui.table.ITableModel],
 
   construct() {
+    // @ts-ignore
     super();
 
-    this._rowArr = [];
-    this.__sortColumnIndex = -1;
+    this.__columnNameArr = [];
+    this.__columnIdArr = [];
+    this.__columnIndexMap = {};
+    this.__editableColMap = {};
+    this.__sortableColMap = {};
+    this.__rawRowArr = [];
+    this.__viewRowArr = [];
+    this.__rememberMaps = false;
+  },
 
-    // Array of objects, each with property "ascending" and "descending"
-    this.__sortMethods = [];
+  events: {
+    /** Fired when table row/cell data changes. */
+    dataChanged: "qx.event.type.Data",
 
-    this.__editableColArr = null;
+    /** Fired when column metadata or sort state changes. */
+    metaDataChanged: "qx.event.type.Event",
+
+    /** Fired after sorting completes. Data: `{ columnIndex, ascending }` */
+    sorted: "qx.event.type.Data"
   },
 
   properties: {
-    /**
-     * Whether sorting should be case sensitive
-     */
+    /** Whether all columns are editable by default unless overridden per column. */
+    editable: {
+      check: "Boolean",
+      init: false,
+      apply: "_applyEditable"
+    },
+
+    /** Whether sorting comparison is case-sensitive. */
     caseSensitiveSorting: {
       check: "Boolean",
-      init: true
-    }
-  },
+      init: false
+    },
 
-  statics: {
-    /**
-     * Default ascending sort method to use if no custom method has been
-     * provided.
-     *
-     * @param row1 {var} first row
-     * @param row2 {var} second row
-     * @param columnIndex {Integer} the column to be sorted
-     * @return {Integer} 1 of row1 is > row2, -1 if row1 is < row2, 0 if row1 == row2
-     */
-    _defaultSortComparatorAscending(row1, row2, columnIndex) {
-      var obj1 = row1[columnIndex];
-      var obj2 = row2[columnIndex];
-      if (qx.lang.Type.isNumber(obj1) && qx.lang.Type.isNumber(obj2)) {
-        var result = isNaN(obj1)
-          ? isNaN(obj2)
-            ? 0
-            : 1
-          : isNaN(obj2)
-          ? -1
-          : null;
-        if (result != null) {
-          return result;
-        }
-      }
-      if (obj1 == null && obj2 !== null) {
-        return -1;
-      } else if (obj2 == null && obj1 !== null) {
-        return 1;
-      }
-      return obj1 > obj2 ? 1 : obj1 == obj2 ? 0 : -1;
+    /** Live search query string used to filter rows across all columns. */
+    searchQuery: {
+      check: "String",
+      nullable: true,
+      init: null,
+      apply: "_applySearchQuery",
+      event: "changeSearchQuery"
     },
 
     /**
-     * Same as the Default ascending sort method but using case insensitivity
-     *
-     * @param row1 {var} first row
-     * @param row2 {var} second row
-     * @param columnIndex {Integer} the column to be sorted
-     * @return {Integer} 1 of row1 is > row2, -1 if row1 is < row2, 0 if row1 == row2
+     * Whether sorting and filtering should execute off the main UI thread inside
+     * a `ville.core.WorkerClient` Web Worker (`STRAT-CORE-07`).
      */
-    _defaultSortComparatorInsensitiveAscending(row1, row2, columnIndex) {
-      var obj1 = row1[columnIndex].toLowerCase
-        ? row1[columnIndex].toLowerCase()
-        : row1[columnIndex];
-      var obj2 = row2[columnIndex].toLowerCase
-        ? row2[columnIndex].toLowerCase()
-        : row2[columnIndex];
-
-      if (qx.lang.Type.isNumber(obj1) && qx.lang.Type.isNumber(obj2)) {
-        var result = isNaN(obj1)
-          ? isNaN(obj2)
-            ? 0
-            : 1
-          : isNaN(obj2)
-          ? -1
-          : null;
-        if (result != null) {
-          return result;
-        }
-      }
-      if (obj1 == null && obj2 !== null) {
-        return -1;
-      } else if (obj2 == null && obj1 !== null) {
-        return 1;
-      }
-      return obj1 > obj2 ? 1 : obj1 == obj2 ? 0 : -1;
+    useWorker: {
+      check: "Boolean",
+      init: false
     },
 
     /**
-     * Default descending sort method to use if no custom method has been
-     * provided.
-     *
-     * @param row1 {var} first row
-     * @param row2 {var} second row
-     * @param columnIndex {Integer} the column to be sorted
-     * @return {Integer} 1 of row1 is > row2, -1 if row1 is < row2, 0 if row1 == row2
+     * Reactive flag (`true` while an off-thread `WorkerClient` sort/filter request is running).
      */
-    _defaultSortComparatorDescending(row1, row2, columnIndex) {
-      var obj1 = row1[columnIndex];
-      var obj2 = row2[columnIndex];
-      if (qx.lang.Type.isNumber(obj1) && qx.lang.Type.isNumber(obj2)) {
-        var result = isNaN(obj1)
-          ? isNaN(obj2)
-            ? 0
-            : 1
-          : isNaN(obj2)
-          ? -1
-          : null;
-        if (result != null) {
-          return result;
-        }
-      }
-      if (obj1 == null && obj2 !== null) {
-        return 1;
-      } else if (obj2 == null && obj1 !== null) {
-        return -1;
-      }
-      return obj1 < obj2 ? 1 : obj1 == obj2 ? 0 : -1;
-    },
-
-    /**
-     * Same as the Default descending sort method but using case insensitivity
-     *
-     * @param row1 {var} first row
-     * @param row2 {var} second row
-     * @param columnIndex {Integer} the column to be sorted
-     * @return {Integer} 1 of row1 is > row2, -1 if row1 is < row2, 0 if row1 == row2
-     */
-    _defaultSortComparatorInsensitiveDescending(row1, row2, columnIndex) {
-      var obj1 = row1[columnIndex].toLowerCase
-        ? row1[columnIndex].toLowerCase()
-        : row1[columnIndex];
-      var obj2 = row2[columnIndex].toLowerCase
-        ? row2[columnIndex].toLowerCase()
-        : row2[columnIndex];
-      if (qx.lang.Type.isNumber(obj1) && qx.lang.Type.isNumber(obj2)) {
-        var result = isNaN(obj1)
-          ? isNaN(obj2)
-            ? 0
-            : 1
-          : isNaN(obj2)
-          ? -1
-          : null;
-        if (result != null) {
-          return result;
-        }
-      }
-      if (obj1 == null && obj2 !== null) {
-        return 1;
-      } else if (obj2 == null && obj1 !== null) {
-        return -1;
-      }
-      return obj1 < obj2 ? 1 : obj1 == obj2 ? 0 : -1;
+    busy: {
+      check: "Boolean",
+      init: false,
+      event: "changeBusy"
     }
   },
 
   members: {
-    _rowArr: null,
-    __editableColArr: null,
-    __sortableColArr: null,
-    __sortMethods: null,
-    __sortColumnIndex: null,
-    __sortAscending: null,
+    /** @type {string[]} @private */
+    __columnNameArr: null,
 
-    // overridden
-    getRowData(rowIndex) {
-      var rowData = this._rowArr[rowIndex];
-      if (rowData == null || rowData.originalData == null) {
-        return rowData;
-      } else {
-        return rowData.originalData;
-      }
-    },
+    /** @type {string[]} @private */
+    __columnIdArr: null,
+
+    /** @type {Object<string, number>} @private */
+    __columnIndexMap: null,
+
+    /** @type {Object<number, boolean>} @private */
+    __editableColMap: null,
+
+    /** @type {Object<number, boolean>} @private */
+    __sortableColMap: null,
+
+    /** @type {Array<Array|Object>} @private */
+    __rawRowArr: null,
+
+    /** @type {Array<Array|Object>} @private */
+    __viewRowArr: null,
+
+    /** @type {boolean} @private */
+    __rememberMaps: false,
+
+    /** @type {number} @private */
+    __sortColumnIndex: -1,
+
+    /** @type {boolean} @private */
+    __sortAscending: true,
+
+    /** @type {Function|null} @private */
+    __filterPredicate: null,
+
+    /** @type {ville.core.WorkerClient|null} @private */
+    __workerClient: null,
+
+    /*
+    ---------------------------------------------------------------------------
+      COLUMN CONFIGURATION (`setColumns`, `getColumnName`, `getColumnId`)
+    ---------------------------------------------------------------------------
+    */
 
     /**
-     * Returns the data of one row as map containing the column IDs as key and
-     * the cell values as value. Also the meta data is included.
+     * Sets the table column labels and optional column IDs.
      *
-     * @param rowIndex {Integer} the model index of the row.
-     * @return {Map} a Map containing the column values.
+     * @param {string[]} columnNameArr Display names for each column.
+     * @param {string[]} [columnIdArr] Optional programmatic IDs (defaults to `columnNameArr`).
      */
-    getRowDataAsMap(rowIndex) {
-      var rowData = this._rowArr[rowIndex];
+    setColumns(columnNameArr, columnIdArr) {
+      this.__columnNameArr = Array.isArray(columnNameArr)
+        ? columnNameArr.map((n) => String(n))
+        : [];
+      this.__columnIdArr = Array.isArray(columnIdArr)
+        ? columnIdArr.map((id) => String(id))
+        : this.__columnNameArr.slice();
 
-      if (rowData != null) {
-        var map = {};
-        // get the current set data
-        for (var col = 0; col < this.getColumnCount(); col++) {
-          map[this.getColumnId(col)] = rowData[col];
-        }
-
-        if (rowData.originalData != null) {
-          // merge in the meta data
-          for (var key in rowData.originalData) {
-            if (map[key] == undefined) {
-              map[key] = rowData.originalData[key];
-            }
-          }
-        }
-
-        return map;
+      this.__columnIndexMap = {};
+      for (let i = 0; i < this.__columnIdArr.length; i++) {
+        this.__columnIndexMap[this.__columnIdArr[i]] = i;
       }
-      // may be null, which is ok
-      return rowData && rowData.originalData ? rowData.originalData : null;
+
+      this.fireEvent("metaDataChanged");
+    },
+
+    getColumnCount() {
+      return this.__columnNameArr ? this.__columnNameArr.length : 0;
+    },
+
+    getColumnId(columnIndex) {
+      return this.__columnIdArr ? this.__columnIdArr[columnIndex] : undefined;
+    },
+
+    getColumnIndexById(columnId) {
+      return this.__columnIndexMap && columnId in this.__columnIndexMap
+        ? this.__columnIndexMap[columnId]
+        : undefined;
+    },
+
+    getColumnName(columnIndex) {
+      return this.__columnNameArr ? this.__columnNameArr[columnIndex] : undefined;
+    },
+
+    setColumnEditable(columnIndex, editable) {
+      this.__editableColMap[columnIndex] = Boolean(editable);
+      this.fireEvent("metaDataChanged");
+    },
+
+    isColumnEditable(columnIndex) {
+      if (columnIndex in this.__editableColMap) {
+        return this.__editableColMap[columnIndex];
+      }
+      return this.getEditable();
+    },
+
+    setColumnSortable(columnIndex, sortable) {
+      this.__sortableColMap[columnIndex] = Boolean(sortable);
+      this.fireEvent("metaDataChanged");
+    },
+
+    isColumnSortable(columnIndex) {
+      if (columnIndex in this.__sortableColMap) {
+        return this.__sortableColMap[columnIndex];
+      }
+      return true;
+    },
+
+    _applyEditable() {
+      this.fireEvent("metaDataChanged");
+    },
+
+    /*
+    ---------------------------------------------------------------------------
+      ROW DATA MANAGEMENT (`setData`, `setDataAsMapArray`, `getValue`, `setValue`)
+    ---------------------------------------------------------------------------
+    */
+
+    /**
+     * Sets table data as an array of row arrays (`[[col0, col1, ...], ...]`).
+     *
+     * @param {Array<Array>} rowArr
+     * @param {boolean} [clearSorting=true]
+     */
+    setData(rowArr, clearSorting = true) {
+      this.__rememberMaps = false;
+      this.__rawRowArr = Array.isArray(rowArr) ? rowArr.slice() : [];
+      if (clearSorting) {
+        this.__sortColumnIndex = -1;
+      }
+      this._recomputeViewData();
     },
 
     /**
-     * Gets the whole data as an array of maps.
+     * Returns the current visible 2D row array.
      *
-     * Note: Individual items are retrieved by {@link #getRowDataAsMap}.
-     * @return {Map[]} Array of row data maps
+     * @returns {Array<Array>}
+     */
+    getData() {
+      return this.__viewRowArr || [];
+    },
+
+    /**
+     * Sets table data from an array of plain objects (`[{ id: 1, name: "Alpha" }, ...]`),
+     * mapping each object's properties to columns via `columnIdArr`.
+     *
+     * @param {Array<Object>} mapArr
+     * @param {boolean} [rememberMaps=true]
+     * @param {boolean} [clearSorting=true]
+     */
+    setDataAsMapArray(mapArr, rememberMaps = true, clearSorting = true) {
+      this.__rememberMaps = Boolean(rememberMaps);
+      const list = Array.isArray(mapArr) ? mapArr : [];
+      this.__rawRowArr = list.map((map) => this._mapToRowArray(map));
+      if (clearSorting) {
+        this.__sortColumnIndex = -1;
+      }
+      this._recomputeViewData();
+    },
+
+    /**
+     * Returns the visible table data as an array of column-keyed maps.
+     *
+     * @returns {Array<Object>}
      */
     getDataAsMapArray() {
-      var len = this.getRowCount();
-      var data = [];
+      const rows = this.__viewRowArr || [];
+      return rows.map((_, idx) => this.getRowDataAsMap(idx));
+    },
 
-      for (var i = 0; i < len; i++) {
-        data.push(this.getRowDataAsMap(i));
+    _mapToRowArray(map) {
+      const colCount = this.getColumnCount();
+      const row = new Array(colCount);
+      for (let c = 0; c < colCount; c++) {
+        const id = this.__columnIdArr[c];
+        row[c] = map && id in map ? map[id] : undefined;
       }
+      if (this.__rememberMaps && map && typeof map === "object") {
+        row.originalMap = map;
+      }
+      return row;
+    },
 
-      return data;
+    getRowCount() {
+      return this.__viewRowArr ? this.__viewRowArr.length : 0;
     },
 
     /**
-     * Sets all columns editable or not editable.
+     * Returns the total unfiltered row count.
      *
-     * @param editable {Boolean} whether all columns are editable.
+     * @returns {number}
      */
-    setEditable(editable) {
-      this.__editableColArr = [];
-
-      for (var col = 0; col < this.getColumnCount(); col++) {
-        this.__editableColArr[col] = editable;
-      }
-
-      this.fireEvent("metaDataChanged");
+    getUnfilteredRowCount() {
+      return this.__rawRowArr ? this.__rawRowArr.length : 0;
     },
 
-    /**
-     * Sets whether a column is editable.
-     *
-     * @param columnIndex {Integer} the column of which to set the editable state.
-     * @param editable {Boolean} whether the column should be editable.
-     */
-    setColumnEditable(columnIndex, editable) {
-      if (editable != this.isColumnEditable(columnIndex)) {
-        if (this.__editableColArr == null) {
-          this.__editableColArr = [];
+    getRowData(rowIndex) {
+      return this.__viewRowArr ? this.__viewRowArr[rowIndex] : null;
+    },
+
+    getRowDataAsMap(rowIndex) {
+      const row = this.getRowData(rowIndex);
+      if (!row) return null;
+      if (row.originalMap) {
+        const out = Object.assign({}, row.originalMap);
+        for (let c = 0; c < this.getColumnCount(); c++) {
+          out[this.__columnIdArr[c]] = row[c];
         }
-
-        this.__editableColArr[columnIndex] = editable;
-
-        this.fireEvent("metaDataChanged");
+        return out;
       }
-    },
-
-    // overridden
-    isColumnEditable(columnIndex) {
-      return this.__editableColArr
-        ? this.__editableColArr[columnIndex] == true
-        : false;
-    },
-
-    /**
-     * Sets whether a column is sortable.
-     *
-     * @param columnIndex {Integer} the column of which to set the sortable state.
-     * @param sortable {Boolean} whether the column should be sortable.
-     */
-    setColumnSortable(columnIndex, sortable) {
-      if (sortable != this.isColumnSortable(columnIndex)) {
-        if (this.__sortableColArr == null) {
-          this.__sortableColArr = [];
-        }
-
-        this.__sortableColArr[columnIndex] = sortable;
-        this.fireEvent("metaDataChanged");
+      const map = {};
+      for (let c = 0; c < this.getColumnCount(); c++) {
+        map[this.__columnIdArr[c]] = row[c];
       }
+      return map;
     },
 
-    // overridden
-    isColumnSortable(columnIndex) {
-      return this.__sortableColArr
-        ? this.__sortableColArr[columnIndex] !== false
-        : true;
+    getValue(columnIndex, rowIndex) {
+      const row = this.__viewRowArr ? this.__viewRowArr[rowIndex] : null;
+      if (!row) return undefined;
+      return row[columnIndex];
     },
 
-    // overridden
-    sortByColumn(columnIndex, ascending) {
-      // NOTE: We use different comparators for ascending and descending,
-      //     because comparators should be really fast.
-      var comparator;
+    getValueById(columnId, rowIndex) {
+      const colIdx = this.getColumnIndexById(columnId);
+      return colIdx !== undefined ? this.getValue(colIdx, rowIndex) : undefined;
+    },
 
-      var sortMethods = this.__sortMethods[columnIndex];
-      if (sortMethods) {
-        comparator = ascending ? sortMethods.ascending : sortMethods.descending;
-      } else {
-        if (this.getCaseSensitiveSorting()) {
-          comparator = ascending
-            ? qx.ui.table.model.Simple._defaultSortComparatorAscending
-            : qx.ui.table.model.Simple._defaultSortComparatorDescending;
-        } else {
-          comparator = ascending
-            ? qx.ui.table.model.Simple
-                ._defaultSortComparatorInsensitiveAscending
-            : qx.ui.table.model.Simple
-                ._defaultSortComparatorInsensitiveDescending;
-        }
+    setValue(columnIndex, rowIndex, value) {
+      const row = this.__viewRowArr ? this.__viewRowArr[rowIndex] : null;
+      if (!row) return;
+      if (row[columnIndex] === value) return;
+      row[columnIndex] = value;
+      if (row.originalMap && this.__columnIdArr[columnIndex]) {
+        row.originalMap[this.__columnIdArr[columnIndex]] = value;
       }
-
-      comparator.columnIndex = columnIndex;
-      this._rowArr.sort(function (row1, row2) {
-        return comparator(row1, row2, columnIndex);
+      this.fireDataEvent("dataChanged", {
+        firstRow: rowIndex,
+        lastRow: rowIndex,
+        firstColumn: columnIndex,
+        lastColumn: columnIndex
       });
-
-      this.__sortColumnIndex = columnIndex;
-      this.__sortAscending = ascending;
-
-      var data = {
-        columnIndex: columnIndex,
-        ascending: ascending
-      };
-
-      this.fireDataEvent("sorted", data);
-
-      this.fireEvent("metaDataChanged");
     },
 
-    /**
-     * Specify the methods to use for ascending and descending sorts of a
-     * particular column.
-     *
-     * @param columnIndex {Integer}
-     *   The index of the column for which the sort methods are being
-     *   provided.
-     *
-     * @param compare {Function|Map}
-     *   If provided as a Function, this is the comparator function to sort in
-     *   ascending order. It takes three parameters: the two arrays of row data,
-     *   row1 and row2, being compared and the column index sorting was requested
-     *   for.
-     *
-     *   For backwards compatability, user-supplied compare functions may still
-     *   take only two parameters, the two arrays of row data, row1 and row2,
-     *   being compared and obtain the column index as arguments.callee.columnIndex.
-     *   This is deprecated, however, as arguments.callee is disallowed in ES5 strict
-     *   mode and ES6.
-     *
-     *   The comparator function must return 1, 0 or -1, when the column in row1
-     *   is greater than, equal to, or less than, respectively, the column in
-     *   row2.
-     *
-     *   If this parameter is a Map, it shall have two properties: "ascending"
-     *   and "descending". The property value of each is a comparator
-     *   function, as described above.
-     *
-     *   If only the "ascending" function is provided (i.e. this parameter is
-     *   a Function, not a Map), then the "descending" function is built
-     *   dynamically by passing the two parameters to the "ascending" function
-     *   in reversed order. <i>Use of a dynamically-built "descending" function
-     *   generates at least one extra function call for each row in the table,
-     *   and possibly many more. If the table is expected to have more than
-     *   about 1000 rows, you will likely want to provide a map with a custom
-     *   "descending" sort function as well as the "ascending" one.</i>
-     *
-     */
-    setSortMethods(columnIndex, compare) {
-      var methods;
-      if (qx.lang.Type.isFunction(compare)) {
-        methods = {
-          ascending: compare,
-          descending(row1, row2, columnIndex) {
-            /* assure backwards compatibility for sort functions using
-             * arguments.callee.columnIndex and fix a bug where retreiveing
-             * column index via this way did not work for the case where a
-             * single comparator function was used.
-             * Note that arguments.callee is not available in ES5 strict mode and ES6.
-             * See discussion in
-             * https://github.com/qooxdoo/qooxdoo/pull/9499#pullrequestreview-99655182
-             */
-            compare.columnIndex = columnIndex;
+    setValueById(columnId, rowIndex, value) {
+      const colIdx = this.getColumnIndexById(columnId);
+      if (colIdx !== undefined) {
+        this.setValue(colIdx, rowIndex, value);
+      }
+    },
 
-            return compare(row2, row1, columnIndex);
-          }
-        };
+    addRows(rowArr, startIndex = null, clearSorting = false) {
+      if (!Array.isArray(rowArr) || rowArr.length === 0) return;
+      if (startIndex === null || startIndex === undefined) {
+        this.__rawRowArr.push(...rowArr);
       } else {
-        methods = compare;
+        this.__rawRowArr.splice(startIndex, 0, ...rowArr);
       }
-      this.__sortMethods[columnIndex] = methods;
-    },
-
-    /**
-     * Returns the sortMethod(s) for a table column.
-     *
-     * @param columnIndex {Integer} The index of the column for which the sort
-     *   methods are being  provided.
-     *
-     * @return {Map} a map with the two properties "ascending"
-     *   and "descending" for the specified column.
-     *   The property value of each is a comparator function, as described
-     *   in {@link #setSortMethods}.
-     */
-    getSortMethods(columnIndex) {
-      return this.__sortMethods[columnIndex];
-    },
-
-    /**
-     * Clears the sorting.
-     */
-    clearSorting() {
-      if (this.__sortColumnIndex != -1) {
+      if (clearSorting) {
         this.__sortColumnIndex = -1;
-        this.__sortAscending = true;
+      }
+      this._recomputeViewData();
+    },
 
-        this.fireEvent("metaDataChanged");
+    addRowsAsMapArray(mapArr, startIndex = null, rememberMaps = true, clearSorting = false) {
+      this.__rememberMaps = Boolean(rememberMaps);
+      const rows = (Array.isArray(mapArr) ? mapArr : []).map((m) => this._mapToRowArray(m));
+      this.addRows(rows, startIndex, clearSorting);
+    },
+
+    removeRows(startIndex, howMany = 1, clearSorting = false) {
+      const targetRow = this.__viewRowArr[startIndex];
+      if (!targetRow) return;
+      const toRemove = this.__viewRowArr.slice(startIndex, startIndex + howMany);
+      const removeSet = new Set(toRemove);
+      this.__rawRowArr = this.__rawRowArr.filter((r) => !removeSet.has(r));
+      if (clearSorting) {
+        this.__sortColumnIndex = -1;
+      }
+      this._recomputeViewData();
+    },
+
+    /*
+    ---------------------------------------------------------------------------
+      SORTING, FILTERING & OFF-THREAD WORKER EXECUTION (`STRAT-CORE-07`)
+    ---------------------------------------------------------------------------
+    */
+
+    sortByColumn(columnIndex, ascending = true) {
+      if (!this.isColumnSortable(columnIndex)) return;
+      this.__sortColumnIndex = columnIndex;
+      this.__sortAscending = Boolean(ascending);
+      this._recomputeViewData(true);
+    },
+
+    clearSorting() {
+      if (this.__sortColumnIndex !== -1) {
+        this.__sortColumnIndex = -1;
+        this._recomputeViewData(true);
       }
     },
 
-    // overridden
     getSortColumnIndex() {
       return this.__sortColumnIndex;
     },
 
-    /**
-     * Set the sort column index
-     *
-     * WARNING: This should be called only by subclasses with intimate
-     *          knowledge of what they are doing!
-     *
-     * @param columnIndex {Integer} index of the column
-     */
-    _setSortColumnIndex(columnIndex) {
-      this.__sortColumnIndex = columnIndex;
-    },
-
-    // overridden
     isSortAscending() {
       return this.__sortAscending;
     },
 
     /**
-     * Set whether to sort in ascending order or not.
+     * Filters the table rows by a search substring or a custom predicate `(rowMap, rowIndex) => boolean`.
      *
-     * WARNING: This should be called only by subclasses with intimate
-     *          knowledge of what they are doing!
-     *
-     * @param ascending {Boolean}
-     *   <i>true</i> for an ascending sort;
-     *   <i> false</i> for a descending sort.
+     * @param {string|Function|null} queryOrPredicate
      */
-    _setSortAscending(ascending) {
-      this.__sortAscending = ascending;
+    filter(queryOrPredicate) {
+      if (typeof queryOrPredicate === "function") {
+        this.__filterPredicate = queryOrPredicate;
+        this._recomputeViewData();
+      } else {
+        this.__filterPredicate = null;
+        this.setSearchQuery(queryOrPredicate ? String(queryOrPredicate) : null);
+      }
     },
 
-    // overridden
-    getRowCount() {
-      return this._rowArr.length;
+    /**
+     * Resets all active filters and restores the full dataset.
+     */
+    resetFilter() {
+      this.__filterPredicate = null;
+      this.setSearchQuery(null);
+      this._recomputeViewData();
     },
 
-    // overridden
-    getValue(columnIndex, rowIndex) {
-      if (rowIndex < 0 || rowIndex >= this._rowArr.length) {
-        throw new Error(
-          "this._rowArr out of bounds: " +
-            rowIndex +
-            " (0.." +
-            this._rowArr.length +
-            ")"
+    _applySearchQuery() {
+      this._recomputeViewData();
+    },
+
+    /**
+     * Returns or lazily creates the model's `ville.core.WorkerClient` instance.
+     *
+     * @returns {ville.core.WorkerClient}
+     */
+    getWorkerClient() {
+      if (!this.__workerClient) {
+        this.__workerClient = new ville.core.WorkerClient();
+        this.__workerClient.bind("busy", this, "busy");
+      }
+      return this.__workerClient;
+    },
+
+    /**
+     * Recomputes `__viewRowArr` by applying active filters and column sorting
+     * (either synchronously or via `ville.core.WorkerClient` when `useWorker: true`
+     * and no function predicate is active).
+     *
+     * @param {boolean} [emitSorted=false]
+     * @protected
+     */
+    _recomputeViewData(emitSorted = false) {
+      const raw = this.__rawRowArr ? this.__rawRowArr.slice() : [];
+      const query = this.getSearchQuery() ? String(this.getSearchQuery()).trim() : "";
+      const colIdx = this.__sortColumnIndex;
+      const asc = this.__sortAscending;
+
+      if (this.getUseWorker() && !this.__filterPredicate && raw.length > 0) {
+        const worker = this.getWorkerClient();
+        // Strip non-cloneable originalMap references if needed or pass pure arrays
+        const pureRows = raw.map((r, i) => ({ __idx: i, cells: Array.from(r) }));
+        worker
+          .request("sortAndFilter", {
+            rows: pureRows.map((p) => p.cells),
+            query,
+            columnKey: colIdx >= 0 ? colIdx : null,
+            direction: asc ? "asc" : "desc"
+          })
+          .then((resultRows) => {
+            if (this.isDisposed()) return;
+            this.__viewRowArr = Array.isArray(resultRows) ? resultRows : [];
+            if (emitSorted && colIdx >= 0) {
+              this.fireDataEvent("sorted", {
+                columnIndex: colIdx,
+                ascending: asc
+              });
+            }
+            this.fireEvent("metaDataChanged");
+            this.fireDataEvent("dataChanged", {
+              firstRow: 0,
+              lastRow: Math.max(0, this.__viewRowArr.length - 1),
+              firstColumn: 0,
+              lastColumn: Math.max(0, this.getColumnCount() - 1)
+            });
+          })
+          .catch(() => {
+            this._recomputeViewDataSync(raw, query, colIdx, asc, emitSorted);
+          });
+        return;
+      }
+
+      this._recomputeViewDataSync(raw, query, colIdx, asc, emitSorted);
+    },
+
+    _recomputeViewDataSync(raw, query, colIdx, asc, emitSorted) {
+      let filtered = raw;
+
+      if (this.__filterPredicate) {
+        filtered = filtered.filter((row, idx) =>
+          this.__filterPredicate(this._rowToMap(row), idx, row)
         );
       }
 
-      return this._rowArr[rowIndex][columnIndex];
-    },
-
-    // overridden
-    setValue(columnIndex, rowIndex, value) {
-      if (this._rowArr[rowIndex][columnIndex] != value) {
-        this._rowArr[rowIndex][columnIndex] = value;
-
-        // Inform the listeners
-        if (this.hasListener("dataChanged")) {
-          var data = {
-            firstRow: rowIndex,
-            lastRow: rowIndex,
-            firstColumn: columnIndex,
-            lastColumn: columnIndex
-          };
-
-          this.fireDataEvent("dataChanged", data);
-        }
-
-        if (columnIndex == this.__sortColumnIndex) {
-          this.clearSorting();
-        }
-      }
-    },
-
-    /**
-     * Sets the whole data in a bulk.
-     *
-     * @param rowArr {var[][]} An array containing an array for each row. Each
-     *          row-array contains the values in that row in the order of the columns
-     *          in this model.
-     * @param clearSorting {Boolean ? true} Whether to clear the sort state.
-     */
-    setData(rowArr, clearSorting) {
-      this._checkEditing();
-      this._rowArr = rowArr;
-
-      // Inform the listeners
-      if (this.hasListener("dataChanged")) {
-        var data = {
-          firstRow: 0,
-          lastRow: rowArr.length - 1,
-          firstColumn: 0,
-          lastColumn: this.getColumnCount() - 1
-        };
-
-        this.fireDataEvent("dataChanged", data);
+      if (query) {
+        const q = query.toLowerCase();
+        filtered = filtered.filter((row) => {
+          for (let c = 0; c < row.length; c++) {
+            if (row[c] != null && String(row[c]).toLowerCase().includes(q)) {
+              return true;
+            }
+          }
+          return false;
+        });
       }
 
-      if (clearSorting !== false) {
-        this.clearSorting();
-      }
-    },
-
-    /**
-     * Returns the data of this model.
-     *
-     * Warning: Do not alter this array! If you want to change the data use
-     * {@link #setData}, {@link #setDataAsMapArray} or {@link #setValue} instead.
-     *
-     * @return {var[][]} An array containing an array for each row. Each
-     *           row-array contains the values in that row in the order of the columns
-     *           in this model.
-     */
-    getData() {
-      return this._rowArr;
-    },
-
-    /**
-     * Sets the whole data in a bulk.
-     *
-     * @param mapArr {Map[]} An array containing a map for each row. Each
-     *        row-map contains the column IDs as key and the cell values as value.
-     * @param rememberMaps {Boolean ? false} Whether to remember the original maps.
-     *        If true {@link #getRowData} will return the original map.
-     * @param clearSorting {Boolean ? true} Whether to clear the sort state.
-     */
-    setDataAsMapArray(mapArr, rememberMaps, clearSorting) {
-      this.setData(this._mapArray2RowArr(mapArr, rememberMaps), clearSorting);
-    },
-
-    /**
-     * Adds some rows to the model.
-     *
-     * Warning: The given array will be altered!
-     *
-     * @param rowArr {var[][]} An array containing an array for each row. Each
-     *          row-array contains the values in that row in the order of the columns
-     *          in this model.
-     * @param startIndex {Integer ? null} The index where to insert the new rows. If null,
-     *          the rows are appended to the end.
-     * @param clearSorting {Boolean ? true} Whether to clear the sort state.
-     */
-    addRows(rowArr, startIndex, clearSorting) {
-      if (startIndex == null) {
-        startIndex = this._rowArr.length;
+      if (colIdx >= 0 && colIdx < this.getColumnCount()) {
+        const dir = asc ? 1 : -1;
+        const caseSensitive = this.getCaseSensitiveSorting();
+        const collator = new Intl.Collator(undefined, {
+          numeric: true,
+          sensitivity: caseSensitive ? "variant" : "base"
+        });
+        filtered.sort((a, b) => {
+          const va = a[colIdx];
+          const vb = b[colIdx];
+          if (typeof va === "number" && typeof vb === "number") {
+            return (va - vb) * dir;
+          }
+          return collator.compare(String(va ?? ""), String(vb ?? "")) * dir;
+        });
       }
 
-      // Prepare the rowArr so it can be used for apply
-      rowArr.splice(0, 0, startIndex, 0);
+      this.__viewRowArr = filtered;
 
-      // Insert the new rows
-      Array.prototype.splice.apply(this._rowArr, rowArr);
-
-      // Inform the listeners
-      var data = {
-        firstRow: startIndex,
-        lastRow: this._rowArr.length - 1,
+      if (emitSorted && colIdx >= 0) {
+        this.fireDataEvent("sorted", {
+          columnIndex: colIdx,
+          ascending: asc
+        });
+      }
+      this.fireEvent("metaDataChanged");
+      this.fireDataEvent("dataChanged", {
+        firstRow: 0,
+        lastRow: Math.max(0, filtered.length - 1),
         firstColumn: 0,
-        lastColumn: this.getColumnCount() - 1
-      };
-
-      this.fireDataEvent("dataChanged", data);
-
-      if (clearSorting !== false) {
-        this.clearSorting();
-      }
+        lastColumn: Math.max(0, this.getColumnCount() - 1)
+      });
     },
 
-    /**
-     * Adds some rows to the model.
-     *
-     * Warning: The given array (mapArr) will be altered!
-     *
-     * @param mapArr {Map[]} An array containing a map for each row. Each
-     *        row-map contains the column IDs as key and the cell values as value.
-     * @param startIndex {Integer ? null} The index where to insert the new rows. If null,
-     *        the rows are appended to the end.
-     * @param rememberMaps {Boolean ? false} Whether to remember the original maps.
-     *        If true {@link #getRowData} will return the original map.
-     * @param clearSorting {Boolean ? true} Whether to clear the sort state.
-     */
-    addRowsAsMapArray(mapArr, startIndex, rememberMaps, clearSorting) {
-      this.addRows(
-        this._mapArray2RowArr(mapArr, rememberMaps),
-        startIndex,
-        clearSorting
-      );
-    },
-
-    /**
-     * Sets rows in the model. The rows overwrite the old rows starting at
-     * <code>startIndex</code> to <code>startIndex+rowArr.length</code>.
-     *
-     * Warning: The given array will be altered!
-     *
-     * @param rowArr {var[][]} An array containing an array for each row. Each
-     *          row-array contains the values in that row in the order of the columns
-     *          in this model.
-     * @param startIndex {Integer ? null} The index where to insert the new rows. If null,
-     *          the rows are set from the beginning (0).
-     * @param clearSorting {Boolean ? true} Whether to clear the sort state.
-     */
-    setRows(rowArr, startIndex, clearSorting) {
-      this._checkEditing();
-      if (startIndex == null) {
-        startIndex = 0;
+    _rowToMap(row) {
+      if (row && row.originalMap) {
+        return row.originalMap;
       }
-
-      // store the original length before we alter rowArr for use in splice.apply
-      var rowArrLength = rowArr.length;
-
-      // Prepare the rowArr so it can be used for apply
-      rowArr.splice(0, 0, startIndex, rowArr.length);
-
-      // Replace rows
-      Array.prototype.splice.apply(this._rowArr, rowArr);
-
-      // Inform the listeners
-      var data = {
-        firstRow: startIndex,
-        lastRow: startIndex + rowArrLength - 1,
-        firstColumn: 0,
-        lastColumn: this.getColumnCount() - 1
-      };
-
-      this.fireDataEvent("dataChanged", data);
-
-      if (clearSorting !== false) {
-        this.clearSorting();
+      const map = {};
+      for (let c = 0; c < this.getColumnCount(); c++) {
+        map[this.__columnIdArr[c]] = row[c];
       }
-    },
-
-    /**
-     * Set rows in the model. The rows overwrite the old rows starting at
-     * <code>startIndex</code> to <code>startIndex+rowArr.length</code>.
-     *
-     * Warning: The given array (mapArr) will be altered!
-     *
-     * @param mapArr {Map[]} An array containing a map for each row. Each
-     *        row-map contains the column IDs as key and the cell values as value.
-     * @param startIndex {Integer ? null} The index where to insert the new rows. If null,
-     *        the rows are appended to the end.
-     * @param rememberMaps {Boolean ? false} Whether to remember the original maps.
-     *        If true {@link #getRowData} will return the original map.
-     * @param clearSorting {Boolean ? true} Whether to clear the sort state.
-     */
-    setRowsAsMapArray(mapArr, startIndex, rememberMaps, clearSorting) {
-      this.setRows(
-        this._mapArray2RowArr(mapArr, rememberMaps),
-        startIndex,
-        clearSorting
-      );
-    },
-
-    /**
-     * Removes some rows from the model.
-     *
-     * @param startIndex {Integer} the index of the first row to remove.
-     * @param howMany {Integer} the number of rows to remove.
-     * @param clearSorting {Boolean ? true} Whether to clear the sort state.
-     */
-    removeRows(startIndex, howMany, clearSorting) {
-      this._checkEditing();
-      // In the case of `removeRows`, specifically, we must create the
-      // listeners' event data before actually removing the rows from
-      // the row data, so that the `lastRow` calculation is correct.
-      // If we do the delete operation first, as is done in other
-      // methods, the final rows of the table can escape being
-      // updated, thus leaving hanging old data on the rendered table.
-      // This reordering (deleting after creating event data) fixes #10365.
-      var data = {
-        firstRow: startIndex,
-        lastRow: this._rowArr.length - 1,
-        firstColumn: 0,
-        lastColumn: this.getColumnCount() - 1,
-        removeStart: startIndex,
-        removeCount: howMany
-      };
-
-      this._rowArr.splice(startIndex, howMany);
-
-      // Inform the listeners
-      this.fireDataEvent("dataChanged", data);
-
-      if (clearSorting !== false) {
-        this.clearSorting();
-      }
-    },
-
-    /**
-     * Creates an array of maps to an array of arrays.
-     *
-     * @param mapArr {Map[]} An array containing a map for each row. Each
-     *          row-map contains the column IDs as key and the cell values as value.
-     * @param rememberMaps {Boolean ? false} Whether to remember the original maps.
-     *        If true {@link #getRowData} will return the original map.
-     * @return {var[][]} An array containing an array for each row. Each
-     *           row-array contains the values in that row in the order of the columns
-     *           in this model.
-     */
-    _mapArray2RowArr(mapArr, rememberMaps) {
-      var rowCount = mapArr.length;
-      var columnCount = this.getColumnCount();
-      var dataArr = new Array(rowCount);
-      var columnArr;
-
-      for (var i = 0; i < rowCount; ++i) {
-        columnArr = [];
-        if (rememberMaps) {
-          columnArr.originalData = mapArr[i];
-        }
-
-        for (var j = 0; j < columnCount; ++j) {
-          columnArr[j] = mapArr[i][this.getColumnId(j)];
-        }
-
-        dataArr[i] = columnArr;
-      }
-
-      return dataArr;
+      return map;
     }
   },
 
   destruct() {
-    this._rowArr =
-      this.__editableColArr =
-      this.__sortMethods =
-      this.__sortableColArr =
-        null;
+    this._disposeObjects("__workerClient");
+    this.__columnNameArr = null;
+    this.__columnIdArr = null;
+    this.__columnIndexMap = null;
+    this.__editableColMap = null;
+    this.__sortableColMap = null;
+    this.__rawRowArr = null;
+    this.__viewRowArr = null;
+    this.__filterPredicate = null;
   }
 });

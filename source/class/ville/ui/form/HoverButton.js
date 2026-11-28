@@ -1,165 +1,78 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2009 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Fabian Jakobs (fjakobs)
-
-************************************************************************ */
-
 /**
- * The HoverButton is an {@link qx.ui.basic.Atom}, which fires repeatedly
- * execute events while the pointer is over the widget.
- *
- * The rate at which the execute event is fired accelerates is the pointer keeps
- * inside of the widget. The initial delay and the interval time can be set using
- * the properties {@link #firstInterval} and {@link #interval}. The
- * {@link #execute} events will be fired in a shorter amount of time if the pointer
- * remains over the widget, until the min {@link #minTimer} is reached.
- * The {@link #timerDecrease} property sets the amount of milliseconds which will
- * decreased after every firing.
- *
- * *Example*
- *
- * Here is a little example of how to use the widget.
- *
- * <pre class='javascript'>
- *   var button = new qx.ui.form.HoverButton("Hello World");
- *
- *   button.addListener("execute", function(e) {
- *     alert("Button is hovered");
- *   }, this);
- *
- *   this.getRoot.add(button);
- * </pre>
- *
- * This example creates a button with the label "Hello World" and attaches an
- * event listener to the {@link #execute} event.
- *
- * *External Documentation*
- *
- * <a href='http://qooxdoo.org/docs/#desktop/widget/hoverbutton.md' target='_blank'>
- * Documentation of this widget in the qooxdoo manual.</a>
+ * A HoverButton fires the `"execute"` event repeatedly while the pointer
+ * hovers over the button.
  */
 qx.Class.define("ville.ui.form.HoverButton", {
-  extend: qx.ui.basic.Atom,
-  include: [qx.ui.core.MExecutable],
-  implement: [qx.ui.form.IExecutable],
+  extend: ville.ui.form.Button,
 
   /**
-   * @param label {String} Label to use
-   * @param icon {String?null} Icon to use
+   * @param {string|null} [label=null] Button label
+   * @param {string|null} [icon=null] Optional icon spec
    */
   construct(label, icon) {
+    // @ts-ignore
     super(label, icon);
 
-    this.addListener("pointerover", this._onPointerOver, this);
-    this.addListener("pointerout", this._onPointerOut, this);
-
-    this.__timer = new qx.event.AcceleratingTimer();
-    this.__timer.addListener("interval", this._onInterval, this);
+    const el = this.getContentElement();
+    if (el) {
+      el.addListener("pointerenter", () => {
+        if (this.getEnabled()) {
+          this._startHoverTimer();
+        }
+      });
+      el.addListener("pointerleave", () => this._stopHoverTimer());
+    }
   },
 
   properties: {
-    // overridden
     appearance: {
       refine: true,
       init: "hover-button"
     },
 
-    /**
-     * Interval used after the first run of the timer. Usually a smaller value
-     * than the "firstInterval" property value to get a faster reaction.
-     */
-    interval: {
-      check: "Integer",
-      init: 80
-    },
-
-    /**
-     * Interval used for the first run of the timer. Usually a greater value
-     * than the "interval" property value to a little delayed reaction at the first
-     * time.
-     */
+    /** Initial delay in milliseconds before repeating begins */
     firstInterval: {
       check: "Integer",
       init: 200
     },
 
-    /** This configures the minimum value for the timer interval. */
-    minTimer: {
+    /** Repeat interval in milliseconds */
+    interval: {
       check: "Integer",
-      init: 20
-    },
-
-    /** Decrease of the timer on each interval (for the next interval) until minTimer reached. */
-    timerDecrease: {
-      check: "Integer",
-      init: 2
+      init: 80
     }
   },
 
   members: {
-    __timer: null,
+    __delayTimer: null,
+    __repeatTimer: null,
 
-    /**
-     * Start timer on pointer over
-     *
-     * @param e {qx.event.type.Pointer} The pointer event
-     */
-    _onPointerOver(e) {
-      if (!this.isEnabled() || e.getTarget() !== this) {
-        return;
-      }
-
-      this.__timer
-        .set({
-          interval: this.getInterval(),
-          firstInterval: this.getFirstInterval(),
-          minimum: this.getMinTimer(),
-          decrease: this.getTimerDecrease()
-        })
-        .start();
-
-      this.addState("hovered");
+    _startHoverTimer() {
+      this._stopHoverTimer();
+      this.__delayTimer = setTimeout(() => {
+        this.__repeatTimer = setInterval(() => {
+          if (this.getEnabled()) {
+            this.execute();
+          } else {
+            this._stopHoverTimer();
+          }
+        }, this.getInterval());
+      }, this.getFirstInterval());
     },
 
-    /**
-     * Stop timer on pointer out
-     *
-     * @param e {qx.event.type.Pointer} The pointer event
-     */
-    _onPointerOut(e) {
-      this.__timer.stop();
-      this.removeState("hovered");
-
-      if (!this.isEnabled() || e.getTarget() !== this) {
-        return;
+    _stopHoverTimer() {
+      if (this.__delayTimer) {
+        clearTimeout(this.__delayTimer);
+        this.__delayTimer = null;
       }
-    },
-
-    /**
-     * Fire execute event on timer interval event
-     */
-    _onInterval() {
-      if (this.isEnabled()) {
-        this.execute();
-      } else {
-        this.__timer.stop();
+      if (this.__repeatTimer) {
+        clearInterval(this.__repeatTimer);
+        this.__repeatTimer = null;
       }
     }
   },
 
   destruct() {
-    this._disposeObjects("__timer");
+    this._stopHoverTimer();
   }
 });

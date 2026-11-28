@@ -43,8 +43,8 @@ qx.Class.define("ville.ui.application.AbstractGui", {
       metaMgr.initialize();
 
       if (typeof document !== "undefined" && document.documentElement) {
-        const appType = qx.core.Environment.get("ville.appType") || "web";
-        const cssEngine = qx.core.Environment.get("ville.cssEngine") || "mantine";
+        const appType = ville.core.Environment.get("ville.appType") || "web";
+        const cssEngine = ville.core.Environment.get("ville.cssEngine") || "mantine";
         const rootEl = document.documentElement;
         rootEl.setAttribute("data-ville-app-type", String(appType));
         rootEl.setAttribute("data-ville-theme", String(cssEngine));
@@ -82,6 +82,25 @@ qx.Class.define("ville.ui.application.AbstractGui", {
      */
     toggleColorScheme() {
       return ville.ui.theme.manager.Meta.getInstance().toggleColorScheme();
+    },
+
+    /**
+     * Returns the currently active CSS vendor theme (`"mantine"`, `"obsidian"`, or `"shadcn"`).
+     *
+     * @returns {"mantine"|"obsidian"|"shadcn"}
+     */
+    getVendorTheme() {
+      return ville.ui.theme.manager.Meta.getInstance().getVendorTheme();
+    },
+
+    /**
+     * Hot-swaps the active CSS vendor theme (`"mantine"`, `"obsidian"`, or `"shadcn"`)
+     * at runtime.
+     *
+     * @param {"mantine"|"obsidian"|"shadcn"} vendor
+     */
+    setVendorTheme(vendor) {
+      ville.ui.theme.manager.Meta.getInstance().setVendorTheme(vendor);
     },
 
     /**

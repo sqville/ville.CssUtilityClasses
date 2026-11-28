@@ -1,311 +1,72 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2006 STZ-IDA, Germany, http://www.stz-ida.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Til Schneider (til132)
-     * Fabian Jakobs (fjakobs)
-     * Jonathan Weiß (jonathan_rass)
-
-************************************************************************ */
-
 /**
- * Table
+ * Ville UI's `QxLayout`-Style Take on `qx.ui.table.Table` (`ville.ui.table.Table` — `STRAT-WIDGET-08`, `STRAT-CORE-07`, `STRAT-CORE-09`).
  *
- * A detailed description can be found in the package description
- * {@link qx.ui.table}.
+ * Layers Qooxdoo's high-level `qx.ui.table.Table` developer ergonomics directly onto
+ * Ville UI's pure semantic HTML5 `<table>` foundation (`SimpleTable`):
+ *  - **Zero `TableScroller` / `TableClipper` / `TablePane` Bloat**: Renders a real semantic
+ *    `<table>` (`<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<th scope="col">`, `<td>`) inside a
+ *    native overflow scroll container (`scrollend`) with sticky `<thead>` (`position: sticky`).
+ *  - **100% `ITableModel` / `ville.ui.table.model.Simple` Contract**:
+ *    Accepts `new ville.ui.table.Table(tableModel)` or `setTableModel(model)`, automatically
+ *    synchronizing columns, sorting (`sortByColumn`), filtering (`searchQuery`), and edits (`setValue`).
+ *  - **Two-Tier Scaling (`STRAT-WIDGET-08`)**:
+ *    * **Tier 1 (< `virtualThreshold` rows, default 250)**: Native CSS `content-visibility: auto` on `<tr>`.
+ *    * **Tier 2 (>= `virtualThreshold` rows, up to 100,000+ rows)**: Windowed `<tbody>` rendering
+ *      only the visible viewport slice (~35 rows) + top/bottom `<tr class="ville-table-spacer">` rows
+ *      driven by native `scroll` / `scrollend` events at 60/120 FPS.
+ *  - **Inline Double-Click Cell Editing**: Double-clicking any cell in an editable column
+ *    (`tableModel.isColumnEditable(colIndex)`) mounts an inline `<input>` inside the `<td>`
+ *    that commits on `Enter` / `blur` (`dataEdited` event) and cancels on `Escape`.
+ *  - **Pointer-Captured Column Resizing**: Dragging a column header border resizes the column
+ *    live via `Element.setPointerCapture()`.
+ *  - **Zero-DOM-Mutation Live Search Highlighting (`STRAT-CORE-06`)**: Highlights matching
+ *    substrings across visible cells using the W3C CSS Custom Highlight API (`CSS.highlights`).
  *
- * @childControl statusbar {qx.ui.basic.Label} label to show the status of the table
- * @childControl column-button {qx.ui.table.columnmenu.Button} button to open the column menu
+ * @childControl scroll-viewport {ville.ui.core.Box} Native overflow scroll wrapper around the semantic `<table>`
+ * @childControl table-el {ville.ui.core.Widget} The inner semantic `<table>` element
+ * @childControl statusbar {ville.ui.basic.Label} Footer status bar displaying row & selection counts
  */
 qx.Class.define("ville.ui.table.Table", {
-  extend: qx.ui.core.Widget,
-  include: qx.ui.core.MDragDropScrolling,
-
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+  extend: ville.ui.core.Box,
 
   /**
-   * @param tableModel {qx.ui.table.ITableModel ? null}
-   *   The table model to read the data from.
-   *
-   * @param custom {Map ? null}
-   *   A map provided to override the various supplemental classes allocated
-   *   within this constructor.  Each property must be a function which
-   *   returns an object instance, as indicated by shown the defaults listed
-   *   here:
-   *
-   *   <dl>
-   *     <dt>initiallyHiddenColumns</dt>
-   *       <dd>
-   *         {Array?}
-   *         A list of column numbers that should be initially invisible. Any
-   *         column not mentioned will be initially visible, and if no array
-   *         is provided, all columns will be initially visible.
-   *       </dd>
-   *     <dt>selectionManager</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.selection.Manager(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>selectionModel</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.selection.Model(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>tableColumnModel</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.columnmodel.Basic(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>tablePaneModel</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.pane.Model(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>tablePane</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.pane.Pane(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>tablePaneHeader</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.pane.Header(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>tablePaneScroller</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.pane.Scroller(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>tablePaneModel</dt>
-   *       <dd><pre class='javascript'>
-   *         function(obj)
-   *         {
-   *           return new qx.ui.table.pane.Model(obj);
-   *         }
-   *       </pre></dd>
-   *     <dt>columnMenu</dt>
-   *       <dd><pre class='javascript'>
-   *         function()
-   *         {
-   *           return new qx.ui.table.columnmenu.Button();
-   *         }
-   *       </pre></dd>
-   *   </dl>
+   * @param {ville.ui.table.ITableModel|null} [tableModel=null] Optional initial table model.
    */
-  construct(tableModel, custom) {
-    super();
-    //
-    // Use default objects if custom objects are not specified
-    //
-    if (!custom) {
-      custom = {};
+  construct(tableModel = null) {
+    // @ts-ignore
+    super(new ville.ui.layout.VBox(0));
+
+    this.__columnWidths = {};
+    this.__columnAlignments = {};
+    this.__selectedRowIndices = new Set();
+    this.__scrollTop = 0;
+
+    this._createChildControl("scroll-viewport");
+    this._createChildControl("statusbar");
+
+    if (tableModel) {
+      this.setTableModel(tableModel);
+    } else {
+      this.setTableModel(new ville.ui.table.model.Simple());
     }
-
-    if (custom.initiallyHiddenColumns) {
-      this.setInitiallyHiddenColumns(custom.initiallyHiddenColumns);
-    }
-
-    if (custom.selectionManager) {
-      this.setNewSelectionManager(custom.selectionManager);
-    }
-
-    if (custom.selectionModel) {
-      this.setNewSelectionModel(custom.selectionModel);
-    }
-
-    if (custom.tableColumnModel) {
-      this.setNewTableColumnModel(custom.tableColumnModel);
-    }
-
-    if (custom.tablePane) {
-      this.setNewTablePane(custom.tablePane);
-    }
-
-    if (custom.tablePaneHeader) {
-      this.setNewTablePaneHeader(custom.tablePaneHeader);
-    }
-
-    if (custom.tablePaneScroller) {
-      this.setNewTablePaneScroller(custom.tablePaneScroller);
-    }
-
-    if (custom.tablePaneModel) {
-      this.setNewTablePaneModel(custom.tablePaneModel);
-    }
-
-    if (custom.columnMenu) {
-      this.setNewColumnMenu(custom.columnMenu);
-    }
-
-    this._setLayout(new qx.ui.layout.VBox());
-
-    // Create the child widgets
-    this.__scrollerParent = new qx.ui.container.Composite(
-      new qx.ui.layout.HBox()
-    );
-
-    this._add(this.__scrollerParent, { flex: 1 });
-
-    // Allocate a default data row renderer
-    this.setDataRowRenderer(new qx.ui.table.rowrenderer.Default(this));
-
-    // Create the models
-    this.__selectionManager = this.getNewSelectionManager()(this);
-    this.setSelectionModel(this.getNewSelectionModel()(this));
-    this.setTableModel(tableModel || this.getEmptyTableModel());
-
-    // create the main meta column
-    this.setMetaColumnCounts([-1]);
-
-    // Make focusable
-    this.setTabIndex(1);
-    this.addListener("keydown", this._onKeyDown);
-    this.addListener("focus", this._onFocusChanged);
-    this.addListener("blur", this._onFocusChanged);
-
-    // attach the resize listener to the last child of the layout. This
-    // ensures that all other children are laid out before
-    var spacer = new qx.ui.core.Widget().set({
-      height: 0
-    });
-
-    this._add(spacer);
-    spacer.addListener("resize", this._onResize, this);
-
-    this.__focusedCol = null;
-    this.__focusedRow = null;
-
-    // add an event listener which updates the table content on locale change
-    if (qx.core.Environment.get("qx.dynlocale")) {
-      this.__changeLocaleTableListenerId = qx.locale.Manager.getInstance().addListener(
-        "changeLocale",
-        this._onChangeLocale,
-        this
-      );
-    }
-
-    this.initStatusBarVisible();
-
-    // If the table model has an init() method...
-    tableModel = this.getTableModel();
-    if (tableModel.init && typeof tableModel.init == "function") {
-      // ... then call it now to allow the table model to affect table
-      // properties.
-      tableModel.init(this);
-    }
-
-    // ARIA attrs
-    this.getContentElement().setAttribute("role", "grid");
   },
-
-  /*
-  *****************************************************************************
-     EVENTS
-  *****************************************************************************
-  */
 
   events: {
-    /**
-     * Dispatched before adding the column list to the column visibility menu.
-     * The event data is a map with two properties: table and menu.  Listeners
-     * may add additional items to the menu, which appear at the top of the
-     * menu.
-     */
-    columnVisibilityMenuCreateStart: "qx.event.type.Data",
+    /** Fired when a row is clicked/selected. Data: `{ rowIndex, rowData, selectedIndices }` */
+    rowSelect: "qx.event.type.Data",
 
-    /**
-     * Dispatched after adding the column list to the column visibility menu.
-     * The event data is a map with two properties: table and menu.  Listeners
-     * may add additional items to the menu, which appear at the bottom of the
-     * menu.
-     */
-    columnVisibilityMenuCreateEnd: "qx.event.type.Data",
+    /** Fired when the selection changes (`changeSelection` compatibility). */
+    changeSelection: "qx.event.type.Data",
 
-    /**
-     * Dispatched when the width of the table has changed.
-     */
-    tableWidthChanged: "qx.event.type.Event",
+    /** Fired when an editable cell's value is modified by the user. Data: `{ row, col, value, oldValue }` */
+    dataEdited: "qx.event.type.Data",
 
-    /**
-     * Dispatched when updating scrollbars discovers that a vertical scrollbar
-     * is needed when it previously was not, or vice versa.  The data is a
-     * boolean indicating whether a vertical scrollbar is now being used.
-     */
-    verticalScrollBarChanged: "qx.event.type.Data",
+    /** Fired when a cell is tapped/clicked. Data: `{ row, col }` */
+    cellTap: "qx.event.type.Data",
 
-    /**
-     * Dispatched when a data cell has been tapped.
-     */
-    cellTap: "qx.ui.table.pane.CellEvent",
-
-    /**
-     * Dispatched when a data cell has been tapped.
-     */
-    cellDbltap: "qx.ui.table.pane.CellEvent",
-
-    /**
-     * Dispatched when the context menu is needed in a data cell
-     */
-    cellContextmenu: "qx.ui.table.pane.CellEvent",
-
-    /**
-     * Dispatched after a cell editor is flushed.
-     *
-     * The data is a map containing this properties:
-     * <ul>
-     *   <li>row</li>
-     *   <li>col</li>
-     *   <li>value</li>
-     *   <li>oldValue</li>
-     * </ul>
-     */
-    dataEdited: "qx.event.type.Data"
+    /** Fired when a cell is double-clicked. Data: `{ row, col }` */
+    cellDbltap: "qx.event.type.Data"
   },
-
-  /*
-  *****************************************************************************
-     STATICS
-  *****************************************************************************
-  */
-
-  statics: {
-    /** Events that must be redirected to the scrollers. */
-    __redirectEvents: { cellTap: 1, cellDbltap: 1, cellContextmenu: 1 }
-  },
-
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
 
   properties: {
     appearance: {
@@ -313,1912 +74,702 @@ qx.Class.define("ville.ui.table.Table", {
       init: "table"
     },
 
-    focusable: {
-      refine: true,
-      init: true
-    },
-
-    minWidth: {
-      refine: true,
-      init: 50
-    },
-
-    /**
-     * The list of columns that are initially hidden. This property is set by
-     * the constructor, from the value received in
-     * custom.initiallyHiddenColumns, and is only used when a column model is
-     * initialized. It can be of great benefit in tables with numerous columns
-     * where most are not initially visible. The process of creating the
-     * headers for all of the columns, only to have those columns discarded
-     * shortly thereafter when setColumnVisibility(false) is called, is a
-     * waste of (significant, in some browsers) time. Specifying the
-     * non-visible columns at constructor time can therefore avoid the initial
-     * creation of all of those superfluous widgets.
-     */
-    initiallyHiddenColumns: {
-      init: null
-    },
-
-    /**
-     * Whether the widget contains content which may be selected by the user.
-     *
-     * If the value set to <code>true</code> the native browser selection can
-     * be used for text selection. But it is normally useful for
-     * forms fields, longer texts/documents, editors, etc.
-     *
-     * Note: This has no effect on Table!
-     */
-    selectable: {
-      refine: true,
-      init: false
-    },
-
-    /** The selection model. */
-    selectionModel: {
-      check: "qx.ui.table.selection.Model",
-      apply: "_applySelectionModel",
-      event: "changeSelectionModel"
-    },
-
-    /** The table model. */
+    /** Attached `ville.ui.table.ITableModel` (e.g. `ville.ui.table.model.Simple`). */
     tableModel: {
-      check: "qx.ui.table.ITableModel",
+      check: "ville.ui.table.ITableModel",
+      nullable: true,
+      init: null,
       apply: "_applyTableModel",
       event: "changeTableModel"
     },
 
-    /** The height of the table rows. */
+    /** Row height in pixels used for `contain-intrinsic-size` and Tier 2 windowing. */
     rowHeight: {
-      check: "Number",
-      init: 20,
-      apply: "_applyRowHeight",
-      event: "changeRowHeight",
-      themeable: true
+      check: "Integer",
+      init: 34,
+      apply: "_scheduleTableRender"
     },
 
-    /**
-     * Force line height to match row height.  May be disabled if cell
-     * renderers being used wish to render multiple lines of data within a
-     * cell.  (With the default setting, all but the first of multiple lines
-     * of data will not be visible.)
-     */
-    forceLineHeight: {
-      check: "Boolean",
-      init: true
+    /** Row count threshold at which Tier 2 windowed `<tbody>` virtualization activates. */
+    virtualThreshold: {
+      check: "Integer",
+      init: 250,
+      apply: "_scheduleTableRender"
     },
 
-    /**
-     *  Whether the header cells are visible. When setting this to false,
-     *  you'll likely also want to set the {#columnVisibilityButtonVisible}
-     *  property to false as well, to entirely remove the header row.
-     */
-    headerCellsVisible: {
+    /** Maximum viewport height of the scrollable table area (in pixels or CSS string). */
+    viewportHeight: {
+      init: 260,
+      apply: "_applyViewportHeight"
+    },
+
+    /** Whether alternating rows are striped (`false`, `true` / `"odd"`, or `"even"`). */
+    striped: {
+      init: true,
+      apply: "_scheduleTableRender"
+    },
+
+    /** Whether hovering over a `<tbody>` row highlights it (`data-hover`). */
+    highlightOnHover: {
       check: "Boolean",
       init: true,
-      apply: "_applyHeaderCellsVisible",
-      themeable: true
+      apply: "_scheduleTableRender"
     },
 
-    /** The height of the header cells. */
-    headerCellHeight: {
-      check: "Integer",
-      init: 16,
-      apply: "_applyHeaderCellHeight",
-      event: "changeHeaderCellHeight",
-      nullable: true,
-      themeable: true
+    /** Whether vertical borders are drawn between columns (`data-with-column-border`). */
+    withColumnBorders: {
+      check: "Boolean",
+      init: true,
+      apply: "_scheduleTableRender"
     },
 
-    /** Whether to show the status bar */
+    /** Whether horizontal borders are drawn between rows (`data-with-row-border`). */
+    withRowBorders: {
+      check: "Boolean",
+      init: true,
+      apply: "_scheduleTableRender"
+    },
+
+    /** Whether the footer status bar (`"Showing X of Y rows"`) is visible. */
     statusBarVisible: {
       check: "Boolean",
       init: true,
       apply: "_applyStatusBarVisible"
     },
 
-    /** The Statusbartext, set it, if you want some more Information */
-    additionalStatusBarText: {
+    /** Selection mode (`"none"`, `"single"`, `"multi"`). */
+    selectionMode: {
+      check: ["none", "single", "multi"],
+      init: "single"
+    },
+
+    /** Live search substring highlighted across visible cells via `CSS.highlights`. */
+    highlightQuery: {
+      check: "String",
       nullable: true,
       init: null,
-      apply: "_applyAdditionalStatusBarText"
-    },
-
-    /** Whether to show the column visibility button */
-    columnVisibilityButtonVisible: {
-      check: "Boolean",
-      init: true,
-      apply: "_applyColumnVisibilityButtonVisible",
-      themeable: true
-    },
-
-    /**
-     * @type {Integer[]} The number of columns per meta column. If the last array entry is -1,
-     * this meta column will get the remaining columns.
-     */
-    metaColumnCounts: {
-      check: "Object",
-      apply: "_applyMetaColumnCounts"
-    },
-
-    /**
-     * Whether the focus should moved when the pointer is moved over a cell. If false
-     * the focus is only moved on pointer taps.
-     */
-    focusCellOnPointerMove: {
-      check: "Boolean",
-      init: false,
-      apply: "_applyFocusCellOnPointerMove"
-    },
-
-    /**
-     * Whether row focus change by keyboard also modifies selection
-     */
-    rowFocusChangeModifiesSelection: {
-      check: "Boolean",
-      init: true
-    },
-
-    /**
-     * Whether the cell focus indicator should be shown
-     */
-    showCellFocusIndicator: {
-      check: "Boolean",
-      init: true,
-      apply: "_applyShowCellFocusIndicator"
-    },
-
-    /**
-     * By default, the "cellContextmenu" event is fired only when a data cell
-     * is right-clicked. It is not fired when a right-click occurs in the
-     * empty area of the table below the last data row. By turning on this
-     * property, "cellContextMenu" events will also be generated when a
-     * right-click occurs in that empty area. In such a case, row identifier
-     * in the event data will be null, so event handlers can check (row ===
-     * null) to handle this case.
-     */
-    contextMenuFromDataCellsOnly: {
-      check: "Boolean",
-      init: true,
-      apply: "_applyContextMenuFromDataCellsOnly"
-    },
-
-    /**
-     * Whether the table should keep the first visible row complete. If set to false,
-     * the first row may be rendered partial, depending on the vertical scroll value.
-     */
-    keepFirstVisibleRowComplete: {
-      check: "Boolean",
-      init: true,
-      apply: "_applyKeepFirstVisibleRowComplete"
-    },
-
-    /**
-     * Whether the table cells should be updated when only the selection or the
-     * focus changed. This slows down the table update but allows to react on a
-     * changed selection or a changed focus in a cell renderer.
-     */
-    alwaysUpdateCells: {
-      check: "Boolean",
-      init: false
-    },
-
-    /**
-     * Whether to reset the selection when a header cell is tapped. Since
-     * most data models do not have provisions to retain a selection after
-     * sorting, the default is to reset the selection in this case. Some data
-     * models, however, do have the capability to retain the selection, so
-     * when using those, this property should be set to false.
-     */
-    resetSelectionOnHeaderTap: {
-      check: "Boolean",
-      init: true,
-      apply: "_applyResetSelectionOnHeaderTap"
-    },
-
-    /**
-     * Whether to reset the selection when the unpopulated table area is tapped.
-     * The default is false which keeps the behaviour as before
-     */
-    resetSelectionOnTapBelowRows: {
-      check: "Boolean",
-      init: false,
-      apply: "_applyResetSelectionOnTapBelowRows"
-    },
-
-    /**
-     * If set then defines the minimum height of the focus indicator when editing
-     */
-    minCellEditHeight: {
-      check: "Integer",
-      nullable: true,
-      init: null,
-      apply: "_applyMinCellEditHeight"
-    },
-
-    /**
-     * The renderer to use for styling the rows.
-     *
-     * The table owns its row renderer: one that is replaced is disposed, as
-     * is the one current when the table itself is disposed.
-     */
-    dataRowRenderer: {
-      check: "qx.ui.table.IRowRenderer",
-      init: null,
-      nullable: true,
-      apply: "_applyDataRowRenderer",
-      event: "changeDataRowRenderer"
-    },
-
-    /**
-     * The action to take when a cell is being edited and the focus moves elsewhere.
-     */
-    cellEditorBlurAction: {
-      check: ["nothing", "save", "cancel"],
-      init: "nothing"
-    },
-
-    /**
-     * A function to call when before modal cell editor is opened.
-     *
-     * @signature function(cellEditor, cellInfo)
-     *
-     * @param cellEditor {qx.ui.window.Window}
-     *   The modal window which has been created for this cell editor
-     *
-     * @param cellInfo {Map}
-     *   Information about the cell for which this cell editor was created.
-     *   It contains the following properties:
-     *       col, row, xPos, value
-     *
-     */
-    modalCellEditorPreOpenFunction: {
-      check: "Function",
-      init: null,
-      nullable: true
-    },
-
-    /**
-     * By default, all Scrollers' (meta-columns') horizontal scrollbars are
-     * shown if any one is required. Allow not showing any that are not
-     * required.
-     */
-    excludeScrollerScrollbarsIfNotNeeded: {
-      check: "Boolean",
-      init: false,
-      nullable: false
-    },
-
-    /**
-     * A function to instantiate a new column menu button.
-     */
-    newColumnMenu: {
-      check: "Function",
-      init() {
-        return new qx.ui.table.columnmenu.Button();
-      }
-    },
-
-    /**
-     * A function to instantiate a selection manager.  this allows subclasses of
-     * Table to subclass this internal class.  To take effect, this property must
-     * be set before calling the Table constructor.
-     */
-    newSelectionManager: {
-      check: "Function",
-      init(obj) {
-        return new qx.ui.table.selection.Manager(obj);
-      }
-    },
-
-    /**
-     * A function to instantiate a selection model.  this allows subclasses of
-     * Table to subclass this internal class.  To take effect, this property must
-     * be set before calling the Table constructor.
-     */
-    newSelectionModel: {
-      check: "Function",
-      init(obj) {
-        return new qx.ui.table.selection.Model(obj);
-      }
-    },
-
-    /**
-     * A function to instantiate a table column model.  This allows subclasses
-     * of Table to subclass this internal class.  To take effect, this
-     * property must be set before calling the Table constructor.
-     */
-    newTableColumnModel: {
-      check: "Function",
-      init(table) {
-        return new qx.ui.table.columnmodel.Basic(table);
-      }
-    },
-
-    /**
-     * A function to instantiate a table pane.  this allows subclasses of
-     * Table to subclass this internal class.  To take effect, this property
-     * must be set before calling the Table constructor.
-     */
-    newTablePane: {
-      check: "Function",
-      init(obj) {
-        return new qx.ui.table.pane.Pane(obj);
-      }
-    },
-
-    /**
-     * A function to instantiate a table pane.  this allows subclasses of
-     * Table to subclass this internal class.  To take effect, this property
-     * must be set before calling the Table constructor.
-     */
-    newTablePaneHeader: {
-      check: "Function",
-      init(obj) {
-        return new qx.ui.table.pane.Header(obj);
-      }
-    },
-
-    /**
-     * A function to instantiate a table pane scroller.  this allows
-     * subclasses of Table to subclass this internal class.  To take effect,
-     * this property must be set before calling the Table constructor.
-     */
-    newTablePaneScroller: {
-      check: "Function",
-      init(obj) {
-        return new qx.ui.table.pane.Scroller(obj);
-      }
-    },
-
-    /**
-     * A function to instantiate a table pane model.  this allows subclasses
-     * of Table to subclass this internal class.  To take effect, this
-     * property must be set before calling the Table constructor.
-     */
-    newTablePaneModel: {
-      check: "Function",
-      init(columnModel) {
-        return new qx.ui.table.pane.Model(columnModel);
-      }
+      apply: "_applyHighlightQuery"
     }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
-    __focusedCol: null,
-    __focusedRow: null,
+    /** @type {Object<number, number|string>} @private */
+    __columnWidths: null,
 
-    __scrollerParent: null,
+    /** @type {Object<number, "left"|"center"|"right">} @private */
+    __columnAlignments: null,
 
-    __selectionManager: null,
+    /** @type {Set<number>} @private */
+    __selectedRowIndices: null,
 
-    __additionalStatusBarText: null,
-    __lastRowCount: null,
-    __lastColCount: null,
-    __internalChange: null,
+    /** @type {number} @private */
+    __scrollTop: 0,
 
-    __columnMenuButtons: null,
-    __columnModel: null,
-    __emptyTableModel: null,
+    /** @type {boolean} @private */
+    __renderScheduled: false,
 
-    __hadVerticalScrollBar: null,
+    /** @type {string[]} @private */
+    __modelListenerIds: null,
 
-    __timer: null,
-
-    // overridden
-    _createChildControlImpl(id, hash) {
-      var control;
+    _createChildControlImpl(id) {
+      let control;
 
       switch (id) {
-        case "statusbar":
-          control = new qx.ui.basic.Label();
-          control.set({
-            allowGrowX: true
+        case "scroll-viewport": {
+          control = new ville.ui.core.Box();
+          control.setStyles({
+            overflowY: "auto",
+            overflowX: "auto",
+            maxHeight: `${this.getViewportHeight()}px`,
+            width: "100%",
+            position: "relative"
+          });
+          const vpEl = control.getContentElement();
+          vpEl.addListener("scroll", () => {
+            const domVp = vpEl.getDomElement();
+            if (!domVp) return;
+            const nextTop = domVp.scrollTop;
+            const model = this.getTableModel();
+            const rowCount = model ? model.getRowCount() : 0;
+            if (rowCount >= this.getVirtualThreshold()) {
+              const rowH = this.getRowHeight() || 34;
+              if (Math.abs(nextTop - this.__scrollTop) >= rowH * 2) {
+                this.__scrollTop = nextTop;
+                this._renderTableDom();
+              }
+            }
           });
 
-          this._add(control);
+          const tableWidget = this._createChildControl("table-el");
+          control.add(tableWidget);
+          this._add(control, { flex: 1 });
           break;
+        }
 
-        case "column-button":
-          control = this.getNewColumnMenu()();
-          control.set({
-            focusable: false
+        case "table-el": {
+          control = new ville.ui.core.Box("table");
+          const tblEl = control.getContentElement();
+          tblEl.setAttributes({
+            "data-with-table-border": "true",
+            "data-tabular-nums": "true"
           });
+          tblEl.addListener("click", this._onTableClick, this);
+          tblEl.addListener("dblclick", this._onTableDblClick, this);
+          tblEl.addListener("pointerdown", this._onHeaderResizePointerDown, this);
+          break;
+        }
 
-          // Create the initial menu too
-          var menu = control.factory("menu", { table: this });
-
-          // Add a listener to initialize the column menu when it becomes visible
-          menu.addListener("appear", this._initColumnMenu, this);
-
+        case "statusbar":
+          control = new ville.ui.basic.Label("0 rows");
+          control.setStyles({
+            fontSize: "0.75rem",
+            opacity: "0.75",
+            padding: "6px 10px"
+          });
+          this._add(control);
           break;
       }
 
       return control || super._createChildControlImpl(id);
     },
 
-    // property modifier
-    _applyDataRowRenderer(value, old) {
-      if (old != null) {
-        old.dispose();
+    _applyViewportHeight(value) {
+      const vp = this.getChildControl("scroll-viewport", true);
+      if (vp) {
+        vp.setStyle(
+          "maxHeight",
+          typeof value === "number" ? `${value}px` : String(value)
+        );
       }
     },
 
-    // property modifier
-    _applySelectionModel(value, old) {
-      this.__selectionManager.setSelectionModel(value);
-
-      if (old != null) {
-        old.removeListener("changeSelection", this._onSelectionChanged, this);
-      }
-
-      value.addListener("changeSelection", this._onSelectionChanged, this);
-    },
-
-    // property modifier
-    _applyRowHeight(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].updateVerScrollBarMaximum();
+    _applyStatusBarVisible(value) {
+      const sb = this.getChildControl("statusbar", true);
+      if (sb) {
+        value ? sb.show() : sb.exclude();
       }
     },
 
-    // property modifier
-    _applyHeaderCellsVisible(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        if (value) {
-          scrollerArr[i]._showChildControl("header");
-        } else {
-          scrollerArr[i]._excludeChildControl("header");
-        }
-      }
-      // also hide the column visibility button
-      if (this.getColumnVisibilityButtonVisible()) {
-        this._applyColumnVisibilityButtonVisible(value);
-      }
-    },
-
-    // property modifier
-    _applyHeaderCellHeight(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].getHeader().setHeight(value);
-      }
-    },
-
-    // property modifier
-    _applyMinCellEditHeight(value) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].setMinCellEditHeight(value);
-      }
-    },
-
-    /**
-     * Get an empty table model instance to use for this table. Use this table
-     * to configure the table with no table model.
-     *
-     * @return {qx.ui.table.ITableModel} The empty table model
-     */
-    getEmptyTableModel() {
-      if (!this.__emptyTableModel) {
-        this.__emptyTableModel = new qx.ui.table.model.Simple();
-        this.__emptyTableModel.setColumns([]);
-        this.__emptyTableModel.setData([]);
-      }
-      return this.__emptyTableModel;
-    },
-
-    // property modifier
     _applyTableModel(value, old) {
-      this.getTableColumnModel().init(value.getColumnCount(), this);
-
-      if (old != null) {
-        old.removeListener(
-          "metaDataChanged",
-          this._onTableModelMetaDataChanged,
-          this
-        );
-
-        old.removeListener("dataChanged", this._onTableModelDataChanged, this);
-      }
-
-      value.addListener(
-        "metaDataChanged",
-        this._onTableModelMetaDataChanged,
-        this
-      );
-
-      value.addListener("dataChanged", this._onTableModelDataChanged, this);
-
-      // Update the status bar
-      this._updateStatusBar();
-
-      this._updateTableData(0, value.getRowCount(), 0, value.getColumnCount());
-
-      this._onTableModelMetaDataChanged();
-
-      // If the table model has an init() method, call it. We don't, however,
-      // call it if this is the initial setting of the table model, as the
-      // scrollers are not yet initialized. In that case, the init method is
-      // called explicitly by the Table constructor.
-      if (old && value.init && typeof value.init == "function") {
-        value.init(this);
-      }
-    },
-
-    /**
-     * Get the The table column model.
-     *
-     * @return {qx.ui.table.columnmodel.Basic} The table's column model
-     */
-    getTableColumnModel() {
-      if (!this.__columnModel) {
-        var columnModel = (this.__columnModel =
-          this.getNewTableColumnModel()(this));
-
-        columnModel.addListener(
-          "visibilityChanged",
-          this._onColVisibilityChanged,
-          this
-        );
-
-        columnModel.addListener("widthChanged", this._onColWidthChanged, this);
-        columnModel.addListener("orderChanged", this._onColOrderChanged, this);
-
-        // Get the current table model
-        var tableModel = this.getTableModel();
-        columnModel.init(tableModel.getColumnCount(), this);
-
-        // Reset the table column model in each table pane model
-        var scrollerArr = this._getPaneScrollerArr();
-
-        for (var i = 0; i < scrollerArr.length; i++) {
-          var paneScroller = scrollerArr[i];
-          var paneModel = paneScroller.getTablePaneModel();
-          paneModel.setTableColumnModel(columnModel);
+      if (old && this.__modelListenerIds) {
+        for (const id of this.__modelListenerIds) {
+          old.removeListenerById(id);
         }
       }
-      return this.__columnModel;
-    },
-
-    // property modifier
-    _applyStatusBarVisible(value, old) {
-      if (value) {
-        this._showChildControl("statusbar");
-      } else {
-        this._excludeChildControl("statusbar");
-      }
+      this.__modelListenerIds = [];
+      this.__selectedRowIndices.clear();
+      this.__scrollTop = 0;
 
       if (value) {
-        this._updateStatusBar();
-      }
-    },
-
-    // property modifier
-    _applyAdditionalStatusBarText(value, old) {
-      this.__additionalStatusBarText = value;
-      this._updateStatusBar();
-    },
-
-    // property modifier
-    _applyColumnVisibilityButtonVisible(value, old) {
-      if (value) {
-        this._showChildControl("column-button");
-      } else {
-        this._excludeChildControl("column-button");
-      }
-    },
-
-    // property modifier
-    _applyMetaColumnCounts(value, old) {
-      var metaColumnCounts = value;
-      var scrollerArr = this._getPaneScrollerArr();
-      var handlers = {};
-
-      if (value > old) {
-        // Save event listeners on the redirected events so we can re-apply
-        // them to new scrollers.
-        var manager = qx.event.Registration.getManager(scrollerArr[0]);
-        for (var evName in qx.ui.table.Table.__redirectEvents) {
-          handlers[evName] = {};
-          handlers[evName].capture = manager.getListeners(
-            scrollerArr[0],
-            evName,
-            true
-          );
-
-          handlers[evName].bubble = manager.getListeners(
-            scrollerArr[0],
-            evName,
-            false
+        this.__modelListenerIds.push(
+          value.addListener("dataChanged", this._scheduleTableRender, this),
+          value.addListener("metaDataChanged", this._scheduleTableRender, this),
+          value.addListener("sorted", this._scheduleTableRender, this)
+        );
+        if (typeof value.getSearchQuery === "function") {
+          this.__modelListenerIds.push(
+            value.addListener(
+              "changeSearchQuery",
+              (e) => this.setHighlightQuery(e.getData()),
+              this
+            )
           );
         }
       }
 
-      // Remove the panes not needed any more
-      this._cleanUpMetaColumns(metaColumnCounts.length);
-
-      // Update the old panes
-      var leftX = 0;
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        var paneScroller = scrollerArr[i];
-        var paneModel = paneScroller.getTablePaneModel();
-        paneModel.setFirstColumnX(leftX);
-        paneModel.setMaxColumnCount(metaColumnCounts[i]);
-        leftX += metaColumnCounts[i];
-      }
-
-      // Add the new panes
-      if (metaColumnCounts.length > scrollerArr.length) {
-        var columnModel = this.getTableColumnModel();
-
-        for (var i = scrollerArr.length; i < metaColumnCounts.length; i++) {
-          var paneModel = this.getNewTablePaneModel()(columnModel);
-          paneModel.setFirstColumnX(leftX);
-          paneModel.setMaxColumnCount(metaColumnCounts[i]);
-          leftX += metaColumnCounts[i];
-
-          var paneScroller = this.getNewTablePaneScroller()(this);
-          paneScroller.setTablePaneModel(paneModel);
-
-          // Register event listener for vertical scrolling
-          paneScroller.addListener("changeScrollY", this._onScrollY, this);
-
-          // Apply redirected events to this new scroller
-          for (evName in qx.ui.table.Table.__redirectEvents) {
-            // On first setting of meta columns (constructing phase), there
-            // are no handlers to deal with yet.
-            if (!handlers[evName]) {
-              break;
-            }
-
-            if (
-              handlers[evName].capture &&
-              handlers[evName].capture.length > 0
-            ) {
-              var capture = handlers[evName].capture;
-              for (var j = 0; j < capture.length; j++) {
-                // Determine what context to use.  If the context does not
-                // exist, we assume that the context is this table.  If it
-                // does exist and it equals the first pane scroller (from
-                // which we retrieved the listeners) then set the context
-                // to be this new pane scroller.  Otherwise leave the context
-                // as it was set.
-                var context = capture[j].context;
-                if (!context) {
-                  context = this;
-                } else if (context == scrollerArr[0]) {
-                  context = paneScroller;
-                }
-
-                paneScroller.addListener(
-                  evName,
-                  capture[j].handler,
-                  context,
-                  true
-                );
-              }
-            }
-
-            if (handlers[evName].bubble && handlers[evName].bubble.length > 0) {
-              var bubble = handlers[evName].bubble;
-              for (var j = 0; j < bubble.length; j++) {
-                // Determine what context to use.  If the context does not
-                // exist, we assume that the context is this table.  If it
-                // does exist and it equals the first pane scroller (from
-                // which we retrieved the listeners) then set the context
-                // to be this new pane scroller.  Otherwise leave the context
-                // as it was set.
-                var context = bubble[j].context;
-                if (!context) {
-                  context = this;
-                } else if (context == scrollerArr[0]) {
-                  context = paneScroller;
-                }
-
-                paneScroller.addListener(
-                  evName,
-                  bubble[j].handler,
-                  context,
-                  false
-                );
-              }
-            }
-          }
-
-          // last meta column is flexible
-          var flex = i == metaColumnCounts.length - 1 ? 1 : 0;
-          this.__scrollerParent.add(paneScroller, { flex: flex });
-          scrollerArr = this._getPaneScrollerArr();
-        }
-      }
-
-      // Update all meta columns
-      for (var i = 0; i < scrollerArr.length; i++) {
-        var paneScroller = scrollerArr[i];
-        var isLast = i == scrollerArr.length - 1;
-
-        // Set the right header height
-        paneScroller.getHeader().setHeight(this.getHeaderCellHeight());
-
-        // Put the column visibility button in the top right corner of the last meta column
-        paneScroller.setTopRightWidget(
-          isLast ? this.getChildControl("column-button") : null
-        );
-      }
-
-      if (!this.isColumnVisibilityButtonVisible()) {
-        this._excludeChildControl("column-button");
-      }
-
-      this._updateScrollerWidths();
-      this._updateScrollBarVisibility();
-    },
-
-    // property modifier
-    _applyFocusCellOnPointerMove(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].setFocusCellOnPointerMove(value);
-      }
-    },
-
-    // property modifier
-    _applyShowCellFocusIndicator(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].setShowCellFocusIndicator(value);
-      }
-    },
-
-    // property modifier
-    _applyContextMenuFromDataCellsOnly(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].setContextMenuFromDataCellsOnly(value);
-      }
-    },
-
-    // property modifier
-    _applyKeepFirstVisibleRowComplete(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].onKeepFirstVisibleRowCompleteChanged();
-      }
-    },
-
-    // property modifier
-    _applyResetSelectionOnHeaderTap(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].setResetSelectionOnHeaderTap(value);
-      }
-    },
-
-    // property modifier
-    _applyResetSelectionOnTapBelowRows(value, old) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].setResetSelectionOnTapBelowRows(value);
-      }
+      this._scheduleTableRender();
     },
 
     /**
-     * Returns the selection manager.
+     * Sets the width of a specific column in pixels (or CSS string).
      *
-     * @return {qx.ui.table.selection.Manager} the selection manager.
+     * @param {number} columnIndex
+     * @param {number|string} width
      */
-    getSelectionManager() {
-      return this.__selectionManager;
+    setColumnWidth(columnIndex, width) {
+      this.__columnWidths[columnIndex] =
+        typeof width === "number" ? `${width}px` : String(width);
+      this._scheduleTableRender();
     },
 
     /**
-     * Returns an array containing all TablePaneScrollers in this table.
+     * Sets horizontal alignment (`"left"`, `"center"`, `"right"`) for a specific column.
      *
-     * @return {qx.ui.table.pane.Scroller[]} all TablePaneScrollers in this table.
+     * @param {number} columnIndex
+     * @param {"left"|"center"|"right"} align
      */
-    _getPaneScrollerArr() {
-      return this.__scrollerParent.getChildren();
+    setColumnAlignment(columnIndex, align) {
+      this.__columnAlignments[columnIndex] = align;
+      this._scheduleTableRender();
     },
 
     /**
-     * Returns a TablePaneScroller of this table.
+     * Returns the selected row indices as an array of integers.
      *
-     * @param metaColumn {Integer} the meta column to get the TablePaneScroller for.
-     * @return {qx.ui.table.pane.Scroller} the qx.ui.table.pane.Scroller.
+     * @returns {number[]}
      */
-    getPaneScroller(metaColumn) {
-      return this._getPaneScrollerArr()[metaColumn];
+    getSelectedRowIndices() {
+      return Array.from(this.__selectedRowIndices);
     },
 
     /**
-     * Cleans up the meta columns.
+     * Returns the data maps for all currently selected rows.
      *
-     * @param fromMetaColumn {Integer} the first meta column to clean up. All following
-     *      meta columns will be cleaned up, too. All previous meta columns will
-     *      stay unchanged. If 0 all meta columns will be cleaned up.
+     * @returns {Array<Object>}
      */
-    _cleanUpMetaColumns(fromMetaColumn) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      if (scrollerArr != null) {
-        for (var i = scrollerArr.length - 1; i >= fromMetaColumn; i--) {
-          scrollerArr[i].destroy();
-        }
-      }
-    },
-
-    /**
-     * Event handler. Called when the locale has changed.
-     *
-     * @param evt {Event} the event.
-     */
-    _onChangeLocale(evt) {
-      this.updateContent();
-      this._updateStatusBar();
-    },
-
-    // overridden
-    _onChangeTheme() {
-      super._onChangeTheme();
-
-      this.getDataRowRenderer().initThemeValues();
-      this.updateContent();
-      this._updateStatusBar();
-    },
-
-    /**
-     * Event handler. Called when the selection has changed.
-     *
-     * @param evt {Map} the event.
-     */
-    _onSelectionChanged(evt) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].onSelectionChanged();
-      }
-
-      this._updateStatusBar();
-    },
-
-    /**
-     * Event handler. Called when the table model meta data has changed.
-     *
-     * @param evt {Map} the event.
-     */
-    _onTableModelMetaDataChanged(evt) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].onTableModelMetaDataChanged();
-      }
-
-      this._updateStatusBar();
-    },
-
-    /**
-     * Event handler. Called when the table model data has changed.
-     *
-     * @param evt {Map} the event.
-     */
-    _onTableModelDataChanged(evt) {
-      var data = evt.getData();
-
-      this._updateTableData(
-        data.firstRow,
-        data.lastRow,
-        data.firstColumn,
-        data.lastColumn,
-        data.removeStart,
-        data.removeCount
+    getSelectedRows() {
+      const model = this.getTableModel();
+      if (!model) return [];
+      return this.getSelectedRowIndices().map((idx) =>
+        typeof model.getRowDataAsMap === "function"
+          ? model.getRowDataAsMap(idx)
+          : model.getRowData(idx)
       );
     },
 
-    // overridden
-    _onContextMenuOpen(e) {
-      // This is Widget's context menu handler which typically retrieves
-      // and displays the menu as soon as it receives a "contextmenu" event.
-      // We want to allow the cellContextmenu handler to create the menu,
-      // so we'll override this method with a null one, and do the menu
-      // placement and display handling in our _onContextMenu method.
-    },
-
     /**
-     * To update the table if the table model has changed and remove selection.
+     * Selects the specified row index (or array of indices).
      *
-     * @param firstRow {Integer} The index of the first row that has changed.
-     * @param lastRow {Integer} The index of the last row that has changed.
-     * @param firstColumn {Integer} The model index of the first column that has changed.
-     * @param lastColumn {Integer} The model index of the last column that has changed.
-     * @param removeStart {Integer ? null} The first index of the interval (including), to remove selection.
-     * @param removeCount {Integer ? null} The count of the interval, to remove selection.
+     * @param {number|number[]} rowIndexOrArr
      */
-    _updateTableData(
-      firstRow,
-      lastRow,
-      firstColumn,
-      lastColumn,
-      removeStart,
-      removeCount
-    ) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      // update selection if rows were removed
-      if (removeCount) {
-        this.getSelectionModel().removeSelectionInterval(
-          removeStart,
-          removeStart + removeCount - 1,
-          true
-        );
-
-        // remove focus if the focused row has been removed
-        if (
-          this.__focusedRow >= removeStart &&
-          this.__focusedRow < removeStart + removeCount
-        ) {
-          this.setFocusedCell();
+    setSelectedRowIndices(rowIndexOrArr) {
+      this.__selectedRowIndices.clear();
+      const list = Array.isArray(rowIndexOrArr) ? rowIndexOrArr : [rowIndexOrArr];
+      for (const idx of list) {
+        if (typeof idx === "number" && idx >= 0) {
+          this.__selectedRowIndices.add(idx);
         }
       }
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].onTableModelDataChanged(
-          firstRow,
-          lastRow,
-          firstColumn,
-          lastColumn
-        );
-      }
-
-      var rowCount = this.getTableModel().getRowCount();
-
-      if (rowCount != this.__lastRowCount) {
-        this.__lastRowCount = rowCount;
-
-        this._updateScrollBarVisibility();
-        this._updateStatusBar();
-
-        // ARIA attrs
-        this.getContentElement().setAttribute("aria-rowcount", rowCount);
-      }
-
-      const colCount = this.getTableModel().getColumnCount();
-
-      if (colCount != this.__lastColCount) {
-        this.__lastColCount = colCount;
-
-        // ARIA attrs
-        this.getContentElement().setAttribute("aria-colcount", colCount);
-      }
+      this._scheduleTableRender();
     },
 
     /**
-     * Event handler. Called when a TablePaneScroller has been scrolled vertically.
-     *
-     * @param evt {Map} the event.
-     */
-    _onScrollY(evt) {
-      if (!this.__internalChange) {
-        this.__internalChange = true;
-
-        // Set the same scroll position to all meta columns
-        var scrollerArr = this._getPaneScrollerArr();
-
-        for (var i = 0; i < scrollerArr.length; i++) {
-          scrollerArr[i].setScrollY(evt.getData());
-        }
-
-        this.__internalChange = false;
-      }
-    },
-
-    /**
-     * Event handler. Called when a key was pressed.
-     *
-     * @param evt {qx.event.type.KeySequence} the event.
-     * @deprecated {6.0} please use _onKeyDown instead!
-     */
-    _onKeyPress(evt) {
-      qx.log.Logger.deprecatedMethodWarning(
-        this._onKeyPress,
-        "The method '_onKeyPress()' is deprecated. Please use '_onKeyDown()' instead."
-      );
-
-      qx.log.Logger.deprecateMethodOverriding(
-        this,
-        qx.ui.table.Table,
-        "_onKeyPress",
-        "The method '_onKeyPress()' is deprecated. Please use '_onKeyDown()' instead."
-      );
-
-      this._onKeyDown(evt);
-    },
-    /**
-     * Event handler. Called when on key down event
-     *
-     * @param evt {qx.event.type.KeySequence} the event.
-     */
-    _onKeyDown(evt) {
-      if (!this.getEnabled()) {
-        return;
-      }
-
-      // No editing mode
-      var oldFocusedRow = this.__focusedRow;
-      var consumed = false;
-
-      // Handle keys that are independent from the modifiers
-      var identifier = evt.getKeyIdentifier();
-
-      if (this.isEditing()) {
-        // Editing mode
-        if (evt.getModifiers() == 0) {
-          switch (identifier) {
-            case "Enter":
-              this.stopEditing();
-              var oldFocusedRow = this.__focusedRow;
-              this.moveFocusedCell(0, 1);
-
-              if (this.__focusedRow != oldFocusedRow) {
-                consumed = this.startEditing();
-              }
-
-              break;
-
-            case "Escape":
-              this.cancelEditing();
-              this.focus();
-              break;
-
-            default:
-              consumed = false;
-              break;
-          }
-        }
-      } else {
-        consumed = true;
-        // No editing mode
-        if (evt.isCtrlPressed()) {
-          // Handle keys that depend on modifiers
-
-          switch (identifier) {
-            case "A": // Ctrl + A
-              var rowCount = this.getTableModel().getRowCount();
-
-              if (rowCount > 0) {
-                this.getSelectionModel().setSelectionInterval(0, rowCount - 1);
-              }
-
-              break;
-
-            default:
-              consumed = false;
-              break;
-          }
-        } else {
-          // Handle keys that are independent from the modifiers
-          switch (identifier) {
-            case "Space":
-              this.__selectionManager.handleSelectKeyDown(
-                this.__focusedRow,
-                evt
-              );
-
-              break;
-
-            case "F2":
-            case "Enter":
-              this.startEditing();
-              consumed = true;
-              break;
-
-            case "Home":
-              this.setFocusedCell(this.__focusedCol, 0, true);
-              break;
-
-            case "End":
-              var rowCount = this.getTableModel().getRowCount();
-              this.setFocusedCell(this.__focusedCol, rowCount - 1, true);
-              break;
-
-            case "Left":
-              this.moveFocusedCell(-1, 0);
-              break;
-
-            case "Right":
-              this.moveFocusedCell(1, 0);
-              break;
-
-            case "Up":
-              this.moveFocusedCell(0, -1);
-              break;
-
-            case "Down":
-              this.moveFocusedCell(0, 1);
-              break;
-
-            case "PageUp":
-            case "PageDown":
-              var scroller = this.getPaneScroller(0);
-              var pane = scroller.getTablePane();
-              var rowHeight = this.getRowHeight();
-              var direction = identifier == "PageUp" ? -1 : 1;
-              rowCount = pane.getVisibleRowCount() - 1;
-              scroller.setScrollY(
-                scroller.getScrollY() + direction * rowCount * rowHeight
-              );
-
-              this.moveFocusedCell(0, direction * rowCount);
-              break;
-
-            default:
-              consumed = false;
-          }
-        }
-      }
-
-      if (
-        oldFocusedRow != this.__focusedRow &&
-        this.getRowFocusChangeModifiesSelection()
-      ) {
-        // The focus moved -> Let the selection manager handle this event
-        this.__selectionManager.handleMoveKeyDown(this.__focusedRow, evt);
-      }
-
-      if (consumed) {
-        evt.preventDefault();
-        evt.stopPropagation();
-      }
-    },
-
-    /**
-     * Event handler. Called when the table gets the focus.
-     *
-     * @param evt {Map} the event.
-     */
-    _onFocusChanged(evt) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].onFocusChanged();
-      }
-    },
-
-    /**
-     * Event handler. Called when the visibility of a column has changed.
-     *
-     * @param evt {Map} the event.
-     */
-    _onColVisibilityChanged(evt) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].onColVisibilityChanged();
-      }
-
-      var data = evt.getData();
-      if (
-        this.__columnMenuButtons != null &&
-        data.col != null &&
-        data.visible != null
-      ) {
-        this.__columnMenuButtons[data.col].setColumnVisible(data.visible);
-      }
-
-      this._updateScrollerWidths();
-      this._updateScrollBarVisibility();
-    },
-
-    /**
-     * Event handler. Called when the width of a column has changed.
-     *
-     * @param evt {Map} the event.
-     */
-    _onColWidthChanged(evt) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        var data = evt.getData();
-        scrollerArr[i].setColumnWidth(data.col, data.newWidth);
-      }
-
-      this._updateScrollerWidths();
-      this._updateScrollBarVisibility();
-    },
-
-    /**
-     * Event handler. Called when the column order has changed.
-     *
-     * @param evt {Map} the event.
-     */
-    _onColOrderChanged(evt) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].onColOrderChanged();
-      }
-
-      // A column may have been moved between meta columns
-      this._updateScrollerWidths();
-      this._updateScrollBarVisibility();
-    },
-
-    /**
-     * Gets the TablePaneScroller at a certain x position in the page. If there is
-     * no TablePaneScroller at this position, null is returned.
-     *
-     * @param pageX {Integer} the position in the page to check (in pixels).
-     * @return {qx.ui.table.pane.Scroller} the TablePaneScroller or null.
-     */
-    getTablePaneScrollerAtPageX(pageX) {
-      var metaCol = this._getMetaColumnAtPageX(pageX);
-      return metaCol != -1 ? this.getPaneScroller(metaCol) : null;
-    },
-
-    /**
-     * Sets the currently focused cell. A value of <code>null</code> hides the
-     * focus cell.
-     *
-     * @param col {Integer?null} the model index of the focused cell's column.
-     * @param row {Integer?null} the model index of the focused cell's row.
-     * @param scrollVisible {Boolean ? false} whether to scroll the new focused cell
-     *          visible.
-     */
-    setFocusedCell(col, row, scrollVisible) {
-      let cellChanged = col != this.__focusedCol || row != this.__focusedRow;
-      if (this.isEditing() && cellChanged) {
-        this.stopEditing();
-      }
-      if (!this.isEditing() && cellChanged) {
-        if (col === null) {
-          col = 0;
-        }
-
-        this.__focusedCol = col;
-        this.__focusedRow = row;
-
-        var scrollerArr = this._getPaneScrollerArr();
-
-        for (var i = 0; i < scrollerArr.length; i++) {
-          scrollerArr[i].setFocusedCell(col, row);
-        }
-
-        if (col != null && scrollVisible) {
-          this.scrollCellVisible(col, row);
-        }
-
-        // ARIA attrs
-        const cellId =
-          "qooxdoo-table-cell-" + this.toHashCode() + "-" + row + "-" + col;
-        this.getContentElement().setAttribute("aria-activedescendant", cellId);
-      }
-    },
-
-    /**
-     * Resets (clears) the current selection
+     * Clears the current row selection.
      */
     resetSelection() {
-      this.getSelectionModel().resetSelection();
+      this.__selectedRowIndices.clear();
+      this._scheduleTableRender();
     },
 
-    /**
-     * Resets the focused cell.
-     */
-    resetCellFocus() {
-      this.setFocusedCell(null, null, false);
-    },
-
-    /**
-     * Returns the column of the currently focused cell.
-     *
-     * @return {Integer} the model index of the focused cell's column.
-     */
-    getFocusedColumn() {
-      return this.__focusedCol;
-    },
-
-    /**
-     * Returns the row of the currently focused cell.
-     *
-     * @return {Integer} the model index of the focused cell's column.
-     */
-    getFocusedRow() {
-      return this.__focusedRow;
-    },
-
-    /**
-     * Select whether the focused row is highlighted
-     *
-     * @param bHighlight {Boolean}
-     *   Flag indicating whether the focused row should be highlighted.
-     *
-     */
-    highlightFocusedRow(bHighlight) {
-      this.getDataRowRenderer().setHighlightFocusRow(bHighlight);
-    },
-
-    /**
-     * Remove the highlighting of the current focus row.
-     *
-     * This is used to temporarily remove the highlighting of the currently
-     * focused row, and is expected to be used most typically by adding a
-     * listener on the "pointerout" event, so that the focus highlighting is
-     * suspended when the pointer leaves the table:
-     *
-     *     table.addListener("pointerout", table.clearFocusedRowHighlight);
-     *
-     * @param evt {qx.event.type.Pointer} Incoming pointer event
-     */
-    clearFocusedRowHighlight(evt) {
-      if (evt) {
-        var relatedTarget = evt.getRelatedTarget();
-        if (
-          relatedTarget instanceof qx.ui.table.pane.Pane ||
-          relatedTarget instanceof qx.ui.table.pane.FocusIndicator
-        ) {
-          return;
+    _scheduleTableRender() {
+      if (this.__renderScheduled) return;
+      this.__renderScheduled = true;
+      queueMicrotask(() => {
+        this.__renderScheduled = false;
+        if (!this.isDisposed()) {
+          this._renderTableDom();
         }
-      }
-
-      // Remove focus from any cell that has it
-      this.resetCellFocus();
-
-      // Now, for each pane scroller...
-      var scrollerArr = this._getPaneScrollerArr();
-      for (var i = 0; i < scrollerArr.length; i++) {
-        // ... repaint without focus.
-        scrollerArr[i].onFocusChanged();
-      }
+      });
     },
 
     /**
-     * Moves the focus.
+     * Renders the semantic `<thead>` and Tier 1 / Tier 2 `<tbody>` into `table-el`.
      *
-     * @param deltaX {Integer} The delta by which the focus should be moved on the x axis.
-     * @param deltaY {Integer} The delta by which the focus should be moved on the y axis.
+     * @protected
      */
-    moveFocusedCell(deltaX, deltaY) {
-      var col = this.__focusedCol;
-      var row = this.__focusedRow;
+    _renderTableDom() {
+      const tableWidget = this.getChildControl("table-el", true);
+      const model = this.getTableModel();
+      if (!tableWidget || !model) return;
 
-      // could also be undefined [BUG #4676]. In that case default to first cell focus
-      if (
-        col === null ||
-        col === undefined ||
-        row === null ||
-        row === undefined
-      ) {
-        this.setFocusedCell(0, 0, true);
-        return;
+      const colCount = model.getColumnCount();
+      const rowCount = model.getRowCount();
+      const totalUnfiltered =
+        typeof model.getUnfilteredRowCount === "function"
+          ? model.getUnfilteredRowCount()
+          : rowCount;
+      const sortCol = model.getSortColumnIndex();
+      const sortAsc = model.isSortAscending();
+
+      const escape = (str) =>
+        String(str ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+
+      const withRowBorders = this.getWithRowBorders();
+      const withColBorders = this.getWithColumnBorders();
+      const hoverAttr = this.getHighlightOnHover() ? ' data-hover="true"' : "";
+      const rowBorderAttr = withRowBorders ? ' data-with-row-border="true"' : "";
+      const colBorderAttr = withColBorders ? ' data-with-column-border="true"' : "";
+      const stripedVal = this.getStriped();
+      const stripedAttr =
+        stripedVal === true || stripedVal === "odd"
+          ? ' data-striped="odd"'
+          : stripedVal === "even"
+          ? ' data-striped="even"'
+          : "";
+
+      const parts = [];
+
+      // 1. Sticky Semantic <thead> with sort indicators & pointer-captured resize handles
+      if (colCount > 0) {
+        parts.push(
+          `<thead class="m_b242d975 mantine-Table-thead ville-simpletable-thead" data-sticky="true">`
+        );
+        parts.push(
+          `<tr class="m_4e7aa4fd mantine-Table-tr ville-simpletable-tr"${rowBorderAttr}>`
+        );
+
+        for (let c = 0; c < colCount; c++) {
+          const colName = model.getColumnName(c) || "";
+          const sortable = model.isColumnSortable(c);
+          const editable = model.isColumnEditable(c);
+          const isSorted = sortCol === c;
+          const ariaSort = isSorted
+            ? ` aria-sort="${sortAsc ? "ascending" : "descending"}"`
+            : "";
+          const sortIndicator = sortable
+            ? isSorted
+              ? sortAsc
+                ? " ▲"
+                : " ▼"
+              : " ⇅"
+            : "";
+          const editBadge = editable ? " ✎" : "";
+          const align = this.__columnAlignments[c] || "left";
+          const widthStyle = this.__columnWidths[c]
+            ? `width:${escape(this.__columnWidths[c])};`
+            : "";
+          const cursorStyle = sortable ? "cursor:pointer;user-select:none;" : "";
+
+          parts.push(
+            `<th scope="col" class="m_4e7aa4f3 mantine-Table-th ville-simpletable-th" data-col-index="${c}"${
+              sortable ? ' data-sortable="true"' : ""
+            }${colBorderAttr}${ariaSort} style="position:relative;text-align:${align};${widthStyle}${cursorStyle}">` +
+              `<span>${escape(colName)}${editBadge}</span>` +
+              `<span class="ville-simpletable-sort-icon" aria-hidden="true">${sortIndicator}</span>` +
+              `<span class="ville-table-col-resizer" data-resize-col="${c}" style="position:absolute;top:0;right:0;bottom:0;width:6px;cursor:col-resize;"></span>` +
+            `</th>`
+          );
+        }
+
+        parts.push(`</tr></thead>`);
       }
 
-      if (deltaX != 0) {
-        var columnModel = this.getTableColumnModel();
-        var x = columnModel.getVisibleX(col);
-        var colCount = columnModel.getVisibleColumnCount();
-        x = qx.lang.Number.limit(x + deltaX, 0, colCount - 1);
-        col = columnModel.getVisibleColumnAtX(x);
-      }
+      // 2. Semantic <tbody> (Tier 1 content-visibility: auto OR Tier 2 windowed DOM pool)
+      parts.push(
+        `<tbody class="m_b2404537 mantine-Table-tbody ville-simpletable-tbody">`
+      );
 
-      if (deltaY != 0) {
-        var tableModel = this.getTableModel();
-        row = qx.lang.Number.limit(
-          row + deltaY,
-          0,
-          tableModel.getRowCount() - 1
+      const threshold = this.getVirtualThreshold() || 250;
+      const rowH = this.getRowHeight() || 34;
+      const useTier2 = rowCount >= threshold;
+
+      let startRow = 0;
+      let endRow = rowCount;
+
+      if (useTier2) {
+        const vp = this.getChildControl("scroll-viewport", true);
+        const vpDom = vp ? vp.getContentElement().getDomElement() : null;
+        const scrollTop = vpDom ? vpDom.scrollTop : this.__scrollTop;
+        const viewportH =
+          (vpDom && vpDom.clientHeight) || Number(this.getViewportHeight()) || 260;
+        const overscan = 10;
+        startRow = Math.max(0, Math.floor(scrollTop / rowH) - overscan);
+        endRow = Math.min(
+          rowCount,
+          Math.ceil((scrollTop + viewportH) / rowH) + overscan
         );
       }
 
-      this.setFocusedCell(col, row, true);
-    },
-
-    /**
-     * Scrolls a cell visible.
-     *
-     * @param col {Integer} the model index of the column the cell belongs to.
-     * @param row {Integer} the model index of the row the cell belongs to.
-     */
-    scrollCellVisible(col, row) {
-      // get the dom element
-      var elem = this.getContentElement().getDomElement();
-      // if the dom element is not available, the table hasn't been rendered
-      if (!elem) {
-        // postpone the scroll until the table has appeared
-        this.addListenerOnce("appear", () => {
-          this.scrollCellVisible(col, row);
-        });
+      if (useTier2 && startRow > 0) {
+        parts.push(
+          `<tr class="ville-table-spacer-top" aria-hidden="true" style="height:${
+            startRow * rowH
+          }px;"><td colspan="${Math.max(1, colCount)}" style="padding:0;border:0;"></td></tr>`
+        );
       }
 
-      var columnModel = this.getTableColumnModel();
-      var x = columnModel.getVisibleX(col);
+      for (let r = startRow; r < endRow; r++) {
+        const isSelected = this.__selectedRowIndices.has(r);
+        const selAttr = isSelected
+          ? ' data-selected="true" aria-selected="true"'
+          : ' aria-selected="false"';
+        const cvStyle = useTier2
+          ? `height:${rowH}px;`
+          : `content-visibility:auto;contain-intrinsic-size:auto ${rowH}px;`;
 
-      var metaColumn = this._getMetaColumnAtColumnX(x);
+        parts.push(
+          `<tr class="m_4e7aa4fd mantine-Table-tr ville-simpletable-tr" data-row-index="${r}"${rowBorderAttr}${hoverAttr}${stripedAttr}${selAttr} style="${cvStyle}">`
+        );
 
-      if (metaColumn != -1) {
-        this.getPaneScroller(metaColumn).scrollCellVisible(col, row);
-      }
-    },
+        for (let c = 0; c < colCount; c++) {
+          const val = model.getValue(c, r);
+          const align =
+            this.__columnAlignments[c] ||
+            (typeof val === "number" ? "right" : "left");
+          const editableAttr = model.isColumnEditable(c)
+            ? ' data-editable="true"'
+            : "";
 
-    /**
-     * Returns whether currently a cell is editing.
-     *
-     * @return {var} whether currently a cell is editing.
-     */
-    isEditing() {
-      if (this.__focusedCol != null) {
-        var x = this.getTableColumnModel().getVisibleX(this.__focusedCol);
-        var metaColumn = this._getMetaColumnAtColumnX(x);
-        return this.getPaneScroller(metaColumn).isEditing();
-      }
-      return false;
-    },
-
-    /**
-     * Starts editing the currently focused cell. Does nothing if already editing
-     * or if the column is not editable.
-     *
-     * @return {Boolean} whether editing was started
-     */
-    startEditing() {
-      if (this.__focusedCol != null) {
-        var x = this.getTableColumnModel().getVisibleX(this.__focusedCol);
-        var metaColumn = this._getMetaColumnAtColumnX(x);
-        var started = this.getPaneScroller(metaColumn).startEditing();
-        return started;
-      }
-
-      return false;
-    },
-
-    /**
-     * Stops editing and writes the editor's value to the model.
-     */
-    stopEditing() {
-      if (this.__focusedCol != null) {
-        var x = this.getTableColumnModel().getVisibleX(this.__focusedCol);
-        var metaColumn = this._getMetaColumnAtColumnX(x);
-        this.getPaneScroller(metaColumn).stopEditing();
-      }
-    },
-
-    /**
-     * Stops editing without writing the editor's value to the model.
-     */
-    cancelEditing() {
-      if (this.__focusedCol != null) {
-        var x = this.getTableColumnModel().getVisibleX(this.__focusedCol);
-        var metaColumn = this._getMetaColumnAtColumnX(x);
-        this.getPaneScroller(metaColumn).cancelEditing();
-      }
-    },
-
-    /**
-     * Update the table content of every attached table pane.
-     */
-    updateContent() {
-      var scrollerArr = this._getPaneScrollerArr();
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].getTablePane().updateContent(true);
-      }
-    },
-
-    /**
-     * Activates the blocker widgets on all column headers and the
-     * column button
-     */
-    blockHeaderElements() {
-      var scrollerArr = this._getPaneScrollerArr();
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].getHeader().getBlocker().blockContent(20);
-      }
-      this.getChildControl("column-button").getBlocker().blockContent(20);
-    },
-
-    /**
-     * Deactivates the blocker widgets on all column headers and the
-     * column button
-     */
-    unblockHeaderElements() {
-      var scrollerArr = this._getPaneScrollerArr();
-      for (var i = 0; i < scrollerArr.length; i++) {
-        scrollerArr[i].getHeader().getBlocker().unblock();
-      }
-      this.getChildControl("column-button").getBlocker().unblock();
-    },
-
-    /**
-     * Gets the meta column at a certain x position in the page. If there is no
-     * meta column at this position, -1 is returned.
-     *
-     * @param pageX {Integer} the position in the page to check (in pixels).
-     * @return {Integer} the index of the meta column or -1.
-     */
-    _getMetaColumnAtPageX(pageX) {
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        var pos = scrollerArr[i].getContentLocation();
-
-        if (pageX >= pos.left && pageX <= pos.right) {
-          return i;
-        }
-      }
-
-      return -1;
-    },
-
-    /**
-     * Returns the meta column a column is shown in. If the column is not shown at
-     * all, -1 is returned.
-     *
-     * @param visXPos {Integer} the visible x position of the column.
-     * @return {Integer} the meta column the column is shown in.
-     */
-    _getMetaColumnAtColumnX(visXPos) {
-      var metaColumnCounts = this.getMetaColumnCounts();
-      var rightXPos = 0;
-
-      for (var i = 0; i < metaColumnCounts.length; i++) {
-        var counts = metaColumnCounts[i];
-        rightXPos += counts;
-
-        if (counts == -1 || visXPos < rightXPos) {
-          return i;
-        }
-      }
-
-      return -1;
-    },
-
-    /**
-     * Updates the text shown in the status bar.
-     */
-    _updateStatusBar() {
-      var tableModel = this.getTableModel();
-
-      if (this.getStatusBarVisible()) {
-        var selectedRowCount = this.getSelectionModel().getSelectedCount();
-        var rowCount = tableModel.getRowCount();
-
-        var text;
-
-        if (rowCount >= 0) {
-          if (selectedRowCount == 0) {
-            text = this.trn("one row", "%1 rows", rowCount, rowCount);
-          } else {
-            text = this.trn(
-              "one of one row",
-              "%1 of %2 rows",
-              rowCount,
-              selectedRowCount,
-              rowCount
-            );
-          }
+          parts.push(
+            `<td class="m_4e7aa4ef mantine-Table-td ville-simpletable-td" data-row-index="${r}" data-col-index="${c}"${editableAttr}${colBorderAttr} style="text-align:${align};">${escape(
+              val
+            )}</td>`
+          );
         }
 
-        if (this.__additionalStatusBarText) {
-          if (text) {
-            text += this.__additionalStatusBarText;
-          } else {
-            text = this.__additionalStatusBarText;
-          }
-        }
-
-        if (text) {
-          this.getChildControl("statusbar").setValue(text);
-        }
+        parts.push(`</tr>`);
       }
+
+      if (useTier2 && endRow < rowCount) {
+        parts.push(
+          `<tr class="ville-table-spacer-bottom" aria-hidden="true" style="height:${
+            (rowCount - endRow) * rowH
+          }px;"><td colspan="${Math.max(1, colCount)}" style="padding:0;border:0;"></td></tr>`
+        );
+      }
+
+      parts.push(`</tbody>`);
+
+      tableWidget.getContentElement().setAttribute("html", parts.join(""));
+
+      // Update statusbar readout
+      const sb = this.getChildControl("statusbar", true);
+      if (sb) {
+        const tierLabel = useTier2
+          ? `Tier 2 Virtual Window (${endRow - startRow} DOM rows mounted)`
+          : `Tier 1 CSS content-visibility`;
+        const filterLabel =
+          rowCount !== totalUnfiltered
+            ? `${rowCount} of ${totalUnfiltered} rows`
+            : `${rowCount} rows`;
+        const selCount = this.__selectedRowIndices.size;
+        const selLabel = selCount > 0 ? ` · ${selCount} selected` : "";
+        sb.setValue(`${filterLabel}${selLabel} · ${tierLabel}`);
+      }
+
+      ville.ui.core.Widget.scheduleFlush();
+
+      // Apply W3C CSS Custom Highlight API (`CSS.highlights`) after DOM flush
+      queueMicrotask(() => {
+        if (this.isDisposed()) return;
+        const domTbl = tableWidget.getContentElement().getDomElement();
+        const q =
+          this.getHighlightQuery() ||
+          (typeof model.getSearchQuery === "function" ? model.getSearchQuery() : null);
+        ville.ui.core.MDataView.applyCssHighlight(domTbl, q);
+      });
     },
 
-    /**
-     * Updates the widths of all scrollers.
-     */
-    _updateScrollerWidths() {
-      // Give all scrollers except for the last one the wanted width
-      // (The last one has a flex with)
-      var scrollerArr = this._getPaneScrollerArr();
-
-      for (var i = 0; i < scrollerArr.length; i++) {
-        var isLast = i == scrollerArr.length - 1;
-        var width = scrollerArr[i].getTablePaneModel().getTotalWidth();
-        scrollerArr[i].setPaneWidth(width);
-
-        var flex = isLast ? 1 : 0;
-        scrollerArr[i].setLayoutProperties({ flex: flex });
-      }
+    _applyHighlightQuery(value) {
+      const tableWidget = this.getChildControl("table-el", true);
+      const domTbl = tableWidget
+        ? tableWidget.getContentElement().getDomElement()
+        : null;
+      ville.ui.core.MDataView.applyCssHighlight(domTbl, value);
     },
 
-    /**
-     * Updates the visibility of the scrollbars in the meta columns.
-     */
-    _updateScrollBarVisibility() {
-      if (!this.getBounds()) {
+    _onTableClick(e) {
+      if (!this.getEnabled()) return;
+      const model = this.getTableModel();
+      if (!model) return;
+
+      const nativeEvt = e && typeof e.getNativeEvent === "function" ? e.getNativeEvent() : e;
+      const target = /** @type {HTMLElement|null} */ (nativeEvt ? nativeEvt.target : null);
+      if (!target || typeof target.closest !== "function") return;
+
+      // Ignore clicks directly on the column resize handle or active inline editor input
+      if (target.closest("[data-resize-col]") || target.tagName === "INPUT") {
         return;
       }
 
-      var horBar = qx.ui.table.pane.Scroller.HORIZONTAL_SCROLLBAR;
-      var verBar = qx.ui.table.pane.Scroller.VERTICAL_SCROLLBAR;
-      var scrollerArr = this._getPaneScrollerArr();
-
-      // Check which scroll bars are needed
-      var horNeeded = false;
-      var verNeeded = false;
-      var excludeScrollerScrollbarsIfNotNeeded;
-
-      // Determine whether we need to render horizontal scrollbars for meta
-      // columns that don't themselves actually require it
-      excludeScrollerScrollbarsIfNotNeeded =
-        this.getExcludeScrollerScrollbarsIfNotNeeded();
-
-      if (!excludeScrollerScrollbarsIfNotNeeded) {
-        for (var i = 0; i < scrollerArr.length; i++) {
-          var isLast = i == scrollerArr.length - 1;
-
-          // Only show the last vertical scrollbar
-          var bars = scrollerArr[i].getNeededScrollBars(horNeeded, !isLast);
-
-          if (bars & horBar) {
-            horNeeded = true;
-          }
-
-          if (isLast && bars & verBar) {
-            verNeeded = true;
-          }
+      // 1. Sortable column header click
+      const th = target.closest("th[data-col-index]");
+      if (th) {
+        const colIdx = Number(th.getAttribute("data-col-index"));
+        if (model.isColumnSortable(colIdx)) {
+          const nextAsc =
+            model.getSortColumnIndex() === colIdx ? !model.isSortAscending() : true;
+          model.sortByColumn(colIdx, nextAsc);
         }
+        return;
       }
 
-      // Set the needed scrollbars
-      for (var i = 0; i < scrollerArr.length; i++) {
-        isLast = i == scrollerArr.length - 1;
+      // 2. Data cell / row click
+      const td = target.closest("td[data-row-index]");
+      const tr = target.closest("tr[data-row-index]");
+      if (!tr) return;
 
-        // If we don't want to include scrollbars for meta columns that don't
-        // require it, find out whether this meta column requires it.
-        if (excludeScrollerScrollbarsIfNotNeeded) {
-          horNeeded = !!(
-            scrollerArr[i].getNeededScrollBars(false, !isLast) & horBar
-          );
+      const rowIdx = Number(tr.getAttribute("data-row-index"));
+      const colIdx = td ? Number(td.getAttribute("data-col-index")) : 0;
 
-          // Show the horizontal scrollbar if needed. Specify null to indicate
-          // that the scrollbar should be hidden rather than excluded.
-          scrollerArr[i].setHorizontalScrollBarVisible(horNeeded || null);
+      this.fireDataEvent("cellTap", { row: rowIdx, col: colIdx });
+
+      const selMode = this.getSelectionMode();
+      if (selMode !== "none") {
+        if (selMode === "multi" && (nativeEvt.metaKey || nativeEvt.ctrlKey)) {
+          if (this.__selectedRowIndices.has(rowIdx)) {
+            this.__selectedRowIndices.delete(rowIdx);
+          } else {
+            this.__selectedRowIndices.add(rowIdx);
+          }
         } else {
-          // Show the horizontal scrollbar if needed.
-          scrollerArr[i].setHorizontalScrollBarVisible(horNeeded);
+          this.__selectedRowIndices.clear();
+          this.__selectedRowIndices.add(rowIdx);
         }
 
-        // If this is the last meta-column...
-        if (isLast) {
-          // ... then get the current (old) use of vertical scroll bar
-          verNeeded = !!(
-            scrollerArr[i].getNeededScrollBars(false, false) & verBar
-          );
-
-          if (this.__hadVerticalScrollBar == null) {
-            this.__hadVerticalScrollBar =
-              scrollerArr[i].getVerticalScrollBarVisible();
-            this.__timer = qx.event.Timer.once(
-              function () {
-                // reset the last visible state of the vertical scroll bar
-                // in a timeout to prevent infinite loops.
-                this.__hadVerticalScrollBar = null;
-                this.__timer = null;
-              },
-              this,
-              0
-            );
-          }
-        }
-
-        scrollerArr[i].setVerticalScrollBarVisible(isLast && verNeeded);
-
-        // If this is the last meta-column and the use of a vertical scroll bar
-        // has changed...
-        if (isLast && verNeeded != this.__hadVerticalScrollBar) {
-          // ... then dispatch an event to any awaiting listeners
-          this.fireDataEvent("verticalScrollBarChanged", verNeeded);
-        }
-      }
-    },
-
-    /**
-     * Initialize the column menu
-     */
-    _initColumnMenu() {
-      var tableModel = this.getTableModel();
-      var columnModel = this.getTableColumnModel();
-
-      var columnButton = this.getChildControl("column-button");
-
-      // Remove all items from the menu. We'll rebuild it here.
-      columnButton.empty();
-
-      // Inform listeners who may want to insert menu items at the beginning
-      var menu = columnButton.getMenu();
-      var data = {
-        table: this,
-        menu: menu,
-        columnButton: columnButton
-      };
-
-      this.fireDataEvent("columnVisibilityMenuCreateStart", data);
-
-      this.__columnMenuButtons = {};
-      for (var iCol = 0, l = tableModel.getColumnCount(); iCol < l; iCol++) {
-        var col = columnModel.getOverallColumnAtX(iCol);
-        var menuButton = columnButton.factory("menu-button", {
-          text: tableModel.getColumnName(col),
-          column: col,
-          bVisible: columnModel.isColumnVisible(col)
+        this._renderTableDom();
+        const rowData =
+          typeof model.getRowDataAsMap === "function"
+            ? model.getRowDataAsMap(rowIdx)
+            : model.getRowData(rowIdx);
+        const selIndices = this.getSelectedRowIndices();
+        this.fireDataEvent("rowSelect", {
+          rowIndex: rowIdx,
+          rowData,
+          selectedIndices: selIndices
         });
-
-        qx.core.Assert.assertInterface(menuButton, qx.ui.table.IColumnMenuItem);
-
-        menuButton.addListener(
-          "changeColumnVisible",
-          this._createColumnVisibilityCheckBoxHandler(col),
-          this
-        );
-
-        this.__columnMenuButtons[col] = menuButton;
+        this.fireDataEvent("changeSelection", selIndices);
       }
+    },
 
-      // Inform listeners who may want to insert menu items at the end
-      data = {
-        table: this,
-        menu: menu,
-        columnButton: columnButton
+    /**
+     * Handles double-clicking a cell: fires `cellDbltap` and, if the column is editable,
+     * mounts a native inline `<input>` editor inside the `<td>`.
+     *
+     * @param {Object} e
+     * @protected
+     */
+    _onTableDblClick(e) {
+      if (!this.getEnabled()) return;
+      const model = this.getTableModel();
+      if (!model) return;
+
+      const nativeEvt = e && typeof e.getNativeEvent === "function" ? e.getNativeEvent() : e;
+      const target = /** @type {HTMLElement|null} */ (nativeEvt ? nativeEvt.target : null);
+      if (!target || typeof target.closest !== "function") return;
+
+      const td = /** @type {HTMLElement|null} */ (
+        target.closest("td[data-row-index][data-col-index]")
+      );
+      if (!td || td.querySelector("input")) return;
+
+      const rowIdx = Number(td.getAttribute("data-row-index"));
+      const colIdx = Number(td.getAttribute("data-col-index"));
+
+      this.fireDataEvent("cellDbltap", { row: rowIdx, col: colIdx });
+
+      if (!model.isColumnEditable(colIdx)) return;
+
+      const oldVal = model.getValue(colIdx, rowIdx);
+      const isNumeric = typeof oldVal === "number";
+      const input = document.createElement("input");
+      input.type = isNumeric ? "number" : "text";
+      input.value = oldVal !== undefined && oldVal !== null ? String(oldVal) : "";
+      input.className = "ville-table-inline-editor";
+      input.style.width = "100%";
+      input.style.boxSizing = "border-box";
+      input.style.font = "inherit";
+      input.style.padding = "2px 4px";
+
+      let committed = false;
+      const commit = (save) => {
+        if (committed) return;
+        committed = true;
+        if (save) {
+          const nextVal = isNumeric ? Number(input.value) : input.value;
+          if (nextVal !== oldVal) {
+            model.setValue(colIdx, rowIdx, nextVal);
+            this.fireDataEvent("dataEdited", {
+              row: rowIdx,
+              col: colIdx,
+              value: nextVal,
+              oldValue: oldVal
+            });
+          } else {
+            this._renderTableDom();
+          }
+        } else {
+          this._renderTableDom();
+        }
       };
 
-      this.fireDataEvent("columnVisibilityMenuCreateEnd", data);
+      input.addEventListener("keydown", (ke) => {
+        if (ke.key === "Enter") {
+          ke.preventDefault();
+          commit(true);
+        } else if (ke.key === "Escape") {
+          ke.preventDefault();
+          commit(false);
+        }
+      });
+      input.addEventListener("blur", () => commit(true), { once: true });
+
+      td.textContent = "";
+      td.appendChild(input);
+      input.focus();
+      input.select();
     },
 
     /**
-     * Creates a handler for a check box of the column visibility menu.
+     * Pointer-captured column resize handler (`[data-resize-col]`).
      *
-     * @param col {Integer} the model index of column to create the handler for.
-     * @return {Function} The created event handler.
+     * @param {Object} e
+     * @protected
      */
-    _createColumnVisibilityCheckBoxHandler(col) {
-      return function (evt) {
-        var columnModel = this.getTableColumnModel();
-        columnModel.setColumnVisible(col, evt.getData());
+    _onHeaderResizePointerDown(e) {
+      const nativeEvt = e && typeof e.getNativeEvent === "function" ? e.getNativeEvent() : e;
+      const target = /** @type {HTMLElement|null} */ (nativeEvt ? nativeEvt.target : null);
+      if (!target || typeof target.closest !== "function") return;
+
+      const handle = /** @type {HTMLElement|null} */ (
+        target.closest("[data-resize-col]")
+      );
+      if (!handle) return;
+
+      const th = handle.closest("th");
+      if (!th) return;
+
+      if (typeof e.preventDefault === "function") {
+        e.preventDefault();
+      }
+      if (typeof e.stopPropagation === "function") {
+        e.stopPropagation();
+      }
+
+      const colIdx = Number(handle.getAttribute("data-resize-col"));
+      const startX = nativeEvt.clientX;
+      const startWidth = th.getBoundingClientRect().width;
+      const pointerId = nativeEvt.pointerId;
+
+      if (pointerId != null && typeof handle.setPointerCapture === "function") {
+        try {
+          handle.setPointerCapture(pointerId);
+        } catch (_) {}
+      }
+
+      const onMove = (me) => {
+        const nextW = Math.max(48, Math.round(startWidth + (me.clientX - startX)));
+        th.style.width = `${nextW}px`;
+        this.__columnWidths[colIdx] = `${nextW}px`;
       };
-    },
 
-    /**
-     * Sets the width of a column.
-     *
-     * @param col {Integer} the model index of column.
-     * @param width {Integer} the new width in pixels.
-     */
-    setColumnWidth(col, width) {
-      this.getTableColumnModel().setColumnWidth(col, width);
-    },
+      const onUp = () => {
+        handle.removeEventListener("pointermove", onMove);
+        handle.removeEventListener("pointerup", onUp);
+        handle.removeEventListener("pointercancel", onUp);
+        this._scheduleTableRender();
+      };
 
-    /**
-     * Resize event handler
-     */
-    _onResize() {
-      this.fireEvent("tableWidthChanged");
-      this._updateScrollerWidths();
-      this._updateScrollBarVisibility();
-    },
-
-    // overridden
-    addListener(type, listener, self, capture) {
-      if (this.self(arguments).__redirectEvents[type]) {
-        // start the id with the type (needed for removing)
-        var id = [type];
-        for (var i = 0, arr = this._getPaneScrollerArr(); i < arr.length; i++) {
-          id.push(arr[i].addListener.apply(arr[i], arguments));
-        }
-        // join the id's of every event with "
-        return id.join('"');
-      } else {
-        return super.addListener(type, listener, self, capture);
-      }
-    },
-
-    // overridden
-    removeListener(type, listener, self, capture) {
-      if (this.self(arguments).__redirectEvents[type]) {
-        for (var i = 0, arr = this._getPaneScrollerArr(); i < arr.length; i++) {
-          arr[i].removeListener.apply(arr[i], arguments);
-        }
-      } else {
-        super.removeListener(type, listener, self, capture);
-      }
-    },
-
-    // overridden
-    removeListenerById(id) {
-      var ids = id.split('"');
-      // type is the first entry of the connected id
-      var type = ids.shift();
-      if (this.self(arguments).__redirectEvents[type]) {
-        var removed = true;
-        for (var i = 0, arr = this._getPaneScrollerArr(); i < arr.length; i++) {
-          removed = arr[i].removeListenerById.call(arr[i], ids[i]) && removed;
-        }
-        return removed;
-      } else {
-        return super.removeListenerById(id);
-      }
-    },
-
-    destroy() {
-      this.getChildControl("column-button").getMenu().destroy();
-      super.destroy();
+      handle.addEventListener("pointermove", onMove);
+      handle.addEventListener("pointerup", onUp);
+      handle.addEventListener("pointercancel", onUp);
     }
   },
 
-  /*
-  *****************************************************************************
-     DESTRUCTOR
-  *****************************************************************************
-  */
-
   destruct() {
-    // remove the event listener which handled the locale change
-    if (qx.core.Environment.get("qx.dynlocale") && this.__changeLocaleTableListenerId) {
-      qx.locale.Manager.getInstance().removeListenerById(
-        this.__changeLocaleTableListenerId
-      );
+    const model = this.getTableModel();
+    if (model && this.__modelListenerIds) {
+      for (const id of this.__modelListenerIds) {
+        model.removeListenerById(id);
+      }
     }
-
-    // we allocated these objects on init so we have to clean them up.
-    var selectionModel = this.getSelectionModel();
-    if (selectionModel) {
-      selectionModel.dispose();
-    }
-
-    var dataRowRenderer = this.getDataRowRenderer();
-    if (dataRowRenderer) {
-      dataRowRenderer.dispose();
-    }
-
-    if (this.getTableModel() != null) {
-      this.getTableModel().removeListener(
-        "metaDataChanged",
-        this._onTableModelMetaDataChanged,
-        this
-      );
-
-      this.getTableModel().removeListener(
-        "dataChanged",
-        this._onTableModelDataChanged,
-        this
-      );
-    }
-
-    this.getTableColumnModel().dispose();
-    this._disposeObjects(
-      "__selectionManager",
-      "__scrollerParent",
-      "__emptyTableModel",
-      "__emptyTableModel",
-      "__columnModel",
-      "__timer"
-    );
-
-    this._disposeMap("__columnMenuButtons");
+    this.__modelListenerIds = null;
+    this.__columnWidths = null;
+    this.__columnAlignments = null;
+    this.__selectedRowIndices = null;
   }
 });

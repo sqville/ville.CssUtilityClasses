@@ -1,36 +1,30 @@
-/* ************************************************************************
-SQ Notes:
-* No need to extend qx page object. It was a light composite at best.
-************************************************************************ */
-
 /**
- * A page is the way to add content to a {@link TabView}. Each page gets a
- * button to switch to the page. Only one page is visible at a time.
+ * A page represents both the tab button on the bar and the panel widget shown
+ * in the content pane of a `{ville.ui.tabview.TabView}`.
  *
- * @childControl button {ville.ui.tabview.TabButton} tab button connected to the page
+ * Baseline 2025 Enhancement:
+ * - Inactive pages use `visibility: "until-found"` (`hidden="until-found"`) by default,
+ *   allowing native browser Find-in-Page (`Ctrl+F` / `Cmd+F`) to search inside
+ *   inactive tabs and fire the native `"beforematch"` event so `TabView` automatically
+ *   switches to the matching tab!
+ *
+ * @childControl button {ville.ui.tabview.TabButton} Tab button for the TabView bar
  */
 qx.Class.define("ville.ui.tabview.Page", {
-  
   extend: ville.ui.core.Box,
 
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
-
   /**
-   * @param label {String} Initial label of the tab
-   * @param icon {ville.ui.icon.Abstract} Initial icon of the tab
+   * @param label {String?""} Initial label of the tab
+   * @param icon {String?null} Initial icon of the tab
+   * @param layout {ville.ui.layout.Abstract?null} Optional layout for the page panel
    */
-  construct(label, icon) {
-    super();
+  construct(label, icon, layout) {
+    super(layout || new ville.ui.layout.VBox());
 
-    this.setCssUtilityClass("m_b0c91715 mantine-Tabs-panel");
+    this.setAttribute("role", "tabpanel");
 
     this._createChildControl("button");
 
-    // init
     if (label != null) {
       this.setLabel(label);
     }
@@ -39,203 +33,144 @@ qx.Class.define("ville.ui.tabview.Page", {
       this.setIcon(icon);
     }
 
-    // ARIA attrs
-    const btn = this.getButton();
-    const pageId = "page-" + this.toHashCode();
-    const btnId = "btn-" + pageId + btn.toHashCode();
-    const contentEl = this.getContentElement();
-    contentEl.setAttribute("id", pageId);
-    contentEl.setAttribute("role", "tabpanel");
-    contentEl.setAttribute("aria-labelledBy", btnId);
-    contentEl.setAttribute("aria-expanded", false);
-
-    const btnContentEl = btn.getContentElement();
-    btnContentEl.setAttribute("id", btnId);
-    btnContentEl.setAttribute("role", "tab");
-    btnContentEl.setAttribute("aria-selected", false);
-    btnContentEl.setAttribute("aria-controls", pageId);
-    btn.addListener("changeValue", this._onBtnChangeValue, this);
+    // Listen to native Baseline 2025 `beforematch` so browser Find-in-Page
+    // (`Ctrl+F` / `Cmd+F`) on `hidden="until-found"` panels reveals this tab!
+    const el = this.getContentElement();
+    if (el) {
+      el.addListener("beforematch", () => {
+        this.fireEvent("beforeMatch");
+        const btn = this.getChildControl("button");
+        if (btn && !btn.getValue()) {
+          btn.setValue(true);
+        }
+      });
+    }
   },
-
-  /*
-  *****************************************************************************
-     EVENTS
-  *****************************************************************************
-  */
 
   events: {
+    /** Fired when the close button of the TabButton is tapped. */
+    close: "qx.event.type.Event",
+
     /**
-     * Fired by {@link qx.ui.tabview.TabButton} if the close button is tapped.
+     * Fired when the browser's Find-in-Page (`Ctrl+F`) matches text inside this
+     * inactive `hidden="until-found"` tab panel.
      */
-    close: "qx.event.type.Event"
+    beforeMatch: "qx.event.type.Event"
   },
 
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
-
   properties: {
+    appearance: {
+      refine: true,
+      init: "tabview-page"
+    },
 
-    /** The label/caption/text of the Page's button. */
+    /** The label/caption/text of the Page's TabButton. */
     label: {
       check: "String",
       init: "",
       apply: "_applyLabel"
     },
 
-    /** Any URI String supported by qx.ui.basic.Image to display an icon in Page's button. */
+    /** Any URI String supported by `ville.ui.icon.Default` or image URL. */
     icon: {
-      check: "qx.ui.core.Widget",
-      init: null,
-      apply: "_applyIcon",
-      nullable: true
+      check: "String",
+      init: "",
+      nullable: true,
+      apply: "_applyIcon"
     },
 
-    /** Indicates if the close button of a TabButton should be shown. */
+    /** Indicates if the close button on the TabButton should be shown. */
     showCloseButton: {
       check: "Boolean",
       init: false,
       apply: "_applyShowCloseButton"
     },
 
-    /** Allows the tab to be excluded from the display */
-    tabVisibility: {
-      init: "visible",
-      check: ["visible", "excluded"],
-      nullable: false,
-      apply: "_applyTabVisibility",
-      event: "changeTabVisibility"
+    /**
+     * Whether inactive pages use `hidden="until-found"` (`visibility: "until-found"`)
+     * so browser Find-in-Page (`Ctrl+F`) can search and auto-activate them.
+     */
+    searchableWhenHidden: {
+      check: "Boolean",
+      init: true
     }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-  /* eslint-disable @qooxdoo/qx/no-refs-in-members */
-
   members: {
-
-    /*
-    ---------------------------------------------------------------------------
-      APPLY ROUTINES
-    ---------------------------------------------------------------------------
-    */
-
-    // property apply
-    /*_applyIcon(value, old) {
-      var btn = this.getChildControl("button");
-      if (value) {
-        btn.setIcon(value);
-        btn._showChildControl("icon");
-      } else {
-        btn._excludeChildControl("icon");
+    _applyStates(states, Value, isAdd) {
+      super._applyStates(states, Value, isAdd);
+      const button = this.getChildControl("button", true);
+      if (button) {
+        if (isAdd) {
+          button.addState(Value);
+        } else {
+          button.removeState(Value);
+        }
       }
-    },*/
-    _applyIcon(value, old) {
-      this.getChildControl("button").setTabSection(value);
     },
 
-    // property apply
-    _applyLabel(value, old) {
-      this.getChildControl("button").setLabel(value);
-    },
-
-    // overridden
-    _applyEnabled(value, old) {
-      super._applyEnabled(value, old);
-
-      // delegate to non-child widget button
-      // since enabled is inheritable value may be null
-      var btn = this.getChildControl("button");
-      value == null ? btn.resetEnabled() : btn.setEnabled(value);
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      WIDGET API
-    ---------------------------------------------------------------------------
-    */
-
-    // overridden
-    _createChildControlImpl(id, hash) {
-      var control;
+    _createChildControlImpl(id) {
+      let control;
 
       switch (id) {
-        case "button":
+        case "button": {
           control = new ville.ui.tabview.TabButton();
+          control.setAllowGrowX(true);
+          control.setAllowGrowY(true);
           control.setUserData("page", this);
           control.addListener("close", this._onButtonClose, this);
-          //control.setVisibility(this.getTabVisibility());
+
+          // Link ARIA tab -> tabpanel
+          const panelId = `ville-tabpanel-${this.toHashCode()}`;
+          const tabId = `ville-tab-${control.toHashCode()}`;
+          this.setAttribute("id", panelId);
+          this.setAttribute("aria-labelledby", tabId);
+          control.setAttribute("id", tabId);
+          control.setAttribute("aria-controls", panelId);
           break;
+        }
       }
 
       return control || super._createChildControlImpl(id);
     },
 
-    /**
-     * Tab Change Listener
-     * @param {*} e
-     */
-    _onBtnChangeValue(e) {
-      const val = e.getData();
-      this.getContentElement().setAttribute("aria-expanded", val, true); // Set third argument to true -> direct Update
-      this.getButton().getContentElement().setAttribute("aria-selected", val);
+    _applyLabel(value) {
+      this.getChildControl("button").setLabel(value);
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      PROPERTY APPLY
-    ---------------------------------------------------------------------------
-    */
-
-    // property apply
-    _applyShowCloseButton(value, old) {
-      //this.getChildControl("button").setShowCloseButton(value);
+    _applyIcon(value) {
+      const btn = this.getChildControl("button");
+      if (value) {
+        btn.setIcon(value);
+      } else {
+        btn.resetIcon();
+      }
     },
 
-    // property apply
-    _applyTabVisibility(newValue, oldValue) {
-      //this.getButton().setVisibility(newValue);
+    _applyShowCloseButton(value) {
+      this.getChildControl("button").setShowCloseButton(value);
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      EVENT LISTENERS
-    ---------------------------------------------------------------------------
-    */
+    _applyEnabled(value, old) {
+      super._applyEnabled(value, old);
+      const btn = this.getChildControl("button", true);
+      if (btn) {
+        if (value === null) {
+          btn.resetEnabled();
+        } else {
+          btn.setEnabled(value);
+        }
+      }
+    },
 
-    /**
-     * Fires an "close" event when the close button of the TabButton of the page
-     * is tapped.
-     */
     _onButtonClose() {
       this.fireEvent("close");
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      PUBLIC API
-    ---------------------------------------------------------------------------
-    */
-
     /**
-     * By default, widgets are added to `this`
+     * Returns the TabButton widget associated with this Page.
      *
-     * @return {qx.ui.core.Widget} the widget to add to
-     */
-    getChildrenContainer() {
-      return this;
-    },
-
-    /**
-     * Returns the button used within this page. This method is used by
-     * the TabView to access the button.
-     *
-     * @return {qx.ui.form.RadioButton} The button associated with this page.
+     * @return {ville.ui.tabview.TabButton}
      */
     getButton() {
       return this.getChildControl("button");

@@ -232,10 +232,6 @@ qx.Class.define("ville.ui.form.RadioButtonGroup", {
     }
   },
 
-  defer(statics) {
-    qx.Bootstrap.createNamespace("ville.ui.form.RadioGroup", statics);
-  },
-
   destruct() {
     this.__items = null;
     this.__selectedItem = null;

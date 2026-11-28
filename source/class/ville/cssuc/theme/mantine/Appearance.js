@@ -1771,6 +1771,237 @@ qx.Theme.define("ville.cssuc.theme.mantine.Appearance", {
     "window/header": "hgroup",
     "window/title": "typography-title",
     "window/close-button": "actionicon",
-    "window/pane": "vstack"
+    "window/pane": "vstack",
+
+    /* --- Stage 6: Unified MDataView (`SelectBox` & `ComboBox`), Tier A2 Controls & Composite Containers --- */
+    selectbox: {
+      style() {
+        return {
+          cssUtilityClass: "ville-selectbox"
+        };
+      }
+    },
+    "selectbox/button": "button",
+    "selectbox/popup": "popup",
+    "selectbox/list": {
+      style() {
+        return {
+          cssUtilityClass: "ville-dataview-list"
+        };
+      }
+    },
+    "selectbox-item": {
+      style() {
+        return {
+          cssUtilityClass: "ville-dataview-item"
+        };
+      }
+    },
+    combobox: {
+      style() {
+        return {
+          cssUtilityClass: "ville-combobox"
+        };
+      }
+    },
+    "combobox/textfield": "textfield",
+    "combobox/button": "actionicon",
+    "combobox/popup": "popup",
+    "combobox/list": "selectbox/list",
+    "combobox-item": "selectbox-item",
+    spinner: {
+      style() {
+        return {
+          cssUtilityClass: "ville-spinner"
+        };
+      }
+    },
+    "spinner/textfield": "textfield",
+    "spinner/controls": {},
+    "spinner/upbutton": "button",
+    "spinner/downbutton": "button",
+    slider: {
+      style() {
+        return {
+          cssUtilityClass: "ville-slider"
+        };
+      }
+    },
+    datefield: "textfield",
+    datechooser: {
+      style() {
+        return {
+          cssUtilityClass: "ville-datechooser"
+        };
+      }
+    },
+    "datechooser/navigation-bar": "hgroup",
+    "datechooser/prev-month-button": "actionicon",
+    "datechooser/next-month-button": "actionicon",
+    "datechooser/month-year-label": "label",
+    "datechooser/date-pane": {},
+    colorselector: {
+      style() {
+        return {
+          cssUtilityClass: "ville-colorselector"
+        };
+      }
+    },
+    "colorselector/color-well": {},
+    "colorselector/hex-field": "textfield",
+    "colorselector/preset-grid": "hgroup",
+    colorpopup: "popup",
+    "colorpopup/colorselector": "colorselector",
+    progressbar: {
+      style() {
+        return {
+          cssUtilityClass: "ville-progressbar"
+        };
+      }
+    },
+    meter: {
+      style() {
+        return {
+          cssUtilityClass: "ville-meter"
+        };
+      }
+    },
+    tabview: {
+      style() {
+        return {
+          cssUtilityClass: "ville-tabview"
+        };
+      }
+    },
+    "tabview/bar": {
+      style() {
+        return {
+          cssUtilityClass: "ville-tabview-bar"
+        };
+      }
+    },
+    "tabview/pane": {
+      style() {
+        return {
+          cssUtilityClass: "ville-tabview-pane"
+        };
+      }
+    },
+    "tabview-page": "widget",
+    "tabview-page/button": {
+      include: "button",
+      style(states) {
+        return {
+          cssUtilityClass: "ville-tabview-button",
+          cssStates: {
+            "set-attributes": {
+              "data-active": states.checked ? "true" : null
+            }
+          }
+        };
+      }
+    },
+    toolbar: {
+      style() {
+        return {
+          cssUtilityClass: "ville-toolbar"
+        };
+      }
+    },
+    "toolbar/part": "hgroup",
+    "toolbar/part/container": "hgroup",
+    "toolbar/part/handle": "widget",
+    "toolbar-separator": "divider",
+    "toolbar-button": "button",
+    "toolbar-menubutton": "menubutton",
+    "toolbar-splitbutton": "button",
+    menubar: "toolbar",
+    "menubar-button": "menubutton",
+    splitpane: {
+      style() {
+        return {
+          cssUtilityClass: "ville-splitpane"
+        };
+      }
+    },
+    "splitpane/splitter": {
+      style(states) {
+        return {
+          cssUtilityClass: `ville-splitpane-splitter${states.horizontal ? " horizontal" : states.vertical ? " vertical" : ""}`,
+          cssStates: {
+            "set-attributes": {
+              "data-active": states.pressed ? "true" : null
+            }
+          }
+        };
+      }
+    },
+    "splitpane/splitter/knob": "widget",
+    "splitpane/slider": "widget",
+
+    /* --- Pure Semantic HTML5 Takes (`NativeSelect`, `SimpleList`, `SimpleTable`) --- */
+    nativeselect: {
+      include: "input",
+      style() {
+        return {
+          cssUtilityClass: `m_8fb7ebe7${qx.core.Environment.get("qx.debug") ? " mantine-Input-input mantine-NativeSelect-input" : ""} ville-nativeselect`
+        };
+      }
+    },
+    simplelist: {
+      style() {
+        return {
+          cssUtilityClass: "ville-simplelist"
+        };
+      }
+    },
+    simpletable: {
+      style() {
+        return {
+          cssUtilityClass: `m_b23fa0ef${qx.core.Environment.get("qx.debug") ? " mantine-Table-table" : ""} ville-simpletable`
+        };
+      }
+    },
+
+    /* --- Stage 7B: Advanced Qx-Compatible Data Views (`Table`, `List`, `Tree`) --- */
+    table: {
+      style() {
+        return {
+          cssUtilityClass: "ville-table"
+        };
+      }
+    },
+    "table/scroll-viewport": {
+      style() {
+        return {
+          cssUtilityClass: "ville-table-viewport"
+        };
+      }
+    },
+    "table/table-el": "simpletable",
+    "table/statusbar": {
+      style() {
+        return {
+          cssUtilityClass: "ville-table-statusbar"
+        };
+      }
+    },
+    list: {
+      style() {
+        return {
+          cssUtilityClass: "ville-list ville-dataview-list"
+        };
+      }
+    },
+    "list-item": "selectbox-item",
+    tree: {
+      style() {
+        return {
+          cssUtilityClass: `m_f698e191${qx.core.Environment.get("qx.debug") ? " mantine-Tree-root" : ""} ville-tree`
+        };
+      }
+    },
+    "tree-folder": {},
+    "tree-file": {}
   }
 });

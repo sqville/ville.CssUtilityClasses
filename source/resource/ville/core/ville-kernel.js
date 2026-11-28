@@ -2,13 +2,13 @@
  * @villeui/core — Path B Vanilla ES2025 Runtime Kernel (`ville.core.*` with `qx.*` Aliases)
  *
  * Replaces all 88 legacy `@qooxdoo/framework` runtime boot files with a single,
- * self-contained ES2025 kernel (~15 KB minified) implementing the 6 core primitives
+ * self-contained ES2025 kernel (~15 KB minified) implementing the core primitives
  * Ville UI uses:
  *  1. `ville.Class`, `ville.Mixin`, `ville.Interface`, `ville.Theme`
  *     - Supports BOTH classic `ville.Class.define(name, config)` / `qx.Class.define(name, config)`
  *       (including `@qooxdoo/compiler`'s `SuperClass.constructor.call(this, ...)` output)
- *       AND modern ES6 `export class MyWidget extends Widget { static properties = { ... } }`
- *       via `ville.Class.register(MyWidget, "myapp.MyWidget")`.
+ *       AND zero-boilerplate modern ES2025 `export class MyWidget extends Widget { static properties = { ... } }`
+ *       auto-registered on first `super()` call inside `BaseObject` (or explicitly via `ville.Class.register()`).
  *  2. `ville.core.Property` — Declarative reactive property engine (`init`, `check`,
  *     `nullable`, `refine`, `themeable`, `apply`, `event`, `transform`, `group`/`mode: "shorthand"`),
  *     generating `get*`, `set*`, `reset*`, `init*`, `setThemed*`, `resetThemed*`,
@@ -23,7 +23,11 @@
  *  5. `ville.data.MBinding`, `ville.data.SingleValueBinding`, `ville.data.Array` —
  *     Deep property-path single-value data binding (`source.bind("a.b", target, "c", options)`)
  *     and observable array collections.
- *  6. `ville.theme.manager.Appearance`, `ville.core.Environment`, `ville.util.ResourceManager`,
+ *  6. `ville.io.PartLoader` (`qx.io.PartLoader`) — Dynamic application part & page loader
+ *     supporting Qooxdoo `compile.json` `"parts"` packages (`require`, `load`), Vite/ESM
+ *     dynamic `import()` resolvers (`registerResolver`, `importPage`), and declarative
+ *     Blade DOM mounting (`mountDomParts`).
+ *  7. `ville.theme.manager.Appearance`, `ville.core.Environment`, `ville.util.ResourceManager`,
  *     `ville.util.AliasManager`, and `ville.core.Init` (`ready()` direct startup).
  */
 (function () {
@@ -91,6 +95,24 @@
         const villeMirrorPath = ["ville", ...splits.slice(1)].join(".");
         if (!getByName(villeMirrorPath)) {
           setByPath(ville, splits.slice(1), targetObj);
+        }
+      } else if (
+        splits[0] === "ville" &&
+        [
+          "core",
+          "data",
+          "theme",
+          "util",
+          "io",
+          "application",
+          "event",
+          "log",
+          "lang"
+        ].includes(splits[1])
+      ) {
+        const qxMirrorPath = ["qx", ...splits.slice(1)].join(".");
+        if (!getByName(qxMirrorPath)) {
+          setByPath(qx, splits.slice(1), targetObj);
         }
       }
     }
@@ -250,7 +272,15 @@
       "ville.cssLayout": true,
       "ville.cssEngine": "mantine",
       "ville.appType": "web",
-      "ville.ssg": false
+      "ville.ssg": false,
+      // Stage 5.5 DevOps Levers ("Purposeful Bloat" vs. Lean Production — STRAT-BUILD-09)
+      "ville.css.prune": true,
+      "ville.css.bundleAllThemes": false,
+      "ville.widgets.includeAll": false,
+      "ville.debug.domAttributes": false,
+      "ville.bundle.mode": "unbundled",
+      "ville.bundle.minify": false,
+      "ville.kernel.qxAliases": true
     },
     globalScope.qx?.$$environment || {},
     globalScope.ville?.$$environment || {}
@@ -906,20 +936,42 @@
    * 7. BASE OBJECT CLASS (`ville.core.Object` / `qx.core.Object`)
    *    Uses a function constructor with `.self = .constructor = BaseObject` so
    *    both `@qooxdoo/compiler`'s `qx.core.Object.constructor.call(this)` and
-   *    native ES6 `class extends ville.core.Object` work seamlessly!
+   *    native ES2025 `class extends ville.core.Object` work seamlessly!
    * ========================================================================== */
 
-  function BaseObject() {
+  function BaseObject(...args) {
+    // Zero-boilerplate ES2025 `class extends` auto-registration on first `super()` call
+    if (this.constructor && this.constructor !== BaseObject && !this.constructor.$$type) {
+      Class.register(this.constructor);
+    }
     if (!this.$$hash) {
       this.$$hash = `${nextHashCode++}-0`;
       this.$$disposed = false;
       ObjectRegistry.register(this);
     }
+    if (this.constructor && this.constructor.$$isES6Class && !this.$$es6MixinsInitialized) {
+      this.$$es6MixinsInitialized = true;
+      let curr = this.constructor;
+      const es6Chain = [];
+      while (curr && curr.$$isES6Class) {
+        es6Chain.unshift(curr);
+        curr = curr.superclass;
+      }
+      for (const cls of es6Chain) {
+        if (cls.$$ownIncludes) {
+          for (let i = 0; i < cls.$$ownIncludes.length; i++) {
+            if (cls.$$ownIncludes[i].$$constructor) {
+              cls.$$ownIncludes[i].$$constructor.apply(this, args);
+            }
+          }
+        }
+      }
+    }
     this.$$initialized = true;
   }
 
   Object.assign(BaseObject.prototype, MEvent, MBinding, {
-    classname: "qx.core.Object",
+    classname: "ville.core.Object",
     basename: "Object",
 
     toHashCode() {
@@ -1062,34 +1114,22 @@
     },
     error(...args) {
       Bootstrap.error(`[${this.classname || "Object"}]`, ...args);
-    },
-    assertTrue(val, msg) {
-      Assert.assertTrue(val, msg);
-    },
-    assertFalse(val, msg) {
-      Assert.assertFalse(val, msg);
-    },
-    assertInteger(val, msg) {
-      Assert.assertInteger(val, msg);
-    },
-    assertInArray(val, arr, msg) {
-      Assert.assertInArray(val, arr, msg);
     }
-  });
+  }, Assert);
 
   BaseObject.self = BaseObject.constructor = BaseObject.prototype.constructor = BaseObject;
   BaseObject.$$type = "Class";
-  BaseObject.classname = "qx.core.Object";
+  BaseObject.classname = "ville.core.Object";
   BaseObject.basename = "Object";
   BaseObject.$$events = {};
   BaseObject.$$properties = {};
   BaseObject.$$includes = [];
   BaseObject.$$ownIncludes = [];
 
-  ClassRegistry.set("qx.core.Object", BaseObject);
   ClassRegistry.set("ville.core.Object", BaseObject);
-  Bootstrap.$$registry["qx.core.Object"] = BaseObject;
+  ClassRegistry.set("qx.core.Object", BaseObject);
   Bootstrap.$$registry["ville.core.Object"] = BaseObject;
+  Bootstrap.$$registry["qx.core.Object"] = BaseObject;
 
   /* ============================================================================
    * 8. CLASS, MIXIN, INTERFACE & THEME SYSTEM (`ville.Class`, `Mixin`, `Interface`, `Theme`)
@@ -1290,16 +1330,24 @@
     },
 
     /**
-     * Dual-Syntax Bridge: Registers a native ES6 `class MyWidget extends Widget`
+     * Dual-Syntax Bridge: Registers a native ES2025 `class MyWidget extends Widget`
      * with static `properties`, `events`, `include`, `implement`, and `destruct`
-     * onto the reactive property & namespace engine.
+     * onto the reactive property & namespace engine. Called automatically on first
+     * `super()` inside `BaseObject` or explicitly via `ville.Class.register(MyWidget)`.
      */
     register(ES6Class, name) {
+      if (ES6Class.$$type === "Class" && (!name || ES6Class.classname === name)) {
+        return ES6Class;
+      }
       const className = name || ES6Class.classname || ES6Class.name;
       const superClass = Object.getPrototypeOf(ES6Class.prototype)?.constructor || BaseObject;
+      if (superClass && superClass !== BaseObject && !superClass.$$type) {
+        Class.register(superClass);
+      }
       ES6Class.superclass = superClass;
       ES6Class.self = ES6Class;
       ES6Class.$$type = "Class";
+      ES6Class.$$isES6Class = true;
       ES6Class.classname = className;
       ES6Class.basename = className.split(".").pop();
       ES6Class.prototype.classname = className;
@@ -1449,7 +1497,7 @@
     }
   };
 
-  const AppearanceManager = Class.define("qx.theme.manager.Appearance", {
+  const AppearanceManager = Class.define("ville.theme.manager.Appearance", {
     type: "singleton",
     extend: BaseObject,
     construct() {
@@ -1508,7 +1556,7 @@
    * 10. OBSERVABLE DATA ARRAY (`ville.data.Array` / `qx.data.Array`)
    * ========================================================================== */
 
-  const IListDataIface = Interface.define("qx.data.IListData", {
+  const IListDataIface = Interface.define("ville.data.IListData", {
     events: { change: "qx.event.type.Data", changeLength: "qx.event.type.Data" },
     members: {
       getItem() {},
@@ -1519,7 +1567,7 @@
     }
   });
 
-  const DataArray = Class.define("qx.data.Array", {
+  const DataArray = Class.define("ville.data.Array", {
     extend: BaseObject,
     implement: [IListDataIface],
     construct(param) {
@@ -1678,10 +1726,10 @@
   };
 
   /* ============================================================================
-   * 11. RESOURCE & ALIAS MANAGERS, UTILITIES & APPLICATION INIT (`ville.core.Init`)
+   * 11. RESOURCE & ALIAS MANAGERS, PARTLOADER, UTILITIES & INIT (`ville.core.Init`)
    * ========================================================================== */
 
-  const AliasManager = Class.define("qx.util.AliasManager", {
+  const AliasManager = Class.define("ville.util.AliasManager", {
     type: "singleton",
     extend: BaseObject,
     construct() {
@@ -1705,7 +1753,7 @@
     }
   });
 
-  const ResourceManager = Class.define("qx.util.ResourceManager", {
+  const ResourceManager = Class.define("ville.util.ResourceManager", {
     type: "singleton",
     extend: BaseObject,
     members: {
@@ -1742,7 +1790,7 @@
     }
   });
 
-  const DeferredCall = Class.define("qx.util.DeferredCall", {
+  const DeferredCall = Class.define("ville.util.DeferredCall", {
     extend: BaseObject,
     construct(callback, context) {
       BaseObject.call(this);
@@ -1839,6 +1887,191 @@
     }
   };
 
+  /* ============================================================================
+   * 11B. DYNAMIC PART & MODULE LOADER (`ville.io.PartLoader` / `qx.io.PartLoader`)
+   * ========================================================================== */
+
+  const loadedParts = new Set(["boot"]);
+  const loadedScripts = new Set();
+  const partResolvers = [];
+
+  function loadScriptPromise(uri) {
+    if (loadedScripts.has(uri)) return Promise.resolve();
+    if (typeof document === "undefined") return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const el = document.createElement("script");
+      el.charset = "utf-8";
+      el.src = uri;
+      el.onload = () => {
+        loadedScripts.add(uri);
+        resolve();
+      };
+      el.onerror = () => reject(new Error(`Ville UI PartLoader: Cannot load script ${uri}`));
+      document.head.appendChild(el);
+    });
+  }
+
+  const PartLoader = {
+    getInstance() {
+      return PartLoader;
+    },
+
+    /**
+     * Registers a Vite / ES module dynamic `import()` resolver function or
+     * `import.meta.glob` map for Laravel / Inertia.js v3 / modern ESM bundles.
+     *
+     * @param {Function|Object<string, Function>} resolverOrGlobMap
+     */
+    registerResolver(resolverOrGlobMap) {
+      if (typeof resolverOrGlobMap === "function") {
+        partResolvers.push(resolverOrGlobMap);
+      } else if (resolverOrGlobMap && typeof resolverOrGlobMap === "object") {
+        partResolvers.push((partName) => {
+          for (const [key, loaderFn] of Object.entries(resolverOrGlobMap)) {
+            if (
+              key === partName ||
+              key.endsWith(`/${partName}.js`) ||
+              key.endsWith(`/${partName}.ts`)
+            ) {
+              return loaderFn();
+            }
+          }
+          return null;
+        });
+      }
+    },
+
+    hasPart(partName) {
+      if (loadedParts.has(partName)) return true;
+      const loader = globalScope.qx?.$$loader;
+      return Boolean(loader?.parts && partName in loader.parts);
+    },
+
+    /**
+     * Loads one or more application parts (via Qooxdoo `compile.json` `"parts"` packages
+     * OR registered Vite/ESM dynamic `import()` resolvers) and returns a Promise.
+     *
+     * @param {string|string[]} partNames
+     * @returns {Promise<any[]>}
+     */
+    async load(partNames) {
+      const list = Array.isArray(partNames) ? partNames : [partNames];
+      const results = [];
+      const loader = globalScope.qx?.$$loader;
+
+      for (const name of list) {
+        if (!name) continue;
+        let handledByResolver = false;
+        for (const resolver of partResolvers) {
+          const modPromise = resolver(name);
+          if (modPromise) {
+            const mod = await modPromise;
+            loadedParts.add(name);
+            Bootstrap.executePendingDefers();
+            results.push(mod?.default || mod || Class.getByName(name));
+            handledByResolver = true;
+            break;
+          }
+        }
+        if (handledByResolver) continue;
+
+        if (loader && loader.parts && loader.parts[name]) {
+          const pkgIds = loader.parts[name];
+          for (const pkgId of pkgIds) {
+            const pkg = loader.packages && loader.packages[pkgId];
+            if (pkg && Array.isArray(pkg.uris)) {
+              const uris = loader.decodeUris(pkg.uris);
+              for (const uri of uris) {
+                await loadScriptPromise(uri);
+              }
+              if (
+                typeof loader.importPackageData === "function" &&
+                globalScope.qx?.$$packageData?.[pkgId]
+              ) {
+                loader.importPackageData(globalScope.qx.$$packageData[pkgId]);
+              }
+            }
+          }
+          loadedParts.add(name);
+          Bootstrap.executePendingDefers();
+        }
+
+        results.push(Class.getByName(name));
+      }
+
+      return results;
+    },
+
+    /**
+     * Classic Qooxdoo callback-compatible `PartLoader.require(partNames, callback, self)`.
+     *
+     * @param {string|string[]} partNames
+     * @param {Function} [callback]
+     * @param {Object} [self]
+     * @returns {Promise<any[]>}
+     */
+    require(partNames, callback, self) {
+      return PartLoader.load(partNames).then((res) => {
+        if (typeof callback === "function") {
+          callback.call(self || globalScope, res);
+        }
+        return res;
+      });
+    },
+
+    /**
+     * Loads a single named page/part and resolves to its constructor or module.
+     *
+     * @param {string} partName
+     * @returns {Promise<any>}
+     */
+    async importPage(partName) {
+      const [page] = await PartLoader.load([partName]);
+      return page || Class.getByName(partName);
+    },
+
+    /**
+     * Scans the DOM for `<div data-ville-part="PartName" data-ville-props='{...}'></div>`
+     * containers (e.g. rendered by Laravel Blade templates) and mounts each part.
+     *
+     * @param {ParentNode} [rootEl=document]
+     * @returns {Promise<any[]>}
+     */
+    async mountDomParts(rootEl) {
+      if (typeof document === "undefined") return [];
+      const scope = rootEl || document;
+      const nodes = scope.querySelectorAll("[data-ville-part]");
+      const mounted = [];
+      for (const node of nodes) {
+        if (node.$$villePartMounted) continue;
+        const partName = node.getAttribute("data-ville-part");
+        if (!partName) continue;
+        const rawProps = node.getAttribute("data-ville-props");
+        let props = {};
+        if (rawProps) {
+          try {
+            props = JSON.parse(rawProps);
+          } catch (_) {}
+        }
+        const PartClass = await PartLoader.importPage(partName);
+        if (typeof PartClass === "function") {
+          node.$$villePartMounted = true;
+          const instance = new PartClass(props);
+          if (typeof instance.getContentElement === "function") {
+            const dom = instance._ensureDomElement
+              ? instance._ensureDomElement()
+              : instance.getContentElement().getDomElement();
+            if (dom && dom !== node) {
+              node.appendChild(dom);
+            }
+          }
+          mounted.push(instance);
+        }
+      }
+      return mounted;
+    }
+  };
+
   const Init = {
     __application: null,
     getApplication() {
@@ -1877,10 +2110,10 @@
    * 12. REGISTER KERNEL NAMESPACES (`ville.*` AND `qx.*` ALIASES)
    * ========================================================================== */
 
-  const IDisposableIface = Interface.define("qx.core.IDisposable", {
+  const IDisposableIface = Interface.define("ville.core.IDisposable", {
     members: { dispose() {}, isDisposed() {} }
   });
-  const IApplicationIface = Interface.define("qx.application.IApplication", {
+  const IApplicationIface = Interface.define("ville.application.IApplication", {
     members: { main() {}, finalize() {}, close() {}, terminate() {} }
   });
 
@@ -1998,7 +2231,10 @@
         Object.getPrototypeOf(v) === null)
   };
 
-  for (const root of [ville, qx]) {
+  const targetRoots =
+    Environment.get("ville.kernel.qxAliases") === false ? [ville] : [ville, qx];
+
+  for (const root of targetRoots) {
     root.Bootstrap = Bootstrap;
     root.Class = Class;
     root.Mixin = Mixin;
@@ -2022,6 +2258,13 @@
       SingleValueBinding,
       Array: DataArray,
       IListData: IListDataIface
+    });
+
+    root.io = Object.assign(root.io || {}, {
+      PartLoader,
+      part: {
+        Loader: PartLoader
+      }
     });
 
     root.theme = Object.assign(root.theme || {}, {
@@ -2081,6 +2324,7 @@
       Environment,
       Assert,
       Init,
+      PartLoader,
       MBinding,
       SingleValueBinding,
       Array: DataArray,

@@ -1026,7 +1026,10 @@ qx.Class.define("ville.ui.core.Widget", {
         }
       }
 
-      if (qx.core.Environment.get("qx.debug")) {
+      if (
+        ville.core.Environment.get("ville.debug.domAttributes") ||
+        ville.core.Environment.get("qx.debug")
+      ) {
         el.setAttribute("villeClass", this.classname);
       }
 
@@ -2114,6 +2117,18 @@ qx.Class.define("ville.ui.core.Widget", {
           control.__subcontrolId = id;
           control.__subparent = this;
 
+          if (
+            ville.core.Environment.get("ville.debug.domAttributes") ||
+            ville.core.Environment.get("qx.debug")
+          ) {
+            control
+              .getContentElement()
+              .setAttribute(
+                "data-ville-subcontrol",
+                this._getAppearanceSelector() + "/" + id
+              );
+          }
+
           if (this._forwardStates) {
             for (const state in this.__states) {
               if (this._forwardStates[state]) {
@@ -2189,6 +2204,113 @@ qx.Class.define("ville.ui.core.Widget", {
         el.setAttribute(key, value === true ? "" : value);
       }
       ville.ui.core.Widget.scheduleFlush();
+    },
+
+    /**
+     * Convenience wrapper to set an HTML attribute on the root content element.
+     *
+     * @param {string} key HTML attribute name.
+     * @param {string|boolean|null} value Attribute value.
+     * @returns {this}
+     */
+    setAttribute(key, value) {
+      this._setAttribute(key, value);
+      return this;
+    },
+
+    /**
+     * Convenience wrapper to remove an HTML attribute from the root content element.
+     *
+     * @param {string} key HTML attribute name.
+     * @returns {this}
+     */
+    removeAttribute(key) {
+      this.getContentElement().removeAttribute(key);
+      ville.ui.core.Widget.scheduleFlush();
+      return this;
+    },
+
+    /**
+     * Convenience wrapper to set a single inline CSS property on the root content element.
+     *
+     * @param {string} key CSS property name.
+     * @param {string|number|null} value CSS property value.
+     * @returns {this}
+     */
+    setStyle(key, value) {
+      this.getContentElement().setStyle(key, value);
+      ville.ui.core.Widget.scheduleFlush();
+      return this;
+    },
+
+    /**
+     * Convenience wrapper to set multiple inline CSS properties on the root content element.
+     *
+     * @param {Object<string, string|number|null>} map Map of CSS properties.
+     * @returns {this}
+     */
+    setStyles(map) {
+      if (map) {
+        this.getContentElement().setStyles(map);
+        ville.ui.core.Widget.scheduleFlush();
+      }
+      return this;
+    },
+
+    /**
+     * Stores arbitrary user data on this widget instance (Qooxdoo compatibility helper).
+     *
+     * @param {string} key Data key.
+     * @param {*} value Data value.
+     */
+    setUserData(key, value) {
+      if (!this.__userData) {
+        this.__userData = {};
+      }
+      this.__userData[key] = value;
+    },
+
+    /**
+     * Retrieves arbitrary user data previously stored via `setUserData(key, value)`.
+     *
+     * @param {string} key Data key.
+     * @returns {*} Stored value or `null`.
+     */
+    getUserData(key) {
+      return this.__userData && key in this.__userData ? this.__userData[key] : null;
+    },
+
+    /**
+     * Sets whether the widget is focusable via keyboard tab navigation.
+     *
+     * @param {boolean} value
+     */
+    setFocusable(value) {
+      this.__focusable = Boolean(value);
+      if (!value) {
+        this.setTabIndex(-1);
+      } else if (this.getTabIndex() === -1) {
+        this.setTabIndex(0);
+      }
+    },
+
+    /**
+     * Returns whether the widget is focusable.
+     *
+     * @returns {boolean}
+     */
+    getFocusable() {
+      return this.__focusable !== false;
+    },
+
+    /**
+     * Focuses the widget's live DOM element.
+     */
+    focus() {
+      const domEl = this._ensureDomElement();
+      if (domEl && typeof domEl.focus === "function") {
+        domEl.focus();
+      }
     }
   },
 

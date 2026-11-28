@@ -1,855 +1,388 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2010 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Christian Hagendorn (chris_schmidt)
-
-************************************************************************ */
-
 /**
- * The <code>qx.ui.list.List</code> is based on the virtual infrastructure and
- * supports filtering, sorting, grouping, single selection, multi selection,
- * data binding and custom rendering.
+ * Ville UI's `QxLayout`-Style Take on `qx.ui.list.List` (`ville.ui.list.List` — `STRAT-WIDGET-08`, `STRAT-CORE-09`).
  *
- * Using the virtual infrastructure has considerable advantages when there is a
- * huge amount of model items to render because the virtual infrastructure only
- * creates widgets for visible items and reuses them. This saves both creation
- * time and memory.
- *
- * With the {@link qx.ui.list.core.IListDelegate} interface it is possible
- * to configure the list's behavior (item and group renderer configuration,
- * filtering, sorting, grouping, etc.).
- *
- * Here's an example of how to use the widget:
- * <pre class="javascript">
- * //create the model data
- * var rawData = [];
- * for (var i = 0; i < 2500; i++) {
- *  rawData[i] = "Item No " + i;
- * }
- * var model = qx.data.marshal.Json.createModel(rawData);
- *
- * //create the list
- * var list = new qx.ui.list.List(model);
- *
- * //configure the lists's behavior
- * var delegate = {
- *   sorter : function(a, b) {
- *     return a > b ? 1 : a < b ? -1 : 0;
- *   }
- * };
- * list.setDelegate(delegate);
- *
- * //Pre-Select "Item No 20"
- * list.getSelection().push(model.getItem(20));
- *
- * //log selection changes
- * list.getSelection().addListener("change", function(e) {
- *   this.debug("Selection: " + list.getSelection().getItem(0));
- * }, this);
- * </pre>
- *
- * @childControl row-layer {qx.ui.virtual.layer.Row} layer for all rows
+ * Unifies `qx.ui.form.List` and `qx.ui.list.List` (`VirtualList`) into a single
+ * non-virtual data-bound list widget powered by `ville.ui.core.MDataView` and
+ * `ville.ui.form.MModelSelection`:
+ *  - Supports classic `list.add(new ville.ui.form.ListItem(...))` AND modern
+ *    `list.setItems([...])` AND observable `list.setModel(new ville.data.Array([...]))`
+ *    with `labelPath`, `iconPath`, `descriptionPath`, and `delegate` (`filter`, `sorter`, `bindItem`).
+ *  - Uses pre-compiled `<template>` row cloning, Tier 1 `content-visibility: auto`,
+ *    Tier 2 windowed DOM row-pool recycling (`virtualThreshold`), and W3C `CSS.highlights`
+ *    live search highlighting.
  */
 qx.Class.define("ville.ui.list.List", {
-  extend: qx.ui.virtual.core.Scroller,
-  include: [qx.ui.virtual.selection.MModel],
-  implement: qx.data.controller.ISelection,
+  extend: ville.ui.core.Widget,
+  include: [
+    ville.ui.form.MForm,
+    ville.ui.form.MModelSelection,
+    ville.ui.core.MDataView
+  ],
+  implement: [
+    ville.ui.form.IField,
+    ville.ui.form.IForm,
+    ville.ui.core.ISingleSelection,
+    ville.ui.form.IModelSelection
+  ],
 
   /**
-   * Creates the <code>qx.ui.list.List</code> with the passed model.
-   *
-   * @param model {qx.data.IListData|null?} model for the list.
+   * @param {ville.data.Array|Array<Object|string|ville.ui.form.ListItem>|null} [modelOrItems=null] Optional initial observable `ville.data.Array` or items array.
    */
-  construct(model) {
-    super(0, 1, 20, 100);
+  construct(modelOrItems = null) {
+    // @ts-ignore
+    super();
 
-    this._init();
+    this.__selectedItems = [];
+    this.__activeIndex = -1;
 
-    this.__defaultGroups = new qx.data.Array();
-    this.initGroups(this.__defaultGroups);
+    this.setItemAppearance("selectbox-item");
 
-    if (model != null) {
-      this.initModel(model);
+    const el = this.getContentElement();
+    el.setAttributes({
+      role: "listbox",
+      tabindex: "0"
+    });
+    el.setStyles({
+      overflowY: "auto",
+      overflowX: "hidden"
+    });
+
+    el.addListener("click", this._onListClick, this);
+    el.addListener("keydown", this._onKeyDown, this);
+
+    if (modelOrItems instanceof ville.data.Array) {
+      this.setModel(modelOrItems);
+    } else if (Array.isArray(modelOrItems)) {
+      this.setItems(modelOrItems);
     }
-
-    this.initItemHeight();
   },
 
   events: {
-    /**
-     * Fired when the length of {@link #model} changes.
-     */
-    changeModelLength: "qx.event.type.Data"
+    /** Fired when the selection changes (`ISingleSelection` / `IMultiSelection`). */
+    changeSelection: "qx.event.type.Data",
+
+    /** Fired when an item row is clicked. Data: `{ index, item, value }` */
+    itemClick: "qx.event.type.Data"
   },
 
   properties: {
-    // overridden
     appearance: {
       refine: true,
-      init: "virtual-list"
+      init: "simplelist"
     },
 
-    // overridden
-    focusable: {
-      refine: true,
-      init: true
-    },
-
-    // overridden
-    width: {
-      refine: true,
-      init: 100
-    },
-
-    // overridden
-    height: {
-      refine: true,
-      init: 200
-    },
-
-    /** Data array containing the data which should be shown in the list. */
+    /** Observable `ville.data.Array` (`qx.data.Array`) data model (`qx.ui.list.List` contract). */
     model: {
-      check: "qx.data.IListData",
-      apply: "_applyModel",
-      event: "changeModel",
+      check: "ville.data.Array",
       nullable: true,
-      deferredInit: true
-    },
-
-    /** Default item height */
-    itemHeight: {
-      check: "Integer",
-      init: 25,
-      apply: "_applyRowHeight",
-      themeable: true
-    },
-
-    /** Group item height */
-    groupItemHeight: {
-      check: "Integer",
       init: null,
-      nullable: true,
-      apply: "_applyGroupRowHeight",
-      themeable: true
+      apply: "_applyModel",
+      event: "changeModel"
     },
 
-    /**
-     * The path to the property which holds the information that should be
-     * displayed as a label. This is only needed if objects are stored in the
-     * model.
-     */
+    /** Property path on model items used for the row label (e.g. `"name"` or `"label"`). */
     labelPath: {
       check: "String",
-      apply: "_applyLabelPath",
-      nullable: true
+      nullable: true,
+      init: "label",
+      apply: "_syncFromBoundModel"
     },
 
-    /**
-     * The path to the property which holds the information that should be
-     * displayed as an icon. This is only needed if objects are stored in the
-     * model and icons should be displayed.
-     */
+    /** Property path on model items used for the row icon (e.g. `"icon"`). */
     iconPath: {
       check: "String",
-      apply: "_applyIconPath",
-      nullable: true
+      nullable: true,
+      init: "icon",
+      apply: "_syncFromBoundModel"
     },
 
-    /**
-     * The path to the property which holds the information that should be
-     * displayed as a group label. This is only needed if objects are stored in the
-     * model.
-     */
-    groupLabelPath: {
+    /** Property path on model items used for the secondary description. */
+    descriptionPath: {
       check: "String",
-      apply: "_applyGroupLabelPath",
-      nullable: true
+      nullable: true,
+      init: "description",
+      apply: "_syncFromBoundModel"
     },
 
-    /**
-     * A map containing the options for the label binding. The possible keys
-     * can be found in the {@link qx.data.SingleValueBinding} documentation.
-     */
-    labelOptions: {
-      apply: "_applyLabelOptions",
-      nullable: true
-    },
-
-    /**
-     * A map containing the options for the icon binding. The possible keys
-     * can be found in the {@link qx.data.SingleValueBinding} documentation.
-     */
-    iconOptions: {
-      apply: "_applyIconOptions",
-      nullable: true
-    },
-
-    /**
-     * A map containing the options for the group label binding. The possible keys
-     * can be found in the {@link qx.data.SingleValueBinding} documentation.
-     */
-    groupLabelOptions: {
-      apply: "_applyGroupLabelOptions",
-      nullable: true
-    },
-
-    /**
-     * Delegation object which can have one or more functions defined by the
-     * {@link qx.ui.list.core.IListDelegate} interface.
-     */
+    /** Optional Qooxdoo list delegate (`{ filter, sorter }` functions). */
     delegate: {
-      apply: "_applyDelegate",
-      event: "changeDelegate",
+      check: "Object",
+      nullable: true,
       init: null,
-      nullable: true
+      apply: "_syncFromBoundModel"
     },
 
-    /**
-     * Indicates that the list is managing the {@link #groups} automatically.
-     */
-    autoGrouping: {
-      check: "Boolean",
-      init: true
+    /** Selection mode (`"single"`, `"multi"`, `"additive"`, `"one"`, `"none"`). */
+    selectionMode: {
+      check: ["single", "multi", "additive", "one", "none"],
+      init: "single"
     },
 
-    /**
-     * Contains all groups for data binding, but do only manipulate the array
-     * when the {@link #autoGrouping} is set to <code>false</code>.
-     */
-    groups: {
-      check: "qx.data.Array",
-      event: "changeGroups",
-      nullable: false,
-      deferredInit: true
+    /** Currently selected value (or array of values in `"multi"` mode). */
+    value: {
+      nullable: true,
+      init: null,
+      apply: "_applyValue",
+      event: "changeValue"
     },
 
-    /**
-     * Render list items with variable height,
-     * calculated from the individual item size.
-     */
-    variableItemHeight: {
-      check: "Boolean",
-      apply: "_applyVariableItemHeight",
-      nullable: false,
-      init: true
+    /** Live filter text that filters visible rows and highlights matches via `CSS.highlights`. */
+    filterText: {
+      check: "String",
+      nullable: true,
+      init: null,
+      apply: "_applyFilterText",
+      event: "changeFilterText"
     }
   },
 
   members: {
-    /** @type {qx.ui.virtual.layer.Row} background renderer */
-    _background: null,
+    /** @type {ville.ui.form.ListItem[]} @private */
+    __selectedItems: null,
 
-    /** @type {qx.ui.list.provider.IListProvider} provider for cell rendering */
-    _provider: null,
+    /** @type {number} @private */
+    __activeIndex: -1,
 
-    /** @type {qx.ui.virtual.layer.Abstract} layer which contains the items. */
-    _layer: null,
+    /** @type {boolean} @private */
+    __syncingSelection: false,
 
-    /**
-     * @type {Array} lookup table to get the model index from a row. To get the
-     *   correct value after applying filter, sorter, group.
-     *
-     * Note the value <code>-1</code> indicates that the value is a group item.
-     */
-    __lookupTable: null,
+    /** @type {*} @private */
+    __modelChangeListenerId: null,
 
-    /** @type {Array} lookup table for getting the group index from the row */
-    __lookupTableForGroup: null,
-
-    /**
-     * @type {Map} contains all groups with the items as children. The key is
-     *   the group name and the value is an <code>Array</code> containing each
-     *   item's model index.
-     */
-    __groupHashMap: null,
-
-    /**
-     * @type {Boolean} indicates when one or more <code>String</code> are used for grouping.
-     */
-    __groupStringsUsed: false,
-
-    /**
-     * @type {Boolean} indicates when one or more <code>Object</code> are used for grouping.
-     */
-    __groupObjectsUsed: false,
-
-    /**
-     * @type {Boolean} indicates when a default group is used for grouping.
-     */
-    __defaultGroupUsed: false,
-
-    __defaultGroups: null,
-
-    __deferredLayerUpdate: null,
-
-    /**
-     * Trigger a rebuild from the internal data structure.
-     */
-    refresh() {
-      this.__buildUpLookupTable();
-    },
-
-    // overridden
-    _createChildControlImpl(id, hash) {
-      var control;
-
-      switch (id) {
-        case "row-layer":
-          control = new qx.ui.virtual.layer.Row(null, null);
-          break;
-      }
-
-      return control || super._createChildControlImpl(id);
-    },
-
-    /**
-     * Initialize the virtual list provider.
-     */
-    _initWidgetProvider() {
-      this._provider = new qx.ui.list.provider.WidgetProvider(this);
-    },
-
-    /**
-     * Initializes the virtual list.
-     */
-    _init() {
-      this._initWidgetProvider();
-
-      this.__lookupTable = [];
-      this.__lookupTableForGroup = [];
-      this.__groupHashMap = {};
-      this.__groupStringsUsed = false;
-      this.__groupObjectsUsed = false;
-      this.__defaultGroupUsed = false;
-
-      this.getPane().addListener("resize", this._onResize, this);
-
-      this._initBackground();
-      this._initLayer();
-    },
-
-    /**
-     * Initializes the background renderer.
-     */
-    _initBackground() {
-      this._background = this.getChildControl("row-layer");
-      this.getPane().addLayer(this._background);
-    },
-
-    /**
-     * Initializes the layer for rendering.
-     */
-    _initLayer() {
-      this._layer = this._provider.createLayer();
-      this._layer.addListener("updated", this._onLayerUpdated, this);
-      this.getPane().addLayer(this._layer);
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      INTERNAL API
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Returns the model data for the given row.
-     *
-     * @param row {Integer} row to get data for.
-     * @return {var|null} the row's model data.
-     */
-    _getDataFromRow(row) {
-      var data = null;
-
-      var model = this.getModel();
-      if (model == null) {
-        return null;
-      }
-
-      if (this._isGroup(row)) {
-        data = this.getGroups().getItem(this._lookupGroup(row));
-      } else {
-        data = model.getItem(this._lookup(row));
-      }
-
-      if (data != null) {
-        return data;
-      } else {
-        return null;
-      }
-    },
-
-    /**
-     * Return the internal lookup table. But do not manipulate the
-     * lookup table!
-     *
-     * @return {Array} The internal lookup table.
-     */
-    _getLookupTable() {
-      return this.__lookupTable;
-    },
-
-    /**
-     * Performs a lookup from row to model index.
-     *
-     * @param row {Number} The row to look at.
-     * @return {Number} The model index or
-     *   <code>-1</code> if the row is a group item.
-     */
-    _lookup(row) {
-      return this.__lookupTable[row];
-    },
-
-    /**
-     * Performs a lookup from row to group index.
-     *
-     * @param row {Number} The row to look at.
-     * @return {Number} The group index or
-     *   <code>-1</code> if the row is a not a group item.
-     */
-    _lookupGroup(row) {
-      return this.__lookupTableForGroup.indexOf(row);
-    },
-
-    /**
-     * Performs a lookup from model index to row.
-     *
-     * @param index {Number} The index to look at.
-     * @return {Number} The row or <code>-1</code>
-     *  if the index is not a model index.
-     */
-    _reverseLookup(index) {
-      if (index < 0) {
-        return -1;
-      }
-      return this.__lookupTable.indexOf(index);
-    },
-
-    /**
-     * Checks if the passed row is a group or an item.
-     *
-     * @param row {Integer} row to check.
-     * @return {Boolean} <code>true</code> if the row is a group element,
-     *  <code>false</code> if the row is an item element.
-     */
-    _isGroup(row) {
-      return this._lookup(row) == -1;
-    },
-
-    /**
-     * Returns the selectable model items.
-     *
-     * @return {qx.data.Array|null} The selectable items.
-     */
-    _getSelectables() {
-      return this.getModel();
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      APPLY ROUTINES
-    ---------------------------------------------------------------------------
-    */
-
-    // apply method
     _applyModel(value, old) {
-      if (value != null) {
-        value.addListener("changeLength", this._onModelChange, this);
+      if (old && this.__modelChangeListenerId) {
+        old.removeListenerById(this.__modelChangeListenerId);
+        this.__modelChangeListenerId = null;
       }
-
-      if (old != null) {
-        old.removeListener("changeLength", this._onModelChange, this);
-      }
-
-      this._onModelChange();
-    },
-
-    // apply method
-    _applyRowHeight(value, old) {
-      this.getPane().getRowConfig().setDefaultItemSize(value);
-    },
-
-    // apply method
-    _applyGroupRowHeight(value, old) {
-      this.__updateGroupRowHeight();
-    },
-
-    // apply method
-    _applyLabelPath(value, old) {
-      this._provider.setLabelPath(value);
-    },
-
-    // apply method
-    _applyIconPath(value, old) {
-      this._provider.setIconPath(value);
-    },
-
-    // apply method
-    _applyGroupLabelPath(value, old) {
-      this._provider.setGroupLabelPath(value);
-    },
-
-    // apply method
-    _applyLabelOptions(value, old) {
-      this._provider.setLabelOptions(value);
-    },
-
-    // apply method
-    _applyIconOptions(value, old) {
-      this._provider.setIconOptions(value);
-    },
-
-    // apply method
-    _applyGroupLabelOptions(value, old) {
-      this._provider.setGroupLabelOptions(value);
-    },
-
-    // apply method
-    _applyDelegate(value, old) {
-      this._provider.setDelegate(value);
-      this.__buildUpLookupTable();
-    },
-
-    // property apply
-    _applyVariableItemHeight(value, old) {
       if (value) {
-        this._setRowItemSize();
-      } else {
-        this.getPane().getRowConfig().resetItemSizes();
-        this.getPane().fullUpdate();
-      }
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      EVENT HANDLERS
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Event handler for the resize event.
-     *
-     * @param e {qx.event.type.Data} resize event.
-     */
-    _onResize(e) {
-      this.getPane().getColumnConfig().setItemSize(0, e.getData().width);
-    },
-
-    /**
-     * Event handler for the model change event.
-     *
-     * @param e {qx.event.type.Data} model change event.
-     */
-    _onModelChange(e) {
-      // we have to remove the bindings before we rebuild the lookup table
-      // otherwise bindings might be dispatched to wrong items
-      // see: https://github.com/qooxdoo/qooxdoo/issues/196
-      this._provider.removeBindings();
-      this.__buildUpLookupTable();
-      this._applyDefaultSelection();
-
-      if (e instanceof qx.event.type.Data) {
-        this.fireDataEvent("changeModelLength", e.getData(), e.getOldData());
-      }
-    },
-
-    /**
-     * Event handler for the updated event of the
-     * qx.ui.virtual.layer.WidgetCell layer.
-     *
-     * Recalculates the item sizes in a deffered call,
-     * which only happens if we have variable item heights
-     */
-    _onLayerUpdated() {
-      if (this.isVariableItemHeight() === false) {
-        return;
-      }
-
-      if (this.__deferredLayerUpdate === null) {
-        this.__deferredLayerUpdate = new qx.util.DeferredCall(function () {
-          this._setRowItemSize();
-        }, this);
-      }
-
-      this.__deferredLayerUpdate.schedule();
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      HELPER ROUTINES
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Helper method to update the row count.
-     */
-    __updateRowCount() {
-      this.getPane().getRowConfig().setItemCount(this.__lookupTable.length);
-      this.getPane().fullUpdate();
-    },
-
-    /**
-     * Helper method to update group row heights.
-     */
-    __updateGroupRowHeight() {
-      /*
-       * In case of having variableItemHeight set to true,
-       * the group item height has a variable height as well
-       * and will be set again in method _setRowItemSize
-       * which is a deferred call, being run after all changes.
-       * Resetting the complete item sizes here and setting
-       * the height of the group items, only leads to an
-       * unnecessary flicker of the list items by shrinking and
-       * growing them again.
-       */
-      if (this.isVariableItemHeight()) {
-        return;
-      }
-      var rc = this.getPane().getRowConfig();
-      var gh = this.getGroupItemHeight();
-      rc.resetItemSizes();
-
-      if (gh) {
-        for (var i = 0, l = this.__lookupTable.length; i < l; ++i) {
-          if (this.__lookupTable[i] == -1) {
-            rc.setItemSize(i, gh);
-          }
-        }
-      }
-    },
-
-    /**
-     * Internal method for building the lookup table.
-     */
-    __buildUpLookupTable() {
-      this.__lookupTable = [];
-      this.__lookupTableForGroup = [];
-      this.__groupHashMap = {};
-
-      if (this.isAutoGrouping()) {
-        this.getGroups().removeAll();
-      }
-
-      var model = this.getModel();
-
-      if (model != null) {
-        this._runDelegateFilter(model);
-        this._runDelegateSorter(model);
-        this._runDelegateGroup(model);
-      }
-
-      this._updateSelection();
-      this.__updateGroupRowHeight();
-      this.__updateRowCount();
-    },
-
-    /**
-     * Invokes filtering using the filter given in the delegate.
-     *
-     * @param model {qx.data.IListData} The model.
-     */
-    _runDelegateFilter(model) {
-      var filter = qx.util.Delegate.getMethod(this.getDelegate(), "filter");
-
-      for (var i = 0, l = model.length; i < l; ++i) {
-        if (filter == null || filter(model.getItem(i))) {
-          this.__lookupTable.push(i);
-        }
-      }
-    },
-
-    /**
-     * Invokes sorting using the sorter given in the delegate.
-     *
-     * @param model {qx.data.IListData} The model.
-     */
-    _runDelegateSorter(model) {
-      if (this.__lookupTable.length == 0) {
-        return;
-      }
-
-      var sorter = qx.util.Delegate.getMethod(this.getDelegate(), "sorter");
-
-      if (sorter != null) {
-        this.__lookupTable.sort(function (a, b) {
-          return sorter(model.getItem(a), model.getItem(b));
-        });
-      }
-    },
-
-    /**
-     * Invokes grouping using the group result given in the delegate.
-     *
-     * @param model {qx.data.IListData} The model.
-     */
-    _runDelegateGroup(model) {
-      var groupMethod = qx.util.Delegate.getMethod(this.getDelegate(), "group");
-
-      if (groupMethod != null) {
-        for (var i = 0, l = this.__lookupTable.length; i < l; ++i) {
-          var index = this.__lookupTable[i];
-          var item = this.getModel().getItem(index);
-          var group = groupMethod(item);
-
-          this.__addGroup(group, index);
-        }
-        this.__lookupTable = this.__createLookupFromGroup();
-      }
-    },
-
-    /**
-     * Adds a model index the the group.
-     *
-     * @param group {String|Object|null} the group.
-     * @param index {Integer} model index to add.
-     */
-    __addGroup(group, index) {
-      // if group is null add to default group
-      if (group == null) {
-        this.__defaultGroupUsed = true;
-        group = "???";
-      }
-
-      var name = this.__getUniqueGroupName(group);
-      if (this.__groupHashMap[name] == null) {
-        this.__groupHashMap[name] = [];
-        if (this.isAutoGrouping()) {
-          this.getGroups().push(group);
-        }
-      }
-      this.__groupHashMap[name].push(index);
-    },
-
-    /**
-     * Creates a lookup table form the internal group hash map.
-     *
-     * @return {Array} the lookup table based on the internal group hash map.
-     */
-    __createLookupFromGroup() {
-      this.__checkGroupStructure();
-
-      var result = [];
-      var row = 0;
-      var groups = this.getGroups();
-      for (var i = 0; i < groups.getLength(); i++) {
-        var group = groups.getItem(i);
-
-        // indicate that the value is a group
-        result.push(-1);
-        this.__lookupTableForGroup.push(row);
-        row++;
-
-        var key = this.__getUniqueGroupName(group);
-        var groupMembers = this.__groupHashMap[key];
-        if (groupMembers != null) {
-          for (var k = 0; k < groupMembers.length; k++) {
-            result.push(groupMembers[k]);
-            row++;
-          }
-        }
-      }
-      return result;
-    },
-
-    /**
-     * Returns an unique group name for the passed group.
-     *
-     * @param group {String|Object} Group to find unique group name.
-     * @return {String} Unique group name.
-     */
-    __getUniqueGroupName(group) {
-      var name = null;
-      if (!qx.lang.Type.isString(group)) {
-        var index = this.getGroups().indexOf(group);
-        this.__groupObjectsUsed = true;
-
-        name = "group";
-        if (index == -1) {
-          name += this.getGroups().getLength();
-        } else {
-          name += index;
-        }
-      } else {
-        this.__groupStringsUsed = true;
-        var name = group;
-      }
-      return name;
-    },
-
-    /**
-     * Checks that <code>Object</code> and <code>String</code> are not mixed
-     * as group identifier, otherwise an exception occurs.
-     */
-    __checkGroupStructure() {
-      if (
-        (this.__groupObjectsUsed && this.__defaultGroupUsed) ||
-        (this.__groupObjectsUsed && this.__groupStringsUsed)
-      ) {
-        throw new Error(
-          "GroupingTypeError: You can't mix 'Objects' and 'Strings' as" +
-            " group identifier!"
+        this.__modelChangeListenerId = value.addListener(
+          "change",
+          this._syncFromBoundModel,
+          this
         );
       }
+      this._syncFromBoundModel();
+    },
+
+    _readPath(item, path) {
+      if (!item || !path) return undefined;
+      if (typeof item !== "object") return item;
+      const getter = `get${qx.Bootstrap.firstUp(path)}`;
+      if (typeof item[getter] === "function") {
+        return item[getter]();
+      }
+      return item[path];
+    },
+
+    _syncFromBoundModel() {
+      const model = this.getModel();
+      if (!model) return;
+
+      let rawItems = model.toArray().slice();
+      const delegate = this.getDelegate();
+
+      if (delegate && typeof delegate.filter === "function") {
+        rawItems = rawItems.filter(delegate.filter);
+      }
+      if (delegate && typeof delegate.sorter === "function") {
+        rawItems.sort(delegate.sorter);
+      }
+
+      const lPath = this.getLabelPath() || "label";
+      const iPath = this.getIconPath() || "icon";
+      const dPath = this.getDescriptionPath() || "description";
+
+      const mapped = rawItems.map((entry) => {
+        if (entry instanceof ville.ui.form.ListItem) return entry;
+        if (typeof entry === "string" || typeof entry === "number") {
+          return new ville.ui.form.ListItem(String(entry), null, entry);
+        }
+        const label =
+          this._readPath(entry, lPath) ??
+          this._readPath(entry, "name") ??
+          this._readPath(entry, "title") ??
+          String(entry);
+        const icon = this._readPath(entry, iPath) || null;
+        const desc = this._readPath(entry, dPath) || null;
+        const val = this._readPath(entry, "value") ?? entry;
+        const li = new ville.ui.form.ListItem(String(label), icon, entry);
+        if (typeof val === "string" || typeof val === "number") {
+          li.setValue(String(val));
+        }
+        if (desc) {
+          li.setDescription(String(desc));
+        }
+        return li;
+      });
+
+      this.setItems(mapped);
+    },
+
+    _syncDataViewDom() {
+      const domEl = this._ensureDomElement();
+      if (!domEl) return;
+      this._renderDataViewRows(domEl, {
+        filterText: this.getFilterText() || "",
+        selectedItems: this.__selectedItems || [],
+        activeIndex: this.__activeIndex,
+        showCheckmark: true,
+        highlightQuery: this.getHighlightQuery() || this.getFilterText() || null
+      });
+    },
+
+    _applyFilterText(value) {
+      this.setHighlightQuery(value || null);
+      this._scheduleDataViewRender();
+    },
+
+    _onListClick(e) {
+      if (!this.getEnabled() || this.getSelectionMode() === "none") return;
+      const nativeEvt = e && typeof e.getNativeEvent === "function" ? e.getNativeEvent() : e;
+      const target = /** @type {HTMLElement|null} */ (nativeEvt ? nativeEvt.target : null);
+      if (!target || typeof target.closest !== "function") return;
+
+      const rowEl = target.closest("[data-ville-index]");
+      if (!rowEl) return;
+
+      const idx = Number(rowEl.getAttribute("data-ville-index"));
+      const item = this.getItems()[idx];
+      if (!item || !item.getEnabled()) return;
+
+      this.__activeIndex = idx;
+      const mode = this.getSelectionMode();
+      if (mode === "additive" || (mode === "multi" && (nativeEvt.metaKey || nativeEvt.ctrlKey))) {
+        const next = this.__selectedItems.slice();
+        const pos = next.indexOf(item);
+        if (pos !== -1) {
+          next.splice(pos, 1);
+        } else {
+          next.push(item);
+        }
+        this.setSelection(next);
+      } else {
+        this.setSelection([item]);
+      }
+
+      this.fireDataEvent("itemClick", {
+        index: idx,
+        item,
+        value: item.getEffectiveValue()
+      });
+    },
+
+    _onKeyDown(e) {
+      if (!this.getEnabled() || this.getSelectionMode() === "none") return;
+      const key = typeof e.getKey === "function" ? e.getKey() : e.key;
+      if (key !== "ArrowDown" && key !== "ArrowUp") return;
+
+      if (typeof e.preventDefault === "function") {
+        e.preventDefault();
+      }
+      const items = this.getItems();
+      if (items.length === 0) return;
+
+      const dir = key === "ArrowDown" ? 1 : -1;
+      let nextIdx =
+        this.__activeIndex >= 0
+          ? this.__activeIndex
+          : this.__selectedItems.length > 0
+          ? items.indexOf(this.__selectedItems[0])
+          : dir > 0
+          ? -1
+          : items.length;
+
+      for (let step = 0; step < items.length; step++) {
+        nextIdx = (nextIdx + dir + items.length) % items.length;
+        if (items[nextIdx].getEnabled()) {
+          this.__activeIndex = nextIdx;
+          this.setSelection([items[nextIdx]]);
+          break;
+        }
+      }
+    },
+
+    // ------------------------------------------------------------------------
+    // ISingleSelection / Selection Implementation
+    // ------------------------------------------------------------------------
+
+    getSelection() {
+      return this.__selectedItems ? this.__selectedItems.slice() : [];
+    },
+
+    setSelection(items) {
+      const resolved = [];
+      if (Array.isArray(items)) {
+        for (const candidate of items) {
+          const match = this.findItem(candidate);
+          if (match && !resolved.includes(match)) {
+            resolved.push(match);
+          }
+        }
+      }
+
+      const old = this.__selectedItems ? this.__selectedItems.slice() : [];
+      if (qx.lang.Array.equals(old, resolved)) return;
+
+      this.__selectedItems = resolved;
+      if (!this.__syncingSelection) {
+        this.__syncingSelection = true;
+        try {
+          const first = resolved[0] || null;
+          this.setValue(first ? first.getEffectiveValue() : null);
+        } finally {
+          this.__syncingSelection = false;
+        }
+      }
+
+      this._scheduleDataViewRender();
+      this.fireDataEvent("changeSelection", resolved, old);
+    },
+
+    resetSelection() {
+      this.setSelection([]);
+    },
+
+    isSelected(item) {
+      return Boolean(this.__selectedItems && this.__selectedItems.includes(item));
+    },
+
+    isSelectionEmpty() {
+      return !this.__selectedItems || this.__selectedItems.length === 0;
+    },
+
+    getSelectables(all = true) {
+      const items = this.getItems();
+      return all ? items : items.filter((it) => it.getEnabled());
+    },
+
+    _applyValue(value) {
+      if (this.__syncingSelection) return;
+      this.__syncingSelection = true;
+      try {
+        const match = value !== null && value !== undefined ? this.findItem(value) : null;
+        this.setSelection(match ? [match] : []);
+      } finally {
+        this.__syncingSelection = false;
+      }
     },
 
     /**
-     * Get the height of each visible item and set it as the
-     * row size
+     * Triggered by `qx.data.controller.List` / developer calls to refresh the view.
      */
-    _setRowItemSize() {
-      var rowConfig = this.getPane().getRowConfig();
-      var layer = this._layer;
-
-      var firstRow = layer.getFirstRow();
-      var lastRow = firstRow + layer.getRowSizes().length;
-
-      for (var row = firstRow; row < lastRow; row++) {
-        var widget = layer.getRenderedCellWidget(row, 0);
-        if (widget !== null) {
-          var height = widget.getSizeHint().height;
-
-          rowConfig.setItemSize(row, height);
-        }
+    refresh() {
+      if (this.getModel()) {
+        this._syncFromBoundModel();
+      } else {
+        this._scheduleDataViewRender();
       }
     }
   },
 
   destruct() {
-    this._disposeObjects("__deferredLayerUpdate");
-
-    var model = this.getModel();
-    if (model != null) {
-      model.removeListener("changeLength", this._onModelChange, this);
+    const model = this.getModel();
+    if (model && this.__modelChangeListenerId) {
+      model.removeListenerById(this.__modelChangeListenerId);
     }
-
-    var pane = this.getPane();
-    if (pane != null) {
-      pane.removeListener("resize", this._onResize, this);
-    }
-
-    this._background.dispose();
-    this._provider.dispose();
-    this._layer.dispose();
-    this._background =
-      this._provider =
-      this._layer =
-      this.__lookupTable =
-      this.__lookupTableForGroup =
-      this.__groupHashMap =
-        null;
-
-    if (this.__defaultGroups) {
-      this.__defaultGroups.dispose();
-    }
+    this.__selectedItems = null;
   }
 });

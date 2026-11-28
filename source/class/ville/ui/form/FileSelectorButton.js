@@ -1,178 +1,107 @@
-/* ************************************************************************
-
-   qooxdoo
-
-   https://qooxdoo.org
-
-   Copyright:
-     2022 OETIKER+PARTNER AG
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Tobias Oetiker (oetiker)
-
-************************************************************************ */
-
 /**
- * The FileSelectorButton opens a window and lets the user pick one or several
- * files from the local filesystem. A FileList is returned which allows access
- * to the content of the selected files from javascript. The file(s) can now be
- *  processed in javascript, or it/they can be uploaded to a server.
- *
- * *Example*
- *
- * Post the content of the file to the server.
- *
- * ```javascript
- * let button = new qx.ui.form.FileSelectorButton("Select File");
- * button.addListener('changeFileSelection',function(e){
- * let fileList = e.getData();
- *   let form = new FormData();
- *   form.append('file',fileList[0]);
- *   let req = new qx.io.request.Xhr("upload",'POST').set({
- *     requestData: form
- *   });
- *   req.addListener('success',(e) => {
- *     let response = req.getResponse();
- *   });
- * });
- * ```
- *
- * Process the file directly in javascript using the FileReader API.
- *
- * ```javascript
- * let button = new qx.ui.form.FileSelectorButton("Select File");
- * button.addListener('changeFileSelection',function(e){
- *   let fileList = e.getData();
- *   const reader = new FileReader();
- *   reader.addEventListener('load', () => {
- *     let response = reader.result;
- *     console.log("The first 4 chrs are: " + response);
- *   });
- *   const file = fileList[0];
- *   reader.readAsText(file.slice(0,4));
- * });
- * ```
- *
- * [MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications)
+ * A file selector button backed by a native `<input type="file">` element.
  */
-
 qx.Class.define("ville.ui.form.FileSelectorButton", {
-  extend: qx.ui.form.Button,
+  extend: ville.ui.form.Button,
 
-  statics: {
-    _fileInputElementIdCounter: 0
+  /**
+   * @param {string|null} [label=null] Button label
+   * @param {string|null} [icon=null] Optional icon spec
+   * @param {ville.ui.command.Command|null} [command=null] Optional keyboard command
+   */
+  construct(label, icon, command) {
+    // @ts-ignore
+    super(label, icon, command);
+
+    const fileInputEl = (this.__fileInputEl = new ville.html.Element(
+      "input",
+      { display: "none" },
+      { type: "file" }
+    ));
+    fileInputEl.addListener("change", () => {
+      const domInput = /** @type {HTMLInputElement|null} */ (
+        fileInputEl.getDomElement()
+      );
+      this.fireDataEvent("changeFileSelection", domInput ? domInput.files : null);
+    });
+
+    const el = this.getContentElement();
+    if (el) {
+      el.add(fileInputEl);
+    }
+
+    this.addListener("execute", () => {
+      if (this.getEnabled()) {
+        const domInput = /** @type {HTMLInputElement|null} */ (
+          fileInputEl.getDomElement()
+        );
+        if (domInput) {
+          domInput.click();
+        }
+      }
+    });
   },
 
   events: {
-    /**
-     * The event is fired when the file selection changes.
-     *
-     * The method {@link qx.event.type.Data#getData} returns the
-     * current [fileList](https://developer.mozilla.org/en-US/docs/Web/API/FileList)
-     */
+    /** Fired when the user selects one or more files. Data: `{FileList}` */
     changeFileSelection: "qx.event.type.Data"
   },
 
   properties: {
-    /**
-     * What type of files should be offered in the fileselection dialog.
-     * Use a comma separated list of [Unique file type specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#unique_file_type_specifiers). If you dont set anything, all files
-     * are allowed.
-     *
-     * *Example*
-     *
-     * `.doc,.docx,application/msword`
-     */
-    accept: {
-      nullable: true,
-      check: "String",
-      apply: "_applyAttribute"
-    },
-
-    /**
-     * Specify that the camera should be used for getting the "file". The
-     * value defines which camera should be used for capturing images.
-     * `user` indicates the user-facing camera.
-     * `environment` indicates the camera facing away from the user.
-     */
-    capture: {
-      nullable: true,
-      check: ["user", "environment"],
-      apply: "_applyAttribute"
-    },
-
-    /**
-     * Set to "true" if you want to allow the selection of multiple files.
-     */
+    /** Whether multiple files can be selected */
     multiple: {
-      nullable: true,
       check: "Boolean",
-      apply: "_applyAttribute"
+      init: false,
+      apply: "_applyMultiple"
     },
 
-    /**
-     * If present, indicates that only directories should be available for
-     * selection.
-     */
-    directoriesOnly: {
+    /** Comma-separated list of accepted file MIME types or extensions */
+    accept: {
+      check: "String",
       nullable: true,
-      check: "Boolean",
-      apply: "_applyAttribute"
+      init: null,
+      apply: "_applyAccept"
     }
   },
 
   members: {
-    __inputObject: null,
+    /** @type {ville.html.Element|null} @private */
+    __fileInputEl: null,
 
-    _applyAttribute(value, old, attr) {
-      if (attr === "directoriesOnly") {
-        // while the name of the attribute indicates that this only
-        // works for webkit browsers, this is not the case. These
-        // days the attribute is supported by
-        // [everyone](https://caniuse.com/?search=webkitdirectory).
-        attr = "webkitdirectory";
+    _applyMultiple(value) {
+      if (this.__fileInputEl) {
+        if (value) {
+          this.__fileInputEl.setAttribute("multiple", "multiple");
+        } else {
+          this.__fileInputEl.removeAttribute("multiple");
+        }
       }
-      this.__inputObject.setAttribute(attr, value);
+    },
+
+    _applyAccept(value) {
+      if (this.__fileInputEl) {
+        if (value) {
+          this.__fileInputEl.setAttribute("accept", value);
+        } else {
+          this.__fileInputEl.removeAttribute("accept");
+        }
+      }
     },
 
     /**
-     * @param {Boolean} value
-     * @return {Boolean}
+     * Returns the currently selected `FileList` from the underlying `<input type="file">`.
+     *
+     * @returns {FileList|null}
      */
-    setEnabled(value) {
-      this.__inputObject.setEnabled(value);
-      super.setEnabled(value);
-    },
-
-    _createContentElement() {
-      let id =
-        "qxFileSelector_" +
-        ++qx.ui.form.FileSelectorButton._fileInputElementIdCounter;
-      let input = (this.__inputObject = new qx.html.Input("file", null, {
-        id: id
-      }));
-
-      let label = new qx.html.Element("label", {}, { for: id });
-      label.addListenerOnce("appear", e => {
-        label.add(input);
-      });
-
-      input.addListenerOnce("appear", e => {
-        let inputEl = input.getDomElement();
-        // since qx.html.Node does not even create the
-        // domNode if it is not set to visible initially
-        // we have to quickly hide it after creation.
-        input.setVisible(false);
-        inputEl.addEventListener("change", e => {
-          this.fireDataEvent("changeFileSelection", inputEl.files);
-          inputEl.value = "";
-        });
-      });
-      return label;
+    getFiles() {
+      const domInput = /** @type {HTMLInputElement|null} */ (
+        this.__fileInputEl ? this.__fileInputEl.getDomElement() : null
+      );
+      return domInput ? domInput.files : null;
     }
+  },
+
+  destruct() {
+    this.__fileInputEl = null;
   }
 });

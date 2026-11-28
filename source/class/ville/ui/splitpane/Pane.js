@@ -1,587 +1,310 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Jonathan Weiß (jonathan_rass)
-
-************************************************************************ */
-
 /**
- * A split panes divides an area into two panes. The ratio between the two
- * panes is configurable by the user using the splitter.
+ * A SplitPane divides an area into two resizable regions separated by a draggable splitter bar.
  *
- * @childControl slider {qx.ui.splitpane.Slider} shown during resizing the splitpane
- * @childControl splitter {qx.ui.splitpane.Splitter} splitter to resize the splitpane
+ * Baseline 2025 Architecture:
+ * - Built on native CSS Flexbox (`HBox` for `"horizontal"`, `VBox` for `"vertical"`) and
+ *   W3C Pointer Events with `Element.setPointerCapture(e.pointerId)` on the splitter bar.
+ * - Eliminates the legacy `SplitPaneLayout` pixel-calculation engine and the `blocker` overlay div:
+ *   pointer capture routes all `pointermove` / `pointerup` events directly to the splitter even
+ *   over iframes or outside the window.
+ *
+ * @childControl splitter {ville.ui.splitpane.Splitter} Draggable divider between the two child widgets
+ * @childControl slider {ville.ui.splitpane.Slider} Optional ghost slider shown during non-live drag
  */
 qx.Class.define("ville.ui.splitpane.Pane", {
-  extend: qx.ui.core.Widget,
-
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+  extend: ville.ui.core.Box,
 
   /**
-   * Creates a new instance of a SplitPane. It allows the user to dynamically
-   * resize the areas dropping the border between.
-   *
-   * @param orientation {String} The orientation of the split pane control.
-   * Allowed values are "horizontal" (default) and "vertical".
+   * @param {string} [orientation="horizontal"] Split orientation (`"horizontal"` or `"vertical"`)
    */
   construct(orientation) {
+    // @ts-ignore
     super();
 
     this.__children = [];
+    this.__flexValues = [1, 1];
 
-    // Initialize orientation
-    if (orientation) {
+    this._createChildControl("splitter");
+
+    if (orientation != null) {
       this.setOrientation(orientation);
     } else {
       this.initOrientation();
     }
-
-    // add all pointer listener to the blocker
-    this.__blocker.addListener("pointerdown", this._onPointerDown, this);
-    this.__blocker.addListener("pointerup", this._onPointerUp, this);
-    this.__blocker.addListener("pointermove", this._onPointerMove, this);
-    this.__blocker.addListener("pointerout", this._onPointerOut, this);
-    this.__blocker.addListener("losecapture", this._onPointerUp, this);
   },
 
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
-
   properties: {
-    // overridden
     appearance: {
       refine: true,
       init: "splitpane"
     },
 
     /**
-     * Distance between pointer and splitter when the cursor should change
-     * and enable resizing.
+     * Distance between pointer down and drag start threshold in pixels.
      */
     offset: {
       check: "Integer",
-      init: 6,
-      apply: "_applyOffset"
+      init: 2
     },
 
     /**
-     * The orientation of the splitpane control.
+     * The orientation of the splitpane control (`"horizontal"` or `"vertical"`).
      */
     orientation: {
       init: "horizontal",
       check: ["horizontal", "vertical"],
       apply: "_applyOrientation"
+    },
+
+    /**
+     * Whether pane resizing occurs live during pointer movement (`true`, default in Ville UI).
+     */
+    liveResize: {
+      check: "Boolean",
+      init: true
     }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
-    __splitterOffset: null,
-    __activeDragSession: false,
-    __lastPointerX: null,
-    __lastPointerY: null,
-    __isHorizontal: null,
-    __beginSize: null,
-    __endSize: null,
     __children: null,
-    __blocker: null,
+    __flexValues: null,
+    __isDragging: false,
+    __activePointerId: null,
 
-    // overridden
-    _createChildControlImpl(id, hash) {
-      var control;
+    _createChildControlImpl(id) {
+      let control;
 
       switch (id) {
-        // Create and add slider
-        case "slider":
-          control = new qx.ui.splitpane.Slider(this);
-          control.exclude();
-          this._add(control, { type: id });
+        case "splitter": {
+          control = new ville.ui.splitpane.Splitter(this);
+          this._wireSplitterPointerCapture(control);
           break;
+        }
 
-        // Create splitter
-        case "splitter":
-          control = new qx.ui.splitpane.Splitter(this);
-          this._add(control, { type: id });
-          control.addListener("move", this.__onSplitterMove, this);
+        case "slider":
+          control = new ville.ui.splitpane.Slider();
+          control.exclude();
           break;
       }
 
       return control || super._createChildControlImpl(id);
     },
 
-    /**
-     * Move handler for the splitter which takes care of the external
-     * triggered resize of children.
-     *
-     * @param e {qx.event.type.Data} The data even of move.
-     */
-    __onSplitterMove(e) {
-      this.__setBlockerPosition(e.getData());
+    _wireSplitterPointerCapture(splitter) {
+      const el = splitter.getContentElement();
+      if (!el) return;
+
+      el.setStyles({
+        touchAction: "none",
+        userSelect: "none"
+      });
+
+      el.addListener("pointerdown", (e) => {
+        const nativeEvt = e && typeof e.getNativeEvent === "function" ? e.getNativeEvent() : e;
+        if (!nativeEvt) return;
+        if (nativeEvt.button !== 0 && nativeEvt.pointerType === "mouse") return;
+        if (this.__children.length < 2) return;
+
+        if (typeof e.preventDefault === "function") {
+          e.preventDefault();
+        }
+        this.__isDragging = true;
+        this.__activePointerId = nativeEvt.pointerId;
+        splitter.addState("pressed");
+
+        if (nativeEvt.pointerId != null) {
+          splitter.capture(nativeEvt.pointerId);
+        }
+      });
+
+      el.addListener("pointermove", (e) => {
+        if (!this.__isDragging || this.__children.length < 2) return;
+        const nativeEvt = e && typeof e.getNativeEvent === "function" ? e.getNativeEvent() : e;
+        if (nativeEvt) {
+          this._updateSplitFromPointer(nativeEvt);
+        }
+      });
+
+      const endDrag = () => {
+        if (!this.__isDragging) return;
+        this.__isDragging = false;
+        splitter.removeState("pressed");
+        if (this.__activePointerId != null) {
+          splitter.releaseCapture(this.__activePointerId);
+        }
+        this.__activePointerId = null;
+      };
+
+      el.addListener("pointerup", endDrag);
+      el.addListener("pointercancel", endDrag);
     },
 
-    /**
-     * Creates a blocker for the splitter which takes all bouse events and
-     * also handles the offset and cursor.
-     *
-     * @param orientation {String} The orientation of the pane.
-     */
-    __createBlocker(orientation) {
-      this.__blocker = new qx.ui.splitpane.Blocker(orientation);
-      this.getContentElement().add(this.__blocker);
+    _updateSplitFromPointer(nativeEvt) {
+      const containerDom = this._ensureDomElement();
+      const splitter = this.getChildControl("splitter");
+      const splitterDom = splitter ? splitter._ensureDomElement() : null;
+      if (!containerDom || !splitterDom || this.__children.length < 2) return;
 
-      var splitter = this.getChildControl("splitter");
-      var splitterWidth = splitter.getWidth();
-      if (!splitterWidth) {
-        splitter.addListenerOnce("appear", () => {
-          this.__setBlockerPosition();
-        });
-      }
+      const rect = containerDom.getBoundingClientRect();
+      const splitterRect = splitterDom.getBoundingClientRect();
+      const isHorizontal = this.getOrientation() === "horizontal";
 
-      // resize listener to remove the blocker in case the splitter
-      // is removed.
-      splitter.addListener("resize", e => {
-        var bounds = e.getData();
-        if (
-          this.getChildControl("splitter").isKnobVisible() &&
-          (bounds.height == 0 || bounds.width == 0)
-        ) {
-          this.__blocker.hide();
-        } else {
-          this.__blocker.show();
-        }
+      const totalSize = isHorizontal
+        ? rect.width - splitterRect.width
+        : rect.height - splitterRect.height;
+
+      if (totalSize <= 0) return;
+
+      const firstWidget = this.__children[0];
+      const secondWidget = this.__children[1];
+
+      const minFirst = isHorizontal
+        ? Number(firstWidget.getMinWidth()) || 24
+        : Number(firstWidget.getMinHeight()) || 24;
+      const minSecond = isHorizontal
+        ? Number(secondWidget.getMinWidth()) || 24
+        : Number(secondWidget.getMinHeight()) || 24;
+
+      const pointerOffset = isHorizontal
+        ? nativeEvt.clientX - rect.left - splitterRect.width / 2
+        : nativeEvt.clientY - rect.top - splitterRect.height / 2;
+
+      const clampedFirst = Math.max(
+        minFirst,
+        Math.min(totalSize - minSecond, pointerOffset)
+      );
+      const ratioFirst = clampedFirst / totalSize;
+      const ratioSecond = Math.max(0.01, 1 - ratioFirst);
+
+      firstWidget.setStyles({
+        flexGrow: String(Number(ratioFirst.toFixed(4))),
+        flexShrink: "1",
+        flexBasis: "0px"
+      });
+      secondWidget.setStyles({
+        flexGrow: String(Number(ratioSecond.toFixed(4))),
+        flexShrink: "1",
+        flexBasis: "0px"
       });
     },
 
-    /**
-     * Returns the blocker used over the splitter. this could be used for
-     * adding event listeners like tap or dbltap.
-     *
-     * @return {qx.ui.splitpane.Blocker} The used blocker element.
-     *
-     * @internal
-     */
-    getBlocker() {
-      return this.__blocker;
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      PROPERTY APPLY METHODS
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Apply routine for the orientation property.
-     *
-     * Sets the pane's layout to vertical or horizontal split layout.
-     *
-     * @param value {String} The new value of the orientation property
-     * @param old {String} The old value of the orientation property
-     */
     _applyOrientation(value, old) {
-      // ARIA attrs
-      this.getContentElement().setAttribute("aria-orientation", value);
+      const splitter = this.getChildControl("splitter");
+      const knob = splitter.getChildControl("knob");
 
-      var slider = this.getChildControl("slider");
-      var splitter = this.getChildControl("splitter");
-
-      // Store boolean flag for faster access
-      this.__isHorizontal = value === "horizontal";
-
-      if (!this.__blocker) {
-        this.__createBlocker(value);
+      if (old) {
+        this.removeState(old);
+        splitter.removeState(old);
+        knob.removeState(old);
       }
 
-      // update the blocker
-      this.__blocker.setOrientation(value);
+      const isHorizontal = value === "horizontal";
+      this._setLayout(
+        isHorizontal ? new ville.ui.layout.HBox() : new ville.ui.layout.VBox()
+      );
+      this.setStyles({
+        display: "flex",
+        flexDirection: isHorizontal ? "row" : "column",
+        alignItems: "stretch"
+      });
 
-      // Dispose old layout
-      var oldLayout = this._getLayout();
-      if (oldLayout) {
-        oldLayout.dispose();
-      }
+      splitter.setAttribute(
+        "aria-orientation",
+        isHorizontal ? "vertical" : "horizontal"
+      );
+      splitter.setStyles({
+        cursor: isHorizontal ? "col-resize" : "row-resize",
+        flex: "0 0 auto"
+      });
 
-      // Create new layout
-      var newLayout =
-        value === "vertical"
-          ? new qx.ui.splitpane.VLayout()
-          : new qx.ui.splitpane.HLayout();
-      this._setLayout(newLayout);
-
-      // Update states for splitter and slider
-      splitter.removeState(old);
+      this.addState(value);
       splitter.addState(value);
-      splitter.getChildControl("knob").removeState(old);
-      splitter.getChildControl("knob").addState(value);
-      slider.removeState(old);
-      slider.addState(value);
+      knob.addState(value);
 
-      // flush (needs to be done for the blocker update) and update the blocker
-      qx.ui.core.queue.Manager.flush();
-      this.__setBlockerPosition();
+      this._syncChildrenOrder();
     },
 
-    // property apply
-    _applyOffset(value, old) {
-      this.__setBlockerPosition();
-    },
+    _syncChildrenOrder() {
+      const splitter = this.getChildControl("splitter");
+      this._removeAll();
 
-    /**
-     * Helper for setting the blocker to the right position, which depends on
-     * the offset, orientation and the current position of the splitter.
-     *
-     * @param bounds {Map?null} If the bounds of the splitter are known,
-     *   they can be added.
-     */
-    __setBlockerPosition(bounds) {
-      var splitter = this.getChildControl("splitter");
-      var offset = this.getOffset();
-      var splitterBounds = splitter.getBounds();
-      var splitterElem = splitter.getContentElement().getDomElement();
-
-      // do nothing if the splitter is not ready
-      if (!splitterElem) {
+      if (this.__children.length === 0) {
         return;
       }
 
-      // recalculate the dimensions of the blocker
-      if (this.__isHorizontal) {
-        // get the width either of the given bounds or of the read bounds
-        var width = null;
-        if (bounds) {
-          width = bounds.width;
-        } else if (splitterBounds) {
-          width = splitterBounds.width;
-        }
-        var left = bounds && bounds.left;
+      const first = this.__children[0];
+      const flex0 = this.__flexValues[0] != null ? this.__flexValues[0] : 1;
+      this._add(first, { flex: flex0 });
+      this._applyFlexStyle(first, flex0);
 
-        if (width || !this.getChildControl("splitter").isKnobVisible()) {
-          if (isNaN(left)) {
-            left = qx.bom.element.Location.getPosition(splitterElem).left;
-          }
-          this.__blocker.setWidth(offset, width || 6);
-          this.__blocker.setLeft(offset, left);
-        }
-
-        // vertical case
-      } else {
-        // get the height either of the given bounds or of the read bounds
-        var height = null;
-        if (bounds) {
-          height = bounds.height;
-        } else if (splitterBounds) {
-          height = splitterBounds.height;
-        }
-        var top = bounds && bounds.top;
-
-        if (height || !this.getChildControl("splitter").isKnobVisible()) {
-          if (isNaN(top)) {
-            top = qx.bom.element.Location.getPosition(splitterElem).top;
-          }
-          this.__blocker.setHeight(offset, height || 6);
-          this.__blocker.setTop(offset, top);
-        }
+      if (this.__children.length > 1) {
+        this._add(splitter);
+        const second = this.__children[1];
+        const flex1 = this.__flexValues[1] != null ? this.__flexValues[1] : 1;
+        this._add(second, { flex: flex1 });
+        this._applyFlexStyle(second, flex1);
       }
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      PUBLIC METHODS
-    ---------------------------------------------------------------------------
-    */
+    _applyFlexStyle(widget, flex) {
+      if (flex === 0) {
+        widget.setStyles({
+          flexGrow: "0",
+          flexShrink: "0",
+          flexBasis: "auto"
+        });
+      } else {
+        widget.setStyles({
+          flexGrow: String(flex),
+          flexShrink: "1",
+          flexBasis: "0px",
+          minWidth: "0",
+          minHeight: "0"
+        });
+      }
+    },
 
     /**
-     * Adds a widget to the pane.
+     * Adds a widget to the splitpane. Accepts up to 2 children.
      *
-     * Sets the pane's layout to vertical or horizontal split layout. Depending on the
-     * pane's layout the first widget will be the left or top widget, the second one
-     * the bottom or right widget. Adding more than two widgets will overwrite the
-     * existing ones.
-     *
-     * @param widget {qx.ui.core.Widget} The widget to be inserted into pane.
-     * @param flex {Number} The (optional) layout property for the widget's flex value.
+     * @param {ville.ui.core.Widget} widget The widget to be added into the split pane
+     * @param {number} [flex=1] Optional flex ratio (`0` for static size, `>= 1` for proportional)
      */
-    add(widget, flex) {
-      if (flex === undefined) {
-        this._add(widget);
-      } else {
-        this._add(widget, { flex: flex });
+    add(widget, flex = 1) {
+      if (this.__children.length >= 2) {
+        throw new Error("A SplitPane can only have two children.");
       }
+      const idx = this.__children.length;
       this.__children.push(widget);
+      this.__flexValues[idx] = flex !== undefined ? flex : 1;
+      this._syncChildrenOrder();
     },
 
     /**
-     * Removes the given widget from the pane.
+     * Removes the given widget from the splitpane.
      *
-     * @param widget {qx.ui.core.Widget} The widget to be removed.
+     * @param {ville.ui.core.Widget} widget The widget to be removed
      */
     remove(widget) {
-      this._remove(widget);
-      qx.lang.Array.remove(this.__children, widget);
+      const idx = this.__children.indexOf(widget);
+      if (idx === -1) return;
+      this.__children.splice(idx, 1);
+      this.__flexValues.splice(idx, 1);
+      this._syncChildrenOrder();
     },
 
     /**
-     * Returns an array containing the pane's content.
+     * Returns an array containing the current child widgets (excluding the internal splitter).
      *
-     * @return {qx.ui.core.Widget[]} The pane's child widgets
+     * @returns {ville.ui.core.Widget[]}
      */
     getChildren() {
-      return this.__children;
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      POINTER LISTENERS
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Handler for pointerdown event.
-     *
-     * Shows slider widget and starts drag session if pointer is near/on splitter widget.
-     *
-     * @param e {qx.event.type.Pointer} pointerdown event
-     */
-    _onPointerDown(e) {
-      // Only proceed if left pointer button is pressed and the splitter is active
-      if (!e.isLeftPressed()) {
-        return;
-      }
-
-      var splitter = this.getChildControl("splitter");
-
-      // Store offset between pointer event coordinates and splitter
-      var splitterLocation = splitter.getContentLocation();
-      var paneLocation = this.getContentLocation();
-      this.__splitterOffset = this.__isHorizontal
-        ? e.getDocumentLeft() - splitterLocation.left + paneLocation.left
-        : e.getDocumentTop() - splitterLocation.top + paneLocation.top;
-
-      // Synchronize slider to splitter size and show it
-      var slider = this.getChildControl("slider");
-      var splitterBounds = splitter.getBounds();
-      slider.setUserBounds(
-        splitterBounds.left,
-        splitterBounds.top,
-        splitterBounds.width || 6,
-        splitterBounds.height || 6
-      );
-
-      slider.setZIndex(splitter.getZIndex() + 1);
-      slider.show();
-
-      // Enable session
-      this.__activeDragSession = true;
-      this.__blocker.capture();
-
-      e.stop();
-    },
-
-    /**
-     * Handler for pointermove event.
-     *
-     * @param e {qx.event.type.Pointer} pointermove event
-     */
-    _onPointerMove(e) {
-      this._setLastPointerPosition(e.getDocumentLeft(), e.getDocumentTop());
-
-      // Check if slider is already being dragged
-      if (this.__activeDragSession) {
-        // Compute new children sizes
-        this.__computeSizes();
-
-        // Update slider position
-        var slider = this.getChildControl("slider");
-        var pos = this.__beginSize;
-
-        if (this.__isHorizontal) {
-          slider.setDomLeft(pos);
-          this.__blocker.setStyle("left", pos - this.getOffset() + "px");
-        } else {
-          slider.setDomTop(pos);
-          this.__blocker.setStyle("top", pos - this.getOffset() + "px");
-        }
-
-        e.stop();
-      }
-    },
-
-    /**
-     * Handler for pointerout event
-     *
-     * @param e {qx.event.type.Pointer} pointerout event
-     */
-    _onPointerOut(e) {
-      this._setLastPointerPosition(e.getDocumentLeft(), e.getDocumentTop());
-    },
-
-    /**
-     * Handler for pointerup event
-     *
-     * Sets widget sizes if dragging session has been active.
-     *
-     * @param e {qx.event.type.Pointer} pointerup event
-     */
-    _onPointerUp(e) {
-      if (!this.__activeDragSession) {
-        return;
-      }
-
-      // Set sizes to both widgets
-      this._finalizeSizes();
-
-      // Hide the slider
-      var slider = this.getChildControl("slider");
-      slider.exclude();
-
-      // Cleanup
-      this.__activeDragSession = false;
-      this.releaseCapture();
-
-      e.stop();
-    },
-
-    /*
-    ---------------------------------------------------------------------------
-      INTERVAL HANDLING
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Updates widgets' sizes based on the slider position.
-     */
-    _finalizeSizes() {
-      var beginSize = this.__beginSize;
-      var endSize = this.__endSize;
-
-      if (beginSize == null) {
-        return;
-      }
-
-      var children = this._getChildren();
-      var firstWidget = children[2];
-      var secondWidget = children[3];
-
-      // Read widgets' flex values
-      var firstFlexValue = firstWidget.getLayoutProperties().flex;
-      var secondFlexValue = secondWidget.getLayoutProperties().flex;
-
-      // Both widgets have flex values
-      if (firstFlexValue != 0 && secondFlexValue != 0) {
-        firstWidget.setLayoutProperties({ flex: beginSize });
-        secondWidget.setLayoutProperties({ flex: endSize });
-      }
-
-      // Update both sizes
-      else {
-        // Set widths to static widgets
-        if (this.__isHorizontal) {
-          firstWidget.setWidth(beginSize);
-          secondWidget.setWidth(endSize);
-        } else {
-          firstWidget.setHeight(beginSize);
-          secondWidget.setHeight(endSize);
-        }
-      }
-    },
-
-    /**
-     * Computes widgets' sizes based on the pointer coordinate.
-     */
-    __computeSizes() {
-      if (this.__isHorizontal) {
-        var min = "minWidth",
-          size = "width",
-          max = "maxWidth",
-          pointer = this.__lastPointerX;
-      } else {
-        var min = "minHeight",
-          size = "height",
-          max = "maxHeight",
-          pointer = this.__lastPointerY;
-      }
-
-      var children = this._getChildren();
-      var beginHint = children[2].getSizeHint();
-      var endHint = children[3].getSizeHint();
-
-      // Area given to both widgets
-      var allocatedSize =
-        children[2].getBounds()[size] + children[3].getBounds()[size];
-
-      // Calculate widget sizes
-      var beginSize = pointer - this.__splitterOffset;
-      var endSize = allocatedSize - beginSize;
-
-      // Respect minimum limits
-      if (beginSize < beginHint[min]) {
-        endSize -= beginHint[min] - beginSize;
-        beginSize = beginHint[min];
-      } else if (endSize < endHint[min]) {
-        beginSize -= endHint[min] - endSize;
-        endSize = endHint[min];
-      }
-
-      // Respect maximum limits
-      if (beginSize > beginHint[max]) {
-        endSize += beginSize - beginHint[max];
-        beginSize = beginHint[max];
-      } else if (endSize > endHint[max]) {
-        beginSize += endSize - endHint[max];
-        endSize = endHint[max];
-      }
-
-      // Store sizes
-      this.__beginSize = beginSize;
-      this.__endSize = endSize;
-    },
-
-    /**
-     * Determines whether this is an active drag session
-     *
-     * @return {Boolean} True if active drag session, otherwise false.
-     */
-    _isActiveDragSession() {
-      return this.__activeDragSession;
-    },
-
-    /**
-     * Sets the last pointer position.
-     *
-     * @param x {Integer} the x position of the pointer.
-     * @param y {Integer} the y position of the pointer.
-     */
-    _setLastPointerPosition(x, y) {
-      this.__lastPointerX = x;
-      this.__lastPointerY = y;
+      return this.__children.slice();
     }
   },
 
   destruct() {
     this.__children = null;
+    this.__flexValues = null;
   }
 });

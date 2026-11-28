@@ -1,87 +1,54 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Andreas Ecker (ecker)
-     * Martin Wittemann (martinwittemann)
-
-************************************************************************ */
-
 /**
- * Radio buttons are used to manage a single selection. Radio buttons only
- * make sense used in a group of two or more of them. They are managed (connected)
- * to a {@link qx.ui.form.RadioGroup} to handle the selection.
+ * Radio buttons are used to manage a single selection among multiple toolbar buttons.
  */
 qx.Class.define("ville.ui.toolbar.RadioButton", {
-  extend: qx.ui.toolbar.CheckBox,
-  include: [qx.ui.form.MModelProperty],
-  implement: [qx.ui.form.IModel, qx.ui.form.IRadioItem],
+  extend: ville.ui.toolbar.CheckBox,
+  implement: [ville.ui.form.IRadioItem, ville.ui.form.IModel],
+  include: [ville.ui.form.MModelProperty],
 
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+  properties: {
+    /** The assigned `ville.ui.form.RadioGroup` which handles the switching between registered buttons */
+    group: {
+      check: "ville.ui.form.RadioGroup",
+      nullable: true,
+      apply: "_applyGroup"
+    },
 
-  construct(label, icon) {
-    super(label, icon);
-
-    // ARIA attrs
-    // Important: (Grouped) radio btns should be children of a div with role 'radiogroup'
-    const contentEl = this.getContentElement();
-    contentEl.setAttribute("role", "radio");
-    contentEl.setAttribute("aria-checked", false);
-    contentEl.removeAttribute("aria-pressed");
+    /**
+     * Prohibit the deselecting of the checked radio button when clicked.
+     */
+    noEmptySelection: {
+      check: "Boolean",
+      init: true
+    }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
-
   members: {
-    /*
-    ---------------------------------------------------------------------------
-      PROPERTY APPLY ROUTINES
-    ---------------------------------------------------------------------------
-    */
+    _applyGroup(value, old) {
+      if (old) {
+        old.remove(this);
+      }
+      if (value) {
+        value.add(this);
+      }
+    },
 
-    // overridden
     _applyValue(value, old) {
       super._applyValue(value, old);
-
-      // ARIA attrs
-      const contentEl = this.getContentElement();
-      contentEl.removeAttribute("aria-pressed");
-      contentEl.setAttribute("aria-checked", Boolean(value));
-
       if (value) {
-        var grp = this.getGroup();
+        const grp = this.getGroup();
         if (grp) {
           grp.setSelection([this]);
         }
       }
     },
 
-    // overridden
     _onExecute(e) {
-      var grp = this.getGroup();
-      if (grp && grp.getAllowEmptySelection()) {
-        this.toggleValue();
-      } else {
+      const grp = this.getGroup();
+      if (grp && (this.isNoEmptySelection() || !grp.getAllowEmptySelection())) {
         this.setValue(true);
+      } else {
+        this.toggleValue();
       }
     }
   }

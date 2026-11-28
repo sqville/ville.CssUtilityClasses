@@ -1,38 +1,16 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Andreas Ecker (ecker)
-     * Jonathan Weiß (jonathan_rass)
-
-************************************************************************ */
-
 /**
- * The container used by {@link Part} to insert the buttons.
- *
- * @internal
+ * The container used by `{ville.ui.toolbar.Part}` to store the actual toolbar buttons.
  */
 qx.Class.define("ville.ui.toolbar.PartContainer", {
-  extend: qx.ui.container.Composite,
+  extend: ville.ui.core.Box,
 
   construct() {
-    super();
-    this._setLayout(new qx.ui.layout.HBox());
+    super(new ville.ui.layout.HBox());
+    this.setAlignY("middle");
   },
 
   events: {
-    /** Fired if a child has been added or removed */
+    /** Fired whenever a child is added or removed */
     changeChildren: "qx.event.type.Event"
   },
 
@@ -42,7 +20,6 @@ qx.Class.define("ville.ui.toolbar.PartContainer", {
       init: "toolbar/part/container"
     },
 
-    /** Whether icons, labels, both or none should be shown. */
     show: {
       init: "both",
       check: ["both", "label", "icon"],
@@ -52,12 +29,10 @@ qx.Class.define("ville.ui.toolbar.PartContainer", {
   },
 
   members: {
-    // overridden
     _afterAddChild(child) {
       this.fireEvent("changeChildren");
     },
 
-    // overridden
     _afterRemoveChild(child) {
       this.fireEvent("changeChildren");
     }

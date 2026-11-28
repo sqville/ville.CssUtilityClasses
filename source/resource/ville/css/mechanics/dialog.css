@@ -1,12 +1,15 @@
 /**
  * Ville UI — Layer 1 Browser Mechanics: Native `<dialog>` Modal & Window Overlays
- * (`STRAT-EVENT-02`, `STRAT-EVENT-03`)
+ * + Shared Tier A1 & Tier A2 / Stage 6 Widget Mechanics
+ * (`STRAT-EVENT-02`, `STRAT-EVENT-03`, `STRAT-WIDGET-06`, `STRAT-WIDGET-08`)
  *
  * Provides vendor-agnostic top-layer `<dialog>` positioning, `::backdrop` dimming,
  * scroll locking (`body:has(dialog.ville-modal[open])`), and reduced-motion-safe
  * `@starting-style` entry/exit transitions for `ville.ui.overlay.Modal` and
  * `ville.ui.overlay.Window`, plus shared semantic mechanics for `Burger`,
- * `CheckBox`, `Switch`, `RadioButton`, and `NavLink`.
+ * `CheckBox`, `Switch`, `RadioButton`, `NavLink`, `MDataView` (`SelectBox` / `ComboBox`),
+ * `Spinner`, `Slider`, `DateChooser`, `ColorSelector`, `ProgressBar`, `Meter`,
+ * `TabView`, `ToolBar`, and `SplitPane`.
  */
 
 dialog.ville-modal,
@@ -226,6 +229,453 @@ body:has(dialog.ville-modal[open]) {
   padding: 0.375rem 0.625rem;
   font-size: 0.75rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================================
+ * Stage 6 — Unified Non-Virtual Data View (`MDataView`), Tier A2 Controls,
+ * & Composite Containers (`SelectBox`, `ComboBox`, `Spinner`, `Slider`,
+ * `DateField`, `DateChooser`, `ColorSelector`, `ProgressBar`, `Meter`,
+ * `TabView`, `ToolBar`, `SplitPane`)
+ * ========================================================================== */
+
+/* --- 1. MDataView Option Rows (`SelectBox` & `ComboBox`) --- */
+.ville-dataview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.25rem;
+}
+
+.ville-dataview-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: calc(var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem))) - 2px);
+  font-size: 0.875rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 100ms ease, color 100ms ease;
+}
+
+.ville-dataview-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ville-dataview-item-icon:empty {
+  display: none;
+}
+
+.ville-dataview-item-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ville-dataview-item-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ville-dataview-item-description {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.ville-dataview-item-check {
+  margin-inline-start: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .ville-dataview-item:hover:not([data-disabled="true"]) {
+    background-color: var(--accent, var(--background-modifier-hover, var(--mantine-color-default-hover, rgba(128, 128, 128, 0.12))));
+  }
+}
+
+.ville-dataview-item[data-highlighted="true"] {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-color-default-hover, rgba(128, 128, 128, 0.16))));
+}
+
+.ville-dataview-item[data-selected="true"] {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-primary-color-light, rgba(34, 139, 230, 0.14))));
+  font-weight: 600;
+}
+
+.ville-dataview-item[data-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --- 2. SelectBox & ComboBox Triggers --- */
+.ville-selectbox,
+.ville-combobox {
+  min-width: 11rem;
+}
+
+.ville-selectbox-button {
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* --- 3. Spinner, Slider, ProgressBar & Meter --- */
+.ville-spinner {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.ville-slider {
+  accent-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+  height: 1.5rem;
+}
+
+progress.ville-progressbar {
+  accent-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+  height: 0.625rem;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+meter.ville-meter {
+  height: 0.75rem;
+}
+
+/* --- 4. DateChooser & ColorSelector --- */
+.ville-datechooser,
+.ville-colorselector {
+  border-radius: var(--radius, var(--radius-m, var(--mantine-radius-md, 0.5rem)));
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+  background-color: var(--card, var(--background-secondary, var(--mantine-color-body, transparent)));
+  padding: 0.625rem;
+}
+
+.ville-datechooser-day:hover:not([disabled]) {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-color-default-hover, rgba(128, 128, 128, 0.14)))) !important;
+}
+
+.ville-datechooser-day[data-selected="true"] {
+  background-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6))) !important;
+  color: var(--primary-foreground, var(--text-on-accent, var(--mantine-color-white, #ffffff))) !important;
+}
+
+/* --- 5. TabView, TabBar & TabButton --- */
+.ville-tabview {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.ville-tabview-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.25))));
+  padding-bottom: 2px;
+}
+
+.ville-tabview-pane {
+  padding: 0.875rem 0.25rem;
+}
+
+.ville-tabview-button[data-active="true"] {
+  border-bottom: 2px solid var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+  font-weight: 600;
+}
+
+/* --- 6. ToolBar & SplitPane --- */
+.ville-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+  background-color: var(--card, var(--background-secondary, var(--mantine-color-body, transparent)));
+}
+
+.ville-splitpane {
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+  overflow: hidden;
+}
+
+.ville-splitpane-splitter {
+  background-color: var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+  transition: background-color 120ms ease;
+}
+
+.ville-splitpane-splitter.horizontal,
+.ville-splitpane-splitter[aria-orientation="vertical"] {
+  width: 6px;
+  cursor: col-resize;
+}
+
+.ville-splitpane-splitter.vertical,
+.ville-splitpane-splitter[aria-orientation="horizontal"] {
+  height: 6px;
+  cursor: row-resize;
+}
+
+.ville-splitpane-splitter:hover,
+.ville-splitpane-splitter[data-active="true"] {
+  background-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+}
+
+/* --- 7. Pure Semantic HTML5 Controls (`NativeSelect`, `SimpleList`, `SimpleTable`) --- */
+select.ville-nativeselect {
+  min-width: 11rem;
+  cursor: pointer;
+}
+
+ul.ville-simplelist,
+ol.ville-simplelist {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+  background-color: var(--card, var(--background-secondary, var(--mantine-color-body, transparent)));
+}
+
+ul.ville-simplelist[data-with-border="true"],
+ol.ville-simplelist[data-with-border="true"] {
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+}
+
+.ville-simplelist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: calc(var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem))) - 2px);
+  font-size: 0.875rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 100ms ease, color 100ms ease;
+}
+
+.ville-simplelist[data-striped="true"] > .ville-simplelist-item:nth-child(odd) {
+  background-color: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.ville-simplelist-item-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ville-simplelist-item-label {
+  font-weight: 500;
+}
+
+.ville-simplelist-item-desc {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.ville-simplelist-item-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.125rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.25))));
+  opacity: 0.85;
+}
+
+@media (hover: hover) {
+  .ville-simplelist-item:hover:not([data-disabled="true"]) {
+    background-color: var(--accent, var(--background-modifier-hover, var(--mantine-color-default-hover, rgba(128, 128, 128, 0.12))));
+  }
+}
+
+.ville-simplelist-item[data-selected="true"] {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-primary-color-light, rgba(34, 139, 230, 0.14))));
+  font-weight: 600;
+}
+
+/* Pure Semantic <table> (`SimpleTable`) vendor-neutral baseline mechanics */
+table.ville-simpletable {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 0.85rem;
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+}
+
+table.ville-simpletable[data-tabular-nums="true"] {
+  font-variant-numeric: tabular-nums;
+}
+
+table.ville-simpletable[data-with-table-border="true"] {
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+}
+
+.ville-simpletable-th,
+.ville-simpletable-td {
+  padding: 0.5rem 0.75rem;
+}
+
+.ville-simpletable-th {
+  font-weight: 600;
+  border-bottom: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.25))));
+}
+
+.ville-simpletable-sort-icon {
+  font-size: 0.7rem;
+  opacity: 0.65;
+}
+
+.ville-simpletable-tr[data-with-row-border="true"] {
+  border-bottom: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.18))));
+}
+
+.ville-simpletable-tbody > .ville-simpletable-tr[data-striped="odd"]:nth-of-type(odd),
+.ville-simpletable-tbody > .ville-simpletable-tr[data-striped="even"]:nth-of-type(even) {
+  background-color: color-mix(in srgb, currentColor 3.5%, transparent);
+}
+
+@media (hover: hover) {
+  .ville-simpletable-tbody > .ville-simpletable-tr[data-hover="true"]:hover {
+    background-color: var(--accent, var(--background-modifier-hover, var(--mantine-color-default-hover, rgba(128, 128, 128, 0.1))));
+    cursor: pointer;
+  }
+}
+
+.ville-simpletable-tbody > .ville-simpletable-tr[data-selected="true"] {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-primary-color-light, rgba(34, 139, 230, 0.14))));
+  font-weight: 600;
+}
+
+.ville-simpletable-caption {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  padding-top: 0.375rem;
+}
+
+/* ============================================================================
+ * Stage 7B — Advanced QxLayout-Style Data Views (`Table`, `Tree`, `List`)
+ * & W3C CSS Custom Highlight API (`::highlight(ville-search-match)`)
+ * (`STRAT-CORE-06`, `STRAT-CORE-07`, `STRAT-WIDGET-08`)
+ * ========================================================================== */
+
+/* W3C CSS Custom Highlight API (`CSS.highlights` -> `::highlight(ville-search-match)`) */
+::highlight(ville-search-match) {
+  background-color: #fcc419;
+  color: #111111;
+}
+
+/* Advanced `ville.ui.table.Table` Wrapper, Scroll Viewport, Resizer & Inline Editor */
+.ville-table {
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+  background-color: var(--card, var(--background-secondary, var(--mantine-color-body, transparent)));
+}
+
+.ville-table-th[data-sortable="true"]:hover {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-color-default-hover, rgba(128, 128, 128, 0.1))));
+}
+
+.ville-table-col-resizer:hover {
+  background-color: var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+}
+
+.ville-table-inline-editor {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--primary, var(--interactive-accent, var(--mantine-primary-color-filled, #228be6)));
+  background-color: var(--background, var(--background-primary, var(--mantine-color-body, #ffffff)));
+  color: inherit;
+  outline: none;
+}
+
+/* Advanced `ville.ui.list.List` (`ville.ui.form.List`) Scrollable Listbox */
+.ville-list {
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+  background-color: var(--card, var(--background-secondary, var(--mantine-color-body, transparent)));
+}
+
+/* Advanced `ville.ui.tree.Tree` (`<ul role="tree">` + `<li role="treeitem">`) */
+ul.ville-tree,
+ul.ville-tree-subtree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.ville-tree {
+  padding: 0.375rem;
+  border-radius: var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem)));
+  border: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+  background-color: var(--card, var(--background-secondary, var(--mantine-color-body, transparent)));
+  font-size: 0.875rem;
+}
+
+ul.ville-tree-subtree {
+  padding-inline-start: var(--level-offset, 1.25rem);
+}
+
+ul.ville-tree[data-with-lines="true"] ul.ville-tree-subtree {
+  border-inline-start: 1px solid var(--border, var(--background-modifier-border, var(--mantine-color-default-border, rgba(128, 128, 128, 0.22))));
+  margin-inline-start: 0.55rem;
+  padding-inline-start: 0.75rem;
+}
+
+.ville-tree-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.275rem 0.5rem;
+  border-radius: calc(var(--radius, var(--radius-s, var(--mantine-radius-sm, 0.375rem))) - 2px);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 100ms ease, color 100ms ease;
+}
+
+@media (hover: hover) {
+  .ville-tree-label:hover:not([data-disabled="true"]) {
+    background-color: var(--accent, var(--background-modifier-hover, var(--mantine-color-default-hover, rgba(128, 128, 128, 0.12))));
+  }
+}
+
+.ville-tree-label[data-selected="true"] {
+  background-color: var(--accent, var(--background-modifier-hover, var(--mantine-primary-color-light, rgba(34, 139, 230, 0.14))));
+  color: var(--accent-foreground, var(--text-normal, var(--mantine-primary-color-light-color, inherit)));
+  font-weight: 600;
+}
+
+.ville-tree-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.9rem;
+  font-size: 0.65rem;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.ville-tree-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ville-tree-icon:empty {
+  display: none;
 }
 
 /* Accessible Entry/Exit Transitions (`@starting-style` + `prefers-reduced-motion`) */

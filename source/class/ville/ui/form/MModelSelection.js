@@ -1,45 +1,24 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2009 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Martin Wittemann (martinwittemann)
-
-************************************************************************ */
 /**
- * This mixin offers the selection of the model properties.
- * It can only be included if the object including it implements the
- * {@link qx.ui.core.ISingleSelection} interface and the selectables implement
- * the {@link qx.ui.form.IModel} interface.
+ * Path B Model Selection Mixin (`ville.ui.form.MModelSelection` — `STRAT-CORE-09`).
+ *
+ * Bridges `ISingleSelection` / `IMultiSelection` widgets (`SelectBox`, `List`, `RadioButtonGroup`)
+ * with an observable `ville.data.Array` (`getModelSelection()` / `setModelSelection()`) so
+ * `ville.data.controller.Form` and `SingleValueBinding` can bind directly to `"modelSelection"`.
  */
 qx.Mixin.define("ville.ui.form.MModelSelection", {
   construct() {
-    // create the selection array
     this.__modelSelection = new qx.data.Array();
-
-    // listen to the changes
     this.__modelSelection.addListener(
       "change",
       this.__onModelSelectionArrayChange,
       this
     );
-
     this.addListener("changeSelection", this.__onModelSelectionChange, this);
   },
 
   events: {
     /**
-     * Pseudo event. It will never be fired because the array itself can not
-     * be changed. But the event description is needed for the data binding.
+     * Pseudo event description used by `SingleValueBinding` when binding `"modelSelection[0]"`.
      */
     changeModelSelection: "qx.event.type.Data"
   },
@@ -48,119 +27,106 @@ qx.Mixin.define("ville.ui.form.MModelSelection", {
     __modelSelection: null,
     __inSelectionChange: false,
 
-    /**
-     * Handler for the selection change of the including class e.g. SelectBox,
-     * List, ...
-     * It sets the new modelSelection via {@link #setModelSelection}.
-     */
     __onModelSelectionChange() {
       if (this.__inSelectionChange) {
         return;
       }
-      var data = this.getSelection();
+      const data = typeof this.getSelection === "function" ? this.getSelection() : [];
+      const modelSelection = [];
 
-      // create the array with the modes inside
-      var modelSelection = [];
-      for (var i = 0; i < data.length; i++) {
-        var item = data[i];
-        // fallback if getModel is not implemented
-        var model = item.getModel ? item.getModel() : null;
-        if (model !== null) {
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        if (!item) continue;
+        const model =
+          typeof item.getModel === "function" && item.getModel() !== null
+            ? item.getModel()
+            : typeof item.getEffectiveValue === "function"
+            ? item.getEffectiveValue()
+            : null;
+        if (model !== null && model !== undefined) {
           modelSelection.push(model);
         }
       }
 
+      this.__inSelectionChange = true;
       try {
         this.setModelSelection(modelSelection);
-      } catch (e) {
-        throw new Error(
-          "Could not set the model selection. Maybe your models are not unique? " +
-            e
-        );
+      } finally {
+        this.__inSelectionChange = false;
       }
     },
 
-    /**
-     * Listener for the change of the internal model selection data array.
-     */
     __onModelSelectionArrayChange() {
+      if (this.__inSelectionChange) {
+        return;
+      }
       this.__inSelectionChange = true;
-      var selectables = this.getSelectables(true);
-      var itemSelection = [];
+      try {
+        const selectables =
+          typeof this.getSelectables === "function" ? this.getSelectables(true) : [];
+        const itemSelection = [];
+        const modelSelection = this.__modelSelection.toArray();
 
-      var modelSelection = this.__modelSelection.toArray();
-      for (var i = 0; i < modelSelection.length; i++) {
-        var model = modelSelection[i];
-        for (var j = 0; j < selectables.length; j++) {
-          var selectable = selectables[j];
-          // fallback if getModel is not implemented
-          var selectableModel = selectable.getModel
-            ? selectable.getModel()
-            : null;
-          if (model === selectableModel) {
-            itemSelection.push(selectable);
-            break;
+        for (let i = 0; i < modelSelection.length; i++) {
+          const model = modelSelection[i];
+          for (let j = 0; j < selectables.length; j++) {
+            const selectable = selectables[j];
+            const selectableModel =
+              typeof selectable.getModel === "function" && selectable.getModel() !== null
+                ? selectable.getModel()
+                : typeof selectable.getEffectiveValue === "function"
+                ? selectable.getEffectiveValue()
+                : null;
+            if (model === selectableModel) {
+              itemSelection.push(selectable);
+              break;
+            }
           }
         }
-      }
-      this.setSelection(itemSelection);
-      this.__inSelectionChange = false;
 
-      // check if the setting has worked
-      var currentSelection = this.getSelection();
-      if (!qx.lang.Array.equals(currentSelection, itemSelection)) {
-        // if not, set the actual selection
-        this.__onModelSelectionChange();
+        if (typeof this.setSelection === "function") {
+          this.setSelection(itemSelection);
+        }
+      } finally {
+        this.__inSelectionChange = false;
       }
     },
 
     /**
-     * Returns always an array of the models of the selected items. If no
-     * item is selected or no model is given, the array will be empty.
+     * Returns the observable `ville.data.Array` (`qx.data.Array`) of selected models.
      *
-     * *CAREFUL!* The model selection can only work if every item item in the
-     * selection providing widget has a model property!
-     *
-     * @return {qx.data.Array} An array of the models of the selected items.
+     * @returns {qx.data.Array}
      */
     getModelSelection() {
       return this.__modelSelection;
     },
 
     /**
-     * Takes the given models in the array and searches for the corresponding
-     * selectables. If an selectable does have that model attached, it will be
-     * selected.
+     * Updates the selected models from a JS `Array` or `ville.data.Array`.
      *
-     * *Attention:* This method can have a time complexity of O(n^2)!
-     *
-     * *CAREFUL!* The model selection can only work if every item item in the
-     * selection providing widget has a model property!
-     *
-     * @param modelSelection {Array} An array of models, which should be
-     *   selected.
+     * @param {Array|qx.data.Array|null} modelSelection
      */
     setModelSelection(modelSelection) {
-      // check for null values
       if (!modelSelection) {
         this.__modelSelection.removeAll();
         return;
       }
 
-      if (qx.core.Environment.get("qx.debug")) {
-        this.assertArray(modelSelection, "Please use an array as parameter.");
-      }
+      const list =
+        modelSelection instanceof qx.data.Array
+          ? modelSelection.toArray().slice()
+          : Array.isArray(modelSelection)
+          ? modelSelection.slice()
+          : [modelSelection];
 
-      // add the first two parameter
-      modelSelection.unshift(this.__modelSelection.getLength()); // remove index
-      modelSelection.unshift(0); // start index
-
-      var returnArray = this.__modelSelection.splice.apply(
+      const args = [0, this.__modelSelection.getLength(), ...list];
+      const returnArray = this.__modelSelection.splice.apply(
         this.__modelSelection,
-        modelSelection
+        args
       );
-
-      returnArray.dispose();
+      if (returnArray && typeof returnArray.dispose === "function") {
+        returnArray.dispose();
+      }
     }
   },
 

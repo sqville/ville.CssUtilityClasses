@@ -1,94 +1,24 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     MIT: https://opensource.org/licenses/MIT
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
-     * Sebastian Werner (wpbasti)
-     * Fabian Jakobs (fjakobs)
-     * Christian Hagendorn (chris_schmidt)
-     * Adrian Olaru (adrianolaru)
-
-************************************************************************ */
-
 /**
- * The stack container puts its child widgets on top of each other and only the
- * topmost widget is visible.
+ * The stack container shows only one of its child widgets at a time.
+ * All other children are hidden using `visibility: "excluded"`.
  *
- * This is used e.g. in the tab view widget. Which widget is visible can be
- * controlled by using the {@link #getSelection} method.
- *
- * *Example*
- *
- * Here is a little example of how to use the widget.
- *
- * <pre class='javascript'>
- *   // create stack container
- *   var stack = new qx.ui.container.Stack();
- *
- *   // add some children
- *   stack.add(new qx.ui.core.Widget().set({
- *    backgroundColor: "red"
- *   }));
- *   stack.add(new qx.ui.core.Widget().set({
- *    backgroundColor: "green"
- *   }));
- *   stack.add(new qx.ui.core.Widget().set({
- *    backgroundColor: "blue"
- *   }));
- *
- *   // select green widget
- *   stack.setSelection([stack.getChildren()[1]]);
- *
- *   this.getRoot().add(stack);
- * </pre>
- *
- * This example creates an stack with three children. Only the selected "green"
- * widget is visible.
- *
- * *External Documentation*
- *
- * <a href='http://qooxdoo.org/docs/#desktop/widget/stack.md' target='_blank'>
- * Documentation of this widget in the qooxdoo manual.</a>
+ * Uses `ville.ui.core.Box` + `ville.ui.core.ISingleSelection` (zero legacy `qx.ui.*`).
  */
 qx.Class.define("ville.ui.container.Stack", {
-  extend: qx.ui.core.Widget,
-  implement: [qx.ui.form.IField, qx.ui.core.ISingleSelection],
-
-  include: [qx.ui.core.MSingleSelectionHandling, qx.ui.core.MChildrenHandling],
-
-  /*
-  *****************************************************************************
-     CONSTRUCTOR
-  *****************************************************************************
-  */
+  extend: ville.ui.core.Box,
+  implement: [ville.ui.core.ISingleSelection],
 
   construct() {
     super();
 
-    this._setLayout(new qx.ui.layout.Grow());
-
-    this.addListener("changeSelection", this.__onChangeSelection, this);
+    this._setLayout(new ville.ui.layout.Grow());
+    this.__selected = null;
   },
-
-  /*
-  *****************************************************************************
-     PROPERTIES
-  *****************************************************************************
-  */
 
   properties: {
     /**
-     * Whether the size of the widget depends on the selected child. When
-     * disabled (default) the size is configured to the largest child.
+     * Whether the size of the stack depends on the selected child. When
+     * disabled (default) the stack spans the maximum of all children.
      */
     dynamic: {
       check: "Boolean",
@@ -97,151 +27,128 @@ qx.Class.define("ville.ui.container.Stack", {
     }
   },
 
-  /*
-  *****************************************************************************
-     MEMBERS
-  *****************************************************************************
-  */
+  events: {
+    /** Fires after the selection was modified. Data: `{Array}` of selected widgets. */
+    changeSelection: "qx.event.type.Data"
+  },
 
   members: {
-    // property apply
+    __selected: null,
+
     _applyDynamic(value) {
-      var children = this._getChildren();
-      var selected = this.getSelection()[0];
-      var child;
-
-      for (var i = 0, l = children.length; i < l; i++) {
-        child = children[i];
-
-        if (child != selected) {
-          if (value) {
-            children[i].exclude();
-          } else {
-            children[i].hide();
-          }
+      const children = this._getChildren();
+      const selected = this.__selected;
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (child !== selected) {
+          child.setVisibility(value ? "excluded" : "hidden");
         }
       }
     },
 
-    /*
-    ---------------------------------------------------------------------------
-      HELPER METHODS FOR SELECTION API
-    ---------------------------------------------------------------------------
-    */
-
-    /**
-     * Returns the widget for the selection.
-     * @return {qx.ui.core.Widget[]} Widgets to select.
-     */
-    _getItems() {
-      return this.getChildren();
-    },
-
-    /**
-     * Returns if the selection could be empty or not.
-     *
-     * @return {Boolean} <code>true</code> If selection could be empty,
-     *    <code>false</code> otherwise.
-     */
-    _isAllowEmptySelection() {
-      return true;
-    },
-
-    /**
-     * Returns whether the given item is selectable.
-     *
-     * @param item {qx.ui.core.Widget} The item to be checked
-     * @return {Boolean} Whether the given item is selectable
-     */
-    _isItemSelectable(item) {
-      return true;
-    },
-
-    /**
-     * Event handler for <code>changeSelection</code>.
-     *
-     * Shows the new selected widget and hide the old one.
-     *
-     * @param e {qx.event.type.Data} Data event.
-     */
-    __onChangeSelection(e) {
-      var old = e.getOldData()[0];
-      var value = e.getData()[0];
-
-      if (old) {
-        if (this.isDynamic()) {
-          old.exclude();
-        } else {
-          old.hide();
-        }
-      }
-
-      if (value) {
-        value.show();
-      }
-    },
-
-    //overridden
     _afterAddChild(child) {
-      var selected = this.getSelection()[0];
-
+      const selected = this.__selected;
       if (!selected) {
-        this.setSelection([child]);
-      } else if (selected !== child) {
-        if (this.isDynamic()) {
-          child.exclude();
-        } else {
-          child.hide();
-        }
+        this.__selected = child;
+        child.show();
+        this.fireDataEvent("changeSelection", [child], []);
+      } else if (child !== selected) {
+        child.setVisibility(this.isDynamic() ? "excluded" : "hidden");
       }
     },
 
-    //overridden
     _afterRemoveChild(child) {
-      if (this.getSelection()[0] === child) {
-        var first = this._getChildren()[0];
-
-        if (first) {
-          this.setSelection([first]);
+      if (this.__selected === child) {
+        const children = this._getChildren();
+        const next = children[0] || null;
+        this.__selected = next;
+        if (next) {
+          next.show();
+          this.fireDataEvent("changeSelection", [next], [child]);
         } else {
-          this.resetSelection();
+          this.fireDataEvent("changeSelection", [], [child]);
         }
       }
     },
-
-    /*
-    ---------------------------------------------------------------------------
-      PUBLIC API
-    ---------------------------------------------------------------------------
-    */
 
     /**
      * Go to the previous child in the children list.
      */
     previous() {
-      var selected = this.getSelection()[0];
-      var go = this._indexOf(selected) - 1;
-      var children = this._getChildren();
-
-      if (go < 0) {
-        go = children.length - 1;
-      }
-
-      var prev = children[go];
-      this.setSelection([prev]);
+      const children = this._getChildren();
+      if (children.length === 0) return;
+      const idx = children.indexOf(this.__selected);
+      const prevIdx = idx > 0 ? idx - 1 : children.length - 1;
+      this.setSelection([children[prevIdx]]);
     },
 
     /**
      * Go to the next child in the children list.
      */
     next() {
-      var selected = this.getSelection()[0];
-      var go = this._indexOf(selected) + 1;
-      var children = this._getChildren();
+      const children = this._getChildren();
+      if (children.length === 0) return;
+      const idx = children.indexOf(this.__selected);
+      const nextIdx = idx < children.length - 1 ? idx + 1 : 0;
+      this.setSelection([children[nextIdx]]);
+    },
 
-      var next = children[go] || children[0];
+    // ------------------------------------------------------------------------
+    // ISingleSelection Interface
+    // ------------------------------------------------------------------------
 
-      this.setSelection([next]);
+    getSelection() {
+      return this.__selected ? [this.__selected] : [];
+    },
+
+    setSelection(items) {
+      const item = Array.isArray(items) && items.length > 0 ? items[0] : null;
+      if (!item) {
+        this.resetSelection();
+        return;
+      }
+
+      if (!this.isSelectAble(item)) return;
+      const old = this.__selected;
+      if (old === item) return;
+
+      const hideMode = this.isDynamic() ? "excluded" : "hidden";
+      if (old) {
+        old.setVisibility(hideMode);
+      }
+
+      this.__selected = item;
+      item.show();
+
+      this.fireDataEvent("changeSelection", [item], old ? [old] : []);
+    },
+
+    resetSelection() {
+      const old = this.__selected;
+      if (!old) return;
+      old.setVisibility(this.isDynamic() ? "excluded" : "hidden");
+      this.__selected = null;
+      this.fireDataEvent("changeSelection", [], [old]);
+    },
+
+    isSelected(item) {
+      return this.__selected === item;
+    },
+
+    isSelectionEmpty() {
+      return this.__selected === null;
+    },
+
+    getSelectables(all) {
+      return this._getChildren().slice();
+    },
+
+    isSelectAble(item) {
+      return Boolean(item && this._getChildren().includes(item));
     }
+  },
+
+  destruct() {
+    this.__selected = null;
   }
 });
